@@ -58,13 +58,14 @@
         <a href="{{ route('admin.qbank.items.index') }}" class="sidebar-sub-link {{ $isActive('admin.qbank.*') }}">Bank Soal</a>
         <a href="{{ route('admin.curriculum.frameworks.index') }}" class="sidebar-sub-link {{ $isActive('admin.curriculum.*') }}">Kurikulum (CP/ATP)</a>
         <a href="{{ route('admin.portfolios.index') }}" class="sidebar-sub-link {{ $isActive('admin.portfolios.*') }}">e-Portfolio</a>
+        <a href="{{ route('admin.students.timeline') }}" class="sidebar-sub-link {{ $isActive('admin.students.timeline') }}">Timeline Aktivitas</a>
         <a href="{{ route('admin.accreditation.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.accreditation.*') }}">Akreditasi BAN-S/M</a>
         <a href="{{ route('admin.adiwiyata.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.adiwiyata.*') }}">Adiwiyata</a>
     </div>
 </div>
 
 {{-- ===== PENGAJARAN ===== --}}
-<div class="sidebar-section" x-data="{ open: {{ $openSection(['admin.lesson-plan.*','admin.pkg.*','admin.academic.essay-grading.*','admin.live-class.*','admin.ai.*','admin.canteen.*','admin.religious.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $openSection(['admin.lesson-plan.*','admin.pkg.*','admin.training.*','admin.lesson-study.*','admin.academic.essay-grading.*','admin.live-class.*','admin.ai.*','admin.canteen.*','admin.religious.*']) ? 'true' : 'false' }} }">
     <button @click="open = !open" class="sidebar-section-header">
         <span class="flex items-center gap-2.5">
             <span class="text-sm">🎓</span>
@@ -75,6 +76,8 @@
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.lesson-plan.index') }}" class="sidebar-sub-link {{ $isActive('admin.lesson-plan.*') }}">Lesson Plan / RPP</a>
         <a href="{{ route('admin.pkg.index') }}" class="sidebar-sub-link {{ $isActive('admin.pkg.*') }}">PKG Guru</a>
+        <a href="{{ route('admin.training.index') }}" class="sidebar-sub-link {{ $isActive('admin.training.*') }}">Diklat & Sertifikasi</a>
+        <a href="{{ route('admin.lesson-study.index') }}" class="sidebar-sub-link {{ $isActive('admin.lesson-study.*') }}">Lesson Study</a>
         <a href="{{ route('admin.academic.essay-grading.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.essay-grading.*') }}">AI Penilaian Essay</a>
         <a href="{{ route('admin.live-class.index') }}" class="sidebar-sub-link {{ $isActive('admin.live-class.*') }}">Live Class</a>
         <a href="{{ route('admin.ai.providers.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.*') }}">AI Assistant</a>
@@ -164,14 +167,17 @@
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.hostel.list.index') }}" class="sidebar-sub-link {{ $isActive('admin.hostel.*') }}">Asrama / Hostel</a>
         <a href="{{ route('admin.library.books.index') }}" class="sidebar-sub-link {{ $isActive('admin.library.*') }}">Perpustakaan</a>
-        <a href="{{ route('admin.visitor.logs.index') }}" class="sidebar-sub-link {{ $isActive('admin.visitor.*') || $isActive('admin.visitors.*') }}">Tamu / Visitor</a>
+        <a href="{{ route('admin.visitor.logs.index') }}" class="sidebar-sub-link {{ $isActive('admin.visitor.logs.*') }}">Tamu / Visitor</a>
+        <a href="{{ route('admin.visitor.pre-registration.index') }}" class="sidebar-sub-link {{ $isActive('admin.visitor.pre-registration.*') }}">Pre-Registrasi Tamu</a>
         <a href="{{ route('admin.inventory.assets.index') }}" class="sidebar-sub-link {{ $isActive('admin.inventory.*') }}">Inventaris / Aset</a>
         <a href="{{ route('admin.dapodik.config.index') }}" class="sidebar-sub-link {{ $isActive('admin.dapodik.*') }}">Dapodik</a>
     </div>
 </div>
+</div>
+</div>
 
 {{-- ===== KOMUNIKASI ===== --}}
-<div class="sidebar-section" x-data="{ open: {{ $openSection(['admin.notices.*','admin.chat.*','admin.notifications.*','admin.emergency.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $openSection(['admin.notices.*','admin.chat.*','admin.notifications.*','admin.emergency.*','admin.wa-bot.*','admin.reminders.*']) ? 'true' : 'false' }} }">
     <button @click="open = !open" class="sidebar-section-header">
         <span class="flex items-center gap-2.5">
             <span class="text-sm">📢</span>
@@ -184,6 +190,8 @@
         <a href="{{ route('admin.chat.inbox') }}" class="sidebar-sub-link {{ $isActive('admin.chat.*') }}">Chat</a>
         <a href="{{ route('admin.notifications.index') }}" class="sidebar-sub-link {{ $isActive('admin.notifications.*') }}">Notifikasi</a>
         <a href="{{ route('admin.emergency.index') }}" class="sidebar-sub-link {{ $isActive('admin.emergency.*') }}">Peringatan Darurat</a>
+        <a href="{{ route('admin.wa-bot.commands.index') }}" class="sidebar-sub-link {{ $isActive('admin.wa-bot.*') }}">WhatsApp Bot</a>
+        <a href="{{ route('admin.reminders.index') }}" class="sidebar-sub-link {{ $isActive('admin.reminders.*') }}">Pengingat Otomatis</a>
     </div>
 </div>
 
@@ -209,7 +217,7 @@
 </div>
 
 {{-- ===== ADMINISTRASI ===== --}}
-<div class="sidebar-section" x-data="{ open: {{ $openSection(['admin.blog.*','admin.documents.*','admin.letters.*','admin.surveys.*','admin.notif.*','admin.exports.*','admin.audit.*','admin.signage.*','admin.branding.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $openSection(['admin.blog.*','admin.documents.*','admin.letters.*','admin.surveys.*','admin.notif.*','admin.exports.*','admin.audit.*','admin.signage.*']) ? 'true' : 'false' }} }">
     <button @click="open = !open" class="sidebar-section-header">
         <span class="flex items-center gap-2.5">
             <span class="text-sm">⚙️</span>
@@ -226,6 +234,21 @@
         <a href="{{ route('admin.exports.index') }}" class="sidebar-sub-link {{ $isActive('admin.exports.*') }}">Ekspor Data</a>
         <a href="{{ route('admin.audit.index') }}" class="sidebar-sub-link {{ $isActive('admin.audit.*') }}">Audit Log</a>
         <a href="{{ route('admin.signage.config') }}" class="sidebar-sub-link {{ $isActive('admin.signage.*') }}">Digital Signage</a>
-        <a href="{{ route('admin.branding.show') }}" class="sidebar-sub-link {{ $isActive('admin.branding.*') }}">Branding & Logo</a>
     </div>
+</div>
+
+{{-- ===== TAMPILAN ===== --}}
+<div class="sidebar-section" x-data="{ open: {{ $openSection(['admin.branding.*']) ? 'true' : 'false' }} }">
+    <button @click="open = !open" class="sidebar-section-header">
+        <span class="flex items-center gap-2.5">
+            <span class="text-sm">🎨</span>
+            <span>Tampilan</span>
+        </span>
+        {!! $chevron !!}
+    </button>
+    <div x-show="open" x-collapse class="sidebar-section-body">
+        <a href="{{ route('admin.branding.show') }}" class="sidebar-sub-link {{ $isActive('admin.branding.show') }}">Branding & Logo</a>
+        <a href="{{ route('admin.branding.website.pages') }}" class="sidebar-sub-link {{ $isActive('admin.branding.website.*') }}">Website Builder</a>
+    </div>
+</div>
 </div>

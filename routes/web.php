@@ -27,9 +27,15 @@ use App\Http\Controllers\Web\Admin\Academic\TimetableWebController;
 use App\Http\Controllers\Web\Admin\Branding\BrandingWebController;
 use App\Http\Controllers\Web\Admin\Communication\ChatNotificationController;
 use App\Http\Controllers\Web\Admin\Communication\NoticeWebController;
+use App\Http\Controllers\Web\Admin\Academic\LessonStudyController;
+use App\Http\Controllers\Web\Admin\Academic\TrainingController;
+use App\Http\Controllers\Web\Admin\DashboardTvController;
 use App\Http\Controllers\Web\Admin\DigitalSignageController;
 use App\Http\Controllers\Web\Admin\Facilities\HostelWebController;
+use App\Http\Controllers\Web\Admin\Facilities\RoomBookingController as AdminRoomBookingController;
 use App\Http\Controllers\Web\Admin\Finance\BudgetController;
+use App\Http\Controllers\Web\Admin\Library\DigitalLibraryController;
+use App\Http\Controllers\Web\ReaderController;
 use App\Http\Controllers\Web\Admin\Finance\FeeWebController;
 use App\Http\Controllers\Web\Admin\Finance\FinanceReportController;
 use App\Http\Controllers\Web\Admin\Finance\PayrollWebController;
@@ -64,7 +70,11 @@ use App\Http\Controllers\Web\SuperAdmin\SuperExtrasController;
 use App\Http\Controllers\Web\Admin\Academic\InteractiveRaportController;
 use App\Http\Controllers\Web\Admin\Academic\PortfolioController;
 use App\Http\Controllers\Web\Admin\Communication\ConferenceController;
+use App\Http\Controllers\Web\Admin\Communication\ReminderController;
 use App\Http\Controllers\Web\Admin\Communication\SurveyController;
+use App\Http\Controllers\Web\Admin\Communication\WaBotController;
+use App\Http\Controllers\Web\Admin\Visitor\PreRegistrationController;
+use App\Http\Controllers\Web\VisitorRegistrationController;
 use App\Http\Controllers\Web\Admin\Academic\QrAttendanceController as WebQrAttendanceController;
 use App\Http\Controllers\Web\ForumController as PublicForumController;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +85,15 @@ Route::get('/', fn() => view('welcome'));
 Route::get('/signage/{school_id}', [\App\Http\Controllers\Web\Admin\DigitalSignageController::class, 'display'])
     ->where('school_id', '[0-9]+')
     ->name('signage.display');
+
+// Public Dashboard TV (no auth)
+Route::get('/signage/{school_id}/tv', [\App\Http\Controllers\Web\Admin\DashboardTvController::class, 'display'])
+    ->where('school_id', '[0-9]+')
+    ->name('signage.dashboard-tv');
+
+// Public e-Library Reader
+Route::get('/baca/{token}', [ReaderController::class, 'view'])->name('reader.view');
+Route::get('/baca/{token}/file', [ReaderController::class, 'serve'])->name('reader.serve');
 
 require base_path('routes/pair-routes.php');
 
@@ -206,6 +225,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/students/{student}/edit',           [StudentWebController::class, 'edit'])->name('students.edit');
         Route::put('/students/{student}',                [StudentWebController::class, 'update'])->name('students.update');
         Route::delete('/students/{student}',             [StudentWebController::class, 'destroy'])->name('students.destroy');
+        Route::get('/students/timeline',                [StudentWebController::class, 'timeline'])->name('students.timeline');
 
         // Timetable
         Route::get('/timetable',                         [TimetableWebController::class, 'index'])->name('timetable.index');
@@ -258,6 +278,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/library/issues',                    [LibraryWebController::class, 'issues'])->name('library.issues.index');
         Route::post('/library/issues',                   [LibraryWebController::class, 'issueBook'])->name('library.issues.store');
         Route::post('/library/issues/{issue}/return',    [LibraryWebController::class, 'returnBook'])->name('library.issues.return');
+
+        // Digital Library
+        Route::get('/library/digital',               [DigitalLibraryController::class, 'upload'])->name('library.digital.upload');
+        Route::post('/library/digital',              [DigitalLibraryController::class, 'storeDigital'])->name('library.digital.store');
+        Route::delete('/library/digital/{book}',     [DigitalLibraryController::class, 'deleteDigital'])->name('library.digital.delete');
+        Route::post('/library/digital/issue',        [DigitalLibraryController::class, 'issueDigital'])->name('library.digital.issue');
+        Route::post('/library/digital/revoke',       [DigitalLibraryController::class, 'revokeAccess'])->name('library.digital.revoke');
+        Route::get('/library/digital/stats',          [DigitalLibraryController::class, 'stats'])->name('library.digital.stats');
 
         // ============== PHASE 8 SUB-CRUD ==============
         Route::get('/ppdb/periods',                      [Phase8CrudController::class, 'ppdbPeriods'])->name('ppdb.periods.index');
@@ -313,6 +341,39 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/pkg/{assessment}/verify',          [PkgController::class, 'verify'])->name('pkg.verify');
         Route::delete('/pkg/{assessment}',               [PkgController::class, 'destroy'])->name('pkg.destroy');
         Route::get('/pkg/{assessment}/pdf',              [PkgController::class, 'exportPdf'])->name('pkg.export-pdf');
+
+        // Diklat & Sertifikasi Guru
+        Route::get('/training',                              [TrainingController::class, 'index'])->name('training.index');
+        Route::get('/training/create',                       [TrainingController::class, 'create'])->name('training.create');
+        Route::post('/training',                             [TrainingController::class, 'store'])->name('training.store');
+        Route::get('/training/{training}/edit',              [TrainingController::class, 'edit'])->name('training.edit');
+        Route::put('/training/{training}',                   [TrainingController::class, 'update'])->name('training.update');
+        Route::delete('/training/{training}',                [TrainingController::class, 'destroy'])->name('training.destroy');
+        Route::get('/training/{training}/participants',      [TrainingController::class, 'participants'])->name('training.participants');
+        Route::post('/training/{training}/register',         [TrainingController::class, 'registerParticipant'])->name('training.register-participant');
+        Route::post('/training/{training}/participants/{participant}/update', [TrainingController::class, 'updateParticipantStatus'])->name('training.update-participant');
+        Route::delete('/training/{training}/participants/{participant}', [TrainingController::class, 'removeParticipant'])->name('training.remove-participant');
+        Route::post('/training/{training}/participants/{participant}/issue-cert', [TrainingController::class, 'issueCertificate'])->name('training.issue-certificate');
+        Route::get('/training/{training}/participants/{participant}/cert-pdf', [TrainingController::class, 'certificatePdf'])->name('training.certificate-pdf');
+        Route::get('/training/certifications',               [TrainingController::class, 'certifications'])->name('training.certifications');
+        Route::post('/training/certifications',              [TrainingController::class, 'storeCertification'])->name('training.store-certification');
+        Route::put('/training/certifications/{certification}', [TrainingController::class, 'updateCertification'])->name('training.update-certification');
+        Route::delete('/training/certifications/{certification}', [TrainingController::class, 'deleteCertification'])->name('training.delete-certification');
+
+        // Lesson Study
+        Route::get('/lesson-study',                          [LessonStudyController::class, 'index'])->name('lesson-study.index');
+        Route::get('/lesson-study/create',                   [LessonStudyController::class, 'create'])->name('lesson-study.create');
+        Route::post('/lesson-study',                         [LessonStudyController::class, 'store'])->name('lesson-study.store');
+        Route::get('/lesson-study/{lessonStudy}',            [LessonStudyController::class, 'show'])->name('lesson-study.show');
+        Route::get('/lesson-study/{lessonStudy}/edit',       [LessonStudyController::class, 'edit'])->name('lesson-study.edit');
+        Route::put('/lesson-study/{lessonStudy}',            [LessonStudyController::class, 'update'])->name('lesson-study.update');
+        Route::delete('/lesson-study/{lessonStudy}',         [LessonStudyController::class, 'destroy'])->name('lesson-study.destroy');
+        Route::post('/lesson-study/{lessonStudy}/advance',   [LessonStudyController::class, 'advancePhase'])->name('lesson-study.advance-phase');
+        Route::get('/lesson-study/{lessonStudy}/observe',    [LessonStudyController::class, 'observe'])->name('lesson-study.observe');
+        Route::post('/lesson-study/{lessonStudy}/observe',   [LessonStudyController::class, 'storeObservation'])->name('lesson-study.store-observation');
+        Route::get('/lesson-study/{lessonStudy}/reflect',    [LessonStudyController::class, 'reflect'])->name('lesson-study.reflect');
+        Route::post('/lesson-study/{lessonStudy}/reflect',   [LessonStudyController::class, 'storeReflection'])->name('lesson-study.store-reflection');
+        Route::get('/lesson-study/{lessonStudy}/report-pdf', [LessonStudyController::class, 'reportPdf'])->name('lesson-study.report-pdf');
 
         // Enhanced Assignments (Online Classroom)
         Route::get('/classroom/assignments',                  [AssignmentController::class, 'index'])->name('assignments.index');
@@ -407,6 +468,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/visitor/blacklist',                 [Phase11CrudController::class, 'storeVisitorBlacklist'])->name('visitor.blacklist.store');
         Route::delete('/visitor/blacklist/{entry}',       [Phase11CrudController::class, 'deleteVisitorBlacklist'])->name('visitor.blacklist.destroy');
 
+        // Pre-Registration Visitor
+        Route::get('/visitor/pre-registration',           [PreRegistrationController::class, 'index'])->name('visitor.pre-registration.index');
+        Route::post('/visitor/pre-registration/checkin/{visitor}', [PreRegistrationController::class, 'checkIn'])->name('visitor.pre-registration.checkin');
+        Route::post('/visitor/pre-registration/checkout/{visitor}', [PreRegistrationController::class, 'checkOut'])->name('visitor.pre-registration.checkout');
+        Route::post('/visitor/pre-registration/cancel/{visitor}', [PreRegistrationController::class, 'cancel'])->name('visitor.pre-registration.cancel');
+        Route::get('/visitor/pre-registration/export',    [PreRegistrationController::class, 'export'])->name('visitor.pre-registration.export');
+
         Route::get('/inventory/categories',              [Phase11CrudController::class, 'assetCategories'])->name('inventory.categories.index');
         Route::post('/inventory/categories',             [Phase11CrudController::class, 'storeAssetCategory'])->name('inventory.categories.store');
         Route::delete('/inventory/categories/{category}', [Phase11CrudController::class, 'deleteAssetCategory'])->name('inventory.categories.destroy');
@@ -453,6 +521,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/hostel/rooms/{room}',             [HostelWebController::class, 'deleteRoom'])->name('hostel.rooms.destroy');
         Route::get('/hostel-allocations',                [HostelWebController::class, 'allocations'])->name('hostel.allocations.index');
         Route::post('/hostel-allocations',               [HostelWebController::class, 'storeAllocation'])->name('hostel.allocations.store');
+
+        // ============== ROOM BOOKING ==============
+        Route::prefix('facilities/rooms')->name('facilities.rooms.')->group(function () {
+            Route::get('/',                              [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'index'])->name('index');
+            Route::post('/',                             [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'storeRoom'])->name('store');
+            Route::put('/{room}/update',                 [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'updateRoom'])->name('update');
+            Route::delete('/{room}',                     [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'deleteRoom'])->name('destroy');
+            Route::post('/{room}/upload-photo',          [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'uploadRoomPhoto'])->name('upload-photo');
+            Route::get('/calendar',                      [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'calendar'])->name('calendar');
+            Route::get('/calendar/feed',                 [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'calendarFeed'])->name('calendar.feed');
+            Route::post('/booking',                      [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'storeBooking'])->name('booking.store');
+            Route::post('/booking/{bookingId}/approve',  [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'approve'])->name('approve');
+            Route::post('/booking/{bookingId}/reject',   [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'reject'])->name('reject');
+            Route::post('/booking/{bookingId}/cancel',   [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'cancel'])->name('cancel');
+            Route::get('/approvals',                     [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'approvals'])->name('approvals');
+            Route::get('/{room}/rules',                  [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'rules'])->name('rules');
+            Route::post('/{room}/rules',                 [\App\Http\Controllers\Web\Admin\Facilities\RoomBookingController::class, 'saveRules'])->name('rules.save');
+        });
 
         // ============== CHAT & NOTIFICATIONS ==============
         Route::get('/chat',                              [ChatNotificationController::class, 'inbox'])->name('chat.inbox');
@@ -524,6 +610,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/notif/providers/{provider}/test',    [\App\Http\Controllers\Web\Admin\Communication\NotificationProviderController::class, 'test'])->name('notif.providers.test');
         Route::get('/notif/providers/preset/{name}',       [\App\Http\Controllers\Web\Admin\Communication\NotificationProviderController::class, 'preset'])->name('notif.providers.preset');
         Route::delete('/notif/providers/{provider}',    [\App\Http\Controllers\Web\Admin\Communication\NotificationProviderController::class, 'destroy'])->name('notif.providers.destroy');
+
+        // WhatsApp Bot
+        Route::get('/wa-bot/commands',                  [WaBotController::class, 'commands'])->name('wa-bot.commands.index');
+        Route::post('/wa-bot/commands',                 [WaBotController::class, 'store'])->name('wa-bot.commands.store');
+        Route::put('/wa-bot/commands/{command}',        [WaBotController::class, 'update'])->name('wa-bot.commands.update');
+        Route::post('/wa-bot/commands/{command}/toggle',[WaBotController::class, 'toggle'])->name('wa-bot.commands.toggle');
+        Route::delete('/wa-bot/commands/{command}',     [WaBotController::class, 'destroy'])->name('wa-bot.commands.destroy');
+        Route::get('/wa-bot/conversations',             [WaBotController::class, 'conversations'])->name('wa-bot.conversations.index');
+        Route::post('/wa-bot/test',                     [WaBotController::class, 'test'])->name('wa-bot.test');
+
+        // SPP Reminder Scheduler
+        Route::get('/reminders',                         [ReminderController::class, 'index'])->name('reminders.index');
+        Route::post('/reminders',                        [ReminderController::class, 'store'])->name('reminders.store');
+        Route::put('/reminders/{schedule}',              [ReminderController::class, 'update'])->name('reminders.update');
+        Route::post('/reminders/{schedule}/toggle',      [ReminderController::class, 'toggle'])->name('reminders.toggle');
+        Route::delete('/reminders/{schedule}',            [ReminderController::class, 'destroy'])->name('reminders.destroy');
+        Route::get('/reminders/logs',                    [ReminderController::class, 'logs'])->name('reminders.logs.index');
+        Route::post('/reminders/{schedule}/test',        [ReminderController::class, 'testSend'])->name('reminders.test');
 
         // ============== ONLINE CLASSROOM ==============
         Route::get('/classroom/lessons',                 [ClassroomExtrasController::class, 'lessons'])->name('classroom.lessons.index');
@@ -865,9 +969,38 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/branding/logo/{type}',           [BrandingWebController::class, 'removeLogo'])->name('branding.remove-logo');
         Route::post('/branding/reset',                   [BrandingWebController::class, 'reset'])->name('branding.reset');
 
+        // ============== WEBSITE BUILDER ==============
+        Route::prefix('branding/website')->name('branding.website.')->group(function () {
+            Route::get('/pages',                         [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'pages'])->name('pages');
+            Route::post('/pages',                        [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'storePage'])->name('page.store');
+            Route::put('/pages/{page}',                  [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'updatePage'])->name('page.update');
+            Route::delete('/pages/{page}',               [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'deletePage'])->name('page.destroy');
+            Route::get('/pages/{page}/builder',          [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'builder'])->name('builder');
+            Route::post('/pages/{page}/sections',        [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'storeSection'])->name('section.store');
+            Route::put('/section/{section}/update',      [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'updateSection'])->name('section.update');
+            Route::delete('/section/{section}',          [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'deleteSection'])->name('section.destroy');
+            Route::post('/pages/{page}/sections/reorder',[\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'reorderSections'])->name('sections.reorder');
+            Route::post('/section/{section}/upload-image',[\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'uploadSectionImage'])->name('section.upload-image');
+            Route::get('/gallery',                       [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'gallery'])->name('gallery');
+            Route::post('/gallery',                      [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'storeGallery'])->name('gallery.store');
+            Route::put('/gallery/{gallery}/update',      [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'updateGallery'])->name('gallery.update');
+            Route::delete('/gallery/{gallery}',          [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'deleteGallery'])->name('gallery.destroy');
+            Route::get('/testimonials',                  [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'testimonials'])->name('testimonials');
+            Route::post('/testimonials',                 [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'storeTestimonial'])->name('testimonials.store');
+            Route::put('/testimonials/{testimonial}/update',[\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'updateTestimonial'])->name('testimonials.update');
+            Route::delete('/testimonials/{testimonial}', [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'deleteTestimonial'])->name('testimonials.destroy');
+            Route::get('/contacts',                      [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'contacts'])->name('contacts');
+            Route::post('/contacts/{contact}/read',      [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'markContactRead'])->name('contacts.read');
+            Route::delete('/contacts/{contact}',         [\App\Http\Controllers\Web\Admin\Branding\WebsiteBuilderController::class, 'deleteContact'])->name('contacts.destroy');
+        });
+
         // ============== DIGITAL SIGNAGE ==============
         Route::get('/signage/config',                    [DigitalSignageController::class, 'config'])->name('signage.config');
         Route::post('/signage/config',                   [DigitalSignageController::class, 'saveConfig'])->name('signage.config.save');
+
+        // Dashboard TV
+        Route::get('/dashboard-tv/config',               [DashboardTvController::class, 'config'])->name('dashboard-tv.config');
+        Route::post('/dashboard-tv/config',              [DashboardTvController::class, 'saveConfig'])->name('dashboard-tv.config.save');
 
         // ============== AKREDITASI ==============
         Route::get('/accreditation',                    [AccreditationController::class, 'dashboard'])->name('accreditation.dashboard');
@@ -921,6 +1054,7 @@ Route::prefix('portal')->name('portal.')->middleware(['auth'])->group(function (
     Route::get('/anak/{student}/disiplin',               [\App\Http\Controllers\Web\Parent\ParentPortalController::class, 'childDiscipline'])->name('child.discipline');
     Route::get('/anak/{student}/prestasi',               [\App\Http\Controllers\Web\Parent\ParentPortalController::class, 'childAchievements'])->name('child.achievements');
     Route::get('/anak/{student}/konseling',              [\App\Http\Controllers\Web\Parent\ParentPortalController::class, 'childCounseling'])->name('child.counseling');
+    Route::get('/anak/{student}/aktivitas',              [\App\Http\Controllers\Web\Parent\ParentPortalController::class, 'childActivity'])->name('child.activity');
 
     Route::get('/anak/{student}/raport-interaktif',  [InteractiveRaportController::class, 'parentView'])->name('child.raport-interaktif');
 
@@ -975,6 +1109,9 @@ Route::prefix('siswa')->name('student.')->middleware(['auth', 'role:student'])->
     Route::get('/tugas/{assignment}/kerjakan', [AssignmentController::class, 'doAssignment'])->name('assignments.do');
     Route::post('/tugas/{assignment}/kumpulkan', [AssignmentController::class, 'submitAssignment'])->name('assignments.submit');
     Route::get('/leaderboard', [\App\Http\Controllers\Web\Student\StudentPortalController::class, 'leaderboard'])->name('leaderboard');
+    Route::get('/aktivitas',  [\App\Http\Controllers\Web\Student\StudentPortalController::class, 'activity'])->name('activity');
+
+    Route::get('/perpustakaan-digital', [\App\Http\Controllers\Web\Student\StudentPortalController::class, 'digitalLibrary'])->name('digital-library');
 
     // Student Surveys
     Route::get('/survei',                              [SurveyController::class, 'studentFill'])->name('surveys');
@@ -1007,6 +1144,11 @@ Route::prefix('siswa')->name('student.')->middleware(['auth', 'role:student'])->
 Route::prefix('guru')->name('teacher.')->middleware(['auth', 'role:teacher|admin'])->group(function () {
     Route::get('/',                            [\App\Http\Controllers\Web\Teacher\TeacherDashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/rombel/{classSection}',       [\App\Http\Controllers\Web\Teacher\TeacherDashboardController::class, 'myClass'])->name('my-class');
+
+    Route::get('/room-booking',                [\App\Http\Controllers\Web\Teacher\RoomBookingController::class, 'index'])->name('room-booking');
+    Route::get('/room-booking/feed',           [\App\Http\Controllers\Web\Teacher\RoomBookingController::class, 'calendarFeed'])->name('room-booking.calendar.feed');
+    Route::post('/room-booking',               [\App\Http\Controllers\Web\Teacher\RoomBookingController::class, 'store'])->name('room-booking.store');
+    Route::post('/room-booking/{bookingId}/cancel', [\App\Http\Controllers\Web\Teacher\RoomBookingController::class, 'cancel'])->name('room-booking.cancel');
 });
 
 // ============================================================
@@ -1023,6 +1165,12 @@ Route::get('/docs-shared/{token}', [\App\Http\Controllers\Web\Admin\Communicatio
 Route::get('/docs',                                            [DocsController::class, 'index'])->name('docs.index');
 Route::get('/docs/{role}',                                     [DocsController::class, 'show'])
     ->where('role', 'admin|parent|student|teacher|super-admin|developer');
+
+// ============================================================
+// Public Visitor Pre-Registration
+// ============================================================
+Route::get('/kunjungan',                                       [VisitorRegistrationController::class, 'showForm'])->name('visitor.register');
+Route::post('/kunjungan',                                      [VisitorRegistrationController::class, 'submit'])->name('visitor.register.submit');
 
 // ============================================================
 // Public Signage — Leaderboard display for school monitors
@@ -1062,6 +1210,16 @@ Route::get('/blog', [\App\Http\Controllers\Web\BlogController::class, 'index'])-
 Route::get('/blog/feed.xml', [\App\Http\Controllers\Web\BlogController::class, 'feed'])->name('blog.feed');
 Route::get('/blog/category/{slug}', [\App\Http\Controllers\Web\BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/{slug}', [\App\Http\Controllers\Web\BlogController::class, 'show'])->name('blog.show');
+
+// ============================================================
+// School Website Builder — Public Frontend
+// ============================================================
+Route::prefix('s/{subdomain}')->group(function () {
+    Route::get('/',                                    [\App\Http\Controllers\Web\SchoolWebsiteController::class, 'homepage'])->name('school-website.home');
+    Route::get('/kontak',                              fn() => ''); // handled via widget
+    Route::post('/kontak',                             [\App\Http\Controllers\Web\SchoolWebsiteController::class, 'postContact'])->name('school-website.contact');
+    Route::get('/{slug}',                              [\App\Http\Controllers\Web\SchoolWebsiteController::class, 'customPage'])->name('school-website.page');
+});
 
 // ============================================================
 // Public Alumni Tracer Study Form

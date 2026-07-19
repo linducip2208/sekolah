@@ -48,6 +48,8 @@ use App\Http\Controllers\Api\DailyReport\DailyReportController;
 use App\Http\Controllers\Api\Extracurricular\ExtracurricularController;
 use App\Http\Controllers\Api\Dapodik\DapodikController;
 use App\Http\Controllers\Api\Visitor\VisitorController;
+use App\Http\Controllers\Api\VisitorScanController;
+use App\Http\Controllers\Api\WaBotWebhookController;
 use App\Http\Controllers\Api\Inventory\InventoryController;
 use App\Http\Controllers\Api\CalendarController as ApiCalendarController;
 use App\Http\Controllers\Api\Foundation\FoundationController;
@@ -107,6 +109,12 @@ Route::prefix('v1')->middleware(['api'])->group(function () {
     // Device-token-authenticated endpoints (vehicle GPS, gate scanners)
     Route::post('/devices/gps-ping',  [VehicleTrackingController::class, 'ping']);
     Route::post('/devices/gate-scan', [IdGateController::class, 'scan']);
+
+    // WhatsApp Bot webhook (public, from ChatGo / WhatsApp gateway)
+    Route::post('/webhook/wa-bot',    [WaBotWebhookController::class, '__invoke']);
+
+    // Visitor QR scan at gate (can be from authenticated device)
+    Route::post('/visitor/scan',      [VisitorScanController::class, 'scan']);
 });
 
 // Authenticated — no school check (works for all users including super_admin)
@@ -244,6 +252,10 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access'])->group(functi
     Route::post('/library/return/{issueId}',                [LibraryController::class, 'returnBook']);
     Route::get('/library/issues',                           [LibraryController::class, 'issues']);
     Route::post('/library/mark-overdue',                    [LibraryController::class, 'markOverdue']);
+
+    // e-Library Digital — Reading Progress
+    Route::post('/reading/progress',                         [\App\Http\Controllers\Api\ReadingProgressController::class, 'saveProgress']);
+    Route::get('/reading/progress',                          [\App\Http\Controllers\Api\ReadingProgressController::class, 'getProgress']);
 
     // Module 15 — Hostel
     Route::get('/hostel',                                   [HostelController::class, 'index']);

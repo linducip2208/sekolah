@@ -12,6 +12,7 @@ use App\Models\Discipline\DisciplineRecord;
 use App\Models\Finance\FeeInvoice;
 use App\Models\Medical\ClinicVisit;
 use App\Models\Medical\Vaccination;
+use App\Services\ActivityTimelineService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -117,8 +118,18 @@ class ParentPortalController extends Controller
     {
         $this->authorizeChild($student);
         $sessions = CounselingSession::where('student_id', $student->id)
-            ->with('counselor:id,name')->orderByDesc('scheduled_at')->paginate(20);
+            ->orderByDesc('scheduled_at')->paginate(20);
         return view('parent-portal.child-counseling', compact('student', 'sessions'));
+    }
+
+    public function childActivity(Student $student): View
+    {
+        $this->authorizeChild($student);
+        $service = app(ActivityTimelineService::class);
+        $activities = $service->getTimeline($student->id, request()->all());
+        $grouped = $service->groupByDate($student->id);
+
+        return view('parent-portal.child-activity', compact('student', 'activities', 'grouped', 'service'));
     }
 
     private function authorizeChild(Student $student): void

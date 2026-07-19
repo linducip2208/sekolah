@@ -31,3 +31,9 @@ Schedule::command('benchmark:compute')->monthlyOn(1, '05:00')->withoutOverlappin
 
 // Tracer Study — send invitation to alumni 1 & 3 years after graduation
 Schedule::command('tracer:send-invitations')->monthlyOn(1, '10:00');
+
+// WhatsApp Bot — expire old sessions daily
+Schedule::command('wa-bot:expire-sessions')->dailyAt('03:00');
+
+// SPP Reminder Scheduler — send reminders daily at 07:00
+Schedule::command('reminders:send')->dailyAt('07:00');

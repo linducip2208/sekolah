@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             PlanSeeder::class,
             RolePermissionSeeder::class,
             AccreditationInstrumentSeeder::class,
+            CommunicationSeeder::class,
         ]);
 
         $superAdmin = User::updateOrCreate(

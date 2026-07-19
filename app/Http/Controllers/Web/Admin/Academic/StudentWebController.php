@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Academic\ClassSection;
 use App\Models\Academic\Student;
 use App\Models\User;
+use App\Services\ActivityTimelineService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -163,5 +164,14 @@ class StudentWebController extends Controller
     private function authorizeOwn(Student $student): void
     {
         abort_unless($student->school_id === $this->schoolId(), 403);
+    }
+
+    public function timeline(Request $request): View
+    {
+        $schoolId = $this->schoolId();
+        $students = Student::where('school_id', $schoolId)
+            ->with('user:id,name')->orderBy('id')->get();
+
+        return view('school-admin.students.timeline', compact('students'));
     }
 }

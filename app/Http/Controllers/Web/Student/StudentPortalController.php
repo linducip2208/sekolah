@@ -9,7 +9,9 @@ use App\Models\Academic\Lesson;
 use App\Models\Academic\Mark;
 use App\Models\Academic\Student;
 use App\Models\Academic\TimetableSlot;
+use App\Models\Facilities\DigitalBookIssue;
 use App\Services\LeaderboardService;
+use App\Services\ActivityTimelineService;
 use App\Models\Finance\FeeInvoice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -122,5 +124,30 @@ class StudentPortalController extends Controller
     public function qrAttendance(): View
     {
         return view('student-portal.qr-attendance');
+    }
+
+    public function digitalLibrary(): View
+    {
+        $student = $this->student();
+
+        $digitalIssues = DigitalBookIssue::where('student_id', $student->user_id)
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('access_expires_at')->orWhere('access_expires_at', '>', now());
+            })
+            ->with(['book', 'readingProgress'])
+            ->orderByDesc('issued_at')
+            ->get();
+
+        return view('student-portal.digital-library', compact('student', 'digitalIssues'));
+    }
+
+    public function activity(): View
+    {
+        $student = $this->student();
+        $service = app(ActivityTimelineService::class);
+        $activities = $service->getTimeline($student->id, request()->all());
+
+        return view('student-portal.activity', compact('student', 'activities', 'service'));
     }
 }
