@@ -1,0 +1,32 @@
+{
+  "name": "eSchool SaaS",
+  "short_name": "eSchool",
+  "description": "Sistem Manajemen Sekolah Modern — multi-tenant ERP untuk semua peran: admin, guru, siswa, orang tua, alumni.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fafaf6",
+  "theme_color": "#0b1d3a",
+  "lang": "id",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%230b1d3a'/%3E%3Cpath d='M96 32 32 64l64 32 64-32-64-32zm0 56L32 120l64 32 64-32-64-32z' fill='%23b8860b'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%230b1d3a'/%3E%3Cpath d='M256 85 85 171l171 85 171-85-171-86zm0 149L85 320l171 85 171-85-171-86z' fill='%23b8860b'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Dashboard Admin", "url": "/admin/dashboard", "description": "Panel admin sekolah" },
+    { "name": "Portal Wali", "url": "/portal/", "description": "Portal orang tua siswa" },
+    { "name": "Portal Siswa", "url": "/siswa", "description": "Portal siswa" }
+  ],
+  "categories": ["education", "productivity"]
+}

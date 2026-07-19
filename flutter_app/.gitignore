@@ -1,0 +1,36 @@
+.DS_Store
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+.idea/
+.vscode/
+*.iml
+
+# Generated
+**/generated_plugin_registrant.dart
+lib/firebase_options.dart
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+ios/firebase_app_id_file.json
+
+# Secrets
+.env
+.env.*
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+
+# Coverage
+coverage/
+
+# Symbols
+*.lock
+ios/Flutter/flutter_export_environment.sh
+ios/Pods/
+ios/Runner.xcworkspace/xcuserdata/
+android/.gradle/
+android/local.properties

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-Service *)",
+      "PowerShell(Test-NetConnection *)",
+      "Bash(php artisan *)",
+      "Bash(rm -rf storage/framework/cache/data/*)",
+      "Bash(rm -rf storage/framework/views/*)",
+      "Bash(curl -s -o /dev/null -w \"Super dashboard: HTTP %{http_code} time=%{time_total}s\\\\n\" -b /tmp/super.txt http://eschool.test/super/dashboard)",
+      "Skill(license-v3)"
+    ]
+  }
+}

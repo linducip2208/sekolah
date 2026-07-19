@@ -1,0 +1,445 @@
+openapi: 3.1.0
+info:
+  title: eSchool SaaS API
+  version: 1.0.0
+  description: |
+    Multi-tenant School Management ERP REST API.
+
+    **Authentication:** Laravel Sanctum bearer tokens.
+    **Multi-tenant:** semua endpoint authenticated otomatis di-scope ke `school_id` user.
+    **No hardcoded providers:** payment, AI, dan video conference adapters semua dynamic
+    via DB config (lihat `/admin/payment-providers`, `/admin/ai/providers`, `/live-class/providers`).
+
+servers:
+  - url: https://{subdomain}.eschool.app/api/v1
+    description: Production
+    variables:
+      subdomain:
+        default: demo
+  - url: http://localhost:8000/api/v1
+    description: Local
+
+security:
+  - sanctum: []
+
+components:
+  securitySchemes:
+    sanctum:
+      type: http
+      scheme: bearer
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        message: { type: string }
+        errors: { type: object }
+
+    PaymentMethod:
+      type: object
+      properties:
+        id: { type: integer }
+        code: { type: string }
+        display_name: { type: string }
+        logo_url: { type: string, nullable: true }
+        fee_flat: { type: integer, description: "in cents" }
+        fee_percent_bp: { type: integer, description: "basis points (100 = 1%)" }
+        fee_borne_by: { type: integer, enum: [0, 1] }
+        api_format: { type: string }
+
+    PaymentTransaction:
+      type: object
+      properties:
+        id: { type: integer }
+        reference_no: { type: string }
+        external_id: { type: string, nullable: true }
+        status: { type: string, enum: [pending, awaiting_payment, paid, expired, failed, cancelled, refunded, disputed] }
+        amount: { type: integer }
+        fee_amount: { type: integer }
+        net_amount: { type: integer }
+        currency: { type: string, default: IDR }
+        redirect_url: { type: string, nullable: true }
+        va_number: { type: string, nullable: true }
+        va_bank_code: { type: string, nullable: true }
+        qr_string: { type: string, nullable: true }
+        deeplink_url: { type: string, nullable: true }
+        expired_at: { type: string, format: date-time, nullable: true }
+        paid_at: { type: string, format: date-time, nullable: true }
+
+    PpdbApplication:
+      type: object
+      properties:
+        id: { type: integer }
+        registration_no: { type: string }
+        jalur: { type: string, enum: [zonasi, prestasi, afirmasi, undian, reguler] }
+        student_name: { type: string }
+        nisn: { type: string, nullable: true }
+        date_of_birth: { type: string, format: date }
+        gender: { type: string, enum: [male, female] }
+        status: { type: string }
+        ranking_score: { type: number, nullable: true }
+        rank_position: { type: integer, nullable: true }
+
+paths:
+  # ===== AUTH =====
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        '200': { description: OK }
+
+  # ===== PAYMENT GATEWAY (Module 11b) =====
+  /payments/methods:
+    get:
+      tags: [Payments]
+      summary: List active payment methods for school
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/PaymentMethod' }
+
+  /payments/initiate:
+    post:
+      tags: [Payments]
+      summary: Initiate payment transaction
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [invoice_id, payment_method_id]
+              properties:
+                invoice_id: { type: integer }
+                payment_method_id: { type: integer }
+                idempotency_key: { type: string }
+      responses:
+        '201': { content: { application/json: { schema: { $ref: '#/components/schemas/PaymentTransaction' } } } }
+
+  /payments/{referenceNo}:
+    get:
+      tags: [Payments]
+      parameters:
+        - { in: path, name: referenceNo, required: true, schema: { type: string } }
+      responses:
+        '200': { content: { application/json: { schema: { $ref: '#/components/schemas/PaymentTransaction' } } } }
+
+  /payments/webhook/{providerSlug}:
+    post:
+      tags: [Payments]
+      summary: Public webhook (signature verified per-provider config)
+      security: []
+      parameters:
+        - { in: path, name: providerSlug, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+        '401': { description: Invalid signature }
+
+  # ===== BRANDING (Module 03b) =====
+  /branding/{subdomain}:
+    get:
+      tags: [Branding]
+      summary: Public branding lookup
+      security: []
+      parameters:
+        - { in: path, name: subdomain, required: true, schema: { type: string } }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      display_name: { type: string, nullable: true }
+                      colors:
+                        type: object
+                        properties:
+                          primary: { type: string }
+                          secondary: { type: string }
+                          success: { type: string }
+                          warning: { type: string }
+                          danger: { type: string }
+                      logos:
+                        type: object
+                      cache_version: { type: integer }
+
+  /admin/branding:
+    put:
+      tags: [Branding]
+      summary: Update branding (admin)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                display_name: { type: string }
+                color_primary: { type: string, pattern: '^#[0-9A-Fa-f]{6,8}$' }
+                color_secondary: { type: string }
+      responses:
+        '200': { description: OK }
+
+  # ===== PPDB (Module 22) =====
+  /public/ppdb/{subdomain}/periods:
+    get:
+      tags: [PPDB]
+      security: []
+      parameters:
+        - { in: path, name: subdomain, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+
+  /public/ppdb/{subdomain}/register:
+    post:
+      tags: [PPDB]
+      security: []
+      parameters:
+        - { in: path, name: subdomain, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ppdb_period_id, jalur, student_name, date_of_birth, gender, address, district, city, parent_name, parent_phone, parent_email]
+              properties:
+                ppdb_period_id: { type: integer }
+                jalur: { type: string }
+                student_name: { type: string }
+                nisn: { type: string }
+                date_of_birth: { type: string, format: date }
+                gender: { type: string, enum: [male, female] }
+                address: { type: string }
+                district: { type: string }
+                city: { type: string }
+                parent_name: { type: string }
+                parent_phone: { type: string }
+                parent_email: { type: string, format: email }
+      responses:
+        '201': { content: { application/json: { schema: { $ref: '#/components/schemas/PpdbApplication' } } } }
+
+  /admin/ppdb/{periodId}/run-selection:
+    post:
+      tags: [PPDB]
+      summary: Run automatic ranking & selection per jalur quota
+      parameters:
+        - { in: path, name: periodId, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: 'OK { accepted_total: int }' }
+
+  # ===== TRANSPORT + GATE (Module 23) =====
+  /devices/gps-ping:
+    post:
+      tags: [Transport]
+      summary: GPS device pushes location
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [school_id, vehicle_id, lat, lng]
+              properties:
+                school_id: { type: integer }
+                vehicle_id: { type: integer }
+                lat: { type: number, format: double }
+                lng: { type: number, format: double }
+                speed_kmh: { type: number }
+                heading_deg: { type: number }
+      responses:
+        '200': { description: OK }
+
+  /devices/gate-scan:
+    post:
+      tags: [Transport]
+      summary: Gate device scans student card/QR
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [device_token, card, direction]
+              properties:
+                device_token: { type: string }
+                card: { type: string, description: "card_uid or qr_token" }
+                direction: { type: string, enum: [in, out] }
+      responses:
+        '201': { description: OK }
+
+  /parent/children/{studentId}/bus-location:
+    get:
+      tags: [Transport]
+      parameters:
+        - { in: path, name: studentId, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: 'Latest location of bus carrying child' }
+
+  # ===== UKS / Medical (Module 24) =====
+  /medical/visits:
+    post:
+      tags: [Medical]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [student_id, symptoms]
+              properties:
+                student_id: { type: integer }
+                symptoms: { type: string }
+                diagnosis: { type: string }
+                sent_home: { type: boolean }
+      responses:
+        '201': { description: OK }
+
+  # ===== AI (Module 31) — Dynamic provider =====
+  /admin/ai/providers:
+    get:
+      tags: [AI]
+      summary: List configured AI providers (BYOK)
+      responses: { '200': { description: OK } }
+    post:
+      tags: [AI]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, api_format, base_url]
+              properties:
+                name: { type: string }
+                api_format: { type: string, enum: [openai_compatible, anthropic_format, gemini_format, image_generic] }
+                base_url: { type: string, format: uri }
+                api_key: { type: string }
+      responses: { '201': { description: OK } }
+
+  /ai/study-assistant:
+    post:
+      tags: [AI]
+      summary: Chat with study assistant (uses configured AI feature mapping)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messages]
+              properties:
+                messages:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role: { type: string, enum: [system, user, assistant] }
+                      content: { type: string }
+                temperature: { type: number, default: 0.7 }
+                max_tokens: { type: integer }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  text: { type: string }
+                  input_tokens: { type: integer }
+                  output_tokens: { type: integer }
+
+  # ===== DONATIONS (Module 29) =====
+  /public/donations/{subdomain}/campaigns:
+    get:
+      tags: [Donations]
+      security: []
+      parameters:
+        - { in: path, name: subdomain, required: true, schema: { type: string } }
+      responses: { '200': { description: OK } }
+
+  /public/donations/{subdomain}/campaigns/{slug}/donate:
+    post:
+      tags: [Donations]
+      security: []
+      parameters:
+        - { in: path, name: subdomain, required: true, schema: { type: string } }
+        - { in: path, name: slug, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [donor_name, donor_email, amount]
+              properties:
+                donor_name: { type: string }
+                donor_email: { type: string, format: email }
+                amount: { type: integer, description: 'in cents' }
+                is_anonymous: { type: boolean }
+                npwp: { type: string }
+                message: { type: string }
+      responses: { '201': { description: OK } }
+
+  # ===== EVENTS (Module 42) =====
+  /events/{id}/rsvp:
+    post:
+      tags: [Events]
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [going, maybe, not_going, cancelled] }
+                guests_count: { type: integer }
+      responses: { '200': { description: OK } }
+
+  # ===== ANALYTICS (Module 45) =====
+  /analytics/risk-scores/at-risk:
+    get:
+      tags: [Analytics]
+      responses:
+        '200':
+          description: 'Top at-risk students for the day'
+
+tags:
+  - name: Auth
+  - name: Payments
+    description: Module 11b — Dynamic payment gateway, NO vendor lock-in
+  - name: Branding
+    description: Module 03b — Whitelabel per school
+  - name: PPDB
+    description: Module 22 — New student admission
+  - name: Transport
+    description: Module 23 — Bus tracking + ID gate
+  - name: Medical
+    description: Module 24 — UKS / clinic
+  - name: AI
+    description: Module 31 — Bring Your Own Key, dynamic provider
+  - name: Donations
+    description: Module 29
+  - name: Events
+    description: Module 42
+  - name: Analytics
+    description: Module 45 — Predictive drop-out
