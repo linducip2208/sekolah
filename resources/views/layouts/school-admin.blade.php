@@ -35,6 +35,7 @@
     @endif
 
     @include('elite.partials.head')
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
         tailwind.config = {
@@ -86,6 +87,14 @@
         }
         .sidebar-link:hover { color: var(--c-accent); background: rgba(255,255,255,.05); }
         .sidebar-link.active { color: var(--c-accent); background: rgba(255,255,255,.07); border-left-color: var(--c-accent); }
+
+        .sidebar-section { border-bottom: 1px solid rgba(255,255,255,.06); }
+        .sidebar-section-header { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .6rem .9rem; font-family: 'Inter', sans-serif; font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; color: rgba(255,255,255,.5); transition: all .2s ease; cursor: pointer; border: none; background: none; text-align: left; }
+        .sidebar-section-header:hover { color: rgba(255,255,255,.85); background: rgba(255,255,255,.03); }
+        .sidebar-section-body { padding: .15rem 0 .45rem 0; overflow: hidden; }
+        .sidebar-sub-link { display: flex; align-items: center; padding: .42rem 1rem .42rem 2.5rem; font-family: 'Inter', sans-serif; font-size: .63rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; color: rgba(255,255,255,.58); transition: all .2s ease; border-left: 2px solid transparent; }
+        .sidebar-sub-link:hover { color: var(--c-accent); background: rgba(255,255,255,.04); }
+        .sidebar-sub-link.active { color: var(--c-accent); background: rgba(255,255,255,.06); border-left-color: var(--c-accent); }
     </style>
     @stack('head')
 </head>
