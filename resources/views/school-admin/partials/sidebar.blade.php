@@ -88,6 +88,7 @@
         <span class="flex items-center gap-2"><span class="text-xs">🎓</span>Pengajaran</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.assignments.index') }}" class="sidebar-sub-link {{ $isActive('admin.assignments.*') }}">Online Classroom</a>
+        <a href="{{ route('admin.classroom.lessons.index') }}" class="sidebar-sub-link {{ $isActive('admin.classroom.lessons.*') }}">Materi Pelajaran</a>
         <a href="{{ route('admin.lesson-plan.index') }}" class="sidebar-sub-link {{ $isActive('admin.lesson-plan.*') }}">Lesson Plan / RPP</a>
         <a href="{{ route('admin.live-class.index') }}" class="sidebar-sub-link {{ $isActive('admin.live-class.*') }}">Live Class</a>
         <a href="{{ route('admin.canteen.menu.index') }}" class="sidebar-sub-link {{ $isActive('admin.canteen.*') }}">Kantin Cashless</a>
@@ -182,6 +183,7 @@
         <a href="{{ route('admin.digital-library.index') }}" class="sidebar-sub-link {{ $isActive('admin.digital-library.*') }}">e-Library Digital</a>
         <a href="{{ route('admin.transport.vehicles.index') }}" class="sidebar-sub-link {{ $isActive('admin.transport.*') }}">Transportasi</a>
         <a href="{{ route('admin.rooms.index') }}" class="sidebar-sub-link {{ $isActive('admin.rooms.*') }}">Booking Ruangan</a>
+        <a href="{{ route('admin.operations.gate-devices.index') }}" class="sidebar-sub-link {{ $isActive('admin.operations.gate-devices.*') }}">Gate Devices (ID Card)</a>
     </div>
 </div>
 
@@ -236,6 +238,7 @@
         <a href="{{ route('admin.ai.providers.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.*') }}">AI Providers</a>
         <a href="{{ route('admin.analytics.risks.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.risks.*') }}">Learning Analytics</a>
         <a href="{{ route('admin.analytics.dropout-risk.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.dropout-risk.*') }}">Deteksi Dropout</a>
+        <a href="{{ route('admin.ai.usage') }}" class="sidebar-sub-link {{ $isActive('admin.ai.usage') }}">AI Usage Dashboard</a>
     </div>
 </div>
 
@@ -251,6 +254,9 @@
         <a href="{{ route('admin.exports.index') }}" class="sidebar-sub-link {{ $isActive('admin.exports.*') }}">Ekspor Data</a>
         <a href="{{ route('admin.audit.index') }}" class="sidebar-sub-link {{ $isActive('admin.audit.*') }}">Audit Log</a>
         <a href="{{ route('admin.website.pages.index') }}" class="sidebar-sub-link {{ $isActive('admin.website.*') }}">Website Builder</a>
+        <a href="{{ route('admin.import.index') }}" class="sidebar-sub-link {{ $isActive('admin.import.*') }}">Import CSV</a>
+        <a href="{{ route('admin.webhooks.index') }}" class="sidebar-sub-link {{ $isActive('admin.webhooks.*') }}">Webhooks</a>
+        <a href="{{ route('admin.currency.show') }}" class="sidebar-sub-link {{ $isActive('admin.currency.*') }}">Mata Uang</a>
     </div>
 </div>
 
