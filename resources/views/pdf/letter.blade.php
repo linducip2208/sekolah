@@ -92,7 +92,7 @@
 </div>
 
 <div class="footer">
-    Dokumen ini diterbitkan melalui eSchool SaaS &mdash; {{ config('app.name') }}
+    Dokumen ini diterbitkan melalui Sikad Pro &mdash; {{ config('app.name') }}
 </div>
 
 </body>

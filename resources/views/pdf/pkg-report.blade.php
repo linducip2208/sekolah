@@ -73,7 +73,7 @@
     @endif
 
     <div class="footer">
-        Dokumen ini digenerate otomatis oleh eSchool SaaS &mdash; {{ now()->format('d M Y H:i') }}
+        Dokumen ini digenerate otomatis oleh Sikad Pro &mdash; {{ now()->format('d M Y H:i') }}
     </div>
 </body>
 </html>

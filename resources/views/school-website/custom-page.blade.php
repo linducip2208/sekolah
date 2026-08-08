@@ -52,7 +52,7 @@
     <footer class="bg-gray-900 text-gray-400 py-12">
         <div class="container mx-auto px-4 text-center">
             <p class="text-lg font-display font-bold text-white mb-2">{{ $branding['display_name'] ?? 'Sekolah' }}</p>
-            <p class="text-sm">Powered by eSchool SaaS &copy; {{ date('Y') }}</p>
+            <p class="text-sm">Powered by Sikad Pro &copy; {{ date('Y') }}</p>
         </div>
     </footer>
 

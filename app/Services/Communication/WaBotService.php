@@ -211,7 +211,7 @@ class WaBotService
 
     private function fallbackReply(): string
     {
-        return "🤖 *eSchool Bot*\n\nHalo! Saya asisten virtual sekolah. Berikut perintah yang tersedia:\n\n• *nilai* — Cek nilai terbaru\n• *jadwal* — Lihat jadwal hari ini\n• *spp* — Cek tagihan SPP\n• *absen* — Cek absensi 30 hari\n\nKetik kata kunci di atas untuk memulai.\nAtau ketik *bantuan* untuk melihat daftar ini lagi.";
+        return "🤖 *Sikad Pro Bot*\n\nHalo! Saya asisten virtual sekolah. Berikut perintah yang tersedia:\n\n• *nilai* — Cek nilai terbaru\n• *jadwal* — Lihat jadwal hari ini\n• *spp* — Cek tagihan SPP\n• *absen* — Cek absensi 30 hari\n\nKetik kata kunci di atas untuk memulai.\nAtau ketik *bantuan* untuk melihat daftar ini lagi.";
     }
 
     public function normalizePhone(string $phone): string

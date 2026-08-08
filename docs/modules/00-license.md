@@ -1,4 +1,4 @@
-# Module 00 — License Management (whitelabel.co.id)
+﻿# Module 00 — License Management (whitelabel.co.id)
 
 ## Depends On
 Nothing. Dieksekusi **PERTAMA** sebelum Module 01.
@@ -10,7 +10,7 @@ Proteksi lisensi — aplikasi tidak bisa berjalan tanpa lisensi valid.
 
 ## Dua Model Bisnis — Pilih Satu
 
-eSchool mendukung dua cara monetisasi yang berbeda. Implementasi license-nya berbeda.
+Sikad Pro mendukung dua cara monetisasi yang berbeda. Implementasi license-nya berbeda.
 
 ---
 
@@ -21,13 +21,13 @@ Sekolah-sekolah mendaftar ke Anda dan bayar subscription bulanan (module 13).
 
 ```
 Anda beli 1 license:
-  domain: eschool.app
-  LICENSE_KEY=XXXXX-XXXXX-XXXXX-XXXXX  ← di .env server eschool.app
+  domain: sikadpro.app
+  LICENSE_KEY=XXXXX-XXXXX-XXXXX-XXXXX  ← di .env server sikadpro.app
 
 Sekolah berjalan sebagai subdomain di server Anda:
-  smkn1.eschool.app  ─┐
-  sma2.eschool.app    ├── 1 server Anda = 1 license check/hari
-  sd3.eschool.app    ─┘
+  smkn1.sikadpro.app  ─┐
+  sma2.sikadpro.app    ├── 1 server Anda = 1 license check/hari
+  sd3.sikadpro.app    ─┘
 
 Aliran uang:
   Sekolah → bayar subscription → ke Anda
@@ -36,14 +36,14 @@ Aliran uang:
 
 Artisan command (Anda jalankan 1x saat install platform):
 ```bash
-php artisan license:activate XXXXX-XXXXX-XXXXX-XXXXX eschool.app
+php artisan license:activate XXXXX-XXXXX-XXXXX-XXXXX sikadpro.app
 ```
 
 ---
 
 ### Model 2 — Source Code Sale (jual source code via whitelabel.co.id)
 
-Anda menjual **source code** eSchool. Setiap customer mendapat `activation_key` sendiri
+Anda menjual **source code** Sikad Pro. Setiap customer mendapat `activation_key` sendiri
 dan deploy di server mereka sendiri. whitelabel.co.id mengelola tiap license secara terpisah.
 
 ```
@@ -69,7 +69,7 @@ Aliran uang:
 | | Model 1 (SaaS Platform) | Model 2 (Source Code Sale) |
 |---|---|---|
 | Yang beli license | Anda (1x saja) | Tiap customer masing-masing |
-| `APP_URL` di license | `eschool.app` | Domain customer (mis. `sekolahku.com`) |
+| `APP_URL` di license | `sikadpro.app` | Domain customer (mis. `sekolahku.com`) |
 | Server | 1 server milik Anda | Tiap customer server sendiri |
 | Modul subscription (13) | **Dipakai** | Tidak dipakai |
 | Jumlah license | 1 | N (1 per customer) |
@@ -78,30 +78,30 @@ Aliran uang:
 
 ## SaaS Multi-Domain: License Taruh di Mana? (Model 1)
 
-**License HANYA ada di satu tempat: server platform eSchool SaaS Anda (eschool.app).**
+**License HANYA ada di satu tempat: server platform Sikad Pro Anda (sikadpro.app).**
 
-Bukan di tiap sekolah/subdomain. Semua subdomain sekolah (`smkn1.eschool.app`, `sma2.eschool.app`, dll)
+Bukan di tiap sekolah/subdomain. Semua subdomain sekolah (`smkn1.sikadpro.app`, `sma2.sikadpro.app`, dll)
 berjalan di **satu server yang sama** dengan **satu license**.
 
 ```
 whitelabel.co.id
   └── License Key: XXXXX-XXXXX
-      Domain terdaftar: eschool.app   ← domain platform Anda (bukan subdomain sekolah)
+      Domain terdaftar: sikadpro.app   ← domain platform Anda (bukan subdomain sekolah)
 
-Server eSchool SaaS (satu server, satu .env)
-  ├── smkn1.eschool.app   ─┐
-  ├── sma2.eschool.app     ├── semua pakai 1 server = 1 license check per hari
-  ├── sd3.eschool.app     ─┘
-  └── admin.eschool.app
+Server Sikad Pro (satu server, satu .env)
+  ├── smkn1.sikadpro.app   ─┐
+  ├── sma2.sikadpro.app     ├── semua pakai 1 server = 1 license check per hari
+  ├── sd3.sikadpro.app     ─┘
+  └── admin.sikadpro.app
 
 .env di server ini:
   LICENSE_KEY=XXXXX-XXXXX-XXXXX-XXXXX
-  APP_URL=https://eschool.app          ← domain utama platform (bukan subdomain)
+  APP_URL=https://sikadpro.app          ← domain utama platform (bukan subdomain)
 ```
 
 ### Kenapa begini?
 
-- Wildcard subdomain `*.eschool.app` semuanya pointing ke IP server yang sama
+- Wildcard subdomain `*.sikadpro.app` semuanya pointing ke IP server yang sama
 - Laravel berjalan di satu proses — satu license check berlaku untuk semua subdomain
 - Yang "beli license" adalah **Anda sebagai pemilik platform**, bukan tiap sekolah
 - Tiap sekolah membayar ke **Anda** lewat subscription SaaS (module 13), bukan ke whitelabel.co.id
@@ -114,19 +114,19 @@ Single-School Install (customer beli source code):
   Customer B: domain tokob.com    → beli license 1 domain ke whitelabel.co.id
 
 SaaS Platform (Anda yang jual akses SaaS):
-  Anda:       domain eschool.app  → beli 1 license ke whitelabel.co.id
-  Sekolah A:  smkn1.eschool.app  → bayar subscription ke Anda (module 13)
-  Sekolah B:  sma2.eschool.app   → bayar subscription ke Anda (module 13)
+  Anda:       domain sikadpro.app  → beli 1 license ke whitelabel.co.id
+  Sekolah A:  smkn1.sikadpro.app  → bayar subscription ke Anda (module 13)
+  Sekolah B:  sma2.sikadpro.app   → bayar subscription ke Anda (module 13)
   ← Sekolah tidak perlu beli license ke whitelabel.co.id
 ```
 
-### Jika Platform eSchool Di-deploy di Multi-Server (Load Balancer)
+### Jika Platform Sikad Pro Di-deploy di Multi-Server (Load Balancer)
 
 Jika ke depan ada lebih dari 1 server (load balancing):
 
 ```
-Load Balancer → Server 1 (eschool.app) → 1 license check
-              → Server 2 (eschool.app) → cache Redis shared
+Load Balancer → Server 1 (sikadpro.app) → 1 license check
+              → Server 2 (sikadpro.app) → cache Redis shared
 ```
 
 Pakai **Redis shared cache** untuk cache license (`'lic_' . date('Ymd')`).
@@ -167,7 +167,7 @@ Dipanggil setiap boot. Verifikasi license aktif + domain terdaftar.
 {
   "valid": true,
   "license_key": "XXXXX-XXXXX-XXXXX-XXXXX",
-  "product": "eSchool SaaS",
+  "product": "Sikad Pro",
   "version": "1.0.0",
   "domain": "yourdomain.com",
   "type": "regular",
@@ -243,12 +243,12 @@ Cek apakah versi terbaru tersedia.
 
 | Param     | Keterangan                        |
 |-----------|-----------------------------------|
-| `product` | Slug produk (misal: `eschool`)    |
+| `product` | Slug produk (misal: `sikadpro`)    |
 | `current` | Versi yang terinstall saat ini    |
 
 **Contoh:**
 ```
-GET /api/version/check?product=eschool&current=1.0.0
+GET /api/version/check?product=sikadpro&current=1.0.0
 ```
 
 **Response 200:**
@@ -271,7 +271,7 @@ Setelah aktivasi, simpan checksum untuk fallback saat API tidak terjangkau.
 hash_hmac('sha256', $activation_key . '|' . $domain, APP_KEY)
 ```
 
-**Verifikasi di source code eSchool:**
+**Verifikasi di source code Sikad Pro:**
 ```php
 $valid = hash_equals(
     hash_hmac('sha256', $key . '|' . $domain, env('LICENSE_SECRET')),
@@ -320,7 +320,7 @@ return [
     'secret'  => env('LICENSE_SECRET'),           // APP_KEY dari whitelabel.co.id
     'api'     => env('LICENSE_API_URL', 'https://whitelabel.co.id/api/license'),
     'enabled' => env('LICENSE_CHECK', true),      // false untuk dev/testing
-    'product' => env('LICENSE_PRODUCT', 'eschool'),
+    'product' => env('LICENSE_PRODUCT', 'sikadpro'),
     'version' => '1.0.0',                         // versi app ini
 ];
 ```
@@ -576,7 +576,7 @@ APP_URL=https://yourdomain.com
 
 # Opsional
 LICENSE_CHECK=true           # set false untuk dev/staging lokal
-LICENSE_PRODUCT=eschool
+LICENSE_PRODUCT=sikadpro
 LICENSE_API_URL=https://whitelabel.co.id/api/license
 ```
 

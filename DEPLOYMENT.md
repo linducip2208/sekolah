@@ -1,6 +1,6 @@
-# eSchool SaaS — Deployment Guide
+﻿# Sikad Pro — Deployment Guide
 
-Panduan deploy eSchool SaaS ke production server (VPS / dedicated / Docker).
+Panduan deploy Sikad Pro ke production server (VPS / dedicated / Docker).
 
 ---
 
@@ -24,8 +24,8 @@ Panduan deploy eSchool SaaS ke production server (VPS / dedicated / Docker).
 
 ```bash
 # 1. Clone repo
-git clone <repo-url> eschool
-cd eschool
+git clone <repo-url> sikadpro
+cd sikadpro
 
 # 2. Install dependencies
 composer install
@@ -37,7 +37,7 @@ php artisan key:generate
 
 # 4. Configure database in .env
 # DB_CONNECTION=mysql
-# DB_DATABASE=eschool_saas
+# DB_DATABASE=sikadpro_saas
 # Set LICENSE_DEV_BYPASS=true for local dev
 
 # 5. Migrate and seed
@@ -101,9 +101,9 @@ php -r "unlink('composer-setup.php');"
 
 ```bash
 cd /var/www
-git clone <repo-url> eschool
-sudo chown -R www-data:www-data eschool
-cd eschool
+git clone <repo-url> sikadpro
+sudo chown -R www-data:www-data sikadpro
+cd sikadpro
 
 sudo -u www-data composer install --no-dev --optimize-autoloader
 sudo -u www-data npm install
@@ -120,16 +120,16 @@ sudo -u www-data nano .env
 Key production settings:
 
 ```
-APP_NAME="eSchool SaaS"
+APP_NAME="Sikad Pro"
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://admin.eschool.app
+APP_URL=https://admin.sikadpro.app
 APP_TIMEZONE=Asia/Jakarta
 APP_LOCALE=id
 
 # Multi-tenant base domain
-TENANT_BASE_DOMAIN=eschool.app
-SUPER_ADMIN_DOMAIN=admin.eschool.app
+TENANT_BASE_DOMAIN=sikadpro.app
+SUPER_ADMIN_DOMAIN=admin.sikadpro.app
 
 # License (dev bypass off in production)
 LICENSE_DEV_BYPASS=false
@@ -141,8 +141,8 @@ LICENSE_HEARTBEAT_GRACE=604800
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=eschool_saas
-DB_USERNAME=eschool
+DB_DATABASE=sikadpro_saas
+DB_USERNAME=sikadpro
 DB_PASSWORD=<strong-password>
 
 # Redis
@@ -157,10 +157,10 @@ QUEUE_CONNECTION=redis
 
 # Broadcasting (Reverb / Soketi)
 BROADCAST_CONNECTION=reverb
-REVERB_APP_ID=eschool
-REVERB_APP_KEY=eschool-key
-REVERB_APP_SECRET=eschool-secret
-REVERB_HOST=eschool.app
+REVERB_APP_ID=sikadpro
+REVERB_APP_KEY=sikadpro-key
+REVERB_APP_SECRET=sikadpro-secret
+REVERB_HOST=sikadpro.app
 REVERB_PORT=443
 REVERB_SCHEME=https
 
@@ -170,19 +170,19 @@ MAIL_HOST=<smtp-host>
 MAIL_PORT=587
 MAIL_USERNAME=<username>
 MAIL_PASSWORD=<password>
-MAIL_FROM_ADDRESS="noreply@eschool.app"
-MAIL_FROM_NAME="eSchool SaaS"
+MAIL_FROM_ADDRESS="noreply@sikadpro.app"
+MAIL_FROM_NAME="Sikad Pro"
 
 # Storage
 FILESYSTEM_DISK=s3
 AWS_ACCESS_KEY_ID=<key>
 AWS_SECRET_ACCESS_KEY=<secret>
 AWS_DEFAULT_REGION=ap-southeast-1
-AWS_BUCKET=eschool-storage
+AWS_BUCKET=sikadpro-storage
 
 # Multi-tenancy
-SANCTUM_STATEFUL_DOMAINS=*.eschool.app,admin.eschool.app
-SESSION_DOMAIN=.eschool.app
+SANCTUM_STATEFUL_DOMAINS=*.sikadpro.app,admin.sikadpro.app
+SESSION_DOMAIN=.sikadpro.app
 ```
 
 ### 4. Create Database
@@ -190,9 +190,9 @@ SESSION_DOMAIN=.eschool.app
 ```sql
 mysql -u root -p
 
-CREATE DATABASE eschool_saas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'eschool'@'localhost' IDENTIFIED BY '<strong-password>';
-GRANT ALL PRIVILEGES ON eschool_saas.* TO 'eschool'@'localhost';
+CREATE DATABASE sikadpro_saas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'sikadpro'@'localhost' IDENTIFIED BY '<strong-password>';
+GRANT ALL PRIVILEGES ON sikadpro_saas.* TO 'sikadpro'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 ```
@@ -223,10 +223,10 @@ sudo chmod -R 775 storage bootstrap/cache
 ### 8. Configure Nginx
 
 ```bash
-sudo cp deploy/nginx.conf /etc/nginx/sites-available/eschool
+sudo cp deploy/nginx.conf /etc/nginx/sites-available/sikadpro
 # Edit server_name and root path
-sudo nano /etc/nginx/sites-available/eschool
-sudo ln -s /etc/nginx/sites-available/eschool /etc/nginx/sites-enabled/
+sudo nano /etc/nginx/sites-available/sikadpro
+sudo ln -s /etc/nginx/sites-available/sikadpro /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -248,8 +248,8 @@ sudo chmod 600 /root/.secrets/cloudflare.ini
 # Request wildcard certificate
 sudo certbot certonly --dns-cloudflare \
     --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
-    -d "eschool.app" -d "*.eschool.app" \
-    --email admin@eschool.app --agree-tos --non-interactive
+    -d "sikadpro.app" -d "*.sikadpro.app" \
+    --email admin@sikadpro.app --agree-tos --non-interactive
 
 # Reload Nginx
 sudo systemctl reload nginx
@@ -259,17 +259,17 @@ sudo systemctl reload nginx
 
 ```bash
 sudo apt install -y supervisor
-sudo cp deploy/supervisor.conf /etc/supervisor/conf.d/eschool.conf
+sudo cp deploy/supervisor.conf /etc/supervisor/conf.d/sikadpro.conf
 # Edit paths in the config file
-sudo nano /etc/supervisor/conf.d/eschool.conf
+sudo nano /etc/supervisor/conf.d/sikadpro.conf
 sudo supervisorctl reread
 sudo supervisorctl update
-sudo supervisorctl start eschool-queue:*
+sudo supervisorctl start sikadpro-queue:*
 ```
 
 ### 11. License Activation
 
-1. Buka `https://admin.eschool.app/__pair` di browser
+1. Buka `https://admin.sikadpro.app/__pair` di browser
 2. Masukkan license key dari `whitelabel.co.id`
 3. Masukkan email buyer (yang dipakai saat beli)
 4. Klik "Aktifkan License"
@@ -280,19 +280,19 @@ sudo supervisorctl start eschool-queue:*
 
 ## Docker Deployment
 
-eSchool SaaS includes a complete `docker-compose.yml` for containerized deployment.
+Sikad Pro includes a complete `docker-compose.yml` for containerized deployment.
 
 ```bash
 # 1. Clone and setup
-cd /opt/eschool
+cd /opt/sikadpro
 cp .env.example .env
 nano .env
 
 # 2. SSL Wildcard (run once)
 certbot certonly --dns-cloudflare \
     --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
-    -d "eschool.app" -d "*.eschool.app" \
-    --email admin@eschool.app --agree-tos
+    -d "sikadpro.app" -d "*.sikadpro.app" \
+    --email admin@sikadpro.app --agree-tos
 
 # 3. Build and start all services
 docker compose up -d --build
@@ -315,18 +315,18 @@ docker compose exec app php artisan license:status
 
 | Service | Container | Port |
 |---------|-----------|------|
-| app | eschool-app | PHP-FPM 9000 (internal) |
-| nginx | eschool-nginx | 80, 443 |
-| mysql | eschool-mysql | 3306 |
-| redis | eschool-redis | 6379 (internal) |
-| worker | eschool-worker | - |
-| scheduler | eschool-scheduler | - |
-| soketi | eschool-soketi | 6001 |
+| app | sikadpro-app | PHP-FPM 9000 (internal) |
+| nginx | sikadpro-nginx | 80, 443 |
+| mysql | sikadpro-mysql | 3306 |
+| redis | sikadpro-redis | 6379 (internal) |
+| worker | sikadpro-worker | - |
+| scheduler | sikadpro-scheduler | - |
+| soketi | sikadpro-soketi | 6001 |
 
 ### Updating (Docker)
 
 ```bash
-cd /opt/eschool
+cd /opt/sikadpro
 git pull origin main
 docker compose up -d --build app
 docker compose exec app php artisan migrate --force
@@ -341,7 +341,7 @@ docker compose restart worker scheduler
 ## Nginx Config Reference
 
 See `deploy/nginx.conf` for the complete production Nginx configuration with:
-- Wildcard subdomain support (`*.eschool.app`)
+- Wildcard subdomain support (`*.sikadpro.app`)
 - PHP-FPM upstream (standalone) or Docker container forwarding
 - Static asset caching with `Cache-Control: public, immutable`
 - Security headers (HSTS, X-Frame-Options, X-Content-Type-Options)
@@ -358,9 +358,9 @@ See `deploy/supervisor.conf` for the production supervisor configuration with 3 
 
 | Program | Command | Purpose |
 |---------|---------|---------|
-| eschool-queue | `php artisan queue:work --sleep=3 --tries=3 --max-time=3600` | Process background jobs |
-| eschool-scheduler | `php artisan schedule:work` | Run scheduled tasks |
-| eschool-reverb | `php artisan reverb:start` | WebSocket server for real-time |
+| sikadpro-queue | `php artisan queue:work --sleep=3 --tries=3 --max-time=3600` | Process background jobs |
+| sikadpro-scheduler | `php artisan schedule:work` | Run scheduled tasks |
+| sikadpro-reverb | `php artisan reverb:start` | WebSocket server for real-time |
 
 ---
 
@@ -373,7 +373,7 @@ Configure in `.env`:
 
 ```
 BACKUP_DISK=s3
-BACKUP_S3_BUCKET=eschool-backups
+BACKUP_S3_BUCKET=sikadpro-backups
 BACKUP_RETENTION_DAYS=30
 BACKUP_ENCRYPTION_PASSWORD=<strong-encryption-password>
 ```
@@ -382,13 +382,13 @@ BACKUP_ENCRYPTION_PASSWORD=<strong-encryption-password>
 
 ```bash
 # MySQL dump
-mysqldump -u eschool -p eschool_saas > backup_$(date +%Y%m%d_%H%M%S).sql
+mysqldump -u sikadpro -p sikadpro_saas > backup_$(date +%Y%m%d_%H%M%S).sql
 
 # Files backup (uploads, assets)
 tar -czf storage_backup_$(date +%Y%m%d).tar.gz storage/app/public/
 
 # Full backup script recommendation — run via cron:
-# 0 2 * * * /opt/eschool/scripts/backup.sh >> /var/log/eschool-backup.log 2>&1
+# 0 2 * * * /opt/sikadpro/scripts/backup.sh >> /var/log/sikadpro-backup.log 2>&1
 ```
 
 ---
@@ -398,7 +398,7 @@ tar -czf storage_backup_$(date +%Y%m%d).tar.gz storage/app/public/
 For non-Docker deployments, add to crontab (`sudo crontab -u www-data -e`):
 
 ```
-* * * * * cd /var/www/eschool && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /var/www/sikadpro && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 ### Scheduled Commands
@@ -422,9 +422,9 @@ After seeding, use demo accounts:
 | Email | Role | Password |
 |-------|------|----------|
 | `admin@sman1demo.sch.id` | School Admin | `password` |
-| `super@eschool.app` | Super Admin | `password` |
+| `super@sikadpro.app` | Super Admin | `password` |
 
-Admin portal: `https://admin.eschool.app/admin/login`
+Admin portal: `https://admin.sikadpro.app/admin/login`
 
 **PENTING:** Change all demo passwords before go-live.
 
@@ -436,14 +436,14 @@ Admin portal: `https://admin.eschool.app/admin/login`
 
 ```bash
 # Laravel logs
-tail -f /var/www/eschool/storage/logs/laravel.log
+tail -f /var/www/sikadpro/storage/logs/laravel.log
 
 # Nginx access/error
-tail -f /var/log/nginx/eschool-access.log
-tail -f /var/log/nginx/eschool-error.log
+tail -f /var/log/nginx/sikadpro-access.log
+tail -f /var/log/nginx/sikadpro-error.log
 
 # Supervisor worker logs
-tail -f /var/www/eschool/storage/logs/worker.log
+tail -f /var/www/sikadpro/storage/logs/worker.log
 
 # Docker logs (if using Docker)
 docker compose logs -f app
@@ -496,7 +496,7 @@ After deployment, update:
 - Canonical link in marketing landing page
 - Sitemap domain (auto-generated from `APP_URL`)
 - OG meta tags in public pages
-- Submit `https://admin.eschool.app/sitemap.xml` to Google Search Console
+- Submit `https://admin.sikadpro.app/sitemap.xml` to Google Search Console
 - Configure IndexNow API key for auto-indexing
 
 ---
@@ -507,11 +507,11 @@ After deployment, update:
 |-------|----------|
 | 403 Forbidden | Check storage permissions: `chmod -R 775 storage` |
 | 500 after deploy | Clear cache: `php artisan optimize:clear` |
-| Queue not processing | Check supervisor: `supervisorctl status eschool-queue:*` |
+| Queue not processing | Check supervisor: `supervisorctl status sikadpro-queue:*` |
 | License expired | Re-pair via `/__pair` |
 | Missing assets | Rebuild: `npm run build` |
 | DB connection failed | Verify `.env` credentials |
-| School subdomain 404 | Check wildcard DNS `*.eschool.app` points to server |
+| School subdomain 404 | Check wildcard DNS `*.sikadpro.app` points to server |
 | Reverb not connecting | Check firewall allows port 8080, verify SSL config |
 
 ---
@@ -539,7 +539,7 @@ php artisan schedule:run
 php artisan queue:monitor
 
 # Restart queue workers
-sudo supervisorctl restart eschool-queue:*
+sudo supervisorctl restart sikadpro-queue:*
 
 # View Laravel logs
 tail -f storage/logs/laravel.log
@@ -551,6 +551,6 @@ php artisan tinker
 
 ---
 
-**Version:** eSchool SaaS v1.0  
+**Version:** Sikad Pro v1.0  
 **Detailed docs:** `docs/deployment/` directory  
 **Docker compose:** `docker-compose.yml` at project root

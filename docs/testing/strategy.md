@@ -1,4 +1,4 @@
-# Testing Strategy — eSchool SaaS
+﻿# Testing Strategy — Sikad Pro
 
 ## Overview
 

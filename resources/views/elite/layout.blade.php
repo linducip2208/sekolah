@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', $p['app_name'] ?? 'eSchool Academy') — {{ $p['app_name'] ?? 'eSchool Academy' }}</title>
+    <title>@yield('title', $p['app_name'] ?? 'Sikad Pro') — {{ $p['app_name'] ?? 'Sikad Pro' }}</title>
     <meta name="description" content="@yield('description', $p['description'] ?? '')">
     <link rel="canonical" href="{{ url()->current() }}">
 

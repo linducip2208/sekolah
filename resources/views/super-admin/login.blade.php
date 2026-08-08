@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Magisterium — Operator Platform | {{ $platform['app_name'] ?? 'eSchool' }}</title>
+    <title>Magisterium — Operator Platform | {{ $platform['app_name'] ?? 'Sikad Pro' }}</title>
     @include('elite.partials.head')
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 relative" style="background: var(--c-primary);">
@@ -63,7 +63,7 @@
                 <div class="mt-5 p-4" style="background: rgba(184,134,11,.06); border-left: 3px solid var(--c-accent);">
                     <div class="elite-kicker mb-2" style="color: var(--c-accent);">Akun Demo</div>
                     <div class="font-serif text-sm leading-relaxed text-gray-700 space-y-1">
-                        <div><code style="background:#fff;padding:.1rem .35rem;font-size:.85em;">super@eschool.app</code> / <code style="background:#fff;padding:.1rem .35rem;font-size:.85em;">SuperAdmin123!</code></div>
+                        <div><code style="background:#fff;padding:.1rem .35rem;font-size:.85em;">super@sikadpro.app</code> / <code style="background:#fff;padding:.1rem .35rem;font-size:.85em;">SuperAdmin123!</code></div>
                         <div class="text-xs text-gray-500 mt-2">Admin sekolah? Login di <a href="/admin/login" class="underline ink-secondary hover:ink-accent">/admin/login</a>.</div>
                     </div>
                 </div>

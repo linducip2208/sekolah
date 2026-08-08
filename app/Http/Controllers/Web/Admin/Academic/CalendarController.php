@@ -161,7 +161,7 @@ class CalendarController extends Controller
 
         $ical = "BEGIN:VCALENDAR\r\n";
         $ical .= "VERSION:2.0\r\n";
-        $ical .= "PRODID:-//eSchool//Calendar//ID\r\n";
+        $ical .= "PRODID:-//Sikad Pro//Calendar//ID\r\n";
         $ical .= "CALSCALE:GREGORIAN\r\n";
         $ical .= "METHOD:PUBLISH\r\n";
         $ical .= "X-WR-CALNAME:Kalender Sekolah\r\n";
@@ -169,7 +169,7 @@ class CalendarController extends Controller
 
         foreach ($events as $event) {
             $ical .= "BEGIN:VEVENT\r\n";
-            $ical .= "UID:" . $event->id . "@eschool\r\n";
+            $ical .= "UID:" . $event->id . "@sikadpro\r\n";
             $ical .= "DTSTAMP:" . $event->created_at->format('Ymd\THis\Z') . "\r\n";
 
             if ($event->all_day) {

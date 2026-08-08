@@ -12,7 +12,7 @@
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1">Nama Aplikasi</label>
-                <input type="text" name="app_name" value="{{ $config['app_name'] ?? 'eSchool SaaS' }}"
+                <input type="text" name="app_name" value="{{ $config['app_name'] ?? 'Sikad Pro' }}"
                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
             </div>
             <div>

@@ -102,7 +102,7 @@ class TopUpStudentsSeeder extends Seeder
         }
 
         $emailPrefix = $school->subdomain === 'sman1demo' ? 'siswa_extra_' : 'siswa';
-        $emailDomain = $school->subdomain === 'sman1demo' ? 'sman1demo.sch.id' : "{$school->subdomain}.eschool";
+        $emailDomain = $school->subdomain === 'sman1demo' ? 'sman1demo.sch.id' : "{$school->subdomain}.sikadpro";
 
         $existingEmails = DB::table('users')
             ->where('school_id', $school->id)

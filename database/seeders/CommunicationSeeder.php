@@ -22,7 +22,7 @@ class CommunicationSeeder extends Seeder
                 ['jadwal', 'text_function', null, 'getJadwal', 'Lihat jadwal pelajaran hari ini'],
                 ['spp', 'text_function', null, 'getTagihan', 'Cek tagihan SPP'],
                 ['absen', 'text_function', null, 'getAbsensi', 'Cek absensi 30 hari terakhir'],
-                ['bantuan', 'static', "🤖 *eSchool Bot*\n\nPerintah yang tersedia:\n\n• *nilai* — Cek nilai terbaru\n• *jadwal* — Lihat jadwal hari ini\n• *spp* — Cek tagihan SPP\n• *absen* — Cek absensi 30 hari\n\nKetik kata kunci di atas untuk memulai.", null, 'Daftar perintah bantuan'],
+                ['bantuan', 'static', "🤖 *Sikad Pro Bot*\n\nPerintah yang tersedia:\n\n• *nilai* — Cek nilai terbaru\n• *jadwal* — Lihat jadwal hari ini\n• *spp* — Cek tagihan SPP\n• *absen* — Cek absensi 30 hari\n\nKetik kata kunci di atas untuk memulai.", null, 'Daftar perintah bantuan'],
             ];
 
             foreach ($defaultCommands as $cmd) {

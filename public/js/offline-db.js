@@ -1,11 +1,11 @@
-/**
- * eSchool SaaS — Offline Database (IndexedDB)
+﻿/**
+ * Sikad Pro — Offline Database (IndexedDB)
  * Menyimpan data offline: absensi, daftar siswa (basic), input nilai
  */
 (function () {
     'use strict';
 
-    const DB_NAME = 'eschool-offline';
+    const DB_NAME = 'sikadpro-offline';
     const DB_VERSION = 1;
 
     let db = null;

@@ -42,7 +42,7 @@ class EmailService
 
     public function sendWelcomeSchool(string $email, string $schoolName, string $subdomain, string $adminPassword): bool
     {
-        return $this->send($email, "Selamat Datang di eSchool SaaS — {$schoolName}", 'emails.welcome-school', [
+        return $this->send($email, "Selamat Datang di Sikad Pro — {$schoolName}", 'emails.welcome-school', [
             'schoolName'   => $schoolName,
             'subdomain'    => $subdomain,
             'adminEmail'   => $email,

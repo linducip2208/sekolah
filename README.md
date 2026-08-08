@@ -1,4 +1,4 @@
-# eSchool SaaS — School Management ERP
+﻿# Sikad Pro — School Management ERP
 
 Platform manajemen sekolah multi-tenant berbasis cloud. Mencakup akademik, keuangan, PPDB, perpustakaan, transportasi, kantin cashless, dashboard yayasan, hingga AI assistant. Satu platform untuk seluruh ekosistem sekolah Indonesia.
 
@@ -178,7 +178,7 @@ npm run dev
 
 | Role | Email | Password |
 |---|---|---|
-| Super Admin | super@eschool.app | SuperAdmin123! |
+| Super Admin | super@sikadpro.app | SuperAdmin123! |
 | Admin Sekolah | admin@sman1demo.sch.id | Admin123! |
 | Guru | guru1@sman1demo.sch.id | Guru123! |
 | Siswa | siswa0_0@sman1demo.sch.id | Siswa123! |
@@ -194,4 +194,4 @@ node scripts/screenshot-mobile.cjs # 5 mobile screenshots
 
 ## License
 
-eSchool SaaS — Source code dijual melalui [whitelabel.co.id](https://whitelabel.co.id). Lisensi pairing wajib untuk production use.
+Sikad Pro — Source code dijual melalui [whitelabel.co.id](https://whitelabel.co.id). Lisensi pairing wajib untuk production use.

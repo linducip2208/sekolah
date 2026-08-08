@@ -8,7 +8,7 @@ body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: 
 .btn { display: inline-block; background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; }
 </style></head>
 <body>
-<div class="header"><h2>🎉 Selamat Datang di eSchool SaaS!</h2></div>
+<div class="header"><h2>🎉 Selamat Datang di Sikad Pro!</h2></div>
 <div class="content">
     <p>Yth. Admin <strong>{{ $schoolName }}</strong>,</p>
     <p>Sekolah Anda berhasil didaftarkan. Berikut informasi akses Anda:</p>

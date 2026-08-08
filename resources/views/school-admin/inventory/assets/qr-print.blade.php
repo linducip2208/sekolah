@@ -21,7 +21,7 @@
         <p>{{ $asset->category?->name ?? '' }}</p>
         <img src="{{ $qrData }}" alt="QR Code" class="qr">
         <div class="code">{{ $asset->qr_code }}</div>
-        <p style="font-size:9px;color:#999;">eSchool SaaS · {{ now()->format('d/m/Y') }}</p>
+        <p style="font-size:9px;color:#999;">Sikad Pro · {{ now()->format('d/m/Y') }}</p>
     </div>
 </body>
 </html>

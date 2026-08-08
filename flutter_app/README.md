@@ -1,6 +1,6 @@
-# eSchool SaaS — Flutter Mobile App
+﻿# Sikad Pro — Flutter Mobile App
 
-Aplikasi mobile multi-role (Student, Parent, Teacher, Admin, Staff, Librarian) untuk eSchool SaaS.
+Aplikasi mobile multi-role (Student, Parent, Teacher, Admin, Staff, Librarian) untuk Sikad Pro.
 
 ## Quick Start
 
@@ -9,11 +9,11 @@ Aplikasi mobile multi-role (Student, Parent, Teacher, Admin, Staff, Librarian) u
 flutter pub get
 
 # 2. Generate platform folders (jika belum ada)
-flutter create . --org id.coid.whitelabel.eschool --platforms=android,ios
+flutter create . --org id.coid.whitelabel.sikadpro --platforms=android,ios
 
 # 3. Setup Firebase (sekali per environment)
 dart pub global activate flutterfire_cli
-flutterfire configure --project=eschool-saas
+flutterfire configure --project=sikadpro-saas
 
 # 4. Run di emulator
 flutter run \
@@ -27,12 +27,12 @@ flutter run \
 
 ```bash
 flutter build apk --release \
-  --dart-define=API_BASE_URL=https://api.eschool.app/api/v1 \
+  --dart-define=API_BASE_URL=https://api.sikadpro.app/api/v1 \
   --dart-define=PUSHER_KEY=PROD_KEY \
-  --dart-define=PUSHER_HOST=ws.eschool.app
+  --dart-define=PUSHER_HOST=ws.sikadpro.app
 
 flutter build ipa --release \
-  --dart-define=API_BASE_URL=https://api.eschool.app/api/v1
+  --dart-define=API_BASE_URL=https://api.sikadpro.app/api/v1
 ```
 
 ## Arsitektur

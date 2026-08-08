@@ -1,18 +1,18 @@
-# eSchool SaaS — Complete System Architecture
+﻿# Sikad Pro — Complete System Architecture
 
 ## Overview
 
-eSchool SaaS adalah platform **multi-tenant School Management ERP** yang dirancang untuk mengelola
+Sikad Pro adalah platform **multi-tenant School Management ERP** yang dirancang untuk mengelola
 ratusan sekolah dari satu dashboard terpusat. Setiap sekolah mendapatkan subdomain sendiri, data
 terisolasi, dan konfigurasi mandiri.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                        eSchool SaaS Platform                            │
+│                        Sikad Pro Platform                            │
 │                                                                         │
 │  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐   │
 │  │  Super Admin     │   │  School Admin     │   │  Flutter App      │   │
-│  │  admin.eschool   │   │  smkn1.eschool    │   │  iOS / Android    │   │
+│  │  admin.sikadpro   │   │  smkn1.sikadpro    │   │  iOS / Android    │   │
 │  │  .app            │   │  .app             │   │                   │   │
 │  └────────┬─────────┘   └────────┬──────────┘   └────────┬──────────┘   │
 │           │                      │                        │              │
@@ -114,11 +114,11 @@ terisolasi, dan konfigurasi mandiri.
 ```
 Internet
    │
-   ├── admin.eschool.app        → Super Admin Panel
-   ├── smkn1.eschool.app        → School A (Blade Web Panel)
-   ├── smkn1.eschool.app/api    → School A (REST API)
-   ├── sma2.eschool.app         → School B (Blade Web Panel)
-   └── sma2.eschool.app/api     → School B (REST API)
+   ├── admin.sikadpro.app        → Super Admin Panel
+   ├── smkn1.sikadpro.app        → School A (Blade Web Panel)
+   ├── smkn1.sikadpro.app/api    → School A (REST API)
+   ├── sma2.sikadpro.app         → School B (Blade Web Panel)
+   └── sma2.sikadpro.app/api     → School B (REST API)
 
 Database: SHARED (satu database MySQL)
    ├── schools          (no school_id — is the school)
@@ -600,8 +600,8 @@ Super admin dapat perpanjang, upgrade, atau suspend sekolah dari SaaS panel.
 │                    Production                             │
 │                                                          │
 │  Nginx (reverse proxy + SSL termination)                 │
-│    ├── *.eschool.app  → Laravel (PHP-FPM)                │
-│    └── admin.eschool.app → Laravel (PHP-FPM)             │
+│    ├── *.sikadpro.app  → Laravel (PHP-FPM)                │
+│    └── admin.sikadpro.app → Laravel (PHP-FPM)             │
 │                                                          │
 │  Docker Compose:                                         │
 │    ├── app (PHP 8.3 + Laravel)                           │
@@ -611,7 +611,7 @@ Super admin dapat perpanjang, upgrade, atau suspend sekolah dari SaaS panel.
 │    ├── worker (Laravel queue worker)                     │
 │    └── scheduler (Laravel scheduler)                     │
 │                                                          │
-│  SSL: Let's Encrypt (wildcard cert *.eschool.app)        │
+│  SSL: Let's Encrypt (wildcard cert *.sikadpro.app)        │
 └──────────────────────────────────────────────────────────┘
 ```
 

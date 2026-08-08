@@ -14,7 +14,7 @@
                         </div>
                     @endif
                     <div>
-                        <div class="elite-h3 text-xl sm:text-2xl text-white">{{ $p['app_name'] ?? 'eSchool Academy' }}</div>
+                        <div class="elite-h3 text-xl sm:text-2xl text-white">{{ $p['app_name'] ?? 'Sikad Pro' }}</div>
                         <div class="elite-kicker text-[.55rem] sm:text-[.6rem] text-white/60 mt-1" style="color: rgba(255,255,255,.55);">Est. {{ $p['established_year'] ?? '1890' }}</div>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
         </div>
 
         <div class="border-t border-white/15 mt-8 sm:mt-12 pt-5 sm:pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-white/55 text-center sm:text-left" style="font-family:'Inter',sans-serif;letter-spacing:.08em;">
-            <div>&copy; {{ now()->year }} {{ $p['app_name'] ?? 'eSchool Academy' }}. {{ $p['footer_disclaimer'] ?? '' }}</div>
+            <div>&copy; {{ now()->year }} {{ $p['app_name'] ?? 'Sikad Pro' }}. {{ $p['footer_disclaimer'] ?? '' }}</div>
             <div class="font-script italic" style="color: var(--c-accent); font-size: 1rem;">Floreat Schola.</div>
         </div>
     </div>

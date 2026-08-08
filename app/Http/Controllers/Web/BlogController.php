@@ -74,11 +74,11 @@ class BlogController extends Controller
             'dateModified'  => $post->updated_at->toIso8601String(),
             'author' => [
                 '@type' => 'Person',
-                'name'  => $post->author?->name ?? 'eSchool',
+                'name'  => $post->author?->name ?? 'Sikad Pro',
             ],
             'publisher' => [
                 '@type' => 'Organization',
-                'name'  => config('app.name', 'eSchool'),
+                'name'  => config('app.name', 'Sikad Pro'),
             ],
             'mainEntityOfPage' => [
                 '@type' => 'WebPage',
@@ -125,7 +125,7 @@ class BlogController extends Controller
             'categories'  => $categories,
             'recentPosts' => $recentPosts,
             'meta' => [
-                'title'       => "Kategori: {$category->name} — Blog eSchool",
+                'title'       => "Kategori: {$category->name} — Blog Sikad Pro",
                 'description' => "Artikel dalam kategori {$category->name} — " . ($category->description ?: 'Kumpulan artikel pendidikan.'),
             ],
         ]);
@@ -142,7 +142,7 @@ class BlogController extends Controller
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">' . "\n";
         $xml .= "  <channel>\n";
-        $xml .= '    <title>' . e(config('app.name', 'eSchool')) . " Blog</title>\n";
+        $xml .= '    <title>' . e(config('app.name', 'Sikad Pro')) . " Blog</title>\n";
         $xml .= '    <link>' . e(route('blog.index')) . "</link>\n";
         $xml .= '    <description>Artikel terbaru seputar pendidikan dan manajemen sekolah</description>' . "\n";
         $xml .= '    <language>id-ID</language>' . "\n";
@@ -156,7 +156,7 @@ class BlogController extends Controller
             $xml .= '      <guid isPermaLink="true">' . e(route('blog.show', $post->slug)) . "</guid>\n";
             $xml .= '      <description>' . e($post->excerpt ?: strip_tags(html_entity_decode(mb_substr($post->content, 0, 300)))) . "</description>\n";
             $xml .= '      <content:encoded><![CDATA[' . $post->content . "]]></content:encoded>\n";
-            $xml .= '      <author>' . e($post->author?->email ?? 'no-reply@eschool.app') . ' (' . e($post->author?->name ?? 'eSchool') . ")</author>\n";
+            $xml .= '      <author>' . e($post->author?->email ?? 'no-reply@sikadpro.app') . ' (' . e($post->author?->name ?? 'Sikad Pro') . ")</author>\n";
             if ($post->category) {
                 $xml .= '      <category>' . e($post->category->name) . "</category>\n";
             }

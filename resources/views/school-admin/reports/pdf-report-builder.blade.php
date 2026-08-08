@@ -42,6 +42,6 @@
     </tbody>
 </table>
 
-<div class="footer">Dokumen ini digenerate otomatis oleh eSchool SaaS Report Builder.</div>
+<div class="footer">Dokumen ini digenerate otomatis oleh Sikad Pro Report Builder.</div>
 </body>
 </html>

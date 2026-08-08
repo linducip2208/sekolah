@@ -114,7 +114,7 @@ function renderQRText(token, containerId) {
         <rect x="20" y="20" width="160" height="160" fill="none" stroke="#1a1a2e" stroke-width="1.5" rx="4"/>
         <text x="100" y="110" text-anchor="middle" font-family="monospace" font-size="13" fill="#1a1a2e" font-weight="bold">${escapeHtml(token).substring(0, 20)}</text>
         <text x="100" y="130" text-anchor="middle" font-family="monospace" font-size="13" fill="#1a1a2e" font-weight="bold">${escapeHtml(token).substring(20, 32)}</text>
-        <text x="100" y="165" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#64748b">QR Absensi eSchool</text>
+        <text x="100" y="165" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#64748b">QR Absensi Sikad Pro</text>
     </svg>`;
     container.innerHTML = svg;
 }
@@ -187,7 +187,7 @@ function qrAttendance() {
                 <text x="100" y="90" text-anchor="middle" font-family="monospace" font-size="12" fill="#1a1a2e" font-weight="bold">${this.escapeHtml(token).substring(0, 16)}</text>
                 <text x="100" y="110" text-anchor="middle" font-family="monospace" font-size="12" fill="#1a1a2e" font-weight="bold">${this.escapeHtml(token).substring(16, 32)}</text>
                 <text x="100" y="145" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#64748b">QR Absensi</text>
-                <text x="100" y="160" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#64748b">eSchool</text>
+                <text x="100" y="160" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#64748b">Sikad Pro</text>
             </svg>`;
             container.innerHTML = svg;
         },

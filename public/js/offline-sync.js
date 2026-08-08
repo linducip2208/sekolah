@@ -1,5 +1,5 @@
-/**
- * eSchool SaaS — Offline Sync Manager
+﻿/**
+ * Sikad Pro — Offline Sync Manager
  * Memonitor status online/offline, auto-sync saat reconnect.
  * Conflict resolution: server-wins for attendance (timestamp), last-write-wins for marks.
  */
@@ -19,7 +19,7 @@
         const wasOffline = !isOnline;
         isOnline = navigator.onLine;
 
-        window.dispatchEvent(new CustomEvent('eschool:online-change', {
+        window.dispatchEvent(new CustomEvent('sikadpro:online-change', {
             detail: { online: isOnline },
         }));
 
@@ -44,7 +44,7 @@
                 clearTimeout(timeout);
                 if (res.ok && !isOnline) {
                     isOnline = true;
-                    window.dispatchEvent(new CustomEvent('eschool:online-change', {
+                    window.dispatchEvent(new CustomEvent('sikadpro:online-change', {
                         detail: { online: true },
                     }));
                     console.log('[OfflineSync] Terhubung kembali (periodic check) — memulai sinkronisasi...');
@@ -98,7 +98,7 @@
             const remaining = await OfflineDB.getQueueCount();
             console.log(`[OfflineSync] Selesai: ${data.processed} diproses, ${data.failed} gagal. Tersisa: ${remaining}`);
 
-            window.dispatchEvent(new CustomEvent('eschool:sync-complete', {
+            window.dispatchEvent(new CustomEvent('sikadpro:sync-complete', {
                 detail: data,
             }));
 
@@ -136,7 +136,7 @@
         }], date);
 
         const count = await OfflineDB.getQueueCount();
-        window.dispatchEvent(new CustomEvent('eschool:queue-changed', {
+        window.dispatchEvent(new CustomEvent('sikadpro:queue-changed', {
             detail: { count },
         }));
     }
@@ -167,7 +167,7 @@
         }]);
 
         const count = await OfflineDB.getQueueCount();
-        window.dispatchEvent(new CustomEvent('eschool:queue-changed', {
+        window.dispatchEvent(new CustomEvent('sikadpro:queue-changed', {
             detail: { count },
         }));
     }
@@ -200,7 +200,7 @@
         startAutoSync();
     });
 
-    window.EschoolSync = {
+    window.sikadproSync = {
         flushQueue,
         enqueueAttendance,
         enqueueMarks,

@@ -97,7 +97,7 @@ class PredictDropoutRisk extends Command
                 . "Berdasarkan analisis sistem, terdeteksi *risiko putus sekolah dengan kategori {$riskLabel}*.\n\n"
                 . "Faktor yang berkontribusi: kehadiran rendah, nilai akademik, atau catatan disiplin.\n\n"
                 . "Mohon segera menghubungi wali kelas untuk konsultasi lebih lanjut.\n\n"
-                . "— " . config('app.name', 'eSchool');
+                . "— " . config('app.name', 'Sikad Pro');
 
             try {
                 $sent = $whatsapp->send($phone, $message);

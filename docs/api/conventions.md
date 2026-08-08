@@ -1,9 +1,9 @@
-# API Conventions — eSchool SaaS
+﻿# API Conventions — Sikad Pro
 
 ## Base URL
 
 ```
-Production : https://{school}.eschool.app/api/v1
+Production : https://{school}.sikadpro.app/api/v1
 Local dev  : http://localhost:8000/api/v1
 ```
 
@@ -83,7 +83,7 @@ Token didapat dari `POST /api/v1/auth/login`.
 
 // 402 Payment Required (subscription expired)
 {
-  "message": "Subscription expired. Renew at https://eschool.app/billing",
+  "message": "Subscription expired. Renew at https://sikadpro.app/billing",
   "expired_at": "2025-06-01T00:00:00Z"
 }
 

@@ -12,7 +12,7 @@ class SuperSystemConfigController extends Controller
     private const CACHE_KEY = 'system_config';
 
     private array $defaults = [
-        'app_name'              => 'eSchool SaaS',
+        'app_name'              => 'Sikad Pro',
         'app_logo'              => null,
         'default_plan'          => 'free',
         'trial_days'            => 14,

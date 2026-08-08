@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Job Board Alumni — eSchool</title>
+    <title>Job Board Alumni — Sikad Pro</title>
     @include('elite.partials.head')
     <style>
         .job-card { background: #fff; border: 1px solid var(--c-rule); padding: 1.5rem; transition: all .3s ease; }
@@ -24,7 +24,7 @@
         <div class="text-center mb-10">
             <div class="elite-kicker mb-2">Jaringan Profesional</div>
             <h1 class="elite-h1 text-3xl sm:text-5xl ink-primary mb-3">Job Board Alumni</h1>
-            <div class="font-serif text-lg text-gray-600 mb-6">Lowongan kerja eksklusif dari jaringan alumni eSchool</div>
+            <div class="font-serif text-lg text-gray-600 mb-6">Lowongan kerja eksklusif dari jaringan alumni Sikad Pro</div>
             <div class="elite-rule justify-content-center"></div>
         </div>
 
@@ -93,7 +93,7 @@
 
         {{-- Footer --}}
         <div class="mt-12 pt-8 border-t border-rule text-center">
-            <p class="font-script italic text-sm text-gray-500">Didukung oleh eSchool SaaS — Jaringan Profesional Alumni</p>
+            <p class="font-script italic text-sm text-gray-500">Didukung oleh Sikad Pro — Jaringan Profesional Alumni</p>
         </div>
     </div>
 </body>

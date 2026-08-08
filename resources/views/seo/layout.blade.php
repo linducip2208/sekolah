@@ -1,6 +1,6 @@
 @extends('elite.layout')
 
-@section('title', $meta['title'] ?? 'eSchool')
+@section('title', $meta['title'] ?? 'Sikad Pro')
 @section('description', $meta['description'] ?? '')
 
 @push('jsonld')

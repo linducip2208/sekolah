@@ -1,10 +1,10 @@
-# Module 21 — Super Admin SaaS Panel
+﻿# Module 21 — Super Admin SaaS Panel
 
 ## Depends On
 Semua modul sebelumnya (01–20). Ini adalah panel monitoring dan manajemen platform.
 
 ## What to Build
-Panel super admin di `admin.eschool.app`. Kelola semua sekolah, lihat analytics platform,
+Panel super admin di `admin.sikadpro.app`. Kelola semua sekolah, lihat analytics platform,
 manage plans, subscription billing, system config, dan activity monitoring.
 
 ---
@@ -136,7 +136,7 @@ Route::prefix('v1/super')
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  eSchool SaaS — Super Admin                 [Logout]    │
+│  Sikad Pro — Super Admin                 [Logout]    │
 ├──────────────┬──────────────────────────────────────────┤
 │  SIDEBAR     │  MAIN CONTENT                           │
 │              │                                          │
@@ -159,12 +159,12 @@ Route::prefix('v1/super')
 ```php
 // Global config yang dikelola super admin:
 [
-  'app_name'              => 'eSchool SaaS',
+  'app_name'              => 'Sikad Pro',
   'app_logo'              => 'S3 path',
   'default_plan'          => 'free',
   'trial_days'            => 14,
   'grace_period_days'     => 7,
-  'support_email'         => 'support@eschool.app',
+  'support_email'         => 'support@sikadpro.app',
   'smtp_host'             => '...',
   'smtp_port'             => 587,
   'smtp_username'         => '...',

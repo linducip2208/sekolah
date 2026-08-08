@@ -18,7 +18,7 @@ class DocsController extends Controller
                 'note' => 'Akun demo default — wajib diganti saat go-live production.',
                 'accounts' => [
                     ['email' => 'admin@sman1demo.sch.id', 'password' => 'Admin123!', 'school' => 'SMA Negeri 1 Demo (sman1demo)', 'role' => 'admin'],
-                    ['email' => 'admin@demo.eschool.app', 'password' => 'password',  'school' => 'Demo School (demo)',          'role' => 'admin'],
+                    ['email' => 'admin@demo.sikadpro.app', 'password' => 'password',  'school' => 'Demo School (demo)',          'role' => 'admin'],
                 ],
             ],
             'sections' => [
@@ -335,8 +335,8 @@ class DocsController extends Controller
             'credentials' => [
                 'note' => 'Akun super admin platform (cross-tenant, school_id = null). WAJIB ganti password sebelum production.',
                 'accounts' => [
-                    ['email' => 'superadmin@eschool.app', 'password' => 'password',         'school' => 'Platform-level (semua sekolah)', 'role' => 'super_admin'],
-                    ['email' => 'super@eschool.app',      'password' => 'SuperAdmin123!',   'school' => 'Platform-level (semua sekolah)', 'role' => 'super_admin'],
+                    ['email' => 'superadmin@sikadpro.app', 'password' => 'password',         'school' => 'Platform-level (semua sekolah)', 'role' => 'super_admin'],
+                    ['email' => 'super@sikadpro.app',      'password' => 'SuperAdmin123!',   'school' => 'Platform-level (semua sekolah)', 'role' => 'super_admin'],
                 ],
             ],
             'sections' => [
@@ -415,7 +415,7 @@ class DocsController extends Controller
         'developer' => [
             'title'    => 'Panduan Developer / Integrator',
             'kicker'   => 'Codex Technicus',
-            'lead'     => 'Untuk tim IT internal yayasan, developer freelance, atau partner integrator yang menghubungkan eSchool dengan sistem lain. REST API + webhook + BYOK adapters.',
+            'lead'     => 'Untuk tim IT internal yayasan, developer freelance, atau partner integrator yang menghubungkan Sikad Pro dengan sistem lain. REST API + webhook + BYOK adapters.',
             'login_url' => '/api-docs',
             'login_label' => 'Buka API Documentation',
             'credentials' => [
@@ -424,7 +424,7 @@ class DocsController extends Controller
                     ['email' => 'admin@sman1demo.sch.id', 'password' => 'Admin123!',      'school' => 'Test sebagai school admin',  'role' => 'admin'],
                     ['email' => 'guru1@sman1demo.sch.id', 'password' => 'Guru123!',       'school' => 'Test sebagai teacher',       'role' => 'teacher'],
                     ['email' => 'siswa0_0@sman1demo.sch.id', 'password' => 'Siswa123!',   'school' => 'Test sebagai student',       'role' => 'student'],
-                    ['email' => 'super@eschool.app',      'password' => 'SuperAdmin123!', 'school' => 'Test sebagai super admin',   'role' => 'super_admin'],
+                    ['email' => 'super@sikadpro.app',      'password' => 'SuperAdmin123!', 'school' => 'Test sebagai super admin',   'role' => 'super_admin'],
                 ],
             ],
             'sections' => [

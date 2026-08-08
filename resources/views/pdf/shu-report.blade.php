@@ -81,8 +81,8 @@
     </table>
 
     <div class="footer">
-        <p>Laporan ini digenerate secara otomatis oleh sistem eSchool SaaS.</p>
-        <p>&copy; {{ date('Y') }} eSchool — Laporan SHU Koperasi</p>
+        <p>Laporan ini digenerate secara otomatis oleh sistem Sikad Pro.</p>
+        <p>&copy; {{ date('Y') }} Sikad Pro — Laporan SHU Koperasi</p>
     </div>
 </body>
 </html>

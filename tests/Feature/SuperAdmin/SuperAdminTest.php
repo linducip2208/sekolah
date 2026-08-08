@@ -145,10 +145,10 @@ test('super admin can update system config', function () {
     Sanctum::actingAs($this->superAdmin);
 
     $response = $this->putJson('/api/v1/super/system/config', [
-        'app_name'    => 'eSchool Custom',
+        'app_name'    => 'Sikad Pro Custom',
         'trial_days'  => 30,
     ]);
 
-    $response->assertOk()->assertJsonPath('app_name', 'eSchool Custom')
+    $response->assertOk()->assertJsonPath('app_name', 'Sikad Pro Custom')
         ->assertJsonPath('trial_days', 30);
 });

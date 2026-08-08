@@ -1,4 +1,4 @@
-# CI/CD Pipeline — GitHub Actions
+﻿# CI/CD Pipeline — GitHub Actions
 
 ## Pipeline Overview
 
@@ -17,7 +17,7 @@ Push ke main branch
 ## `.github/workflows/deploy.yml`
 
 ```yaml
-name: Deploy eSchool SaaS
+name: Deploy Sikad Pro
 
 on:
   push:
@@ -41,7 +41,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: eschool_test
+          MYSQL_DATABASE: sikadpro_test
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval=10s
@@ -87,7 +87,7 @@ jobs:
       - name: Configure test env
         run: |
           echo "DB_HOST=127.0.0.1" >> .env.testing
-          echo "DB_DATABASE=eschool_test" >> .env.testing
+          echo "DB_DATABASE=sikadpro_test" >> .env.testing
           echo "DB_USERNAME=root" >> .env.testing
           echo "DB_PASSWORD=root" >> .env.testing
           echo "REDIS_HOST=127.0.0.1" >> .env.testing
@@ -116,7 +116,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /opt/eschool
+            cd /opt/sikadpro
             git pull origin main
             docker compose exec -T app composer install --no-dev --optimize-autoloader
             docker compose exec -T app php artisan migrate --force
@@ -131,7 +131,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
-          text: "eSchool deploy: ${{ job.status }}"
+          text: "Sikad Pro deploy: ${{ job.status }}"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 ```

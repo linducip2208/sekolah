@@ -1,4 +1,4 @@
-# Module 01 — Multi-Tenant Foundation
+﻿# Module 01 — Multi-Tenant Foundation
 
 ## Depends On
 Nothing. This is executed first (after module 00 license).
@@ -14,8 +14,8 @@ Tidak ada fitur domain — hanya fondasi yang dibutuhkan semua modul lain.
 ### 1. Laravel Installation
 
 ```bash
-composer create-project laravel/laravel eschool
-cd eschool
+composer create-project laravel/laravel sikadpro
+cd sikadpro
 composer require nwidart/laravel-modules
 composer require spatie/laravel-permission
 composer require spatie/laravel-activitylog
@@ -102,8 +102,8 @@ Schema::create('users', function (Blueprint $table) {
 
 ```php
 return [
-    'subdomain_pattern'    => '{school}.eschool.app',
-    'super_admin_domain'   => 'admin.eschool.app',
+    'subdomain_pattern'    => '{school}.sikadpro.app',
+    'super_admin_domain'   => 'admin.sikadpro.app',
     'default_timezone'     => 'Asia/Jakarta',
     'default_locale'       => 'id',
     'grace_period_days'    => 7,

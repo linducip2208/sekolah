@@ -145,7 +145,7 @@
                     <div class="text-xs mb-1" style="color: var(--c-accent); font-family:'Inter',sans-serif; letter-spacing:.1em;">GOOGLE SEARCH PREVIEW</div>
                     <div class="text-blue-400 text-sm mb-1" style="font-family:'Inter',sans-serif;" x-text="'{{ url('/blog/') }}/' + (slug || '...')"></div>
                     <div class="font-serif font-semibold text-base text-white mb-1"
-                         x-text="(meta_title || title || 'Judul artikel') + ' — Blog eSchool' | truncate(60)"></div>
+                         x-text="(meta_title || title || 'Judul artikel') + ' — Blog Sikad Pro' | truncate(60)"></div>
                     <div class="font-serif text-xs text-white/75 leading-relaxed"
                          x-text="(meta_description || excerpt || 'Deskripsi artikel...') | truncate(160)"></div>
                 </div>

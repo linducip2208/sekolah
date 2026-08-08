@@ -58,7 +58,7 @@
     </div>
 
     <div class="text-center mt-8 text-xs text-gray-500 font-serif italic">
-        Dicetak secara digital oleh sistem eSchool SaaS · {{ now()->translatedFormat('d F Y') }}
+        Dicetak secara digital oleh sistem Sikad Pro · {{ now()->translatedFormat('d F Y') }}
     </div>
 </div>
 @endsection

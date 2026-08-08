@@ -70,7 +70,7 @@
     </table>
 
     <div style="text-align:right; font-size:8pt; color:#999; margin-top:12px;">
-        Dicetak dari eSchool SaaS — {{ config('app.url') }}
+        Dicetak dari Sikad Pro — {{ config('app.url') }}
     </div>
     <script>window.print();</script>
 </body>

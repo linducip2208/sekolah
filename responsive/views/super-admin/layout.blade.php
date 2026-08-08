@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Operator Platform') — {{ $platform['app_name'] ?? 'eSchool Academy' }}</title>
+    <title>@yield('title', 'Operator Platform') — {{ $platform['app_name'] ?? 'Sikad Pro' }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('elite.partials.head')
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -54,7 +54,7 @@
                     </div>
                 @endif
                 <div class="min-w-0">
-                    <div class="elite-h3 text-lg text-white leading-none truncate">{{ $platform['app_name'] ?? 'eSchool' }}</div>
+                    <div class="elite-h3 text-lg text-white leading-none truncate">{{ $platform['app_name'] ?? 'Sikad Pro' }}</div>
                     <div class="elite-kicker mt-1.5 text-[.55rem]" style="color: var(--c-accent); letter-spacing: .25em;">Magisterium</div>
                 </div>
             </div>

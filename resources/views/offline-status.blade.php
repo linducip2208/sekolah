@@ -1,4 +1,4 @@
-{{-- eSchool SaaS — Offline Status Indicator --}}
+{{-- Sikad Pro — Offline Status Indicator --}}
 <div x-data="offlineIndicator()"
      x-show="show"
      x-cloak

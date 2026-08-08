@@ -38,7 +38,7 @@ class DemoSchoolSeeder extends Seeder
         ]);
 
         // Super admin
-        $superAdmin = User::firstOrCreate(['email' => 'super@eschool.app'], [
+        $superAdmin = User::firstOrCreate(['email' => 'super@sikadpro.app'], [
             'name'      => 'Super Admin',
             'password'  => bcrypt('SuperAdmin123!'),
             'school_id' => null,
@@ -172,7 +172,7 @@ class DemoSchoolSeeder extends Seeder
 
         $this->command->info("Demo school created: {$school->name}");
         $this->command->info("Admin: admin@sman1demo.sch.id / Admin123!");
-        $this->command->info("Super Admin: super@eschool.app / SuperAdmin123!");
+        $this->command->info("Super Admin: super@sikadpro.app / SuperAdmin123!");
         $this->command->info("Students created: " . $students->count());
     }
 }

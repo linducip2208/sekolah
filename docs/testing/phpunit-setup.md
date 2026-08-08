@@ -1,8 +1,8 @@
-# PHPUnit Setup — MySQL Database
+﻿# PHPUnit Setup — MySQL Database
 
 ## Konfigurasi (MySQL, bukan SQLite)
 
-eSchool SaaS menggunakan MySQL 8 untuk testing agar behavior sama persis dengan production.
+Sikad Pro menggunakan MySQL 8 untuk testing agar behavior sama persis dengan production.
 SQLite tidak mendukung beberapa fitur yang dipakai (JSON columns, fulltext index, dll).
 
 ---
@@ -46,7 +46,7 @@ SQLite tidak mendukung beberapa fitur yang dipakai (JSON columns, fulltext index
         <env name="DB_CONNECTION"     value="mysql"/>
         <env name="DB_HOST"           value="127.0.0.1"/>
         <env name="DB_PORT"           value="3306"/>
-        <env name="DB_DATABASE"       value="eschool_test"/>
+        <env name="DB_DATABASE"       value="sikadpro_test"/>
         <env name="DB_USERNAME"       value="root"/>
         <env name="DB_PASSWORD"       value=""/>
 
@@ -82,10 +82,10 @@ SQLite tidak mendukung beberapa fitur yang dipakai (JSON columns, fulltext index
 
 ```bash
 # Buat database khusus testing (sekali saja)
-mysql -u root -p -e "CREATE DATABASE eschool_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p -e "CREATE DATABASE sikadpro_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # Atau dengan password langsung
-mysql -u root -pYOUR_PASSWORD -e "CREATE DATABASE eschool_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -pYOUR_PASSWORD -e "CREATE DATABASE sikadpro_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 ```
 
 ---
@@ -135,7 +135,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 ```bash
 # Setup sekali
-mysql -u root -e "CREATE DATABASE IF NOT EXISTS eschool_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS sikadpro_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # Jalankan semua test
 php artisan test
@@ -169,7 +169,7 @@ services:
     image: mysql:8.0
     env:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: eschool_test
+      MYSQL_DATABASE: sikadpro_test
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     options: >-
       --health-cmd="mysqladmin ping -h localhost"
@@ -185,7 +185,7 @@ steps:
       echo "DB_CONNECTION=mysql"    >> .env.testing
       echo "DB_HOST=127.0.0.1"     >> .env.testing
       echo "DB_PORT=3306"          >> .env.testing
-      echo "DB_DATABASE=eschool_test" >> .env.testing
+      echo "DB_DATABASE=sikadpro_test" >> .env.testing
       echo "DB_USERNAME=root"      >> .env.testing
       echo "DB_PASSWORD=root"      >> .env.testing
       echo "LICENSE_CHECK=false"   >> .env.testing

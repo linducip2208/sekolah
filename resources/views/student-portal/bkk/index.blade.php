@@ -1,5 +1,5 @@
 @extends('layouts.parent')
-@section('title', 'Bursa Kerja — eSchool')
+@section('title', 'Bursa Kerja — Sikad Pro')
 @section('content')
 @include('student-portal._nav')
 

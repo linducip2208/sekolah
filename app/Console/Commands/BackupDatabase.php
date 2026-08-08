@@ -8,14 +8,14 @@ use Symfony\Component\Process\Process;
 
 class BackupDatabase extends Command
 {
-    protected $signature   = 'eschool:backup {--encrypt : Encrypt with AES-256}';
+    protected $signature   = 'sikadpro:backup {--encrypt : Encrypt with AES-256}';
     protected $description = 'Backup MySQL DB + storage to configured backup disk';
 
     public function handle(): int
     {
         $timestamp = now()->format('Y-m-d-His');
         $tmpFile   = storage_path("app/backup-tmp-{$timestamp}.sql");
-        $diskName  = config('eschool.backup.disk', env('BACKUP_DISK', 'local'));
+        $diskName  = config('sikadpro.backup.disk', env('BACKUP_DISK', 'local'));
 
         $this->info("Backing up database to {$tmpFile}...");
 

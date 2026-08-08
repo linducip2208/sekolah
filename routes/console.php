@@ -18,7 +18,7 @@ Schedule::command('ppdb:expire-drafts --days=30')->dailyAt('03:00');
 Schedule::command('religious:monthly-report')->monthlyOn(1, '04:00');
 
 // Daily DB backup at 2:30am
-Schedule::command('eschool:backup --encrypt')->dailyAt('02:30')->withoutOverlapping();
+Schedule::command('sikadpro:backup --encrypt')->dailyAt('02:30')->withoutOverlapping();
 
 // Emergency alerts — process draft queue every minute
 Schedule::command('emergency:send --batch=20')->everyMinute()->withoutOverlapping();

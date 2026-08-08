@@ -1,9 +1,9 @@
-# .env Reference — eSchool SaaS
+﻿# .env Reference — Sikad Pro
 
 ## .env.example (commit ke repo)
 
 ```env
-APP_NAME="eSchool SaaS"
+APP_NAME="Sikad Pro"
 APP_ENV=local
 APP_KEY=
 APP_DEBUG=true
@@ -15,14 +15,14 @@ APP_LOCALE=id
 LICENSE_KEY=
 LICENSE_SECRET=
 LICENSE_CHECK=false
-LICENSE_PRODUCT=eschool
+LICENSE_PRODUCT=sikadpro
 LICENSE_API_URL=https://whitelabel.co.id/api/license
 
 # Database (MySQL 8)
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=eschool_saas
+DB_DATABASE=sikadpro_saas
 DB_USERNAME=root
 DB_PASSWORD=
 DB_CHARSET=utf8mb4
@@ -32,7 +32,7 @@ DB_COLLATION=utf8mb4_unicode_ci
 CACHE_DRIVER=redis
 SESSION_DRIVER=redis
 SESSION_LIFETIME=120
-SESSION_DOMAIN=.eschool.app
+SESSION_DOMAIN=.sikadpro.app
 
 # Queue
 QUEUE_CONNECTION=redis
@@ -66,7 +66,7 @@ MAIL_PORT=1025
 MAIL_USERNAME=null
 MAIL_PASSWORD=null
 MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS=noreply@eschool.app
+MAIL_FROM_ADDRESS=noreply@sikadpro.app
 MAIL_FROM_NAME="${APP_NAME}"
 
 # Storage (S3-compatible)
@@ -74,7 +74,7 @@ FILESYSTEM_DISK=local
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 AWS_DEFAULT_REGION=ap-southeast-1
-AWS_BUCKET=eschool-storage
+AWS_BUCKET=sikadpro-storage
 AWS_URL=
 AWS_ENDPOINT=
 AWS_USE_PATH_STYLE_ENDPOINT=false
@@ -85,10 +85,10 @@ FIREBASE_SERVER_KEY=
 # SMS Gateway (opsional)
 SMS_GATEWAY_URL=
 SMS_GATEWAY_KEY=
-SMS_GATEWAY_SENDER=eSchool
+SMS_GATEWAY_SENDER=Sikad Pro
 
 # Multi-tenancy
-SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,*.eschool.app
+SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,*.sikadpro.app
 ```
 
 ---
@@ -103,10 +103,10 @@ cp .env.example .env
 php artisan key:generate
 
 # 3. Setup MySQL lokal
-mysql -u root -e "CREATE DATABASE eschool_saas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -e "CREATE DATABASE sikadpro_saas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # 4. Update .env
-DB_DATABASE=eschool_saas
+DB_DATABASE=sikadpro_saas
 DB_USERNAME=root
 DB_PASSWORD=your_mysql_password
 LICENSE_CHECK=false   # skip license check di local

@@ -1,4 +1,4 @@
-# Module 20 — Flutter Mobile App
+﻿# Module 20 — Flutter Mobile App
 
 ## Depends On
 Semua modul API (01–19) harus complete sebelum Flutter dieksekusi penuh.
@@ -347,6 +347,6 @@ class NotificationHandler {
 flutter run --dart-define=API_BASE_URL=http://localhost:8000/api/v1
 
 # Production
-flutter build apk --release --dart-define=API_BASE_URL=https://api.eschool.app/api/v1
-flutter build ipa --release --dart-define=API_BASE_URL=https://api.eschool.app/api/v1
+flutter build apk --release --dart-define=API_BASE_URL=https://api.sikadpro.app/api/v1
+flutter build ipa --release --dart-define=API_BASE_URL=https://api.sikadpro.app/api/v1
 ```

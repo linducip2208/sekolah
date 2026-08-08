@@ -10,7 +10,7 @@
 {!! json_encode([
     '@context' => 'https://schema.org',
     '@type'    => 'Blog',
-    'name'     => 'Blog ' . ($p['app_name'] ?? 'eSchool'),
+    'name'     => 'Blog ' . ($p['app_name'] ?? 'Sikad Pro'),
     'url'      => route('blog.index'),
     'description' => $meta['description'] ?? 'Artikel terbaru seputar pendidikan.',
     'blogPost' => $posts->map(fn($post) => [
@@ -18,7 +18,7 @@
         'headline' => $post->title,
         'url'      => route('blog.show', $post->slug),
         'datePublished' => $post->published_at?->toIso8601String(),
-        'author' => ['@type' => 'Person', 'name' => $post->author?->name ?? 'eSchool'],
+        'author' => ['@type' => 'Person', 'name' => $post->author?->name ?? 'Sikad Pro'],
     ])->toArray(),
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>

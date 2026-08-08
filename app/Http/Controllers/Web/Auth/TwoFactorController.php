@@ -27,7 +27,7 @@ class TwoFactorController extends Controller
             $request->session()->put('2fa.pending_secret', $secret);
         }
 
-        $issuer = config('app.name', 'eSchool');
+        $issuer = config('app.name', 'Sikad Pro');
         $uri    = $this->totp->getOtpAuthUri($issuer, $user->email, $secret);
         $qrUrl  = $this->totp->getQrCodeUrl($uri);
 

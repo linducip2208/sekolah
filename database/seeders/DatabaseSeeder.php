@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $superAdmin = User::updateOrCreate(
-            ['email' => 'superadmin@eschool.app'],
+            ['email' => 'superadmin@sikadpro.app'],
             [
                 'name'      => 'Super Admin',
                 'password'  => Hash::make('password'),
@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             ['subdomain' => 'demo'],
             [
                 'name'     => 'Demo School',
-                'email'    => 'admin@demo.eschool.app',
+                'email'    => 'admin@demo.sikadpro.app',
                 'timezone' => 'Asia/Jakarta',
                 'locale'   => 'id',
                 'is_active' => true,
@@ -50,7 +50,7 @@ class DatabaseSeeder extends Seeder
         );
 
         $adminUser = User::updateOrCreate(
-            ['email' => 'admin@demo.eschool.app'],
+            ['email' => 'admin@demo.sikadpro.app'],
             [
                 'school_id' => $demoSchool->id,
                 'name'      => 'Admin Demo',

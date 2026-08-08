@@ -1,4 +1,4 @@
-# Multi-Tenancy Architecture
+﻿# Multi-Tenancy Architecture
 
 ## Strategy: Shared Database, School-Scoped Rows
 
@@ -76,11 +76,11 @@ $students = Student::where('school_id', $request->school_id)->get();
 
 ## School Subdomain Routing
 
-Each school gets a subdomain: `smkn1.eschool.app`
+Each school gets a subdomain: `smkn1.sikadpro.app`
 
 ```php
 // routes/web.php
-Route::domain('{school}.eschool.app')->group(function () {
+Route::domain('{school}.sikadpro.app')->group(function () {
     Route::middleware(['school.resolve'])->group(function () {
         // all school web routes
     });
@@ -136,7 +136,7 @@ CREATE TABLE schools (
 |---|---|---|
 | `school_id` | NULL | required |
 | Can see all schools | ✓ | ✗ |
-| Panel URL | `admin.eschool.app` | `{school}.eschool.app/admin` |
+| Panel URL | `admin.sikadpro.app` | `{school}.sikadpro.app/admin` |
 | SchoolScope applied | ✗ (bypassed) | ✓ |
 
 ---

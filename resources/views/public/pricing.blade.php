@@ -1,6 +1,6 @@
 @extends('elite.layout')
 @section('title', 'Berlangganan — Pilih Paket')
-@section('description', 'Pilih paket berlangganan eSchool sesuai kebutuhan sekolah Anda.')
+@section('description', 'Pilih paket berlangganan Sikad Pro sesuai kebutuhan sekolah Anda.')
 
 @section('header')@include('elite.partials.header')@endsection
 

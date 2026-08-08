@@ -69,7 +69,7 @@
             @if(!empty($branding['tagline'] ?? ''))
                 <p class="mb-4">{{ $branding['tagline'] }}</p>
             @endif
-            <p class="text-sm">Powered by eSchool SaaS &copy; {{ date('Y') }}</p>
+            <p class="text-sm">Powered by Sikad Pro &copy; {{ date('Y') }}</p>
         </div>
     </footer>
 

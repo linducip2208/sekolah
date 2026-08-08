@@ -48,7 +48,7 @@
         </div>
         <div>
             <label class="elite-kicker text-[.6rem] block mb-1">Extra Headers (JSON, opsional)</label>
-            <textarea name="extra_headers" rows="2" placeholder='{"X-Source": "eschool"}' class="w-full border-2 border-rule px-3 py-2 font-mono"></textarea>
+            <textarea name="extra_headers" rows="2" placeholder='{"X-Source": "sikadpro"}' class="w-full border-2 border-rule px-3 py-2 font-mono"></textarea>
         </div>
         <button class="btn-elite">Simpan Webhook</button>
     </form>

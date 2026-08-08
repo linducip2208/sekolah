@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracer Study Alumni — eSchool</title>
+    <title>Tracer Study Alumni — Sikad Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.bunny.net/css?family=playfair-display:400,600,700|inter:300,400,600|cormorant-garamond:400,500,600,400i&display=swap" rel="stylesheet">
     <style>

@@ -1,4 +1,4 @@
-# License API — whitelabel.co.id
+﻿# License API — whitelabel.co.id
 
 > **Base URL:** `https://whitelabel.co.id/api`  
 > **Auth:** No Bearer token — authenticated via `activation_key` + `domain`  
@@ -7,9 +7,9 @@
 
 ---
 
-## Dua Model Bisnis eSchool
+## Dua Model Bisnis Sikad Pro
 
-eSchool mendukung **dua model bisnis** yang berbeda. Pilih satu sesuai kebutuhan:
+Sikad Pro mendukung **dua model bisnis** yang berbeda. Pilih satu sesuai kebutuhan:
 
 ---
 
@@ -20,16 +20,16 @@ aplikasi di server Anda sendiri. Sekolah-sekolah membayar subscription bulanan k
 bukan ke whitelabel.co.id.
 
 ```
-whitelabel.co.id  →  Anda beli 1 license untuk domain: eschool.app
+whitelabel.co.id  →  Anda beli 1 license untuk domain: sikadpro.app
 
 Server Anda (1 server, 1 .env):
   LICENSE_KEY=XXXXX-XXXXX-XXXXX-XXXXX
-  APP_URL=https://eschool.app            ← domain platform Anda
+  APP_URL=https://sikadpro.app            ← domain platform Anda
 
 Semua sekolah jalan di server yang sama:
-  smkn1.eschool.app  ─┐
-  sma2.eschool.app    ├── wildcard subdomain → 1 server → 1 license check/hari
-  sd3.eschool.app    ─┘
+  smkn1.sikadpro.app  ─┐
+  sma2.sikadpro.app    ├── wildcard subdomain → 1 server → 1 license check/hari
+  sd3.sikadpro.app    ─┘
 
 Sekolah bayar subscription → ke Anda (via module 13)
 Anda bayar license          → ke whitelabel.co.id (1x saja)
@@ -37,14 +37,14 @@ Anda bayar license          → ke whitelabel.co.id (1x saja)
 
 **Artisan command (Anda jalankan 1x saat install):**
 ```bash
-php artisan license:activate XXXXX-XXXXX-XXXXX-XXXXX eschool.app
+php artisan license:activate XXXXX-XXXXX-XXXXX-XXXXX sikadpro.app
 ```
 
 ---
 
 ### Model 2 — Source Code Sale (Anda jual source code via whitelabel.co.id)
 
-Anda menjual **source code** eSchool melalui marketplace whitelabel.co.id.
+Anda menjual **source code** Sikad Pro melalui marketplace whitelabel.co.id.
 Setiap customer yang membeli mendapatkan `activation_key` mereka sendiri
 dan men-deploy di server mereka sendiri.
 
@@ -74,7 +74,7 @@ php artisan license:activate AAAXX-XXXXX-XXXXX-XXXXX sekolaha.com
 | Aspek | Model 1 (SaaS Platform) | Model 2 (Source Code Sale) |
 |---|---|---|
 | Yang beli license | Anda (1x) | Setiap customer |
-| Domain di license | `eschool.app` (platform Anda) | Domain customer masing-masing |
+| Domain di license | `sikadpro.app` (platform Anda) | Domain customer masing-masing |
 | Server | 1 server milik Anda | Tiap customer server sendiri |
 | Sekolah bayar ke | Anda (subscription) | whitelabel.co.id (license) |
 | Jumlah license di whitelabel | 1 | N (1 per customer) |
@@ -189,7 +189,7 @@ Checks whether a newer version is available for a given product.
 
 **Example**
 ```
-GET /api/version/check?product=eschool&current=1.0.0
+GET /api/version/check?product=sikadpro&current=1.0.0
 ```
 
 **Response 200**
@@ -235,7 +235,7 @@ return [
     'secret'  => env('LICENSE_SECRET'),           // APP_KEY dari whitelabel.co.id
     'api'     => env('LICENSE_API_URL', 'https://whitelabel.co.id/api/license'),
     'enabled' => env('LICENSE_CHECK', true),      // false untuk dev/testing
-    'product' => env('LICENSE_PRODUCT', 'eschool'),
+    'product' => env('LICENSE_PRODUCT', 'sikadpro'),
     'version' => '1.0.0',
 ];
 ```
@@ -366,13 +366,13 @@ php artisan license:revoke XXXXX-XXXXX-XXXXX-XXXXX yourdomain.com
 ### `.env` — Model 1: SaaS Platform
 
 ```env
-# .env di server platform Anda (eschool.app)
+# .env di server platform Anda (sikadpro.app)
 LICENSE_KEY=XXXXX-XXXXX-XXXXX-XXXXX
 LICENSE_SECRET=secret-dari-whitelabel
-APP_URL=https://eschool.app            # domain platform, bukan subdomain sekolah
+APP_URL=https://sikadpro.app            # domain platform, bukan subdomain sekolah
 
 LICENSE_CHECK=true
-LICENSE_PRODUCT=eschool
+LICENSE_PRODUCT=sikadpro
 ```
 
 ### `.env` — Model 2: Source Code Sale (di server customer)
@@ -384,7 +384,7 @@ LICENSE_SECRET=secret-dari-whitelabel
 APP_URL=https://sekolahku.sch.id       # domain sekolah customer
 
 LICENSE_CHECK=true
-LICENSE_PRODUCT=eschool
+LICENSE_PRODUCT=sikadpro
 ```
 
 ### `.gitignore`

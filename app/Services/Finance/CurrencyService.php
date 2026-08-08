@@ -25,7 +25,7 @@ class CurrencyService
 
     public function format(int|float|null $amountMinorUnits, ?School $school = null): string
     {
-        $school ??= $this->resolveSchool();
+        $school ??= $this->ResolveSchool();
         $symbol    = $school?->currency_symbol ?? 'Rp';
         $decimals  = (int) ($school?->currency_decimals ?? 0);
         $thousands = $school?->currency_thousands_sep ?? '.';
@@ -40,13 +40,13 @@ class CurrencyService
 
     public function symbol(?School $school = null): string
     {
-        $school ??= $this->resolveSchool();
+        $school ??= $this->ResolveSchool();
         return $school?->currency_symbol ?? 'Rp';
     }
 
     public function code(?School $school = null): string
     {
-        $school ??= $this->resolveSchool();
+        $school ??= $this->ResolveSchool();
         return $school?->currency_code ?? 'IDR';
     }
 
@@ -64,7 +64,7 @@ class CurrencyService
         $school->save();
     }
 
-    private function resolveSchool(): ?School
+    private function ResolveSchool(): ?School
     {
         if (!auth()->check()) return null;
         $schoolId = auth()->user()->school_id;

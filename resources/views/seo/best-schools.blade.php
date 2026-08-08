@@ -15,7 +15,7 @@
         <li><strong>Prestasi Akademik:</strong> Olimpiade, lulusan diterima di PTN/luar negeri.</li>
         <li><strong>Fasilitas:</strong> Lab, perpustakaan, sarana olahraga.</li>
         <li><strong>Rasio Guru-Siswa:</strong> Maksimum 1:25.</li>
-        <li><strong>Ulasan Parent:</strong> Berdasar feedback aplikasi eSchool.</li>
+        <li><strong>Ulasan Parent:</strong> Berdasar feedback aplikasi Sikad Pro.</li>
     </ul>
 
     <h2 class="text-2xl font-semibold mt-8 mb-4">Daftar Sekolah</h2>

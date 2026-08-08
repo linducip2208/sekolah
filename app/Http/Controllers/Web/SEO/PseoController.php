@@ -22,7 +22,7 @@ class PseoController extends Controller
 
     private function tenantUrl(string $subdomain, string $path = ''): string
     {
-        $base = config('multitenancy.base_domain', 'eschool.whitelabel.co.id');
+        $base = config('multitenancy.base_domain', 'sikadpro.whitelabel.co.id');
         return "https://{$subdomain}.{$base}" . ($path !== '' ? '/' . ltrim($path, '/') : '');
     }
 

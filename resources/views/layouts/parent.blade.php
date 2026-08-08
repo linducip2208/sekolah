@@ -10,7 +10,7 @@
             : (auth()->check() && auth()->user()->school_id
                 ? app(\App\Services\Branding\BrandingService::class)->getForSchool(auth()->user()->school_id)
                 : null);
-        $displayName = $branding['display_name'] ?? ($platform['app_name'] ?? config('app.name', 'eSchool'));
+        $displayName = $branding['display_name'] ?? ($platform['app_name'] ?? config('app.name', 'Sikad Pro'));
         $logoPrimary = $branding['logos']['primary'] ?? ($platform['logo_url'] ?? null);
         $favicon = $branding['logos']['favicon'] ?? ($platform['favicon_url'] ?? null);
         $cacheVer = $branding['cache_version'] ?? 1;

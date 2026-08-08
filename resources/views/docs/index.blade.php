@@ -1,7 +1,7 @@
 @extends('elite.layout')
 
 @section('title', 'Panduan Penggunaan')
-@section('description', 'Buku panduan resmi ' . ($platform['app_name'] ?? 'eSchool') . ' — disusun untuk setiap peran: administrator, orang tua, guru, siswa, dan operator platform.')
+@section('description', 'Buku panduan resmi ' . ($platform['app_name'] ?? 'Sikad Pro') . ' — disusun untuk setiap peran: administrator, orang tua, guru, siswa, dan operator platform.')
 
 @section('header')
 @include('elite.partials.header')

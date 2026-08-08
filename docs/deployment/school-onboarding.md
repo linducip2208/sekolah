@@ -1,4 +1,4 @@
-# School Onboarding Wizard
+﻿# School Onboarding Wizard
 
 Step-by-step setup untuk admin sekolah baru.
 
@@ -116,10 +116,10 @@ Pastikan plan_expires_at di database masih aktif (super admin yang set).
 ### 16. SEO Submission
 ```bash
 # Submit sitemap to Google
-curl "https://www.google.com/ping?sitemap=https://your-school.eschool.app/sitemap.xml"
+curl "https://www.google.com/ping?sitemap=https://your-school.sikadpro.app/sitemap.xml"
 
 # Verify in Google Search Console
-# Add property: https://your-school.eschool.app
+# Add property: https://your-school.sikadpro.app
 ```
 
 ### 17. Mobile App Distribution

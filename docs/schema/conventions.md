@@ -1,4 +1,4 @@
-# Database Conventions — MySQL 8
+﻿# Database Conventions — MySQL 8
 
 ## Database Engine
 
@@ -9,7 +9,7 @@ Alasannya: JSON columns, fulltext index, dan `upsert()` bergantung pada MySQL be
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=eschool_saas
+DB_DATABASE=sikadpro_saas
 DB_USERNAME=root
 DB_PASSWORD=
 DB_CHARSET=utf8mb4

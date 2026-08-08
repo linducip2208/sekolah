@@ -9,7 +9,7 @@
             </button>
             <div class="px-8 pt-8 pb-7 text-center">
                 <div class="ornament-center"></div>
-                <div class="elite-kicker mb-3">{{ $p['app_name'] ?? 'eSchool' }} · Notice</div>
+                <div class="elite-kicker mb-3">{{ $p['app_name'] ?? 'Sikad Pro' }} · Notice</div>
                 <h3 class="elite-h2 text-3xl ink-primary mb-2">{{ $p['popup_title'] ?? 'Source Code Dijual' }}</h3>
                 <div class="elite-rule mx-auto my-4"></div>
                 <p class="font-serif text-lg leading-relaxed" style="color:#3d362f;">

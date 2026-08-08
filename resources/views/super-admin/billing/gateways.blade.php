@@ -141,7 +141,7 @@
                     <label class="elite-kicker text-[.6rem] block mb-1">Callback URL (opsional)</label>
                     <input type="url" name="callback_url" maxlength="500" x-model="form.callback_url"
                            class="w-full border-2 border-rule px-3 py-2 font-mono text-xs"
-                           placeholder="https://eschool.test/payment/return">
+                           placeholder="https://sikadpro.test/payment/return">
                 </div>
 
                 <div class="flex gap-2 items-end">

@@ -1,4 +1,4 @@
-# Deployment Runbook — eSchool SaaS
+﻿# Deployment Runbook — Sikad Pro
 
 Production deployment & operations playbook.
 
@@ -6,7 +6,7 @@ Production deployment & operations playbook.
 
 ### Prerequisites
 - Docker 24+ & Docker Compose v2
-- Domain dengan wildcard DNS pointing ke server (`*.eschool.app`)
+- Domain dengan wildcard DNS pointing ke server (`*.sikadpro.app`)
 - SSL cert (Let's Encrypt wildcard atau Cloudflare)
 - SMTP credentials (untuk email)
 - (Opsional) Firebase project untuk FCM push
@@ -15,8 +15,8 @@ Production deployment & operations playbook.
 
 ```bash
 # 1. Clone & configure
-git clone <repo> /opt/eschool
-cd /opt/eschool
+git clone <repo> /opt/sikadpro
+cd /opt/sikadpro
 cp .env.example .env
 # Edit .env: APP_KEY, DB_*, REDIS_*, SMTP_*, FCM_*, etc.
 
@@ -42,7 +42,7 @@ docker compose exec app php artisan event:cache
 docker compose exec app php artisan storage:link
 
 # 6. Submit sitemap
-curl -X GET "https://www.google.com/ping?sitemap=https://eschool.app/sitemap.xml"
+curl -X GET "https://www.google.com/ping?sitemap=https://sikadpro.app/sitemap.xml"
 ```
 
 ## Post-Deployment Checklist
@@ -68,7 +68,7 @@ curl -X GET "https://www.google.com/ping?sitemap=https://eschool.app/sitemap.xml
 ```bash
 # Auto-runs daily 02:00 via scheduler
 # Manual:
-docker compose exec app php artisan eschool:backup
+docker compose exec app php artisan sikadpro:backup
 ```
 
 ### Queue Worker
@@ -78,7 +78,7 @@ docker compose restart worker
 ```
 
 ### Scheduler
-Single-instance via `eschool-scheduler` container. Monitor:
+Single-instance via `sikadpro-scheduler` container. Monitor:
 ```bash
 docker compose logs -f scheduler
 ```
@@ -100,10 +100,10 @@ docker compose logs -f scheduler
 
 ```bash
 # Quick
-curl https://eschool.app/up
+curl https://sikadpro.app/up
 
 # Deep
-curl https://eschool.app/api/v1/health/deep
+curl https://sikadpro.app/api/v1/health/deep
 ```
 
 Returns JSON with status of: DB, Redis, S3, queue.
@@ -145,7 +145,7 @@ docker compose exec app php artisan cache:clear
 
 ### Deploy update
 ```bash
-cd /opt/eschool
+cd /opt/sikadpro
 git pull
 docker compose build app worker scheduler
 docker compose up -d
@@ -170,7 +170,7 @@ docker compose up -d
 
 ### Storage restore
 ```bash
-aws s3 sync s3://eschool-backups/storage/ ./storage/
+aws s3 sync s3://sikadpro-backups/storage/ ./storage/
 ```
 
 ## Monitoring Recommendations

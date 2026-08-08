@@ -1,8 +1,8 @@
-# eSchool SaaS — Project Bible for Claude Code
+﻿# Sikad Pro — Project Bible for Claude Code
 
 ## MANDATORY: Read This First
 
-You are building **eSchool SaaS** — a multi-tenant School Management ERP.
+You are building **Sikad Pro** — a multi-tenant School Management ERP.
 Before writing ANY code, read the relevant module doc in `docs/modules/`.
 Before touching auth or permissions, read `docs/roles/rbac.md`.
 Before touching database, read `docs/schema/conventions.md`.

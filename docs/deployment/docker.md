@@ -1,4 +1,4 @@
-# Deployment Guide — Docker + Nginx + Let's Encrypt
+﻿# Deployment Guide — Docker + Nginx + Let's Encrypt
 
 ## Stack Production
 
@@ -16,7 +16,7 @@
 │  │             └── scheduler (artisan schedule:work)     │   │
 │  └──────────────────────────────────────────────────────┘   │
 │                                                              │
-│  SSL: Certbot (Let's Encrypt) — wildcard *.eschool.app       │
+│  SSL: Certbot (Let's Encrypt) — wildcard *.sikadpro.app       │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -33,7 +33,7 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    container_name: eschool_app
+    container_name: sikadpro_app
     restart: unless-stopped
     working_dir: /var/www
     volumes:
@@ -42,14 +42,14 @@ services:
     environment:
       - PHP_MEMORY_LIMIT=256M
     networks:
-      - eschool_net
+      - sikadpro_net
     depends_on:
       - mysql
       - redis
 
   nginx:
     image: nginx:1.25-alpine
-    container_name: eschool_nginx
+    container_name: sikadpro_nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -59,13 +59,13 @@ services:
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
       - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
-      - eschool_net
+      - sikadpro_net
     depends_on:
       - app
 
   mysql:
     image: mysql:8.0
-    container_name: eschool_mysql
+    container_name: sikadpro_mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
@@ -76,32 +76,32 @@ services:
       - mysql_data:/var/lib/mysql
       - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
     networks:
-      - eschool_net
+      - sikadpro_net
     ports:
       - "3306:3306"   # hanya untuk dev, tutup di production
 
   redis:
     image: redis:7-alpine
-    container_name: eschool_redis
+    container_name: sikadpro_redis
     restart: unless-stopped
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
     networks:
-      - eschool_net
+      - sikadpro_net
 
   worker:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    container_name: eschool_worker
+    container_name: sikadpro_worker
     restart: unless-stopped
     working_dir: /var/www
     command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
     volumes:
       - .:/var/www
     networks:
-      - eschool_net
+      - sikadpro_net
     depends_on:
       - redis
       - mysql
@@ -110,14 +110,14 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    container_name: eschool_scheduler
+    container_name: sikadpro_scheduler
     restart: unless-stopped
     working_dir: /var/www
     command: php artisan schedule:work
     volumes:
       - .:/var/www
     networks:
-      - eschool_net
+      - sikadpro_net
     depends_on:
       - mysql
       - redis
@@ -127,7 +127,7 @@ volumes:
   redis_data:
 
 networks:
-  eschool_net:
+  sikadpro_net:
     driver: bridge
 ```
 
@@ -172,23 +172,23 @@ CMD ["php-fpm"]
 
 ---
 
-## docker/nginx/conf.d/eschool.conf
+## docker/nginx/conf.d/sikadpro.conf
 
 ```nginx
 # Redirect HTTP → HTTPS
 server {
     listen 80;
-    server_name *.eschool.app admin.eschool.app;
+    server_name *.sikadpro.app admin.sikadpro.app;
     return 301 https://$host$request_uri;
 }
 
 # School subdomain + Admin panel
 server {
     listen 443 ssl http2;
-    server_name *.eschool.app;
+    server_name *.sikadpro.app;
 
-    ssl_certificate     /etc/letsencrypt/live/eschool.app/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/eschool.app/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/sikadpro.app/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/sikadpro.app/privkey.pem;
 
     root /var/www/public;
     index index.php;
@@ -209,7 +209,7 @@ server {
     error_page 404 /index.php;
 
     location ~ \.php$ {
-        fastcgi_pass   eschool_app:9000;
+        fastcgi_pass   sikadpro_app:9000;
         fastcgi_index  index.php;
         fastcgi_param  SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include        fastcgi_params;
@@ -251,11 +251,11 @@ long_query_time       = 2
 ## .env Production Template
 
 ```env
-APP_NAME="eSchool SaaS"
+APP_NAME="Sikad Pro"
 APP_ENV=production
 APP_KEY=                              # php artisan key:generate
 APP_DEBUG=false
-APP_URL=https://admin.eschool.app
+APP_URL=https://admin.sikadpro.app
 
 # License
 LICENSE_KEY=XXXXX-XXXXX-XXXXX-XXXXX
@@ -266,8 +266,8 @@ LICENSE_CHECK=true
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_PORT=3306
-DB_DATABASE=eschool_saas
-DB_USERNAME=eschool
+DB_DATABASE=sikadpro_saas
+DB_USERNAME=sikadpro
 DB_PASSWORD=strong-password-here
 
 # Redis
@@ -284,11 +284,11 @@ QUEUE_CONNECTION=redis
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=noreply@eschool.app
+MAIL_USERNAME=noreply@sikadpro.app
 MAIL_PASSWORD=
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@eschool.app
-MAIL_FROM_NAME="eSchool SaaS"
+MAIL_FROM_ADDRESS=noreply@sikadpro.app
+MAIL_FROM_NAME="Sikad Pro"
 
 # Firebase
 FIREBASE_SERVER_KEY=
@@ -307,12 +307,12 @@ FILESYSTEM_DISK=s3
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 AWS_DEFAULT_REGION=ap-southeast-1
-AWS_BUCKET=eschool-storage
+AWS_BUCKET=sikadpro-storage
 AWS_URL=
 
 # Multi-tenancy
-SANCTUM_STATEFUL_DOMAINS=*.eschool.app,admin.eschool.app
-SESSION_DOMAIN=.eschool.app
+SANCTUM_STATEFUL_DOMAINS=*.sikadpro.app,admin.sikadpro.app
+SESSION_DOMAIN=.sikadpro.app
 ```
 
 ---
@@ -321,8 +321,8 @@ SESSION_DOMAIN=.eschool.app
 
 ```bash
 # 1. Clone repo
-git clone https://github.com/yourorg/eschool-saas.git /opt/eschool
-cd /opt/eschool
+git clone https://github.com/yourorg/sikadpro-saas.git /opt/sikadpro
+cd /opt/sikadpro
 
 # 2. Setup .env
 cp .env.example .env
@@ -331,8 +331,8 @@ nano .env  # isi semua value
 # 3. SSL Wildcard (sekali saja)
 certbot certonly --dns-cloudflare \
   --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
-  -d "eschool.app" -d "*.eschool.app" \
-  --email admin@eschool.app --agree-tos
+  -d "sikadpro.app" -d "*.sikadpro.app" \
+  --email admin@sikadpro.app --agree-tos
 
 # 4. Build dan start
 docker compose up -d --build
@@ -359,7 +359,7 @@ docker compose ps
 ## Update / Deploy Baru
 
 ```bash
-cd /opt/eschool
+cd /opt/sikadpro
 
 # Pull kode baru
 git pull origin main

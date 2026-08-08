@@ -25,7 +25,7 @@
                     </div>
                 @endif
                 <div class="leading-tight min-w-0">
-                    <div class="elite-h3 text-base sm:text-xl ink-primary truncate">{{ $p['app_name'] ?? 'eSchool Academy' }}</div>
+                    <div class="elite-h3 text-base sm:text-xl ink-primary truncate">{{ $p['app_name'] ?? 'Sikad Pro' }}</div>
                     <div class="elite-kicker text-[.55rem] sm:text-[.6rem] mt-0.5 truncate" style="letter-spacing:.3em;">{{ $p['institution_type'] ?? 'Academy' }}</div>
                 </div>
             </a>

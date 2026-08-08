@@ -49,7 +49,7 @@ class LiveClassService
     {
         // For self-hosted Jitsi/BBB: just generate a URL with random room
         if (in_array($provider->api_format, ['self_hosted_jitsi', 'self_hosted_bbb', 'manual_link'], true)) {
-            $room = 'eschool-' . Str::lower(Str::random(12));
+            $room = 'sikadpro-' . Str::lower(Str::random(12));
             return [
                 'meeting_id' => $room,
                 'join_url'   => rtrim($provider->base_url ?? '', '/') . '/' . $room,

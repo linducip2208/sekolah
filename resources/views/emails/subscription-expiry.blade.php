@@ -9,7 +9,7 @@ body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: 
 .footer { text-align: center; color: #888; font-size: 12px; padding: 16px; border-top: 1px solid #eee; }
 </style></head>
 <body>
-<div class="header"><h2>eSchool SaaS</h2></div>
+<div class="header"><h2>Sikad Pro</h2></div>
 <div class="content">
     <h3>Langganan Akan Segera Berakhir</h3>
     <p>Yth. Admin Sekolah <strong>{{ $schoolName }}</strong>,</p>
@@ -20,6 +20,6 @@ body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: 
     <p style="margin-top:16px"><a href="#" class="btn">Perpanjang Sekarang</a></p>
     <p style="margin-top:16px;font-size:12px;color:#888">Jika ada pertanyaan, hubungi kami di support@whitelabel.co.id</p>
 </div>
-<div class="footer">eSchool SaaS — Platform Manajemen Sekolah</div>
+<div class="footer">Sikad Pro — Platform Manajemen Sekolah</div>
 </body>
 </html>

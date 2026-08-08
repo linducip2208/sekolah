@@ -45,7 +45,7 @@ class WhatsAppService
         $amount  = 'Rp ' . number_format($amountCents / 100, 0, ',', '.');
         $message = "Yth. Orang Tua/Wali Murid {$studentName},\n\n"
             . "Kami mengingatkan bahwa tagihan SPP sebesar *{$amount}* akan jatuh tempo pada *{$dueDate}*.\n\n"
-            . "Mohon segera melakukan pembayaran. Terima kasih.\n\n_eSchool SaaS_";
+            . "Mohon segera melakukan pembayaran. Terima kasih.\n\n_Sikad Pro_";
 
         return $this->send($phone, $message);
     }
@@ -54,7 +54,7 @@ class WhatsAppService
     {
         $message = "Yth. Orang Tua/Wali Murid {$studentName},\n\n"
             . "Kami informasikan bahwa *{$studentName}* tercatat *tidak hadir (alpha)* pada tanggal *{$date}*.\n\n"
-            . "Jika ada keterangan, silakan hubungi wali kelas. Terima kasih.\n\n_eSchool SaaS_";
+            . "Jika ada keterangan, silakan hubungi wali kelas. Terima kasih.\n\n_Sikad Pro_";
 
         return $this->send($phone, $message);
     }
@@ -62,7 +62,7 @@ class WhatsAppService
     public function sendReportCardReady(string $phone, string $studentName, string $semester): bool
     {
         $message = "Yth. Orang Tua/Wali Murid *{$studentName}*,\n\n"
-            . "Rapor semester *{$semester}* telah tersedia. Silakan login ke aplikasi untuk melihat nilai.\n\n_eSchool SaaS_";
+            . "Rapor semester *{$semester}* telah tersedia. Silakan login ke aplikasi untuk melihat nilai.\n\n_Sikad Pro_";
 
         return $this->send($phone, $message);
     }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $listing->position_title }} di {{ $listing->company_name }} — Job Board eSchool</title>
+    <title>{{ $listing->position_title }} di {{ $listing->company_name }} — Job Board Sikad Pro</title>
     @include('elite.partials.head')
     <style>
         .type-badge { display: inline-block; padding: .2rem .7rem; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; border-radius: 2px; }
@@ -141,7 +141,7 @@
 
         {{-- Footer --}}
         <div class="pt-8 border-t border-rule text-center">
-            <p class="font-script italic text-sm text-gray-500">Didukung oleh eSchool SaaS — Jaringan Profesional Alumni</p>
+            <p class="font-script italic text-sm text-gray-500">Didukung oleh Sikad Pro — Jaringan Profesional Alumni</p>
         </div>
     </div>
 </body>

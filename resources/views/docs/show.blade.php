@@ -147,7 +147,7 @@
                 <footer class="mt-12 pt-10 border-t border-rule text-center">
                     <div class="ornament-center"></div>
                     <p class="font-script italic text-2xl ink-secondary mb-2">"{{ $platform['motto_latin'] ?? 'Floreat Schola' }}"</p>
-                    <p class="elite-kicker" style="color: var(--c-muted);">— {{ $platform['app_name'] ?? 'eSchool Academy' }}</p>
+                    <p class="elite-kicker" style="color: var(--c-muted);">— {{ $platform['app_name'] ?? 'Sikad Pro' }}</p>
                 </footer>
             </article>
         </div>

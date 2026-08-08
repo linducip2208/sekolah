@@ -20,14 +20,14 @@ class ApiDocsController extends Controller
         $spec = [
             'openapi' => '3.0.3',
             'info' => [
-                'title' => 'eSchool SaaS API',
+                'title' => 'Sikad Pro API',
                 'version' => '1.0.0',
-                'description' => "REST API untuk eSchool SaaS — Sistem Manajemen Sekolah multi-tenant.\n\n"
+                'description' => "REST API untuk Sikad Pro — Sistem Manajemen Sekolah multi-tenant.\n\n"
                     . "## Authentication\n\n"
                     . "Login via `POST /api/v1/auth/login` → dapat Bearer token. Sertakan di header:\n\n"
                     . "```\nAuthorization: Bearer {token}\n```\n\n"
                     . "Setiap request otomatis di-scope ke `school_id` user yang login.",
-                'contact' => ['name' => 'eSchool Support', 'url' => 'https://whitelabel.co.id'],
+                'contact' => ['name' => 'Sikad Pro Support', 'url' => 'https://whitelabel.co.id'],
                 'license' => ['name' => 'Commercial'],
             ],
             'servers' => [

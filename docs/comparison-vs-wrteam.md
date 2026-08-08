@@ -1,6 +1,6 @@
-# eSchool Kita vs WRTeam eSchool SaaS — Feature Comparison
+﻿# Sikad Pro Kita vs WRTeam Sikad Pro — Feature Comparison
 
-> **Sumber WRTeam:** https://www.wrteam.in/product-details/eschool-saas-school-management-system-with-student-parents-teacher-flutter-app-laravel-admin
+> **Sumber WRTeam:** https://www.wrteam.in/product-details/sikadpro-saas-school-management-system-with-student-parents-teacher-flutter-app-laravel-admin
 > **WRTeam Envato ID:** 49307764 | Rating: 4.93/5 | 934 sales | v1.9.2 (Apr 2026)
 > **Tanggal review:** 26 May 2026
 
@@ -8,7 +8,7 @@
 
 ## Ringkasan Eksekutif
 
-| Dimensi | WRTeam eSchool SaaS | eSchool Kita |
+| Dimensi | WRTeam Sikad Pro | Sikad Pro Kita |
 |---|---|---|
 | **Laravel** | 10/11 | **13** |
 | **Flutter** | 3.x (2 apps) | **3.27+** (6+ role shells) |
@@ -358,7 +358,7 @@
 |---|---|---|---|
 | Play Store | ✅ Live | ❌ | **GAP — HIGH** |
 | App Store / TestFlight | ✅ Live | ❌ | **GAP — HIGH** |
-| App package name | `com.wrteam.saas.school` | `com.eschool.app` | |
+| App package name | `com.wrteam.saas.school` | `com.sikadpro.app` | |
 | App version | Unknown | 1.0.0+1 | |
 | Android SDK | Unknown | 3.27+ | |
 | Firebase setup | ✅ | ✅ | FCM + Analytics |
@@ -529,7 +529,7 @@
 
 ## Kesimpulan
 
-**eSchool kita unggul signifikan** dalam hal:
+**Sikad Pro kita unggul signifikan** dalam hal:
 - Kedalaman modul (45+ vs ~25)
 - Arsitektur dynamic integration (no vendor lock-in)
 - AI & analytics capabilities

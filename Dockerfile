@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+﻿FROM php:8.3-fpm
 
 ARG WWWUSER=1000
 ARG WWWGROUP=1000
@@ -32,10 +32,10 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progre
     && npm ci --only=production \
     && npm run build
 
-RUN groupadd -g ${WWWGROUP} eschool && useradd -u ${WWWUSER} -g eschool -m eschool \
-    && chown -R eschool:eschool /var/www/html/storage /var/www/html/bootstrap/cache
+RUN groupadd -g ${WWWGROUP} sikadpro && useradd -u ${WWWUSER} -g sikadpro -m sikadpro \
+    && chown -R sikadpro:sikadpro /var/www/html/storage /var/www/html/bootstrap/cache
 
-USER eschool
+USER sikadpro
 
 EXPOSE 9000
 

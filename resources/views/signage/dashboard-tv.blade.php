@@ -138,7 +138,7 @@
             Total Guru: {{ number_format($totalTeachers) }} &nbsp;|&nbsp;
             Total Rombel: {{ number_format($totalRombel) }} &nbsp;|&nbsp;
             Tahun Ajaran: {{ $academicYearLabel }} &nbsp;|&nbsp;
-            {{ $school->name }} &nbsp;—&nbsp; eSchool SIS
+            {{ $school->name }} &nbsp;—&nbsp; Sikad Pro
         </div>
     </div>
 

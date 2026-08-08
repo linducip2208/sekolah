@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Manus Magistri — Login Administrator | {{ $platform['app_name'] ?? 'eSchool' }}</title>
+    <title>Manus Magistri — Login Administrator | {{ $platform['app_name'] ?? 'Sikad Pro' }}</title>
     @include('elite.partials.head')
 </head>
 <body class="paper min-h-screen">
@@ -20,7 +20,7 @@
                     </div>
                 @endif
                 <div>
-                    <div class="elite-h3 text-xl text-white">{{ $platform['app_name'] ?? 'eSchool Academy' }}</div>
+                    <div class="elite-h3 text-xl text-white">{{ $platform['app_name'] ?? 'Sikad Pro' }}</div>
                     <div class="elite-kicker text-[.55rem]" style="color: var(--c-accent);">Est. {{ $platform['established_year'] ?? '1890' }}</div>
                 </div>
             </a>

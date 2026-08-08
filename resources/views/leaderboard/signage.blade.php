@@ -116,7 +116,7 @@
         @endif
 
         <div style="text-align:center;margin-top:1.5rem;opacity:.3;font-size:.6rem;letter-spacing:.15em;">
-            eSchool SaaS &middot; {{ $school->name }} &middot; {{ $periodLabel }}
+            Sikad Pro &middot; {{ $school->name }} &middot; {{ $periodLabel }}
         </div>
     </div>
 

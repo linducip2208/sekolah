@@ -17,7 +17,7 @@
         $brandSuccess = $branding['colors']['success'] ?? '#16A34A';
         $brandWarning = $branding['colors']['warning'] ?? '#EAB308';
         $brandDanger = $branding['colors']['danger'] ?? '#DC2626';
-        $displayName = $branding['display_name'] ?? config('app.name', 'eSchool');
+        $displayName = $branding['display_name'] ?? config('app.name', 'Sikad Pro');
         $logoPrimary = $branding['logos']['primary'] ?? null;
         $favicon = $branding['logos']['favicon'] ?? null;
         $cacheVer = $branding['cache_version'] ?? 1;

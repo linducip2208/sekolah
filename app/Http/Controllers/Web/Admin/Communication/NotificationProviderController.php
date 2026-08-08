@@ -133,7 +133,7 @@ class NotificationProviderController extends Controller
             $provider,
             $data['recipient'],
             $data['title'] ?? 'Test Notification',
-            $data['body'] ?? 'Ini adalah pesan uji dari eSchool.'
+            $data['body'] ?? 'Ini adalah pesan uji dari Sikad Pro.'
         );
         return back()->with('success', 'Hasil test: sent=' . ($result['sent'] ?? 0) . ', failed=' . ($result['failed'] ?? 0));
     }

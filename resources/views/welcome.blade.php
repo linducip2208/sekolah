@@ -112,7 +112,7 @@
                                 <text text-anchor="middle" y="0" font-family="Playfair Display, serif" font-size="48" font-weight="700">A</text>
                                 <text text-anchor="middle" y="50" font-family="Cormorant Garamond, serif" font-style="italic" font-size="14" letter-spacing="3">FLOREAT</text>
                             </g>
-                            <text x="200" y="380" text-anchor="middle" font-family="Playfair Display, serif" font-size="22" fill="#f8f5ee" letter-spacing="6">{{ strtoupper($platform['app_name'] ?? 'ESCHOOL') }}</text>
+                            <text x="200" y="380" text-anchor="middle" font-family="Playfair Display, serif" font-size="22" fill="#f8f5ee" letter-spacing="6">{{ strtoupper($platform['app_name'] ?? 'SIKAD PRO') }}</text>
                             <line x1="100" y1="410" x2="300" y2="410" stroke="#b8860b" stroke-width="1"/>
                             <text x="200" y="440" text-anchor="middle" font-family="Cormorant Garamond, serif" font-style="italic" font-size="14" fill="#b8860b">Est. {{ $platform['established_year'] ?? '1890' }}</text>
                         </svg>
@@ -218,7 +218,7 @@
             Sebuah sistem yang tidak hanya mengelola, tetapi mengangkat — di mana setiap detail teknis adalah penghormatan kepada siswa, guru, dan keluarga yang mempercayakan masa depan mereka kepadanya.
         </p>
         <div class="elite-rule mx-auto mb-4"></div>
-        <div class="elite-kicker">Filosofi {{ $platform['app_name'] ?? 'eSchool' }}</div>
+        <div class="elite-kicker">Filosofi {{ $platform['app_name'] ?? 'Sikad Pro' }}</div>
     </div>
 </section>
 
@@ -232,7 +232,7 @@
             <h2 class="elite-h2 text-4xl sm:text-5xl text-white mb-6">Sovereignty atas Data &amp; Vendor.</h2>
             <div class="elite-rule mb-6" style="color: var(--c-accent);"></div>
             <p class="font-serif text-xl leading-relaxed text-white/80 mb-8">
-                Sebuah institusi terhormat tidak menyerahkan kunci pada vendor manapun. eSchool menganut prinsip <em style="color: var(--c-accent);">Bring Your Own Keys</em> — setiap integrasi pihak ketiga dapat ditukar tanpa intervensi pengembang.
+                Sebuah institusi terhormat tidak menyerahkan kunci pada vendor manapun. Sikad Pro menganut prinsip <em style="color: var(--c-accent);">Bring Your Own Keys</em> — setiap integrasi pihak ketiga dapat ditukar tanpa intervensi pengembang.
             </p>
             <ul class="space-y-3 font-serif text-lg text-white/85">
                 @foreach([
@@ -327,7 +327,7 @@ LessonSummary → <em style="color: var(--c-accent);">"User chooses"</em></code>
         </div>
         <div class="space-y-3">
             @foreach([
-                ['Apa itu eSchool Academy?','Sebuah platform manajemen sekolah multi-tenant berbasis cloud — mencakup akademik, keuangan, PPDB, perpustakaan, transportasi, kantin cashless, dashboard yayasan, hingga AI assistant.'],
+                ['Apa itu Sikad Pro?','Sebuah platform manajemen sekolah multi-tenant berbasis cloud — mencakup akademik, keuangan, PPDB, perpustakaan, transportasi, kantin cashless, dashboard yayasan, hingga AI assistant.'],
                 ['Apakah cocok untuk pesantren / madrasah?','Ya. Tersedia mode khusus dengan modul hafalan Al-Quran, jadwal sholat, kurikulum diniyah, serta pengelolaan asrama santri.'],
                 ['Apakah ada aplikasi mobile?','Ya. Aplikasi Flutter tersedia untuk orang tua, siswa, dan guru — Android dan iOS — dengan push notification realtime.'],
                 ['Bisakah saya menggunakan payment gateway sendiri?','Ya, sepenuhnya. Anda input API key Midtrans, Xendit, atau provider apapun di admin panel — bisa diganti kapan saja.'],
@@ -371,7 +371,7 @@ LessonSummary → <em style="color: var(--c-accent);">"User chooses"</em></code>
                 </thead>
                 <tbody>
                     @foreach([
-                        ['Super Admin', 'super@eschool.app', 'SuperAdmin123!', route('super.login'), 'Kelola semua sekolah & platform'],
+                        ['Super Admin', 'super@sikadpro.app', 'SuperAdmin123!', route('super.login'), 'Kelola semua sekolah & platform'],
                         ['Administrator Sekolah', 'admin@sman1demo.sch.id', 'Admin123!', route('admin.login'), 'Kelola akademik, keuangan, siswa'],
                         ['Guru / Staff', 'guru1@sman1demo.sch.id', 'Guru123!', route('admin.login'), 'Input nilai, absensi, materi'],
                         ['Orang Tua / Wali', 'wali1@sman1demo.sch.id', 'Wali123!', route('portal.dashboard'), 'Pantau anak: nilai, absensi, SPP'],

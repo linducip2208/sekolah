@@ -1,9 +1,9 @@
-# Nginx Configuration Reference
+﻿# Nginx Configuration Reference
 
 ## Wildcard Subdomain Setup
 
-eSchool SaaS menggunakan wildcard subdomain `*.eschool.app`. Setiap sekolah mendapat
-subdomain sendiri (`smkn1.eschool.app`), admin platform di `admin.eschool.app`.
+Sikad Pro menggunakan wildcard subdomain `*.sikadpro.app`. Setiap sekolah mendapat
+subdomain sendiri (`smkn1.sikadpro.app`), admin platform di `admin.sikadpro.app`.
 
 ### DNS Setup (Cloudflare atau DNS provider)
 
@@ -34,9 +34,9 @@ chmod 600 /root/.secrets/cloudflare.ini
 certbot certonly \
   --dns-cloudflare \
   --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
-  -d "eschool.app" \
-  -d "*.eschool.app" \
-  --email admin@eschool.app \
+  -d "sikadpro.app" \
+  -d "*.sikadpro.app" \
+  --email admin@sikadpro.app \
   --agree-tos \
   --non-interactive
 
@@ -49,14 +49,14 @@ certbot renew --dry-run
 ## Multi-Domain Routing Logic
 
 ```
-Request: smkn1.eschool.app/dashboard
+Request: smkn1.sikadpro.app/dashboard
   → Nginx forward ke Laravel (PHP-FPM)
   → ResolveSchool middleware menangkap subdomain "smkn1"
   → School::where('subdomain', 'smkn1')->firstOrFail()
   → Set app('current_school') dan config('app.school_id')
   → EnsureSchoolAccess middleware verify user.school_id
 
-Request: admin.eschool.app/schools
+Request: admin.sikadpro.app/schools
   → Nginx forward ke Laravel (PHP-FPM)
   → Route prefix: /super/* dengan middleware super_admin
   → SchoolScope TIDAK berlaku (super_admin bypass)
@@ -67,25 +67,25 @@ Request: admin.eschool.app/schools
 ## Nginx Config — Production (Standalone, tanpa Docker)
 
 ```nginx
-# /etc/nginx/sites-available/eschool
+# /etc/nginx/sites-available/sikadpro
 server {
     listen 80;
-    server_name eschool.app *.eschool.app;
+    server_name sikadpro.app *.sikadpro.app;
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name eschool.app *.eschool.app;
+    server_name sikadpro.app *.sikadpro.app;
 
-    ssl_certificate     /etc/letsencrypt/live/eschool.app/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/eschool.app/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/sikadpro.app/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/sikadpro.app/privkey.pem;
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_ciphers         HIGH:!aNULL:!MD5;
     ssl_session_cache   shared:SSL:10m;
     ssl_session_timeout 10m;
 
-    root /opt/eschool/public;
+    root /opt/sikadpro/public;
     index index.php;
 
     # Gzip compression
@@ -130,6 +130,6 @@ server {
 }
 
 # Aktifkan
-ln -s /etc/nginx/sites-available/eschool /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/sikadpro /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
 ```

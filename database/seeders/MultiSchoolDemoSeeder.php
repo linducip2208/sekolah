@@ -87,7 +87,7 @@ class MultiSchoolDemoSeeder extends Seeder
         $schoolId = DB::table('schools')->insertGetId([
             'name'            => $schoolName,
             'subdomain'       => $subdomain,
-            'email'           => "info@{$subdomain}.eschool",
+            'email'           => "info@{$subdomain}.sikadpro",
             'phone'           => '021-555' . str_pad((string) $idx, 4, '0', STR_PAD_LEFT),
             'address'         => "Jl. Pendidikan No. {$idx}",
             'plan_id'         => $planId,
@@ -102,7 +102,7 @@ class MultiSchoolDemoSeeder extends Seeder
 
         $adminId = DB::table('users')->insertGetId([
             'name'      => "Admin {$schoolName}",
-            'email'     => "admin@{$subdomain}.eschool",
+            'email'     => "admin@{$subdomain}.sikadpro",
             'password'  => $this->hashedPassword,
             'school_id' => $schoolId,
             'is_active' => true,
@@ -146,7 +146,7 @@ class MultiSchoolDemoSeeder extends Seeder
             $tNum = $tIdx + 1;
             $teacherUserId = DB::table('users')->insertGetId([
                 'name'      => "Guru {$tNum} - {$schoolName}",
-                'email'     => "guru{$tNum}@{$subdomain}.eschool",
+                'email'     => "guru{$tNum}@{$subdomain}.sikadpro",
                 'password'  => $this->hashedPassword,
                 'school_id' => $schoolId,
                 'is_active' => true,
@@ -188,7 +188,7 @@ class MultiSchoolDemoSeeder extends Seeder
         for ($s = 1; $s <= $this->studentsPerSchool; $s++) {
             $userInserts[] = [
                 'name'      => $this->firstNames[array_rand($this->firstNames)] . ' ' . $this->lastNames[array_rand($this->lastNames)],
-                'email'     => "siswa{$s}@{$subdomain}.eschool",
+                'email'     => "siswa{$s}@{$subdomain}.sikadpro",
                 'password'  => $this->hashedPassword,
                 'school_id' => $schoolId,
                 'is_active' => true,
@@ -202,7 +202,7 @@ class MultiSchoolDemoSeeder extends Seeder
 
         $studentUsers = DB::table('users')
             ->where('school_id', $schoolId)
-            ->where('email', 'like', "siswa%@{$subdomain}.eschool")
+            ->where('email', 'like', "siswa%@{$subdomain}.sikadpro")
             ->orderBy('id')
             ->select('id')
             ->get();

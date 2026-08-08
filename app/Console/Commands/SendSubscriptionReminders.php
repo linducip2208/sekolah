@@ -48,7 +48,7 @@ class SendSubscriptionReminders extends Command
             }
 
             if ($admin->phone) {
-                $msg = "eSchool SaaS: Langganan *{$school->name}* (Plan {$planName}) akan berakhir pada *{$expiresAt}*. Perpanjang sekarang di panel super admin.";
+                $msg = "Sikad Pro: Langganan *{$school->name}* (Plan {$planName}) akan berakhir pada *{$expiresAt}*. Perpanjang sekarang di panel super admin.";
                 $this->whatsapp->send($admin->phone, $msg);
             }
         }

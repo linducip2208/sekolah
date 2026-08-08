@@ -1,4 +1,4 @@
-# Flutter App — Setup & Development Guide
+﻿# Flutter App — Setup & Development Guide
 
 ## Prerequisites
 
@@ -89,8 +89,8 @@ flutter_app/
 ## pubspec.yaml
 
 ```yaml
-name: eschool_app
-description: eSchool SaaS — Multi-tenant School Management
+name: sikadpro_app
+description: Sikad Pro — Multi-tenant School Management
 
 publish_to: 'none'
 version: 1.0.0+1
@@ -190,7 +190,7 @@ firebase login
 
 # Configure (jalankan di root flutter_app/)
 flutterfire configure \
-  --project=eschool-saas-prod \
+  --project=sikadpro-saas-prod \
   --platforms=android,ios
 
 # Ini akan generate:
@@ -245,16 +245,16 @@ flutter run \
   --dart-define=API_BASE_URL=http://192.168.1.100:8000/api/v1
 
 # Staging
-flutter run --dart-define=API_BASE_URL=https://staging.eschool.app/api/v1
+flutter run --dart-define=API_BASE_URL=https://staging.sikadpro.app/api/v1
 
 # Production build
 flutter build apk --release \
-  --dart-define=API_BASE_URL=https://api.eschool.app/api/v1 \
+  --dart-define=API_BASE_URL=https://api.sikadpro.app/api/v1 \
   --dart-define=PUSHER_KEY=prod-key \
-  --dart-define=PUSHER_HOST=api.eschool.app
+  --dart-define=PUSHER_HOST=api.sikadpro.app
 
 flutter build ipa --release \
-  --dart-define=API_BASE_URL=https://api.eschool.app/api/v1
+  --dart-define=API_BASE_URL=https://api.sikadpro.app/api/v1
 ```
 
 ---
@@ -375,14 +375,14 @@ genhtml coverage/lcov.info -o coverage/html
 
 ```bash
 # Android — keystore setup (sekali)
-keytool -genkey -v -keystore android/eschool-release.jks \
-  -alias eschool -keyalg RSA -keysize 2048 -validity 10000
+keytool -genkey -v -keystore android/sikadpro-release.jks \
+  -alias sikadpro -keyalg RSA -keysize 2048 -validity 10000
 
 # Tambahkan ke android/key.properties:
 # storePassword=...
 # keyPassword=...
-# keyAlias=eschool
-# storeFile=../eschool-release.jks
+# keyAlias=sikadpro
+# storeFile=../sikadpro-release.jks
 
 # Build APK
 flutter build apk --release

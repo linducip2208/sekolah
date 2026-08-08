@@ -88,7 +88,7 @@ class SchoolDataExportController extends Controller
         abort_unless($export->isReady(), 410, 'Export belum siap atau sudah expired.');
 
         return Storage::disk('local')->download($export->file_path,
-            'eschool-export-' . $export->school_id . '-' . $export->id . '.zip');
+            'sikadpro-export-' . $export->school_id . '-' . $export->id . '.zip');
     }
 
     public function destroy(SchoolDataExport $export)

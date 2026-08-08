@@ -8,12 +8,12 @@ use Symfony\Component\Process\Process;
 
 class RestoreDatabase extends Command
 {
-    protected $signature   = 'eschool:restore {file : Backup filename in db-backups/}';
+    protected $signature   = 'sikadpro:restore {file : Backup filename in db-backups/}';
     protected $description = 'Restore MySQL DB from a backup file';
 
     public function handle(): int
     {
-        $diskName  = config('eschool.backup.disk', env('BACKUP_DISK', 'local'));
+        $diskName  = config('sikadpro.backup.disk', env('BACKUP_DISK', 'local'));
         $remoteFile = 'db-backups/' . $this->argument('file');
 
         if (!Storage::disk($diskName)->exists($remoteFile)) {

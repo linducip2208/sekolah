@@ -1,8 +1,8 @@
-User-agent: *
+﻿User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /super
 Disallow: /api
 Disallow: /__pair
 
-Sitemap: https://eschool.whitelabel.co.id/sitemap.xml
+Sitemap: https://sikadpro.whitelabel.co.id/sitemap.xml

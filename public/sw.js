@@ -1,11 +1,11 @@
-// eSchool SaaS Service Worker
+﻿// Sikad Pro Service Worker
 // Strategy: cache-first for static, network-first for HTML pages, runtime cache for visited pages.
 // Supports Background Sync for offline mode.
 
-const CACHE_VERSION = 'eschool-v2';
-const RUNTIME_CACHE = 'eschool-runtime-v2';
-const STATIC_CACHE = 'eschool-static-v2';
-const CDN_CACHE = 'eschool-cdn-v2';
+const CACHE_VERSION = 'sikadpro-v2';
+const RUNTIME_CACHE = 'sikadpro-runtime-v2';
+const STATIC_CACHE = 'sikadpro-static-v2';
+const CDN_CACHE = 'sikadpro-cdn-v2';
 
 const STATIC_ASSETS = [
   '/',
@@ -98,7 +98,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('sync', (event) => {
-  if (event.tag === 'eschool-offline-sync') {
+  if (event.tag === 'sikadpro-offline-sync') {
     event.waitUntil(syncPendingData());
   }
 });

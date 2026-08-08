@@ -109,7 +109,7 @@
     </div>
 
     <div class="bg-gray-50 border-t px-6 py-3 text-center text-xs text-gray-400">
-        e-Portfolio · eSchool SaaS · {{ date('Y') }}
+        e-Portfolio · Sikad Pro · {{ date('Y') }}
     </div>
 </div>
 

@@ -1,4 +1,4 @@
-# eSchool SaaS — Progress Log
+﻿# Sikad Pro — Progress Log
 
 > Catatan lengkap pengembangan multi-sesi. Status: **Production-ready**.
 > Last updated: 2026-05-22
@@ -260,9 +260,9 @@ Semua bulk insert pakai `DB::table()->insert()` dalam chunk 500 untuk performa.
 
 | Role | Email | Password | Login URL |
 |---|---|---|---|
-| Super Admin Platform | `super@eschool.app` | `SuperAdmin123!` | `/super/login` |
+| Super Admin Platform | `super@sikadpro.app` | `SuperAdmin123!` | `/super/login` |
 | Admin Sekolah | `admin@sman1demo.sch.id` | `Admin123!` | `/admin/login` |
-| Admin Sekolah (alt) | `admin@demo.eschool.app` | `password` | `/admin/login` |
+| Admin Sekolah (alt) | `admin@demo.sikadpro.app` | `password` | `/admin/login` |
 | Teacher | `guru1..3@sman1demo.sch.id` | `Guru123!` | `/admin/login` → auto `/guru` |
 | Student | `siswa{0-8}_{0-9}@sman1demo.sch.id` | `Siswa123!` | `/admin/login` → auto `/siswa` |
 | Parent | (assign via TU) | — | `/admin/login` → auto `/portal` |

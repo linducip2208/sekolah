@@ -25,7 +25,7 @@
 <body>
 
 <div class="header">
-    <h1>{{ $school?->name ?? 'eSchool' }}</h1>
+    <h1>{{ $school?->name ?? 'Sikad Pro' }}</h1>
     <h2>LAPORAN HASIL BELAJAR SISWA</h2>
     <p>Semester {{ $reportCard->semester?->name ?? '-' }} — Tahun Pelajaran {{ $reportCard->semester?->academicYear?->name ?? '-' }}</p>
 </div>

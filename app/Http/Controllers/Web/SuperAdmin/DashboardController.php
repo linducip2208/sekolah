@@ -175,7 +175,7 @@ class DashboardController extends Controller
         }
 
         $config = \Illuminate\Support\Facades\Cache::get('system_config', [
-            'app_name'              => 'eSchool SaaS',
+            'app_name'              => 'Sikad Pro',
             'trial_days'            => 14,
             'support_email'         => 'support@whitelabel.co.id',
             'maintenance_mode'      => false,

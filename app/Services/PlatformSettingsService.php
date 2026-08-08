@@ -22,7 +22,7 @@ class PlatformSettingsService
     public function defaults(): array
     {
         return [
-            'app_name'         => 'eSchool Academy',
+            'app_name'         => 'Sikad Pro',
             'tagline'          => 'Floreat Schola — Excellence Through Tradition',
             'motto_latin'      => 'Floreat Schola',
             'motto_translated' => 'Let the school flourish',
@@ -33,7 +33,7 @@ class PlatformSettingsService
 
             'hero_kicker'   => 'Founded MDCCCXC',
             'hero_title'    => 'A Tradition of Excellence,<br>A Future of Possibility.',
-            'hero_subtitle' => 'eSchool unites timeless pedagogy with modern technology — equipping institutions with the tools to nurture remarkable scholars.',
+            'hero_subtitle' => 'Sikad Pro unites timeless pedagogy with modern technology — equipping institutions with the tools to nurture remarkable scholars.',
 
             'logo_path'        => null,
             'logo_dark_path'   => null,
@@ -49,8 +49,8 @@ class PlatformSettingsService
 
             'contact_phone'    => '081296052010',
             'contact_whatsapp' => '6281296052010',
-            'contact_email'    => 'admissions@eschool.test',
-            'address_line1'    => 'eSchool Foundation House',
+            'contact_email'    => 'admissions@sikadpro.test',
+            'address_line1'    => 'Sikad Pro Foundation House',
             'address_line2'    => 'Jakarta, Indonesia',
 
             'social_facebook'  => null,
@@ -60,12 +60,12 @@ class PlatformSettingsService
 
             'popup_enabled'  => true,
             'popup_title'    => 'Source Code Dijual',
-            'popup_message'  => 'Aplikasi eSchool SaaS ini tersedia untuk dibeli — termasuk full source code, dokumentasi, dan dukungan migrasi. Hubungi kami untuk negosiasi harga.',
+            'popup_message'  => 'Aplikasi Sikad Pro ini tersedia untuk dibeli — termasuk full source code, dokumentasi, dan dukungan migrasi. Hubungi kami untuk negosiasi harga.',
             'popup_phone'    => '081296052010',
             'popup_whatsapp' => '6281296052010',
             'popup_cta_text' => 'Hubungi Sekarang',
 
-            'footer_disclaimer' => 'eSchool is a trademark of the eSchool Academy. All rights reserved.',
+            'footer_disclaimer' => 'Sikad Pro is a trademark of the Sikad Pro. All rights reserved.',
 
             'cache_version' => 1,
         ];
@@ -85,7 +85,7 @@ class PlatformSettingsService
 
         $popupWa = $merged['popup_whatsapp'] ?? null;
         $merged['popup_whatsapp_link'] = $popupWa
-            ? 'https://wa.me/' . preg_replace('/\D/', '', $popupWa) . '?text=' . rawurlencode('Halo, saya tertarik membeli source code ' . ($merged['app_name'] ?? 'eSchool') . '.')
+            ? 'https://wa.me/' . preg_replace('/\D/', '', $popupWa) . '?text=' . rawurlencode('Halo, saya tertarik membeli source code ' . ($merged['app_name'] ?? 'Sikad Pro') . '.')
             : null;
 
         return $merged;
