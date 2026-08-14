@@ -314,4 +314,43 @@
             },
         };
     };
+
+    /* -----------------------------------------------------------
+       Favorites (sidebar pin) — global store + star injection
+       ----------------------------------------------------------- */
+    var favState = { items: storageGet('favorites', []) };
+    window.favorites = {
+        all: function () { return favState.items; },
+        has: function (href) { return favState.items.some(function (i) { return i.href === href; }); },
+        toggle: function (label, href) {
+            if (window.favorites.has(href)) {
+                favState.items = favState.items.filter(function (i) { return i.href !== href; });
+            } else {
+                favState.items.unshift({ label: label, href: href });
+                favState.items = favState.items.slice(0, 12);
+            }
+            storageSet('favorites', favState.items);
+            window.dispatchEvent(new CustomEvent('sikadpro:favorites-changed'));
+        },
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.sidebar-link, .sidebar-sub-link').forEach(function (link) {
+            var href = link.getAttribute('href');
+            if (!href || href === '#' || link.querySelector('.fav-toggle')) return;
+            var label = link.textContent.replace(/\s+/g, ' ').trim();
+            var star = document.createElement('button');
+            star.type = 'button';
+            star.className = 'fav-toggle' + (window.favorites.has(href) ? ' on' : '');
+            star.setAttribute('aria-label', 'Tambahkan ke favorit');
+            star.innerHTML = '<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>';
+            star.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.favorites.toggle(label, href);
+                star.classList.toggle('on', window.favorites.has(href));
+            });
+            link.appendChild(star);
+        });
+    });
 })();

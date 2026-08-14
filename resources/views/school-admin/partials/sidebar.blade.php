@@ -50,6 +50,18 @@
     <button onclick="document.querySelectorAll('.sidebar-section').forEach(s=>s.__x.$data.open=false)" class="text-white/40 hover:text-white/80 p-1.5 text-xs" title="Tutup semua" aria-label="Tutup semua bagian">&#x25B2;</button>
 </div>
 
+{{-- ===== FAVORITES ===== --}}
+<div x-data="{ items: window.favorites ? window.favorites.all() : [] }"
+     x-init="window.addEventListener('sikadpro:favorites-changed', () => items = window.favorites.all())"
+     x-show="items.length" x-cloak class="sidebar-section">
+    <div class="sidebar-section-header" style="cursor: default;">Favorites</div>
+    <div class="sidebar-section-body">
+        <template x-for="f in items" :key="f.href">
+            <a :href="f.href" class="sidebar-sub-link" x-text="f.label"></a>
+        </template>
+    </div>
+</div>
+
 {{-- ===== TOP NAV ===== --}}
 <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ $isActive('admin.dashboard') }}">{!! $icon($icons['dashboard']) !!}<span>Dashboard</span></a>
 <a href="{{ route('admin.workflow.index') }}" class="sidebar-link {{ $isActive('admin.workflow.*') }}">{!! $icon($icons['tasks']) !!}<span>My Tasks</span>@if($navCounts['workflow'] > 0)<span class="sidebar-badge">{{ $navCounts['workflow'] }}</span>@endif</a>

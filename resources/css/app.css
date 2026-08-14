@@ -785,6 +785,25 @@ html[data-theme="dark"] .skeleton::after {
     color: color-mix(in srgb, var(--color-sidebar-text) 85%, transparent) !important;
 }
 
+/* Favorites star toggle */
+.fav-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    padding: 3px;
+    flex-shrink: 0;
+    color: color-mix(in srgb, var(--color-sidebar-text) 40%, transparent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.fav-toggle:hover { color: var(--color-accent); }
+.sidebar-link:hover .fav-toggle,
+.sidebar-sub-link:hover .fav-toggle { display: inline-flex; }
+.fav-toggle.on { display: inline-flex; color: var(--color-accent); }
+
 /* Collapsed tooltips */
 .app-sidebar.collapsed .sidebar-link,
 .app-sidebar.collapsed .sidebar-sub-link {
