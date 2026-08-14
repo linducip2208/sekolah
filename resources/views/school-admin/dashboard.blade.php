@@ -31,6 +31,9 @@
         ['label' => 'Persetujuan dokumen',    'count' => $safe(fn () => \App\Models\Communication\DocumentApproval::where('school_id', $sid)->count()), 'href' => route('admin.documents.approvals'), 'tone' => 'warning'],
         ['label' => 'Booking ruangan',        'count' => $safe(fn () => \App\Models\RoomBooking\RoomBooking::where('school_id', $sid)->count()), 'href' => route('admin.facilities.rooms.index'), 'tone' => 'info'],
     ];
+    if ($isAdmin) {
+        $tasks[] = ['label' => 'Persetujuan workflow', 'count' => $safe(fn () => \App\Models\Workflow\WorkflowRequest::where('school_id', $sid)->whereIn('status', ['submitted', 'under_review'])->count()), 'href' => route('admin.workflow.index'), 'tone' => 'warning'];
+    }
     $tasks = array_values(array_filter($tasks, fn ($t) => $t['count'] > 0));
 @endphp
 

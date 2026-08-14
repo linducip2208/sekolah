@@ -77,6 +77,7 @@ use App\Http\Controllers\Web\Admin\Visitor\PreRegistrationController;
 use App\Http\Controllers\Web\VisitorRegistrationController;
 use App\Http\Controllers\Web\Admin\Academic\QrAttendanceController as WebQrAttendanceController;
 use App\Http\Controllers\Web\ForumController as PublicForumController;
+use App\Http\Controllers\Web\Admin\Workflow\WorkflowController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\LandingController::class, 'index'])->name('home');
@@ -878,6 +879,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ============== GLOBAL SEARCH (Cmd+K) ==============
         Route::get('/search',                            [\App\Http\Controllers\Web\Admin\Search\GlobalSearchController::class, 'search'])->name('search');
+
+        // ============== WORKFLOW / APPROVAL ==============
+        Route::get('/workflow',                            [WorkflowController::class, 'index'])->name('workflow.index');
+        Route::get('/workflow/create',                     [WorkflowController::class, 'create'])->name('workflow.create');
+        Route::post('/workflow',                           [WorkflowController::class, 'store'])->name('workflow.store');
+        Route::get('/workflow/{workflowRequest}',          [WorkflowController::class, 'show'])->name('workflow.show');
+        Route::post('/workflow/{workflowRequest}/approve', [WorkflowController::class, 'approve'])->name('workflow.approve');
+        Route::post('/workflow/{workflowRequest}/reject',  [WorkflowController::class, 'reject'])->name('workflow.reject');
 
         // ============== BLOG ==============
         Route::get('/blog',                              [\App\Http\Controllers\Web\Admin\BlogController::class, 'index'])->name('blog.index');

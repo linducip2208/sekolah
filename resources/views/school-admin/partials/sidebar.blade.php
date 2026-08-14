@@ -287,6 +287,15 @@
 </div>
 
 @if($isAdmin)
+{{-- 🔄 WORKFLOW --}}
+<div class="sidebar-section" x-data="{ open: true }">
+    <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2"><span class="text-xs">🔄</span>Workflow & Persetujuan</span>{!! $chevron !!}</button>
+    <div x-show="open" x-collapse class="sidebar-section-body">
+        <a href="{{ route('admin.workflow.index') }}" class="sidebar-sub-link {{ $isActive('admin.workflow.*') }}">Antrian Persetujuan</a>
+        <a href="{{ route('admin.workflow.create') }}" class="sidebar-sub-link {{ $isActive('admin.workflow.create') }}">Ajukan Permintaan</a>
+    </div>
+</div>
+
 {{-- 📋 ADMINISTRASI --}}
 <div class="sidebar-section" x-data="{ open: true }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2"><span class="text-xs">📋</span>Administrasi</span>{!! $chevron !!}</button>
