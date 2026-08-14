@@ -3,7 +3,7 @@
 @section('description', 'Pendaftaran sekolah Anda telah diterima dan sedang diverifikasi.')
 
 @section('content')
-<section class="lp-section" style="background: var(--lp-bg);">
+<section class="lp-section" style="background: var(--lp-background);">
     <div class="lp-container max-w-2xl text-center">
         <div class="h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-6" style="background: var(--lp-accent-soft); color: var(--lp-primary);">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

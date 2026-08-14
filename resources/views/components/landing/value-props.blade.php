@@ -7,7 +7,7 @@
         'M12 2L3 7v6c0 5 3.5 8 9 9 5.5-1 9-4 9-9V7l-9-5zm0 2.18L18 7v6c0 3.5-2.3 6-6 7.3C8.3 19 6 16.5 6 13V7l6-2.82z',
     ];
 @endphp
-<section class="lp-section" style="background: var(--lp-bg);">
+<section class="lp-section lp-bg-subtle">
     <div class="lp-container">
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($landing['valueProps'] as $i => $vp)

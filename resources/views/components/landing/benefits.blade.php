@@ -1,5 +1,5 @@
 @props(['theme' => [], 'landing' => []])
-<section class="lp-section" style="background: var(--lp-bg);">
+<section class="lp-section lp-bg-surface">
     <div class="lp-container grid lg:grid-cols-2 gap-12 items-center">
         <div class="max-w-xl">
             <p class="lp-kicker mb-3">Manfaat</p>

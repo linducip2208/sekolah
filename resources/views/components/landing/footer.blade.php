@@ -1,5 +1,5 @@
 @props(['theme' => []])
-<footer style="background: var(--lp-ink);">
+<footer class="lp-bg-dark">
     <div class="lp-container py-14">
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
             <div class="col-span-2">

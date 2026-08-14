@@ -3,7 +3,7 @@
 @section('description', 'Pilih paket berlangganan Sikad Pro sesuai kebutuhan sekolah Anda.')
 
 @section('content')
-<section class="lp-section" style="background: var(--lp-bg);">
+<section class="lp-section" style="background: var(--lp-background);">
     <div class="lp-container">
         <div class="text-center max-w-2xl mx-auto mb-12">
             <p class="lp-kicker mb-3">Berlangganan</p>

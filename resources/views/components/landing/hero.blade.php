@@ -7,10 +7,8 @@
     $centered = $heroStyle === 'centered';
 @endphp
 
-<section id="beranda" class="relative overflow-hidden" style="background: var(--lp-bg);">
-    @if(($theme['style']['pattern'] ?? false))
-        <div class="lp-pattern absolute inset-0 opacity-[0.05] pointer-events-none" aria-hidden="true"></div>
-    @endif
+<section id="beranda" class="lp-hero">
+    <div class="lp-hero-pattern {{ $theme['style']['pattern'] ?? 'none' }}" aria-hidden="true"></div>
     <div class="lp-container relative py-16 lg:py-24">
         <div class="{{ $centered ? 'text-center max-w-3xl mx-auto' : 'grid lg:grid-cols-2 gap-12 items-center' }}">
             <div class="{{ $centered ? '' : 'max-w-xl' }}">
@@ -43,7 +41,7 @@
                         <span class="w-3 h-3 rounded-full bg-[#f87171]"></span>
                         <span class="w-3 h-3 rounded-full bg-[#fbbf24]"></span>
                         <span class="w-3 h-3 rounded-full bg-[#34d399]"></span>
-                        <span class="ml-3 flex-1 text-xs truncate px-3 py-1 rounded-md" style="background: var(--lp-bg); color: var(--lp-muted);">{{ parse_url(url('/'), PHP_URL_HOST) }}/dashboard</span>
+                        <span class="ml-3 flex-1 text-xs truncate px-3 py-1 rounded-md" style="background: var(--lp-surface-subtle); color: var(--lp-muted);">{{ parse_url(url('/'), PHP_URL_HOST) }}/dashboard</span>
                     </div>
                     @if($shot)
                         <img src="{{ $shot }}" alt="{{ $shotAlt }}" loading="lazy" class="w-full h-auto">
@@ -60,7 +58,7 @@
                     <span class="w-3 h-3 rounded-full bg-[#f87171]"></span>
                     <span class="w-3 h-3 rounded-full bg-[#fbbf24]"></span>
                     <span class="w-3 h-3 rounded-full bg-[#34d399]"></span>
-                    <span class="ml-3 flex-1 text-xs truncate px-3 py-1 rounded-md" style="background: var(--lp-bg); color: var(--lp-muted);">{{ parse_url(url('/'), PHP_URL_HOST) }}/dashboard</span>
+                    <span class="ml-3 flex-1 text-xs truncate px-3 py-1 rounded-md" style="background: var(--lp-surface-subtle); color: var(--lp-muted);">{{ parse_url(url('/'), PHP_URL_HOST) }}/dashboard</span>
                 </div>
                 @if($shot)<img src="{{ $shot }}" alt="{{ $shotAlt }}" loading="lazy" class="w-full h-auto">@endif
             </div>

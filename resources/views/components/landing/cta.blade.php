@@ -1,6 +1,6 @@
 @props(['theme' => []])
 @php $demoHref = $platform['whatsapp_link'] ?? route('public.pricing'); @endphp
-<section class="lp-section" style="background: var(--lp-primary);">
+<section class="lp-section lp-cta">
     <div class="lp-container text-center max-w-3xl mx-auto">
         <h2 class="font-display text-3xl sm:text-4xl font-bold" style="color: #fff;">Siap memodernisasi sekolah Anda?</h2>
         <p class="mt-4 text-lg leading-relaxed" style="color: rgba(255,255,255,.82);">

@@ -3,7 +3,7 @@
 @section('description', 'Instruksi pembayaran untuk aktivasi sekolah Anda di Sikad Pro.')
 
 @section('content')
-<section class="lp-section" style="background: var(--lp-bg);">
+<section class="lp-section" style="background: var(--lp-background);">
     <div class="lp-container max-w-3xl">
         <div class="mb-8">
             <p class="lp-kicker mb-3">Pembayaran</p>

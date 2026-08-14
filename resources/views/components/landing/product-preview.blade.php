@@ -1,5 +1,5 @@
 @props(['theme' => [], 'landing' => []])
-<section class="lp-section" style="background: var(--lp-surface);">
+<section class="lp-section lp-bg-brand">
     <div class="lp-container">
         <div class="text-center max-w-2xl mx-auto mb-12">
             <p class="lp-kicker mb-3">Pratinjau Produk</p>
@@ -28,7 +28,7 @@
                                 <span class="w-3 h-3 rounded-full bg-[#f87171]"></span>
                                 <span class="w-3 h-3 rounded-full bg-[#fbbf24]"></span>
                                 <span class="w-3 h-3 rounded-full bg-[#34d399]"></span>
-                                <span class="ml-3 flex-1 text-xs truncate px-3 py-1 rounded-md" style="background: var(--lp-bg); color: var(--lp-muted);">{{ parse_url(url('/'), PHP_URL_HOST) }}</span>
+                                <span class="ml-3 flex-1 text-xs truncate px-3 py-1 rounded-md" style="background: var(--lp-surface-subtle); color: var(--lp-muted);">{{ parse_url(url('/'), PHP_URL_HOST) }}</span>
                             </div>
                             <img src="{{ $p['img'] }}" alt="{{ $p['alt'] }}" loading="lazy" class="w-full h-auto">
                         </div>

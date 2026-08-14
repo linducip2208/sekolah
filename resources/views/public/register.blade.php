@@ -3,7 +3,7 @@
 @section('description', 'Daftarkan sekolah Anda di Sikad Pro — lengkapi data sekolah, akun administrator, dan pilih paket.')
 
 @section('content')
-<section class="lp-section" style="background: var(--lp-bg);">
+<section class="lp-section" style="background: var(--lp-background);">
     <div class="lp-container max-w-4xl">
         <div class="mb-8">
             <p class="lp-kicker mb-3">Pendaftaran</p>

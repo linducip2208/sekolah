@@ -6,7 +6,7 @@
         ['no' => '03', 'title' => 'Mulai kelola sekolah', 'desc' => 'Undang guru dan staf, input siswa, lalu kelola operasional harian dari satu platform.'],
     ];
 @endphp
-<section class="lp-section" style="background: var(--lp-bg);">
+<section class="lp-section lp-bg-subtle">
     <div class="lp-container">
         <div class="text-center max-w-2xl mx-auto mb-14">
             <p class="lp-kicker mb-3">Cara Kerja</p>

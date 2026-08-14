@@ -1,5 +1,5 @@
 @props(['theme' => [], 'landing' => [], 'plans' => [], 'heading' => true])
-<section class="lp-section" id="harga" style="background: var(--lp-bg);">
+<section class="lp-section lp-bg-subtle" id="harga">
     <div class="lp-container">
         @if($heading)
         <div class="text-center max-w-2xl mx-auto mb-14">
