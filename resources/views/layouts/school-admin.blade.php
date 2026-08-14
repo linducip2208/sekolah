@@ -110,7 +110,7 @@
         </div>
 
         {{-- Nav --}}
-        <nav class="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto" @click="closeMobile()">
+        <nav class="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto" @click="if ($event.target.closest('a')) closeMobile()">
             @yield('sidebar')
         </nav>
 
