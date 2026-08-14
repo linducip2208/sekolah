@@ -40,6 +40,7 @@ class BrandingWebController extends Controller
             'color_sidebar_text'     => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
             'color_text'             => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
             'color_text_muted'       => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
+            'color_table_header'     => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
             'font_preset'            => 'nullable|in:'.implode(',', FontRegistry::keys()),
             'font_scale'             => 'nullable|in:compact,normal,large',
             'radius_scale'           => 'nullable|in:small,medium,large',

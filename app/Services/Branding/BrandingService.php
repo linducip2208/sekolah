@@ -46,6 +46,7 @@ class BrandingService
             'color_primary', 'color_secondary', 'color_success', 'color_warning', 'color_danger',
             'color_accent', 'color_sidebar', 'color_sidebar_text',
             'color_text', 'color_text_muted', 'font_scale', 'radius_scale',
+            'color_table_header',
             'font_family', 'google_fonts_url', 'custom_domain', 'custom_css', 'custom_js',
             'theme',
             'background_mode',
@@ -190,6 +191,10 @@ class BrandingService
         $css .= "  --c-ink: {$ink};\n";
         $css .= "  --c-muted: {$muted};\n";
         $css .= "  --c-rule: {$theme['surface']['rule']};\n";
+        $css .= "  --c-sidebar: {$sidebar};\n";
+        if ($b->color_table_header) {
+            $css .= "  --c-table-header: {$b->color_table_header};\n";
+        }
         $css .= "  --brand-primary: {$primary};\n";
         $css .= "  --brand-secondary: {$secondary};\n";
         $css .= "  --brand-accent: {$accent};\n";
@@ -234,6 +239,7 @@ class BrandingService
                 'sidebar_text' => $b->color_sidebar_text ?? '#F1F5F9',
                 'text'      => $b->color_text ?? $theme['surface']['ink'],
                 'text_muted' => $b->color_text_muted ?? $theme['surface']['muted'],
+                'table_header' => $b->color_table_header,
                 'success'   => $b->color_success,
                 'warning'   => $b->color_warning,
                 'danger'    => $b->color_danger,

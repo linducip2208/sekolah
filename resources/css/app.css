@@ -18,6 +18,7 @@
     --color-primary-light:  #DBEAFE;
     --color-primary-soft:   rgba(37, 99, 235, 0.10);
     --color-secondary:      var(--c-secondary, #1D4ED8);
+    --color-sidebar:        var(--c-sidebar, var(--color-primary));
     --color-accent:         var(--c-accent, #F59E0B);
     --color-accent-light:   #FEF3C7;
     --color-accent-soft:    rgba(245, 158, 11, 0.14);
@@ -621,7 +622,7 @@ html[data-theme="dark"] .skeleton::after {
     text-transform: uppercase;
     font-weight: 600;
     color: var(--color-text-secondary);
-    background: var(--color-surface-hover);
+    background: var(--c-table-header, var(--color-surface-hover));
     border-bottom: 1px solid var(--color-border-strong);
     padding: 0.65rem 0.85rem;
     text-align: left;

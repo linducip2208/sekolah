@@ -83,15 +83,15 @@
 
         <h3 class="font-semibold pt-4">Warna</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            @foreach(['primary' => 'Primer', 'secondary' => 'Sekunder', 'accent' => 'Aksen', 'sidebar' => 'Sidebar', 'success' => 'Sukses', 'warning' => 'Peringatan', 'danger' => 'Bahaya'] as $key => $label)
+            @foreach(['primary' => 'Primer', 'secondary' => 'Sekunder', 'accent' => 'Aksen', 'sidebar' => 'Sidebar', 'table_header' => 'Header Tabel', 'success' => 'Sukses', 'warning' => 'Peringatan', 'danger' => 'Bahaya'] as $key => $label)
                 <div>
                     <label class="block text-sm font-medium mb-1">{{ $label }}</label>
                     <div class="flex gap-2 items-center">
                         <input name="color_{{ $key }}" type="color"
-                               value="{{ old('color_'.$key, $branding['colors'][$key] ?? '#2563EB') }}"
+                               value="{{ old('color_'.$key, $branding['colors'][$key] ?? ($key === 'table_header' ? '#F1F5F9' : '#2563EB')) }}"
                                class="h-10 w-14 border rounded">
                         <input type="text" readonly
-                               value="{{ $branding['colors'][$key] ?? '' }}"
+                               value="{{ $branding['colors'][$key] ?? ($key === 'table_header' ? '#F1F5F9' : '') }}"
                                class="flex-1 border rounded px-2 py-2 text-xs font-mono bg-gray-50">
                     </div>
                 </div>
