@@ -192,6 +192,7 @@ class BrandingService
         $css .= "  --c-muted: {$muted};\n";
         $css .= "  --c-rule: {$theme['surface']['rule']};\n";
         $css .= "  --c-sidebar: {$sidebar};\n";
+        $css .= "  --c-sidebar-text: {$sidebarTxt};\n";
         if ($b->color_table_header) {
             $css .= "  --c-table-header: {$b->color_table_header};\n";
         }
