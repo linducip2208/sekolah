@@ -12,12 +12,12 @@
    --------------------------------------------------------------- */
 :root {
     /* Brand (inherited from platform settings / white-label CSS) */
-    --color-primary:        var(--c-primary, #0F766E);
-    --color-primary-hover:  var(--c-secondary, #134E4A);
-    --color-primary-dark:   var(--c-secondary, #134E4A);
-    --color-primary-light:  #CCFBF1;
-    --color-primary-soft:   rgba(15, 118, 110, 0.10);
-    --color-secondary:      var(--c-secondary, #134E4A);
+    --color-primary:        var(--c-primary, #2563EB);
+    --color-primary-hover:  var(--c-secondary, #1D4ED8);
+    --color-primary-dark:   var(--c-secondary, #1D4ED8);
+    --color-primary-light:  #DBEAFE;
+    --color-primary-soft:   rgba(37, 99, 235, 0.10);
+    --color-secondary:      var(--c-secondary, #1D4ED8);
     --color-accent:         var(--c-accent, #F59E0B);
     --color-accent-light:   #FEF3C7;
     --color-accent-soft:    rgba(245, 158, 11, 0.14);
@@ -33,20 +33,20 @@
     --color-info-soft:      rgba(37, 99, 235, 0.10);
 
     /* Surface & text */
-    --color-background:     var(--c-paper, #F8FAF9);
+    --color-background:     var(--c-paper, #F8FAFC);
     --color-surface:        #FFFFFF;
-    --color-surface-muted:  #F1F5F4;
-    --color-surface-hover:  #F3F7F6;
-    --color-border:         var(--c-rule, #E2E8E5);
-    --color-border-strong:  #CBD5D1;
-    --color-text:           var(--c-ink, #17201E);
-    --color-text-secondary: var(--c-muted, #66736F);
-    --color-text-muted:     #8A9691;
+    --color-surface-muted:  #F1F5F9;
+    --color-surface-hover:  #F4F7FB;
+    --color-border:         var(--c-rule, #E2E8F0);
+    --color-border-strong:  #CBD5E1;
+    --color-text:           var(--c-ink, #0F172A);
+    --color-text-secondary: var(--c-muted, #64748B);
+    --color-text-muted:     #94A3B8;
     --color-text-inverse:   #FFFFFF;
 
     /* Typography */
-    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
 
     --text-xs:    0.75rem;
     --text-sm:    0.8125rem;
@@ -94,17 +94,17 @@
 }
 
 html[data-theme="dark"] {
-    --color-background:     #0F1716;
-    --color-surface:        #15201E;
-    --color-surface-muted:  #1B2926;
-    --color-surface-hover:  #1B2926;
+    --color-background:     #0F172A;
+    --color-surface:        #1E293B;
+    --color-surface-muted:  #243447;
+    --color-surface-hover:  #243447;
     --color-border:         rgba(255, 255, 255, 0.10);
     --color-border-strong:  rgba(255, 255, 255, 0.20);
-    --color-text:           #F1F5F4;
-    --color-text-secondary: #A7B4B0;
-    --color-text-muted:     #7C8B86;
-    --color-primary-light:  rgba(45, 212, 191, 0.16);
-    --color-primary-soft:   rgba(45, 212, 191, 0.14);
+    --color-text:           #F1F5F9;
+    --color-text-secondary: #A7B4C7;
+    --color-text-muted:     #7C8BA1;
+    --color-primary-light:  rgba(96, 165, 250, 0.16);
+    --color-primary-soft:   rgba(59, 130, 246, 0.14);
     --color-accent-soft:    rgba(245, 158, 11, 0.20);
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.5);
@@ -788,7 +788,6 @@ html[data-theme="dark"] .skeleton::after {
 .topbar {
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
-    backdrop-filter: blur(12px) saturate(180%);
 }
 .crumb {
     font-size: var(--text-sm);

@@ -21,40 +21,40 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <link rel="preconnect" href="https://fonts.bunny.net">
-<link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap" rel="stylesheet">
+<link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
     :root {
-        --c-primary: {{ $p['color_primary'] ?? '#0F766E' }};
-        --c-secondary: {{ $p['color_secondary'] ?? '#134E4A' }};
+        --c-primary: {{ $p['color_primary'] ?? '#2563EB' }};
+        --c-secondary: {{ $p['color_secondary'] ?? '#1D4ED8' }};
         --c-accent: {{ $p['color_accent'] ?? '#F59E0B' }};
-        --c-paper: {{ $p['color_paper'] ?? '#F8FAF9' }};
-        --c-ink: #17201E;
-        --c-muted: #66736F;
-        --c-rule: #E2E8E5;
+        --c-paper: {{ $p['color_paper'] ?? '#F8FAFC' }};
+        --c-ink: #0F172A;
+        --c-muted: #64748B;
+        --c-rule: #E2E8F0;
     }
 
     html { scroll-behavior: smooth; }
     body {
-        font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+        font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
         background: var(--c-paper);
         color: var(--c-ink);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
 
-    .font-display { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-weight: 700; }
-    .font-serif   { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; }
-    .font-script  { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-style: italic; font-weight: 500; }
+    .font-display { font-family: 'Manrope', ui-sans-serif, sans-serif; font-weight: 700; }
+    .font-serif   { font-family: 'Manrope', ui-sans-serif, sans-serif; }
+    .font-script  { font-family: 'Manrope', ui-sans-serif, sans-serif; font-style: italic; font-weight: 500; }
 
-    .elite-h1 { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
-    .elite-h2 { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-weight: 700; letter-spacing: -.025em; }
-    .elite-h3 { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-weight: 700; }
-    .elite-lead { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-weight: 400; font-size: 1.125rem; line-height: 1.6; color: #2d2a26; }
+    .elite-h1 { font-family: 'Manrope', ui-sans-serif, sans-serif; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
+    .elite-h2 { font-family: 'Manrope', ui-sans-serif, sans-serif; font-weight: 700; letter-spacing: -.025em; }
+    .elite-h3 { font-family: 'Manrope', ui-sans-serif, sans-serif; font-weight: 700; }
+    .elite-lead { font-family: 'Manrope', ui-sans-serif, sans-serif; font-weight: 400; font-size: 1.125rem; line-height: 1.6; color: #334155; }
 
     .elite-kicker {
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'Manrope', sans-serif;
         font-size: .68rem;
         letter-spacing: .35em;
         text-transform: uppercase;

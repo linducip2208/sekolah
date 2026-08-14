@@ -4,8 +4,8 @@
    ===================================================================== */
 
 :root {
-    --lp-font-body: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-    --lp-font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --lp-font-body: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    --lp-font-display: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 }
 
 html { scroll-behavior: smooth; }
@@ -98,7 +98,7 @@ body {
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
 /* Navbar */
-.lp-nav { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--lp-background) 88%, transparent); backdrop-filter: blur(10px) saturate(160%); border-bottom: 1px solid var(--lp-border); }
+.lp-nav { position: sticky; top: 0; z-index: 40; background: var(--lp-surface); border-bottom: 1px solid var(--lp-border); }
 .lp-nav-link {
     font-size: 0.9375rem;
     font-weight: 500;
