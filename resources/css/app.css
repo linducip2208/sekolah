@@ -7,40 +7,46 @@
    ===================================================================== */
 
 /* ---------------------------------------------------------------
-   1. DESIGN TOKENS
+   1. DESIGN TOKENS — SIKAD visual identity
+   Deep Teal + Warm Amber + Plus Jakarta Sans
    --------------------------------------------------------------- */
 :root {
     /* Brand (inherited from platform settings / white-label CSS) */
-    --color-primary:        var(--c-primary, #0b1d3a);
-    --color-primary-hover:  var(--c-secondary, #10294e);
-    --color-accent:         var(--c-accent, #b8860b);
-    --color-accent-soft:    rgba(184, 134, 11, 0.12);
-    --color-secondary:      var(--c-secondary, #7a1e2b);
+    --color-primary:        var(--c-primary, #0F766E);
+    --color-primary-hover:  var(--c-secondary, #134E4A);
+    --color-primary-dark:   var(--c-secondary, #134E4A);
+    --color-primary-light:  #CCFBF1;
+    --color-primary-soft:   rgba(15, 118, 110, 0.10);
+    --color-secondary:      var(--c-secondary, #134E4A);
+    --color-accent:         var(--c-accent, #F59E0B);
+    --color-accent-light:   #FEF3C7;
+    --color-accent-soft:    rgba(245, 158, 11, 0.14);
 
     /* Semantic */
-    --color-success:        var(--brand-success, #16a34a);
-    --color-success-soft:   rgba(22, 163, 74, 0.12);
-    --color-warning:        var(--brand-warning, #eab308);
-    --color-warning-soft:   rgba(234, 179, 8, 0.14);
-    --color-danger:         var(--brand-danger, #dc2626);
+    --color-success:        var(--brand-success, #15803D);
+    --color-success-soft:   rgba(21, 128, 61, 0.12);
+    --color-warning:        var(--brand-warning, #D97706);
+    --color-warning-soft:   rgba(217, 119, 6, 0.14);
+    --color-danger:         var(--brand-danger, #DC2626);
     --color-danger-soft:    rgba(220, 38, 38, 0.10);
-    --color-info:           #2563eb;
+    --color-info:           #2563EB;
     --color-info-soft:      rgba(37, 99, 235, 0.10);
 
     /* Surface & text */
-    --color-background:     var(--c-paper, #f8f5ee);
-    --color-surface:        #ffffff;
-    --color-surface-hover:  #f8fafc;
-    --color-border:         var(--c-rule, rgba(11, 29, 58, 0.15));
-    --color-border-strong:  rgba(11, 29, 58, 0.24);
-    --color-text:           var(--c-ink, #1a1a1a);
-    --color-text-secondary: var(--c-muted, #6b6660);
-    --color-text-muted:     #8a8680;
-    --color-text-inverse:   #ffffff;
+    --color-background:     var(--c-paper, #F8FAF9);
+    --color-surface:        #FFFFFF;
+    --color-surface-muted:  #F1F5F4;
+    --color-surface-hover:  #F3F7F6;
+    --color-border:         var(--c-rule, #E2E8E5);
+    --color-border-strong:  #CBD5D1;
+    --color-text:           var(--c-ink, #17201E);
+    --color-text-secondary: var(--c-muted, #66736F);
+    --color-text-muted:     #8A9691;
+    --color-text-inverse:   #FFFFFF;
 
     /* Typography */
-    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --font-display: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
 
     --text-xs:    0.75rem;
     --text-sm:    0.8125rem;
@@ -51,15 +57,16 @@
     --text-3xl:   1.625rem;
 
     /* Radius */
-    --radius-sm: 6px;
+    --radius-sm: 8px;
     --radius-md: 10px;
     --radius-lg: 14px;
+    --radius-xl: 20px;
 
     /* Shadow / elevation */
-    --shadow-xs: 0 1px 2px rgba(11, 29, 58, 0.06);
-    --shadow-sm: 0 1px 3px rgba(11, 29, 58, 0.10), 0 1px 2px rgba(11, 29, 58, 0.06);
-    --shadow-md: 0 4px 12px -2px rgba(11, 29, 58, 0.12), 0 2px 4px -2px rgba(11, 29, 58, 0.06);
-    --shadow-lg: 0 12px 32px -8px rgba(11, 29, 58, 0.22), 0 4px 10px -4px rgba(11, 29, 58, 0.08);
+    --shadow-xs: 0 1px 2px rgba(23, 32, 30, 0.05);
+    --shadow-sm: 0 1px 3px rgba(23, 32, 30, 0.08), 0 1px 2px rgba(23, 32, 30, 0.05);
+    --shadow-md: 0 4px 12px -2px rgba(23, 32, 30, 0.10), 0 2px 4px -2px rgba(23, 32, 30, 0.05);
+    --shadow-lg: 0 12px 32px -8px rgba(23, 32, 30, 0.18), 0 4px 10px -4px rgba(23, 32, 30, 0.08);
 
     /* Spacing */
     --space-1: 0.25rem;
@@ -69,6 +76,7 @@
     --space-5: 1.25rem;
     --space-6: 1.5rem;
     --space-8: 2rem;
+    --space-12: 3rem;
 
     /* Motion */
     --duration-fast: 150ms;
@@ -86,15 +94,18 @@
 }
 
 html[data-theme="dark"] {
-    --color-background:     #0f1523;
-    --color-surface:        #171e30;
-    --color-surface-hover:  #1e2740;
-    --color-border:         rgba(255, 255, 255, 0.12);
-    --color-border-strong:  rgba(255, 255, 255, 0.22);
-    --color-text:           #e7eaf0;
-    --color-text-secondary: #a6adbd;
-    --color-text-muted:     #7b8494;
-    --color-accent-soft:    rgba(184, 134, 11, 0.22);
+    --color-background:     #0F1716;
+    --color-surface:        #15201E;
+    --color-surface-muted:  #1B2926;
+    --color-surface-hover:  #1B2926;
+    --color-border:         rgba(255, 255, 255, 0.10);
+    --color-border-strong:  rgba(255, 255, 255, 0.20);
+    --color-text:           #F1F5F4;
+    --color-text-secondary: #A7B4B0;
+    --color-text-muted:     #7C8B86;
+    --color-primary-light:  rgba(45, 212, 191, 0.16);
+    --color-primary-soft:   rgba(45, 212, 191, 0.14);
+    --color-accent-soft:    rgba(245, 158, 11, 0.20);
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.5);
     --shadow-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
@@ -218,8 +229,8 @@ a {
     transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease, transform var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
     min-height: 38px;
 }
-.btn:hover { background: var(--color-primary-hover); }
-.btn:active { transform: translateY(1px); }
+.btn:hover { background: var(--color-primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.btn:active { transform: translateY(0); }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .btn-secondary {

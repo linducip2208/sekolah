@@ -42,10 +42,10 @@ class PlatformSettingsService
             'crest_path'       => null,
             'og_image_path'    => null,
 
-            'color_primary'   => '#0b1d3a',
-            'color_secondary' => '#7a1e2b',
-            'color_accent'    => '#b8860b',
-            'color_paper'     => '#f8f5ee',
+            'color_primary'   => '#0F766E',
+            'color_secondary' => '#134E4A',
+            'color_accent'    => '#F59E0B',
+            'color_paper'     => '#F8FAF9',
 
             'contact_phone'    => '081296052010',
             'contact_whatsapp' => '6281296052010',

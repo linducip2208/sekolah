@@ -21,40 +21,40 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <link rel="preconnect" href="https://fonts.bunny.net">
-<link href="https://fonts.bunny.net/css?family=cormorant-garamond:400,500,600,700,400i|playfair-display:400,500,600,700,800,900|inter:300,400,500,600,700|cormorant:400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
     :root {
-        --c-primary: {{ $p['color_primary'] ?? '#0b1d3a' }};
-        --c-secondary: {{ $p['color_secondary'] ?? '#7a1e2b' }};
-        --c-accent: {{ $p['color_accent'] ?? '#b8860b' }};
-        --c-paper: {{ $p['color_paper'] ?? '#f8f5ee' }};
-        --c-ink: #1a1a1a;
-        --c-muted: #6b6660;
-        --c-rule: rgba(11, 29, 58, .15);
+        --c-primary: {{ $p['color_primary'] ?? '#0F766E' }};
+        --c-secondary: {{ $p['color_secondary'] ?? '#134E4A' }};
+        --c-accent: {{ $p['color_accent'] ?? '#F59E0B' }};
+        --c-paper: {{ $p['color_paper'] ?? '#F8FAF9' }};
+        --c-ink: #17201E;
+        --c-muted: #66736F;
+        --c-rule: #E2E8E5;
     }
 
     html { scroll-behavior: smooth; }
     body {
-        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
         background: var(--c-paper);
         color: var(--c-ink);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
 
-    .font-display { font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif; font-weight: 600; }
-    .font-serif   { font-family: 'Cormorant Garamond', 'Cormorant', Georgia, serif; }
-    .font-script  { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500; }
+    .font-display { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-weight: 700; }
+    .font-serif   { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; }
+    .font-script  { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-style: italic; font-weight: 500; }
 
-    .elite-h1 { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; letter-spacing: -.015em; line-height: 1.05; }
-    .elite-h2 { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; letter-spacing: -.01em; }
-    .elite-h3 { font-family: 'Playfair Display', Georgia, serif; font-weight: 500; }
-    .elite-lead { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: 1.25rem; line-height: 1.55; color: #2d2a26; }
+    .elite-h1 { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
+    .elite-h2 { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-weight: 700; letter-spacing: -.025em; }
+    .elite-h3 { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-weight: 700; }
+    .elite-lead { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-weight: 400; font-size: 1.125rem; line-height: 1.6; color: #2d2a26; }
 
     .elite-kicker {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
         font-size: .68rem;
         letter-spacing: .35em;
         text-transform: uppercase;

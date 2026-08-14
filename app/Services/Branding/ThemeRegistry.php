@@ -5,15 +5,16 @@ namespace App\Services\Branding;
 /**
  * Registry of built-in white-label themes.
  *
- * A "theme" bundles a cohesive set of design tokens — brand palette,
- * typography (body + display), border radius and surface tones — so a
- * school can switch its whole look with one selection, then fine-tune
- * colours afterwards. All business logic remains shared; only the
- * presentation tokens differ.
+ * All themes share the SIKAD brand identity — Deep Teal primary + Warm Amber
+ * accent + Plus Jakarta Sans — and vary only in shade/neutrality so white-label
+ * schools stay visually consistent with the platform.
  */
 class ThemeRegistry
 {
     public const DEFAULT = 'elegant';
+
+    public const FONT = "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif";
+    public const FONT_URL = 'https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800';
 
     public static function keys(): array
     {
@@ -36,137 +37,137 @@ class ThemeRegistry
         return [
             [
                 'key'         => 'elegant',
-                'name'        => 'Elegan',
-                'description' => 'Navy & emas klasik bergaya akademi bergengsi — serif untuk judul, krem hangat.',
+                'name'        => 'Classic',
+                'description' => 'Teal institusional yang dalam — elegan, tenang, dan terpercaya.',
                 'palette' => [
-                    'primary'      => '#0b1d3a',
-                    'secondary'    => '#7a1e2b',
-                    'accent'       => '#b8860b',
-                    'sidebar'      => '#0b1d3a',
-                    'sidebar_text' => '#f8f5ee',
-                    'success'      => '#16A34A',
-                    'warning'      => '#EAB308',
+                    'primary'      => '#0B4F49',
+                    'secondary'    => '#134E4A',
+                    'accent'       => '#F59E0B',
+                    'sidebar'      => '#0B4F49',
+                    'sidebar_text' => '#F1F5F4',
+                    'success'      => '#15803D',
+                    'warning'      => '#D97706',
                     'danger'       => '#DC2626',
                 ],
                 'fonts' => [
-                    'body'    => "'Inter', ui-sans-serif, system-ui, sans-serif",
-                    'display' => "'Playfair Display', Georgia, serif",
-                    'url'     => 'https://fonts.bunny.net/css?family=inter:400,500,600,700|playfair-display:500,600,700',
+                    'body'    => self::FONT,
+                    'display' => self::FONT,
+                    'url'     => self::FONT_URL,
                 ],
-                'radius' => ['sm' => '2px', 'md' => '6px', 'lg' => '10px'],
+                'radius' => ['sm' => '6px', 'md' => '10px', 'lg' => '14px'],
                 'surface' => [
-                    'paper' => '#f8f5ee',
-                    'ink'   => '#1a1a1a',
-                    'muted' => '#6b6660',
-                    'rule'  => 'rgba(11, 29, 58, 0.15)',
+                    'paper' => '#F8FAF9',
+                    'ink'   => '#17201E',
+                    'muted' => '#66736F',
+                    'rule'  => '#E2E8E5',
                 ],
             ],
             [
                 'key'         => 'corporate',
                 'name'        => 'Korporat',
-                'description' => 'Indigo profesional & tegas — Inter, sudut tajam, cocok untuk yayasan & konsorsium.',
+                'description' => 'Teal + slate — enterprise, terstruktur, dan profesional.',
                 'palette' => [
-                    'primary'      => '#1E40AF',
-                    'secondary'    => '#1D4ED8',
-                    'accent'       => '#2563EB',
-                    'sidebar'      => '#0F172A',
-                    'sidebar_text' => '#E2E8F0',
-                    'success'      => '#16A34A',
-                    'warning'      => '#EAB308',
+                    'primary'      => '#0F766E',
+                    'secondary'    => '#134E4A',
+                    'accent'       => '#475569',
+                    'sidebar'      => '#134E4A',
+                    'sidebar_text' => '#F1F5F4',
+                    'success'      => '#15803D',
+                    'warning'      => '#D97706',
                     'danger'       => '#DC2626',
                 ],
                 'fonts' => [
-                    'body'    => "'Inter', ui-sans-serif, system-ui, sans-serif",
-                    'display' => "'Inter', ui-sans-serif, system-ui, sans-serif",
-                    'url'     => 'https://fonts.bunny.net/css?family=inter:400,500,600,700,800',
+                    'body'    => self::FONT,
+                    'display' => self::FONT,
+                    'url'     => self::FONT_URL,
                 ],
-                'radius' => ['sm' => '4px', 'md' => '8px', 'lg' => '12px'],
+                'radius' => ['sm' => '6px', 'md' => '10px', 'lg' => '14px'],
                 'surface' => [
-                    'paper' => '#F1F5F9',
-                    'ink'   => '#0F172A',
-                    'muted' => '#64748B',
-                    'rule'  => 'rgba(15, 23, 42, 0.14)',
+                    'paper' => '#F8FAF9',
+                    'ink'   => '#17201E',
+                    'muted' => '#66736F',
+                    'rule'  => '#E2E8E5',
                 ],
             ],
             [
                 'key'         => 'modern',
                 'name'        => 'Modern',
-                'description' => 'Ungu violet segar & membulat — Plus Jakarta Sans, ringan, cocok untuk startup edutech.',
-                'palette' => [
-                    'primary'      => '#6D28D9',
-                    'secondary'    => '#7C3AED',
-                    'accent'       => '#8B5CF6',
-                    'sidebar'      => '#1E1B4B',
-                    'sidebar_text' => '#E0E7FF',
-                    'success'      => '#10B981',
-                    'warning'      => '#F59E0B',
-                    'danger'       => '#EF4444',
-                ],
-                'fonts' => [
-                    'body'    => "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif",
-                    'display' => "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif",
-                    'url'     => 'https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800',
-                ],
-                'radius' => ['sm' => '8px', 'md' => '14px', 'lg' => '18px'],
-                'surface' => [
-                    'paper' => '#FAF9FF',
-                    'ink'   => '#1E1B4B',
-                    'muted' => '#6D6A8A',
-                    'rule'  => 'rgba(76, 29, 149, 0.14)',
-                ],
-            ],
-            [
-                'key'         => 'minimal',
-                'name'        => 'Minimalis',
-                'description' => 'Slate netral & bersih — Manrope, halus, banyak whitespace, fokus pada konten.',
-                'palette' => [
-                    'primary'      => '#334155',
-                    'secondary'    => '#475569',
-                    'accent'       => '#64748B',
-                    'sidebar'      => '#1E293B',
-                    'sidebar_text' => '#F1F5F9',
-                    'success'      => '#16A34A',
-                    'warning'      => '#EAB308',
-                    'danger'       => '#DC2626',
-                ],
-                'fonts' => [
-                    'body'    => "'Manrope', ui-sans-serif, system-ui, sans-serif",
-                    'display' => "'Manrope', ui-sans-serif, system-ui, sans-serif",
-                    'url'     => 'https://fonts.bunny.net/css?family=manrope:400,500,600,700,800',
-                ],
-                'radius' => ['sm' => '4px', 'md' => '6px', 'lg' => '10px'],
-                'surface' => [
-                    'paper' => '#FFFFFF',
-                    'ink'   => '#0F172A',
-                    'muted' => '#64748B',
-                    'rule'  => 'rgba(15, 23, 42, 0.10)',
-                ],
-            ],
-            [
-                'key'         => 'academic',
-                'name'        => 'Akademik',
-                'description' => 'Teal & hijau segar — Nunito ramah, hangat, cocok untuk sekolah & pesantren.',
+                'description' => 'Teal segar — bersih, teknologi, dan kontemporer.',
                 'palette' => [
                     'primary'      => '#0F766E',
                     'secondary'    => '#0D9488',
                     'accent'       => '#14B8A6',
                     'sidebar'      => '#134E4A',
                     'sidebar_text' => '#CCFBF1',
-                    'success'      => '#16A34A',
-                    'warning'      => '#EAB308',
+                    'success'      => '#15803D',
+                    'warning'      => '#D97706',
                     'danger'       => '#DC2626',
                 ],
                 'fonts' => [
-                    'body'    => "'Nunito', ui-sans-serif, system-ui, sans-serif",
-                    'display' => "'Nunito', ui-sans-serif, system-ui, sans-serif",
-                    'url'     => 'https://fonts.bunny.net/css?family=nunito:400,500,600,700,800',
+                    'body'    => self::FONT,
+                    'display' => self::FONT,
+                    'url'     => self::FONT_URL,
                 ],
-                'radius' => ['sm' => '8px', 'md' => '10px', 'lg' => '14px'],
+                'radius' => ['sm' => '8px', 'md' => '12px', 'lg' => '16px'],
+                'surface' => [
+                    'paper' => '#F8FAF9',
+                    'ink'   => '#17201E',
+                    'muted' => '#66736F',
+                    'rule'  => '#E2E8E5',
+                ],
+            ],
+            [
+                'key'         => 'minimal',
+                'name'        => 'Minimalis',
+                'description' => 'Netral + teal — sederhana, fokus tipografi, banyak whitespace.',
+                'palette' => [
+                    'primary'      => '#0F766E',
+                    'secondary'    => '#134E4A',
+                    'accent'       => '#64748B',
+                    'sidebar'      => '#17201E',
+                    'sidebar_text' => '#F1F5F4',
+                    'success'      => '#15803D',
+                    'warning'      => '#D97706',
+                    'danger'       => '#DC2626',
+                ],
+                'fonts' => [
+                    'body'    => self::FONT,
+                    'display' => self::FONT,
+                    'url'     => self::FONT_URL,
+                ],
+                'radius' => ['sm' => '4px', 'md' => '8px', 'lg' => '12px'],
+                'surface' => [
+                    'paper' => '#FFFFFF',
+                    'ink'   => '#17201E',
+                    'muted' => '#66736F',
+                    'rule'  => '#E2E8E5',
+                ],
+            ],
+            [
+                'key'         => 'academic',
+                'name'        => 'Akademik',
+                'description' => 'Teal + emas hangat — edukatif, ramah, cocok untuk sekolah & pesantren.',
+                'palette' => [
+                    'primary'      => '#0F766E',
+                    'secondary'    => '#047857',
+                    'accent'       => '#F59E0B',
+                    'sidebar'      => '#134E4A',
+                    'sidebar_text' => '#CCFBF1',
+                    'success'      => '#15803D',
+                    'warning'      => '#D97706',
+                    'danger'       => '#DC2626',
+                ],
+                'fonts' => [
+                    'body'    => self::FONT,
+                    'display' => self::FONT,
+                    'url'     => self::FONT_URL,
+                ],
+                'radius' => ['sm' => '8px', 'md' => '12px', 'lg' => '16px'],
                 'surface' => [
                     'paper' => '#F0FDFA',
                     'ink'   => '#134E4A',
                     'muted' => '#5F7161',
-                    'rule'  => 'rgba(15, 118, 110, 0.14)',
+                    'rule'  => '#D1E5DE',
                 ],
             ],
         ];

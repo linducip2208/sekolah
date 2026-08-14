@@ -4,8 +4,8 @@
    ===================================================================== */
 
 :root {
-    --lp-font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    --lp-font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --lp-font-body: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --lp-font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
 html { scroll-behavior: smooth; }
