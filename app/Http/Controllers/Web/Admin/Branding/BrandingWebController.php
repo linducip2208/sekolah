@@ -5,21 +5,13 @@ namespace App\Http\Controllers\Web\Admin\Branding;
 use App\Http\Controllers\Controller;
 use App\Services\Branding\BrandingService;
 use App\Services\Branding\ThemeRegistry;
+use App\Services\FontRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class BrandingWebController extends Controller
 {
-    public const FONT_PRESETS = [
-        'manrope'   => ['name' => 'Manrope',            'family' => "'Manrope', ui-sans-serif, system-ui, sans-serif", 'url' => 'https://fonts.bunny.net/css?family=manrope:400,500,600,700,800'],
-        'inter'     => ['name' => 'Inter',              'family' => "'Inter', ui-sans-serif, system-ui, sans-serif", 'url' => 'https://fonts.bunny.net/css?family=inter:400,500,600,700,800'],
-        'jakarta'   => ['name' => 'Plus Jakarta Sans',  'family' => "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif", 'url' => 'https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800'],
-        'figtree'   => ['name' => 'Figtree',            'family' => "'Figtree', ui-sans-serif, system-ui, sans-serif", 'url' => 'https://fonts.bunny.net/css?family=figtree:400,500,600,700,800'],
-        'dm-sans'   => ['name' => 'DM Sans',            'family' => "'DM Sans', ui-sans-serif, system-ui, sans-serif", 'url' => 'https://fonts.bunny.net/css?family=dm-sans:400,500,600,700,800'],
-        'sora'      => ['name' => 'Sora',               'family' => "'Sora', ui-sans-serif, system-ui, sans-serif", 'url' => 'https://fonts.bunny.net/css?family=sora:400,500,600,700,800'],
-    ];
-
     public function __construct(private BrandingService $branding) {}
 
     public function show(): View
@@ -27,7 +19,7 @@ class BrandingWebController extends Controller
         $branding = $this->branding->getForSchool(auth()->user()->school_id);
         $themes   = ThemeRegistry::themes();
         $selected = $branding['theme'] ?? ThemeRegistry::DEFAULT;
-        $fontPresets = self::FONT_PRESETS;
+        $fontPresets = FontRegistry::PRESETS;
         return view('school-admin.branding.show', compact('branding', 'themes', 'selected', 'fontPresets'));
     }
 
@@ -48,7 +40,7 @@ class BrandingWebController extends Controller
             'color_sidebar_text'     => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
             'color_text'             => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
             'color_text_muted'       => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
-            'font_preset'            => 'nullable|in:'.implode(',', array_keys(self::FONT_PRESETS)),
+            'font_preset'            => 'nullable|in:'.implode(',', FontRegistry::keys()),
             'font_scale'             => 'nullable|in:compact,normal,large',
             'radius_scale'           => 'nullable|in:small,medium,large',
             'font_family'            => 'nullable|string|max:200',
@@ -84,8 +76,7 @@ class BrandingWebController extends Controller
         }
 
         // Map selected font preset → family + google fonts url
-        if (!empty($data['font_preset']) && isset(self::FONT_PRESETS[$data['font_preset']])) {
-            $preset = self::FONT_PRESETS[$data['font_preset']];
+        if (!empty($data['font_preset']) && ($preset = FontRegistry::get($data['font_preset']))) {
             $data['font_family'] = $preset['family'];
             $data['google_fonts_url'] = $preset['url'];
         }

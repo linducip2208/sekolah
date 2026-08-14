@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Services\FontRegistry;
 use App\Services\LandingThemeRegistry;
 use App\Services\PlatformSettingsService;
 use Illuminate\Http\RedirectResponse;
@@ -19,6 +20,7 @@ class PlatformWhitelabelController extends Controller
             'settings'    => $this->platformSettings->all(),
             'imageFields' => PlatformSettingsService::IMAGE_FIELDS,
             'themes'      => LandingThemeRegistry::themes(),
+            'fontPresets' => FontRegistry::PRESETS,
         ]);
     }
 
@@ -56,6 +58,14 @@ class PlatformWhitelabelController extends Controller
             'popup_cta_text'   => 'nullable|string|max:60',
             'footer_disclaimer'=> 'nullable|string|max:300',
             'landing_theme'    => 'nullable|in:'.implode(',', LandingThemeRegistry::keys()),
+            'landing_primary'  => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
+            'landing_accent'   => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
+            'landing_background' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
+            'landing_text'     => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
+            'landing_text_muted' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
+            'landing_font'     => 'nullable|in:'.implode(',', FontRegistry::keys()),
+            'landing_font_scale' => 'nullable|in:compact,normal,large',
+            'landing_radius_scale' => 'nullable|in:small,medium,large',
         ]);
 
         $data['popup_enabled'] = $request->boolean('popup_enabled');

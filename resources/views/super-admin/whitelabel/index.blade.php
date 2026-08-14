@@ -83,8 +83,8 @@
                                 :class="theme === '{{ $t['key'] }}' ? 'border-indigo-600 shadow-sm' : 'border-gray-200 hover:border-gray-300'"
                                 :aria-pressed="(theme === '{{ $t['key'] }}').toString()">
                             <div class="flex items-center gap-1.5 mb-2">
-                                @foreach(['--lp-primary', '--lp-accent', '--lp-bg'] as $sw)
-                                    <span class="w-5 h-5 rounded-full border border-gray-200" style="background: {{ $t['vars'][$sw] }}"></span>
+                                @foreach(['--lp-primary', '--lp-accent', '--lp-background'] as $sw)
+                                    <span class="w-5 h-5 rounded-full border border-gray-200" style="background: {{ $t['vars'][$sw] ?? '#eee' }}"></span>
                                 @endforeach
                                 <span class="ml-auto text-[10px] font-mono text-gray-400">{{ $t['key'] }}</span>
                             </div>
@@ -92,6 +92,79 @@
                             <div class="text-xs text-gray-500 mt-1 leading-snug">{{ $t['description'] }}</div>
                         </button>
                     @endforeach
+                </div>
+            </div>
+        </div>
+
+        {{-- ===== Landing Colors & Typography ===== --}}
+        @php
+            $fontFamilies = collect($fontPresets)->mapWithKeys(fn ($p, $k) => [$k => $p['family']])->all();
+        @endphp
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="font-semibold text-gray-900">Warna &amp; Tipografi Landing</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Override warna, font, dan bentuk landing — kosongkan untuk mengikuti template.</p>
+            </div>
+            <div class="p-6" x-data="{
+                primary: '{{ $settings['landing_primary'] ?? '' }}',
+                accent: '{{ $settings['landing_accent'] ?? '' }}',
+                text: '{{ $settings['landing_text'] ?? '' }}',
+                font: '{{ $settings['landing_font'] ?? 'manrope' }}',
+                radius: '{{ $settings['landing_radius_scale'] ?? 'medium' }}',
+                fonts: @json($fontFamilies)
+            }">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    @foreach(['landing_primary' => 'Primer', 'landing_accent' => 'Aksen', 'landing_background' => 'Background', 'landing_text' => 'Warna Teks', 'landing_text_muted' => 'Teks Muted'] as $key => $label)
+                        <div>
+                            <label class="text-sm font-medium text-gray-700">{{ $label }}</label>
+                            <input type="color" name="{{ $key }}" value="{{ $settings[$key] ?? '' }}" class="mt-1 h-10 w-full rounded border border-gray-300" {{ $key === 'landing_primary' ? 'x-model=primary' : ($key === 'landing_accent' ? 'x-model=accent' : ($key === 'landing_text' ? 'x-model=text' : '')) }}>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="grid sm:grid-cols-3 gap-4 mt-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Jenis Font</label>
+                        <select name="landing_font" x-model="font" class="mt-1 w-full rounded-lg border-gray-300 text-sm">
+                            @foreach($fontPresets as $k => $p)
+                                <option value="{{ $k }}">{{ $p['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Ukuran Font</label>
+                        <div class="flex gap-2 mt-1">
+                            @foreach(['compact' => 'Kecil', 'normal' => 'Normal', 'large' => 'Besar'] as $fs => $fsl)
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="landing_font_scale" value="{{ $fs }}" class="peer sr-only" {{ ($settings['landing_font_scale'] ?? 'normal') === $fs ? 'checked' : '' }}>
+                                    <span class="block text-center text-sm border rounded px-2 py-2 peer-checked:border-blue-600 peer-checked:bg-blue-50">{{ $fsl }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Bentuk Sudut</label>
+                        <div class="flex gap-2 mt-1">
+                            @foreach(['small' => 'Kotak', 'medium' => 'Sedang', 'large' => 'Bulat'] as $rs => $rsl)
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="landing_radius_scale" value="{{ $rs }}" x-model="radius" class="peer sr-only">
+                                    <span class="block text-center text-sm border rounded px-2 py-2 peer-checked:border-blue-600 peer-checked:bg-blue-50">{{ $rsl }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 rounded-lg border" style="background: #F8FAFC;">
+                    <div class="text-xs uppercase tracking-wide mb-2 text-gray-500">Pratinjau</div>
+                    <div class="p-4 rounded-lg bg-white border" :style="'font-family: ' + fonts[font]">
+                        <div class="text-lg font-bold" :style="text ? 'color: ' + text : ''">Judul Halaman</div>
+                        <div class="text-sm mt-1 text-gray-500">Ini contoh teks untuk melihat hasil font dan tipografi landing.</div>
+                        <div class="mt-3 flex gap-2">
+                            <span class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white" :style="'background: ' + (primary || '#2563EB') + '; border-radius: ' + (radius === 'small' ? '6px' : radius === 'large' ? '16px' : '12px')">Tombol Utama</span>
+                            <span class="inline-flex items-center px-4 py-2 text-sm font-semibold border" :style="'color: ' + (primary || '#2563EB') + '; border-color: ' + (primary || '#2563EB') + '; border-radius: ' + (radius === 'small' ? '6px' : radius === 'large' ? '16px' : '12px')">Tombol Sekunder</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

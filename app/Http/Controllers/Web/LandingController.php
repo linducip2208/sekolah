@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
+use App\Services\FontRegistry;
 use App\Services\LandingThemeRegistry;
 use App\Services\PlatformSettingsService;
 use Illuminate\View\View;
@@ -15,6 +16,33 @@ class LandingController extends Controller
     public function index(): View
     {
         $theme = LandingThemeRegistry::get($this->platform->get('landing_theme'));
+
+        // Apply platform-level color/typography overrides on top of the template.
+        $p = $this->platform->all();
+        foreach ([
+            '--lp-primary'     => 'landing_primary',
+            '--lp-accent'      => 'landing_accent',
+            '--lp-background'  => 'landing_background',
+            '--lp-ink'         => 'landing_text',
+            '--lp-muted'       => 'landing_text_muted',
+        ] as $var => $setting) {
+            if (!empty($p[$setting])) {
+                $theme['vars'][$var] = $p[$setting];
+            }
+        }
+
+        if (!empty($p['landing_font']) && ($font = FontRegistry::get($p['landing_font']))) {
+            $theme['fonts']['body']    = $font['family'];
+            $theme['fonts']['display'] = $font['family'];
+            $theme['fonts']['url']     = $font['url'];
+        }
+
+        $radiusMap = ['small' => ['8px', '10px', '14px'], 'large' => ['12px', '16px', '22px'], 'medium' => ['10px', '12px', '16px']];
+        $radii = $radiusMap[$p['landing_radius_scale'] ?? 'medium'] ?? $radiusMap['medium'];
+        $theme['vars']['--lp-radius-sm']  = $radii[0];
+        $theme['vars']['--lp-radius-md']  = $radii[1];
+        $theme['vars']['--lp-radius-lg']  = $radii[2];
+        $theme['vars']['--lp-radius-btn'] = $radii[1];
 
         $screens = static fn (string $file) => asset("marketing/screens/{$file}");
 

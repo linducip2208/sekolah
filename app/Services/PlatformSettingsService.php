@@ -68,6 +68,14 @@ class PlatformSettingsService
             'footer_disclaimer' => 'Sikad Pro is a trademark of the Sikad Pro. All rights reserved.',
 
             'landing_theme' => 'modern',
+            'landing_primary' => null,
+            'landing_accent' => null,
+            'landing_background' => null,
+            'landing_text' => null,
+            'landing_text_muted' => null,
+            'landing_font' => null,
+            'landing_font_scale' => 'normal',
+            'landing_radius_scale' => 'medium',
 
             'cache_version' => 1,
         ];
