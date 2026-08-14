@@ -185,7 +185,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return redirect()->route('admin.login');
     })->name('logout');
 
-    Route::middleware(['auth', 'role:admin|accountant'])->group(function () {
+    Route::middleware(['auth', 'role:admin|accountant', 'subscription.active', '2fa.enforce'])->group(function () {
         Route::get('/dashboard', fn() => view('school-admin.dashboard'))->name('dashboard');
 
         // ==================== AKADEMIK ====================
@@ -731,6 +731,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/print/salary-slip/{slip}',          [PrintController::class, 'salarySlip'])->name('print.salary-slip');
         Route::get('/print/id-card/{student}',           [PrintController::class, 'idCard'])->name('print.id-card');
         Route::get('/print/report-card/{student}',       [PrintController::class, 'reportCard'])->name('print.report-card');
+        Route::get('/print/gateway-receipt/{tx}',       [PrintController::class, 'gatewayReceipt'])->name('print.gateway-receipt');
+        Route::get('/print/donation-receipt/{donation}', [PrintController::class, 'donationReceipt'])->name('print.donation-receipt');
+        Route::get('/print/ppdb-acceptance/{app}',      [PrintController::class, 'ppdbAcceptance'])->name('print.ppdb-acceptance');
+        Route::get('/print/certificate/{achievement}',   [PrintController::class, 'achievementCertificate'])->name('print.certificate');
 
         // ============== BULK IMPORT CSV ==============
         Route::get('/import',                            [BulkImportController::class, 'index'])->name('import.index');

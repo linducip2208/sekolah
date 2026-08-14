@@ -10,10 +10,14 @@ class EnsureActiveSubscription
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $school = app('current_school');
+        $school = app('current_school') ?? $request->user()?->school;
 
-        if (!$school || !$school->isSubscriptionActive()) {
-            return response()->json(['message' => 'Subscription expired. Please renew your plan.'], 402);
+        if ($school && !$school->isSubscriptionActive()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Subscription expired. Please renew your plan.'], 402);
+            }
+
+            return response()->view('errors.subscription-expired', ['school' => $school], 402);
         }
 
         return $next($request);

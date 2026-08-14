@@ -33,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
 
         $middleware->web(prepend: [RequirePair::class]);
-        $middleware->web(append: [SetLocale::class, ResolveCustomDomain::class]);
+        $middleware->web(append: [SetLocale::class, ResolveCustomDomain::class, ResolveSchool::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -128,7 +128,7 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
 });
 
 // Authenticated routes with school access check
-Route::prefix('v1')->middleware(['auth:sanctum', 'school.access'])->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.active'])->group(function () {
     Route::get('/auth/me',              [AuthController::class, 'me']);
     Route::put('/auth/profile',         [AuthController::class, 'updateProfile']);
     Route::post('/auth/avatar',         [AuthController::class, 'updateAvatar']);

@@ -7,15 +7,17 @@ use App\Models\Academic\Student;
 use App\Models\Finance\FeeInvoice;
 use App\Models\Finance\FeePayment;
 use App\Models\Finance\SalarySlip;
+use App\Services\Pdf\ReceiptPdfService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Symfony\Component\HttpFoundation\Response;
 
 class PrintController extends Controller
 {
+    public function __construct(private ReceiptPdfService $receipt) {}
+
     private function schoolId(): int { return auth()->user()->school_id; }
     private function authorizeOwn($model): void { abort_unless($model->school_id === $this->schoolId(), 403); }
 
-    /** Cetak invoice SPP */
     public function invoice(FeeInvoice $invoice): Response
     {
         $this->authorizeOwn($invoice);
@@ -25,7 +27,6 @@ class PrintController extends Controller
         return $pdf->stream("invoice-{$invoice->invoice_no}.pdf");
     }
 
-    /** Cetak kuitansi pembayaran (per payment) */
     public function paymentReceipt(FeePayment $payment): Response
     {
         $invoice = $payment->invoice()->with(['student.user', 'feeStructure'])->first();
@@ -35,7 +36,6 @@ class PrintController extends Controller
         return $pdf->stream("kuitansi-{$payment->id}.pdf");
     }
 
-    /** Cetak slip gaji */
     public function salarySlip(SalarySlip $slip): Response
     {
         $this->authorizeOwn($slip);
@@ -45,17 +45,15 @@ class PrintController extends Controller
         return $pdf->stream("slip-gaji-{$slip->month}-{$slip->staff_id}.pdf");
     }
 
-    /** Cetak ID Card siswa */
     public function idCard(Student $student): Response
     {
         $this->authorizeOwn($student);
         $student->load(['user', 'classSection.classRoom', 'classSection.section']);
         $school = \App\Models\School::find($this->schoolId());
-        $pdf = Pdf::loadView('pdf.id-card', compact('student', 'school'))->setPaper([0, 0, 245, 153], 'landscape'); // 86×54 mm
+        $pdf = Pdf::loadView('pdf.id-card', compact('student', 'school'))->setPaper([0, 0, 245, 153], 'landscape');
         return $pdf->stream("id-{$student->admission_no}.pdf");
     }
 
-    /** Cetak raport (semester terakhir) */
     public function reportCard(Student $student): Response
     {
         $this->authorizeOwn($student);
@@ -67,5 +65,26 @@ class PrintController extends Controller
             ->groupBy('subject.name');
         $pdf = Pdf::loadView('pdf.report-card-simple', compact('student', 'school', 'marks'))->setPaper('A4');
         return $pdf->stream("raport-{$student->admission_no}.pdf");
+    }
+
+    public function gatewayReceipt(\App\Models\Payment\PaymentTransaction $tx): Response
+    {
+        return $this->receipt->paymentReceipt($tx);
+    }
+
+    public function donationReceipt(\App\Models\Donation\Donation $donation): Response
+    {
+        return $this->receipt->donationReceipt($donation);
+    }
+
+    public function ppdbAcceptance(\App\Models\PPDB\PpdbApplication $app): Response
+    {
+        return $this->receipt->ppdbAcceptanceLetter($app);
+    }
+
+    public function achievementCertificate(
+        \App\Models\Achievement\StudentAchievement $achievement,
+    ): Response {
+        return $this->receipt->achievementCertificate($achievement);
     }
 }
