@@ -4,13 +4,15 @@
     $chevron = "<svg class='w-3 h-3 transition-transform duration-200' :class=\"open ? 'rotate-90' : ''\" fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2.5'><path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'/></svg>";
 @endphp
 
-<div class="px-3 pt-3 pb-1.5 flex items-center gap-1.5">
+<div class="px-3 pt-3 pb-1.5 flex items-center gap-1.5 sidebar-search">
     <div class="relative flex-1" x-data="{ q: '' }">
-        <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-white/25" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" x-model="q" placeholder="Cari menu..." class="w-full bg-white/6 border border-white/8 rounded-md pl-7 pr-2 py-1.5 text-[.6rem] text-white/70 placeholder-white/25 outline-none focus:border-white/20 transition" style="font-family:'Inter',sans-serif;" @input="document.querySelectorAll('.sidebar-section').forEach(s => { s.style.display = q.length<2 || s.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none' })">
+        <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" x-model="q" placeholder="Cari menu..." aria-label="Cari menu"
+               class="w-full bg-white/10 border border-white/10 rounded-md pl-8 pr-2 py-1.5 text-[13px] text-white/80 placeholder-white/40 outline-none focus:border-white/30 focus:bg-white/15 transition"
+               @input="document.querySelectorAll('.sidebar-section').forEach(s => { s.style.display = q.length<2 || s.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none' })">
     </div>
-    <button onclick="document.querySelectorAll('.sidebar-section').forEach(s=>s.__x.$data.open=true)" class="text-white/25 hover:text-white/60 p-1 text-[.5rem] uppercase tracking-wide" title="Buka semua" style="font-family:'Inter',sans-serif;">&#x25BC;</button>
-    <button onclick="document.querySelectorAll('.sidebar-section').forEach(s=>s.__x.$data.open=false)" class="text-white/25 hover:text-white/60 p-1 text-[.5rem] uppercase tracking-wide" title="Tutup" style="font-family:'Inter',sans-serif;">&#x25B2;</button>
+    <button onclick="document.querySelectorAll('.sidebar-section').forEach(s=>s.__x.$data.open=true)" class="text-white/40 hover:text-white/80 p-1.5 text-xs" title="Buka semua" aria-label="Buka semua bagian">&#x25BC;</button>
+    <button onclick="document.querySelectorAll('.sidebar-section').forEach(s=>s.__x.$data.open=false)" class="text-white/40 hover:text-white/80 p-1.5 text-xs" title="Tutup semua" aria-label="Tutup semua bagian">&#x25B2;</button>
 </div>
 
 <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ $isActive('admin.dashboard') }}">{!! $icon('M3 12l9-9 9 9M5 10v10h14V10') !!}<span>Dashboard</span></a>

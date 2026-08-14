@@ -79,7 +79,7 @@ use App\Http\Controllers\Web\Admin\Academic\QrAttendanceController as WebQrAtten
 use App\Http\Controllers\Web\ForumController as PublicForumController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn() => view('welcome'));
+Route::get('/', [\App\Http\Controllers\Web\LandingController::class, 'index'])->name('home');
 
 // Public Digital Signage display (no auth)
 Route::get('/signage/{school_id}', [\App\Http\Controllers\Web\Admin\DigitalSignageController::class, 'display'])

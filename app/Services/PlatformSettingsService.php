@@ -67,6 +67,8 @@ class PlatformSettingsService
 
             'footer_disclaimer' => 'Sikad Pro is a trademark of the Sikad Pro. All rights reserved.',
 
+            'landing_theme' => 'modern',
+
             'cache_version' => 1,
         ];
     }

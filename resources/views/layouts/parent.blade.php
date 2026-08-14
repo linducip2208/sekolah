@@ -18,10 +18,34 @@
     <title>@yield('title', 'Portal Familiae') — {{ $displayName }}</title>
     @if($favicon)<link rel="icon" href="{{ $favicon }}?v={{ $cacheVer }}">@endif
     @include('elite.partials.head')
+
+    {{-- Per-school white-label theme --}}
+    @if(auth()->check() && auth()->user()->school_id)
+        @php $gfu = $branding['font']['google_fonts_url'] ?? null; @endphp
+        @if($gfu)<link rel="stylesheet" href="{{ $gfu }}">@endif
+        <link rel="stylesheet" href="{{ route('branding.css', ['schoolId' => auth()->user()->school_id, 'v' => $cacheVer]) }}">
+    @endif
+
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @vite(['resources/css/app.css'])
+    <script>
+        (function () {
+            try {
+                var m = localStorage.getItem('sikadpro:theme');
+                var mode = m ? JSON.parse(m) : 'system';
+                var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+            } catch (e) {}
+        })();
+    </script>
     @stack('head')
 </head>
 <body class="paper">
+
+<script src="{{ Vite::asset('resources/js/app.js') }}"></script>
+@include('offline-status')
 
 <header class="bg-white border-b border-rule sticky top-0 z-30">
     <div class="max-w-6xl mx-auto px-3 sm:px-5 lg:px-6">
@@ -63,16 +87,14 @@
 
 <main class="max-w-6xl mx-auto px-3 sm:px-5 lg:px-6 py-5 sm:py-8 lg:py-10">
     @if(session('success'))
-        <div class="mb-5 px-5 py-3 bg-white border-l-4" style="border-color: var(--c-accent);">
-            <span class="font-serif text-base ink-primary"><span class="ink-accent mr-2">❦</span>{{ session('success') }}</span>
-        </div>
+        <x-ui.alert variant="success" dismissible class="mb-5">{{ session('success') }}</x-ui.alert>
     @endif
-    @if($errors->any())
-        <div class="mb-5 px-5 py-3 bg-white border-l-4 border-red-700">
-            <ul class="list-disc list-inside font-serif text-base text-red-800">
+    @if(isset($errors) && $errors->any())
+        <x-ui.alert variant="danger" class="mb-5">
+            <ul class="list-disc list-inside">
                 @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
             </ul>
-        </div>
+        </x-ui.alert>
     @endif
     @yield('content')
 </main>
@@ -84,6 +106,9 @@
         <div class="text-[11px] sm:text-xs text-white/55" style="font-family:'Inter',sans-serif;">&copy; {{ now()->year }} {{ $displayName }} · {{ $platform['app_name'] ?? '' }}</div>
     </div>
 </footer>
+
+<x-overlays.toast />
+<x-overlays.confirm-dialog />
 
 @stack('scripts')
 </body>

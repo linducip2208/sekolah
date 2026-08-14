@@ -1,0 +1,209 @@
+/* =====================================================================
+   Sikad Pro — Public landing base styles (theme-agnostic)
+   Theme tokens (--lp-*) are injected by the layout from LandingThemeRegistry.
+   ===================================================================== */
+
+:root {
+    --lp-font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --lp-font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: var(--lp-font-body);
+    color: var(--lp-ink);
+    background: var(--lp-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.font-display { font-family: var(--lp-font-display); }
+
+/* Container */
+.lp-container { max-width: 80rem; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+@media (min-width: 640px)  { .lp-container { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { .lp-container { padding-left: 2rem; padding-right: 2rem; } }
+
+/* Typography helpers */
+.lp-kicker {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--lp-accent);
+}
+.lp-title {
+    font-family: var(--lp-font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--lp-ink);
+}
+.lp-lead { font-size: 1.0625rem; line-height: 1.65; color: var(--lp-muted); }
+
+/* Buttons */
+.lp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.4rem;
+    font-family: var(--lp-font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #fff;
+    background: var(--lp-primary);
+    border: 1px solid transparent;
+    border-radius: var(--lp-radius-btn);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 44px;
+    transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.lp-btn:hover { background: var(--lp-primary-dark); }
+.lp-btn:active { transform: translateY(1px); }
+
+.lp-btn-secondary {
+    background: var(--lp-surface);
+    color: var(--lp-ink);
+    border-color: var(--lp-border);
+}
+.lp-btn-secondary:hover { background: var(--lp-bg); color: var(--lp-ink); }
+
+.lp-btn-ghost {
+    background: transparent;
+    color: var(--lp-ink);
+    border-color: var(--lp-border);
+}
+.lp-btn-ghost:hover { background: var(--lp-accent-soft); }
+
+.lp-btn-accent { background: var(--lp-accent); }
+.lp-btn-accent:hover { filter: brightness(0.92); }
+
+/* Cards */
+.lp-card { background: var(--lp-surface); border-radius: var(--lp-radius-md); }
+.lp-card-shadow { box-shadow: var(--lp-shadow); border: 1px solid var(--lp-border); }
+.lp-card-bordered { border: 1px solid var(--lp-border); }
+.lp-card-flat { border-bottom: 1px solid var(--lp-border); border-radius: 0; }
+
+/* Section */
+.lp-section { padding-top: 4rem; padding-bottom: 4rem; }
+@media (min-width: 768px) { .lp-section { padding-top: 5.5rem; padding-bottom: 5.5rem; } }
+
+/* Scroll reveal */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s cubic-bezier(.16, 1, .3, 1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* Navbar */
+.lp-nav { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--lp-bg) 88%, transparent); backdrop-filter: blur(10px) saturate(160%); border-bottom: 1px solid var(--lp-border); }
+.lp-nav-link {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--lp-muted);
+    padding: 0.5rem 0.25rem;
+    text-decoration: none;
+    transition: color .15s ease;
+}
+.lp-nav-link:hover { color: var(--lp-ink); }
+
+/* Focus & a11y */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--lp-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+.sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.skip-link {
+    position: fixed; top: -100px; left: 1rem; z-index: 999;
+    padding: .6rem 1rem; background: var(--lp-primary); color: #fff;
+    border-radius: var(--lp-radius-sm); font-weight: 600; text-decoration: none;
+    transition: top .15s ease;
+}
+.skip-link:focus { top: .75rem; }
+
+/* FAQ */
+.faq-item { border: 1px solid var(--lp-border); border-radius: var(--lp-radius-md); background: var(--lp-surface); }
+.faq-item summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    cursor: pointer; list-style: none; padding: 1.1rem 1.25rem;
+    font-weight: 600; color: var(--lp-ink);
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary .faq-icon { transition: transform .2s ease; color: var(--lp-accent); }
+.faq-item[open] summary .faq-icon { transform: rotate(45deg); }
+.faq-item .faq-answer { padding: 0 1.25rem 1.1rem; color: var(--lp-muted); line-height: 1.65; }
+
+/* Pattern (islamic theme) */
+.lp-pattern {
+    background-image: radial-gradient(circle at 1px 1px, var(--lp-accent) 1px, transparent 0);
+    background-size: 22px 22px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .reveal { opacity: 1; transform: none; }
+}
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+    .lp-title { font-size: 1.75rem; }
+    .lp-section { padding-top: 3rem; padding-bottom: 3rem; }
+}
+
+/* Forms (used by inner landing pages: register, payment) */
+.label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--lp-ink);
+    margin-bottom: 0.35rem;
+}
+.label .req { color: #dc2626; }
+
+.input,
+.select,
+.textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-family: var(--lp-font-body);
+    font-size: 0.9375rem;
+    color: var(--lp-ink);
+    background: var(--lp-surface);
+    border: 1.5px solid var(--lp-border);
+    border-radius: var(--lp-radius-sm);
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.input:focus,
+.select:focus,
+.textarea:focus {
+    outline: none;
+    border-color: var(--lp-primary);
+    box-shadow: 0 0 0 3px var(--lp-accent-soft);
+}
+.input::placeholder { color: var(--lp-muted); }
+
+.form-hint { font-size: 0.8125rem; color: var(--lp-muted); margin-top: 0.3rem; }
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.15rem 0.55rem;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 999px;
+    color: var(--lp-primary);
+    background: var(--lp-accent-soft);
+}

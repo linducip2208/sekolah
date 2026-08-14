@@ -68,6 +68,34 @@
     <form method="POST" action="{{ route('super.whitelabel.update') }}" class="space-y-6">
         @csrf @method('PUT')
 
+        {{-- ===== Landing Theme ===== --}}
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="font-semibold text-gray-900">Template Landing Page</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Pilih template dasar untuk halaman depan. Konten &amp; komponen dibagikan antar template — yang berubah hanya visual.</p>
+            </div>
+            <div class="p-6" x-data="{ theme: '{{ $settings['landing_theme'] ?? 'modern' }}' }">
+                <input type="hidden" name="landing_theme" :value="theme">
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    @foreach($themes as $t)
+                        <button type="button" @click="theme = '{{ $t['key'] }}'"
+                                class="text-left rounded-lg border-2 p-4 transition"
+                                :class="theme === '{{ $t['key'] }}' ? 'border-indigo-600 shadow-sm' : 'border-gray-200 hover:border-gray-300'"
+                                :aria-pressed="(theme === '{{ $t['key'] }}').toString()">
+                            <div class="flex items-center gap-1.5 mb-2">
+                                @foreach(['--lp-primary', '--lp-accent', '--lp-bg'] as $sw)
+                                    <span class="w-5 h-5 rounded-full border border-gray-200" style="background: {{ $t['vars'][$sw] }}"></span>
+                                @endforeach
+                                <span class="ml-auto text-[10px] font-mono text-gray-400">{{ $t['key'] }}</span>
+                            </div>
+                            <div class="font-semibold text-sm text-gray-900">{{ $t['name'] }}</div>
+                            <div class="text-xs text-gray-500 mt-1 leading-snug">{{ $t['description'] }}</div>
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
         {{-- ===== Identity ===== --}}
         <div class="bg-white rounded-xl border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200">

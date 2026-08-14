@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\Admin\Branding;
 
 use App\Http\Controllers\Controller;
 use App\Services\Branding\BrandingService;
+use App\Services\Branding\ThemeRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,7 +16,9 @@ class BrandingWebController extends Controller
     public function show(): View
     {
         $branding = $this->branding->getForSchool(auth()->user()->school_id);
-        return view('school-admin.branding.show', compact('branding'));
+        $themes   = ThemeRegistry::themes();
+        $selected = $branding['theme'] ?? ThemeRegistry::DEFAULT;
+        return view('school-admin.branding.show', compact('branding', 'themes', 'selected'));
     }
 
     public function update(Request $request): RedirectResponse
@@ -38,6 +41,7 @@ class BrandingWebController extends Controller
             'custom_domain'          => 'nullable|string|max:200|regex:/^[a-z0-9.\-]+$/',
             'custom_css'             => 'nullable|string|max:50000',
             'custom_js'              => 'nullable|string|max:50000',
+            'theme'                  => 'nullable|in:'.implode(',', ThemeRegistry::keys()),
             'background_mode'        => 'nullable|in:light,dark,auto',
             'login_show_motto'       => 'nullable|in:0,1,true,false',
             'mobile_splash_bg_color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6,8}$/',
@@ -64,7 +68,19 @@ class BrandingWebController extends Controller
             }
         }
 
-        $this->branding->update(auth()->user()->school_id, $data);
+        $schoolId = auth()->user()->school_id;
+        $newTheme = $data['theme'] ?? null;
+        if ($newTheme) {
+            $current = $this->branding->getForSchool($schoolId);
+            if (($current['theme'] ?? null) !== $newTheme) {
+                $palette = ThemeRegistry::get($newTheme)['palette'];
+                foreach (['primary', 'secondary', 'accent', 'sidebar', 'sidebar_text'] as $key) {
+                    $data["color_{$key}"] = $palette[$key];
+                }
+            }
+        }
+
+        $this->branding->update($schoolId, $data);
         return redirect()->route('admin.branding.show')->with('success', 'Branding berhasil diperbarui.');
     }
 

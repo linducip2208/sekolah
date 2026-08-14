@@ -12,7 +12,7 @@
     ['student.surveys', 'Survei', '📝'],
     ['student.portfolios', 'Portofolio', '🖼️'],
 ] as [$rt, $label, $icon])
-<a href="{{ route($rt) }}" class="px-4 py-2 elite-kicker text-[.65rem] whitespace-nowrap {{ $current === $rt ? 'border-b-2 border-[var(--c-accent)] ink-primary' : 'text-gray-500 hover:ink-primary' }}">
+<a href="{{ route($rt) }}" class="px-4 py-2.5 text-sm font-medium whitespace-nowrap {{ $current === $rt ? 'border-b-2 border-[var(--c-accent)] text-[var(--color-text)]' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text)]' }}">
 {{ $icon }} {{ $label }}
 </a>
 @endforeach

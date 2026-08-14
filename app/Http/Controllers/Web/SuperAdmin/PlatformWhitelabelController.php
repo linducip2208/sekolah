@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Services\LandingThemeRegistry;
 use App\Services\PlatformSettingsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class PlatformWhitelabelController extends Controller
         return view('super-admin.whitelabel.index', [
             'settings'    => $this->platformSettings->all(),
             'imageFields' => PlatformSettingsService::IMAGE_FIELDS,
+            'themes'      => LandingThemeRegistry::themes(),
         ]);
     }
 
@@ -53,6 +55,7 @@ class PlatformWhitelabelController extends Controller
             'popup_whatsapp'   => 'nullable|string|max:32',
             'popup_cta_text'   => 'nullable|string|max:60',
             'footer_disclaimer'=> 'nullable|string|max:300',
+            'landing_theme'    => 'nullable|in:'.implode(',', LandingThemeRegistry::keys()),
         ]);
 
         $data['popup_enabled'] = $request->boolean('popup_enabled');

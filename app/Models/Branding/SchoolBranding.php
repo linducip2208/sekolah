@@ -17,6 +17,7 @@ class SchoolBranding extends Model
         'color_primary', 'color_secondary', 'color_success', 'color_warning', 'color_danger',
         'color_accent', 'color_sidebar', 'color_sidebar_text',
         'font_family', 'google_fonts_url', 'custom_domain', 'custom_css', 'custom_js',
+        'theme',
         'background_mode',
         'login_background_path', 'login_welcome_text', 'login_show_motto',
         'mobile_splash_logo_path', 'mobile_splash_bg_color', 'mobile_app_display_name',

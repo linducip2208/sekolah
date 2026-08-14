@@ -44,6 +44,7 @@ class BrandingService
             'color_primary', 'color_secondary', 'color_success', 'color_warning', 'color_danger',
             'color_accent', 'color_sidebar', 'color_sidebar_text',
             'font_family', 'google_fonts_url', 'custom_domain', 'custom_css', 'custom_js',
+            'theme',
             'background_mode',
             'login_welcome_text', 'login_show_motto',
             'mobile_splash_bg_color', 'mobile_app_display_name',
@@ -147,30 +148,60 @@ class BrandingService
     public function generateCss(int $schoolId): string
     {
         $b = SchoolBranding::firstOrCreate(['school_id' => $schoolId]);
+        $theme = ThemeRegistry::get($b->theme);
+
+        // For a school that has explicitly picked a theme, its colour fields are the
+        // source of truth (they were seeded from the theme and can be tweaked). For a
+        // legacy school without a theme, fall back to the default theme palette so the
+        // existing look is preserved.
+        $useStored = (bool) $b->theme;
+        $primary    = $useStored ? ($b->color_primary ?: $theme['palette']['primary'])         : $theme['palette']['primary'];
+        $secondary  = $useStored ? ($b->color_secondary ?: $theme['palette']['secondary'])     : $theme['palette']['secondary'];
+        $accent     = $useStored ? ($b->color_accent ?: $theme['palette']['accent'])           : $theme['palette']['accent'];
+        $sidebar    = $useStored ? ($b->color_sidebar ?: $theme['palette']['sidebar'])         : $theme['palette']['sidebar'];
+        $sidebarTxt = $useStored ? ($b->color_sidebar_text ?: $theme['palette']['sidebar_text']) : $theme['palette']['sidebar_text'];
+
+        $fontBody    = $b->font_family ?: $theme['fonts']['body'];
+        $fontDisplay = $theme['fonts']['display'];
+
         $css = ":root {\n";
-        $css .= "  --brand-primary: {$b->color_primary};\n";
-        $css .= "  --brand-secondary: {$b->color_secondary};\n";
-        $css .= "  --brand-accent: " . ($b->color_accent ?: '#0EA5E9') . ";\n";
+        $css .= "  --c-primary: {$primary};\n";
+        $css .= "  --c-secondary: {$secondary};\n";
+        $css .= "  --c-accent: {$accent};\n";
+        $css .= "  --c-paper: {$theme['surface']['paper']};\n";
+        $css .= "  --c-ink: {$theme['surface']['ink']};\n";
+        $css .= "  --c-muted: {$theme['surface']['muted']};\n";
+        $css .= "  --c-rule: {$theme['surface']['rule']};\n";
+        $css .= "  --brand-primary: {$primary};\n";
+        $css .= "  --brand-secondary: {$secondary};\n";
+        $css .= "  --brand-accent: {$accent};\n";
         $css .= "  --brand-success: {$b->color_success};\n";
         $css .= "  --brand-warning: {$b->color_warning};\n";
         $css .= "  --brand-danger: {$b->color_danger};\n";
-        $css .= "  --brand-sidebar: " . ($b->color_sidebar ?: '#0F172A') . ";\n";
-        $css .= "  --brand-sidebar-text: " . ($b->color_sidebar_text ?: '#F1F5F9') . ";\n";
-        if ($b->font_family) {
-            $css .= "  --brand-font-family: " . $b->font_family . ";\n";
-            $css .= "}\nbody { font-family: " . $b->font_family . ", system-ui, -apple-system, sans-serif; }\n";
-        } else {
-            $css .= "}\n";
-        }
+        $css .= "  --brand-sidebar: {$sidebar};\n";
+        $css .= "  --brand-sidebar-text: {$sidebarTxt};\n";
+        $css .= "  --brand-font-family: {$fontBody};\n";
+        $css .= "  --brand-display-font: {$fontDisplay};\n";
+        $css .= "  --radius-sm: {$theme['radius']['sm']};\n";
+        $css .= "  --radius-md: {$theme['radius']['md']};\n";
+        $css .= "  --radius-lg: {$theme['radius']['lg']};\n";
+        $css .= "}\n";
+        $css .= "body { font-family: var(--brand-font-family); }\n";
+        $css .= ".font-display, .elite-h1, .elite-h2, .elite-h3, .page-title, .section-title { font-family: var(--brand-display-font); }\n";
+
         if ($b->custom_css) {
             $css .= "\n/* school custom css */\n" . $b->custom_css;
         }
+
         return $css;
     }
 
     public function toArray(SchoolBranding $b): array
     {
+        $theme = ThemeRegistry::get($b->theme);
+
         return [
+            'theme'                => $b->theme,
             'display_name'         => $b->display_name,
             'tagline'              => $b->tagline,
             'school_type_label'    => $b->school_type_label,
@@ -186,8 +217,8 @@ class BrandingService
                 'danger'    => $b->color_danger,
             ],
             'font' => [
-                'family'           => $b->font_family,
-                'google_fonts_url' => $b->google_fonts_url,
+                'family'           => $b->font_family ?: $theme['fonts']['body'],
+                'google_fonts_url' => $b->google_fonts_url ?: $theme['fonts']['url'],
             ],
             'custom' => [
                 'domain' => $b->custom_domain,

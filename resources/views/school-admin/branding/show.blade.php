@@ -18,7 +18,34 @@
     {{-- Identity --}}
     <form method="POST" action="{{ route('admin.branding.update') }}" class="bg-white rounded-lg shadow p-6 space-y-5">
         @csrf @method('PUT')
-        <h3 class="font-semibold">Identitas Sekolah</h3>
+
+        {{-- Template Tema --}}
+        <div x-data="{ theme: '{{ $selected }}' }" class="space-y-3">
+            <input type="hidden" name="theme" :value="theme">
+            <div>
+                <h3 class="font-semibold">Template Tema</h3>
+                <p class="text-sm text-gray-600 mt-1">Pilih template dasar — warna, font &amp; bentuk akan diterapkan. Warna tetap bisa disesuaikan di bawah.</p>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                @foreach($themes as $t)
+                    <button type="button" @click="theme = '{{ $t['key'] }}'"
+                            class="text-left rounded-lg border-2 p-4 transition"
+                            :class="theme === '{{ $t['key'] }}' ? 'border-[var(--c-primary)] shadow-md' : 'border-gray-200 hover:border-gray-300'"
+                            :aria-pressed="(theme === '{{ $t['key'] }}').toString()">
+                        <div class="flex items-center gap-1.5 mb-2">
+                            @foreach(['primary', 'secondary', 'accent', 'sidebar'] as $sw)
+                                <span class="w-5 h-5 rounded-full border border-gray-200" style="background: {{ $t['palette'][$sw] }}" title="{{ $sw }}"></span>
+                            @endforeach
+                            <span class="ml-auto text-[10px] font-mono text-gray-400">{{ $t['key'] }}</span>
+                        </div>
+                        <div class="font-semibold text-sm">{{ $t['name'] }}</div>
+                        <div class="text-xs text-gray-500 mt-1 leading-snug">{{ $t['description'] }}</div>
+                    </button>
+                @endforeach
+            </div>
+        </div>
+
+        <h3 class="font-semibold pt-2">Identitas Sekolah</h3>
 
         <div class="grid grid-cols-2 gap-4">
             <div>
@@ -55,16 +82,16 @@
         </div>
 
         <h3 class="font-semibold pt-4">Warna</h3>
-        <div class="grid grid-cols-5 gap-4">
-            @foreach(['primary' => 'Primer', 'secondary' => 'Sekunder', 'success' => 'Sukses', 'warning' => 'Peringatan', 'danger' => 'Bahaya'] as $key => $label)
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            @foreach(['primary' => 'Primer', 'secondary' => 'Sekunder', 'accent' => 'Aksen', 'sidebar' => 'Sidebar', 'success' => 'Sukses', 'warning' => 'Peringatan', 'danger' => 'Bahaya'] as $key => $label)
                 <div>
                     <label class="block text-sm font-medium mb-1">{{ $label }}</label>
                     <div class="flex gap-2 items-center">
                         <input name="color_{{ $key }}" type="color"
-                               value="{{ old('color_'.$key, $branding['colors'][$key]) }}"
+                               value="{{ old('color_'.$key, $branding['colors'][$key] ?? '#2563EB') }}"
                                class="h-10 w-14 border rounded">
                         <input type="text" readonly
-                               value="{{ $branding['colors'][$key] }}"
+                               value="{{ $branding['colors'][$key] ?? '' }}"
                                class="flex-1 border rounded px-2 py-2 text-xs font-mono bg-gray-50">
                     </div>
                 </div>

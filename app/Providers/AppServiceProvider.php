@@ -39,8 +39,14 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         View::composer('*', function ($view) {
-            if (!array_key_exists('platform', $view->getData())) {
+            $data = $view->getData();
+            if (!array_key_exists('platform', $data)) {
                 $view->with('platform', app(PlatformSettingsService::class)->all());
+            }
+            if (!array_key_exists('theme', $data)) {
+                $view->with('theme', \App\Services\LandingThemeRegistry::get(
+                    app(PlatformSettingsService::class)->get('landing_theme')
+                ));
             }
         });
     }

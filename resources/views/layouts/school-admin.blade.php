@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}"
-      x-data="{ sidebarOpen: window.innerWidth >= 1024, isMobile: window.innerWidth < 1024 }"
-      x-init="window.addEventListener('resize', () => { isMobile = window.innerWidth < 1024; if (!isMobile) sidebarOpen = true; else sidebarOpen = false; })">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,77 +26,41 @@
         <link rel="icon" href="{{ $favicon }}?v={{ $cacheVer }}">
     @endif
 
+    {{-- Base assets: CDN Tailwind + fonts + legacy elite classes + platform brand vars --}}
+    @include('elite.partials.head')
+
+    {{-- Per-school white-label theme (overrides platform tokens + loads theme font) --}}
     @if(auth()->check() && auth()->user()->school_id)
         @php $gfu = $branding['font']['google_fonts_url'] ?? null; @endphp
         @if($gfu)<link rel="stylesheet" href="{{ $gfu }}">@endif
         <link rel="stylesheet" href="{{ route('branding.css', ['schoolId' => auth()->user()->school_id, 'v' => $cacheVer]) }}">
     @endif
 
-    @include('elite.partials.head')
+    {{-- Alpine plugins + core --}}
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            primary:   '{{ $brandPrimary }}',
-                            secondary: '{{ $brandSecondary }}',
-                            success:   '{{ $brandSuccess }}',
-                            warning:   '{{ $brandWarning }}',
-                            danger:    '{{ $brandDanger }}',
-                        },
-                    },
-                },
-            },
-        };
-    </script>
-    <style>
-        :root {
-            --brand-primary:   {{ $brandPrimary }};
-            --brand-secondary: {{ $brandSecondary }};
-            --brand-success:   {{ $brandSuccess }};
-            --brand-warning:   {{ $brandWarning }};
-            --brand-danger:    {{ $brandDanger }};
-        }
-        .btn-brand {
-            display:inline-flex;align-items:center;justify-content:center;
-            background-color: var(--c-primary);
-            color: white;
-            padding: .7rem 1.4rem;
-            border: 1px solid var(--c-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: .72rem;
-            letter-spacing: .18em;
-            text-transform: uppercase;
-            font-weight: 600;
-            transition: all .25s ease;
-        }
-        .btn-brand:hover { background: var(--c-secondary); border-color: var(--c-secondary); }
-        .sidebar-link {
-            display: flex; align-items: center; gap: .85rem;
-            padding: .65rem 1rem;
-            font-family: 'Inter', sans-serif;
-            font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; font-weight: 500;
-            color: rgba(255,255,255,.78);
-            transition: all .25s ease;
-            border-left: 2px solid transparent;
-        }
-        .sidebar-link:hover { color: var(--c-accent); background: rgba(255,255,255,.05); }
-        .sidebar-link.active { color: var(--c-accent); background: rgba(255,255,255,.07); border-left-color: var(--c-accent); }
 
-        .sidebar-section { border-bottom: 1px solid rgba(255,255,255,.06); }
-        .sidebar-section-header { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .6rem .9rem; font-family: 'Inter', sans-serif; font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; color: rgba(255,255,255,.5); transition: all .2s ease; cursor: pointer; border: none; background: none; text-align: left; }
-        .sidebar-section-header:hover { color: rgba(255,255,255,.85); background: rgba(255,255,255,.03); }
-        .sidebar-section-body { padding: .15rem 0 .45rem 0; overflow: hidden; }
-        .sidebar-sub-link { display: flex; align-items: center; padding: .42rem 1rem .42rem 2.5rem; font-family: 'Inter', sans-serif; font-size: .63rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; color: rgba(255,255,255,.58); transition: all .2s ease; border-left: 2px solid transparent; }
-        .sidebar-sub-link:hover { color: var(--c-accent); background: rgba(255,255,255,.04); }
-        .sidebar-sub-link.active { color: var(--c-accent); background: rgba(255,255,255,.06); border-left-color: var(--c-accent); }
-    </style>
+    {{-- Design system (pure CSS, Vite-built) --}}
+    @vite(['resources/css/app.css'])
+
+    {{-- Apply persisted theme before paint (avoid FOUC) --}}
+    <script>
+        (function () {
+            try {
+                var m = localStorage.getItem('sikadpro:theme');
+                var mode = m ? JSON.parse(m) : 'system';
+                var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+            } catch (e) {}
+        })();
+    </script>
+
     @stack('head')
 </head>
-<body class="paper antialiased">
+<body x-data="sidebarState()" x-init="init()" class="antialiased">
+
+<x-layouts.skip-link />
 
 {{-- Offline Status Indicator --}}
 @include('offline-status')
@@ -107,116 +69,120 @@
 <script src="{{ asset('js/offline-db.js') }}"></script>
 <script src="{{ asset('js/offline-sync.js') }}"></script>
 
-<div class="flex h-screen overflow-hidden">
-    {{-- Mobile backdrop --}}
-    <div x-show="sidebarOpen && isMobile" x-cloak
-         @click="sidebarOpen = false"
-         class="sidebar-backdrop lg:hidden"></div>
+{{-- Global Alpine components (loaded as classic script BEFORE Alpine defer) --}}
+<script src="{{ Vite::asset('resources/js/app.js') }}"></script>
 
-    <aside x-show="sidebarOpen" x-cloak
-           x-transition:enter="transition transform ease-out duration-200"
-           x-transition:enter-start="-translate-x-full lg:translate-x-0"
+<div class="flex h-screen overflow-hidden">
+
+    {{-- Mobile backdrop --}}
+    <div x-show="open && mobile" x-cloak @click="closeMobile()" class="sidebar-backdrop lg:hidden"></div>
+
+    {{-- ===== SIDEBAR ===== --}}
+    <aside x-show="open || !mobile" x-cloak
+           :class="collapsed && !mobile ? 'app-sidebar collapsed' : 'app-sidebar'"
+           x-transition:enter="transition-transform ease-out duration-200"
+           x-transition:enter-start="-translate-x-full"
            x-transition:enter-end="translate-x-0"
-           x-transition:leave="transition transform ease-in duration-150"
+           x-transition:leave="transition-transform ease-in duration-150"
            x-transition:leave-start="translate-x-0"
-           x-transition:leave-end="-translate-x-full lg:translate-x-0"
-           class="w-72 sidebar-mobile-drawer lg:relative lg:flex flex flex-col flex-shrink-0 text-white"
+           x-transition:leave-end="-translate-x-full"
+           class="fixed inset-y-0 left-0 z-40 w-72 lg:static lg:translate-x-0 flex flex-col flex-shrink-0 text-white"
            style="background: var(--c-primary);">
-        <div class="px-5 sm:px-6 py-5 sm:py-7 border-b flex items-start justify-between gap-2" style="border-color: rgba(255,255,255,.12);">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
+        {{-- Brand --}}
+        <div class="px-5 sm:px-6 py-5 border-b flex items-start justify-between gap-2" style="border-color: rgba(255,255,255,.12);">
+            <div class="flex items-center gap-3 flex-1 min-w-0 sidebar-brand">
                 @if($logoPrimary)
-                    <img src="{{ $logoPrimary }}?v={{ $cacheVer }}" alt="{{ $displayName }}" class="h-11 w-11 bg-white p-1 flex-shrink-0">
+                    <img src="{{ $logoPrimary }}?v={{ $cacheVer }}" alt="{{ $displayName }}" class="h-10 w-10 rounded-lg bg-white p-1 flex-shrink-0">
                 @else
-                    <div class="crest-mark flex-shrink-0" style="border-color: var(--c-accent); color: var(--c-accent);">
-                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 2 7l10 5 10-5-10-5zm0 7L2 14l10 5 10-5-10-5z"/></svg>
+                    <div class="crest-mark flex-shrink-0" style="border-color: var(--c-accent); color: var(--c-accent); width:2.5rem;height:2.5rem;">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 2 7l10 5 10-5-10-5zm0 7L2 14l10 5 10-5-10-5z"/></svg>
                     </div>
                 @endif
-                <div class="min-w-0 leading-tight">
-                    <div class="elite-h3 text-base text-white truncate">{{ $displayName }}</div>
-                    @if(!empty($branding['tagline']))
-                        <div class="font-script italic text-xs mt-0.5 truncate" style="color: var(--c-accent);">{{ $branding['tagline'] }}</div>
-                    @else
-                        <div class="elite-kicker mt-1 text-[.55rem]" style="color: var(--c-accent);">Manus Magistri</div>
-                    @endif
+                <div class="min-w-0 leading-tight sidebar-brand-text">
+                    <div class="text-base font-bold text-white truncate">{{ $displayName }}</div>
+                    <div class="text-[11px] font-medium mt-0.5 truncate" style="color: var(--c-accent);">Panel Sekolah</div>
                 </div>
             </div>
-            <button @click="sidebarOpen = false" type="button"
-                    class="lg:hidden text-white/70 hover:text-white p-1 -mr-1"
-                    aria-label="Tutup menu">
+            <button @click="closeMobile()" type="button" class="lg:hidden text-white/70 hover:text-white p-1 -mr-1" aria-label="Tutup menu">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
 
-        <nav class="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
+        {{-- Nav --}}
+        <nav class="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto" @click="closeMobile()">
             @yield('sidebar')
         </nav>
 
-        <div class="px-4 py-5 border-t" style="border-color: rgba(255,255,255,.12);">
-            <div class="font-script italic text-base mb-3" style="color: var(--c-accent);">"{{ $platform['motto_latin'] ?? 'Floreat Schola' }}"</div>
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
-                <button class="elite-kicker text-[.65rem] hover:text-white transition" style="color: rgba(255,255,255,.5);">↩ Keluar Sesi</button>
-            </form>
+        {{-- Footer --}}
+        <div class="px-4 py-4 border-t sidebar-footer-text" style="border-color: rgba(255,255,255,.12);">
+            <div class="text-[11px] text-white/60 truncate mb-2">{{ auth()->user()?->email }}</div>
+            <div class="flex items-center gap-2">
+                <button type="button" @click="toggleCollapse()" class="hidden lg:inline-flex items-center gap-2 text-[12px] text-white/60 hover:text-white transition" :title="collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
+                    <span x-text="collapsed ? '' : 'Ciutkan'"></span>
+                </button>
+                <form method="POST" action="{{ route('admin.logout') }}" class="flex-1">
+                    @csrf
+                    <button type="submit" class="text-[12px] text-white/60 hover:text-white transition">↩ Keluar Sesi</button>
+                </form>
+            </div>
         </div>
     </aside>
 
     <div class="flex-1 flex flex-col overflow-hidden min-w-0">
-        <header class="bg-white border-b border-rule">
-            <div class="flex items-center justify-between gap-2 px-3 sm:px-5 lg:px-7 py-3 sm:py-4">
-                <div class="flex items-center gap-2 sm:gap-4 min-w-0">
-                    <button @click="sidebarOpen = !sidebarOpen" type="button"
-                            class="text-gray-500 hover:ink-primary p-1 -ml-1"
-                            aria-label="Toggle menu">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+
+        {{-- ===== HEADER / TOPBAR ===== --}}
+        <header class="topbar sticky top-0 z-30">
+            <div class="flex items-center justify-between gap-2 px-3 sm:px-5 lg:px-6 py-2.5">
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <button @click="mobile ? toggleMobile() : toggleCollapse()" type="button" class="btn-icon" aria-label="Buka/tutup menu">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
-                    <div class="elite-kicker truncate" style="color: var(--c-muted);">@yield('title', 'Administrator')</div>
+                    <div class="min-w-0">
+                        @if(!empty($breadcrumbs))
+                            <x-navigation.breadcrumbs :items="$breadcrumbs" />
+                        @endif
+                        <div class="text-sm font-semibold text-[var(--color-text)] truncate">@yield('title', 'Administrator')</div>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                    {{-- Mobile search icon --}}
-                    <button onclick="window.dispatchEvent(new CustomEvent('open-search'))"
-                            class="md:hidden text-gray-500 hover:ink-primary p-1"
-                            aria-label="Cari">
+
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                    {{-- Search trigger --}}
+                    <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-search'))" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-muted)] hover:border-[var(--color-primary)]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <span>{{ __('common.search') ?? 'Cari' }}…</span>
+                        <span class="command-kbd">⌘K</span>
+                    </button>
+                    <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-search'))" class="btn-icon md:hidden" aria-label="Cari">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </button>
 
-                    {{-- Desktop search trigger --}}
-                    <button onclick="window.dispatchEvent(new CustomEvent('open-search'))" class="hidden md:flex items-center gap-2 px-3 py-1.5 border border-rule text-xs text-gray-500 hover:border-[var(--c-accent)]">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        <span>{{ __('common.search') }}…</span>
-                        <span class="font-mono text-[.6rem] px-1 border border-rule">⌘K</span>
-                    </button>
+                    <x-navigation.notification-center />
+                    <x-navigation.theme-toggle />
+                    <x-navigation.help-center />
 
-                    {{-- Locale switcher --}}
-                    <div class="hidden sm:flex gap-1 text-xs">
-                        <a href="?lang=id" class="px-2 py-1 {{ app()->getLocale() === 'id' ? 'bg-[var(--c-accent)] text-white' : 'border border-rule' }}">ID</a>
-                        <a href="?lang=en" class="px-2 py-1 {{ app()->getLocale() === 'en' ? 'bg-[var(--c-accent)] text-white' : 'border border-rule' }}">EN</a>
-                    </div>
+                    <div class="hidden sm:block mx-1 w-px h-6 bg-[var(--color-border)]"></div>
 
-                    <a href="{{ route('profile.edit') }}" class="text-right hidden md:block hover:opacity-80">
-                        <div class="font-serif text-base ink-primary leading-tight truncate max-w-[140px]">{{ auth()->user()?->name }}</div>
-                        <div class="elite-kicker text-[.55rem]" style="color: var(--c-muted);">{{ __('nav.profile') }}</div>
-                    </a>
-                    <a href="{{ route('profile.edit') }}" class="crest-mark" style="width:2.5rem;height:2.5rem; border-color: var(--c-accent); color: var(--c-primary); background: rgba(184,134,11,.08);" aria-label="{{ __('nav.profile') }}">
-                        <span class="font-display text-sm">{{ strtoupper(substr(auth()->user()?->name ?? 'A', 0, 1)) }}</span>
-                    </a>
+                    <x-navigation.profile-menu :name="auth()->user()?->name" :role="auth()->user()?->role" :profileRoute="route('profile.edit')" :notificationsRoute="route('admin.notifications.index')" logoutRoute="admin.logout" />
                 </div>
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 lg:p-7" style="background: var(--c-paper);">
+        {{-- ===== MAIN ===== --}}
+        <main id="main-content" class="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 lg:p-6" style="background: var(--color-background);" tabindex="-1">
+            {{-- Server flash → inline alerts (reliable on first paint) --}}
             @if(session('success'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-                     class="mb-5 px-5 py-3 bg-white border-l-4 deco-frame flex justify-between items-center" style="border-color: var(--c-accent);">
-                    <span class="font-serif text-base ink-primary"><span class="ink-accent mr-2">❦</span>{{ session('success') }}</span>
-                    <button @click="show = false" class="ink-accent">✕</button>
-                </div>
+                <x-ui.alert variant="success" dismissible class="mb-4">{{ session('success') }}</x-ui.alert>
             @endif
-            @if($errors->any())
-                <div class="mb-5 px-5 py-3 bg-white border-l-4 border-red-700">
-                    <ul class="list-disc list-inside font-serif text-base text-red-800">
+            @if(session('error'))
+                <x-ui.alert variant="danger" dismissible class="mb-4">{{ session('error') }}</x-ui.alert>
+            @endif
+            @if(isset($errors) && $errors->any())
+                <x-ui.alert variant="danger" class="mb-4">
+                    <ul class="list-disc list-inside space-y-1">
                         @foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach
                     </ul>
-                </div>
+                </x-ui.alert>
             @endif
 
             @yield('content')
@@ -224,98 +190,61 @@
     </div>
 </div>
 
-{{-- ===== Global Search Modal (Cmd+K) ===== --}}
-<div x-data="globalSearch()"
-     x-init="$nextTick(() => { window.addEventListener('open-search', () => { open = true; $nextTick(() => $refs.input.focus()) }); document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); open = true; $nextTick(() => $refs.input.focus()) } if (e.key === 'Escape') open = false; }); })"
-     x-show="open" x-cloak
-     class="fixed inset-0 z-50 flex items-start justify-center pt-10 sm:pt-20 px-3 sm:px-4"
-     style="background: rgba(11,29,58,.75);">
-    <div @click.outside="open = false" class="bg-white w-full max-w-2xl shadow-2xl border border-rule">
-        <div class="flex items-center px-5 py-4 border-b border-rule">
-            <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input x-ref="input" x-model="query" @input.debounce.300ms="search()"
-                   placeholder="Cari siswa, staff, invoice, pengumuman..."
-                   class="flex-1 outline-none font-serif text-lg">
-            <span class="font-mono text-xs text-gray-400 px-2 py-1 border border-rule">ESC</span>
-        </div>
-        <div class="max-h-96 overflow-y-auto">
-            <template x-if="loading">
-                <div class="p-6 text-center text-gray-500 italic font-serif">Mencari...</div>
-            </template>
-            <template x-if="!loading && results.length === 0 && query.length >= 2">
-                <div class="p-6 text-center text-gray-500 italic font-serif">Tidak ada hasil untuk "<span x-text="query"></span>"</div>
-            </template>
-            <template x-if="!loading && query.length < 2">
-                <div class="p-6 text-center text-gray-400 text-sm font-serif">Ketik minimal 2 karakter...</div>
-            </template>
-            <template x-for="r in results" :key="r.url">
-                <a :href="r.url" class="block px-5 py-3 hover:bg-gray-50 border-b border-rule last:border-0">
-                    <div class="flex items-center gap-3">
-                        <span class="text-xl" x-text="r.icon"></span>
-                        <div class="flex-1 min-w-0">
-                            <div class="font-serif font-semibold ink-primary truncate" x-text="r.title"></div>
-                            <div class="text-xs text-gray-500 truncate" x-text="r.sub"></div>
-                        </div>
-                        <span class="elite-kicker text-[.55rem] text-gray-400" x-text="r.type"></span>
-                    </div>
-                </a>
-            </template>
-        </div>
-    </div>
-</div>
-<script>
-function globalSearch() {
-    return {
-        open: false, query: '', loading: false, results: [],
-        async search() {
-            if (this.query.length < 2) { this.results = []; return; }
-            this.loading = true;
-            try {
-                const res = await fetch('{{ route("admin.search") }}?q=' + encodeURIComponent(this.query));
-                const data = await res.json();
-                this.results = data.results || [];
-            } finally { this.loading = false; }
-        }
-    };
-}
-</script>
+{{-- ===== COMMAND PALETTE ===== --}}
+<x-navigation.command-palette />
 
-<script>
-// Auto-close mobile sidebar drawer when a nav link is tapped.
-document.addEventListener('click', (e) => {
-    if (window.innerWidth >= 1024) return;
-    const link = e.target.closest('aside a[href]');
-    if (!link) return;
-    const root = document.documentElement;
-    if (root._x_dataStack && root._x_dataStack[0]) {
-        root._x_dataStack[0].sidebarOpen = false;
-    }
-});
-</script>
+{{-- ===== TOAST ===== --}}
+<x-overlays.toast />
+
+{{-- ===== CONFIRM DIALOG ===== --}}
+<x-overlays.confirm-dialog />
 
 @stack('scripts')
 
-{{-- Floating Panic Button --}}
-<div x-data="{ open: false }" class="fixed bottom-6 right-6 z-50">
-    <button @click="open = !open"
-            class="w-14 h-14 rounded-full bg-red-600 text-white shadow-lg hover:bg-red-700 transition flex items-center justify-center animate-pulse"
-            style="box-shadow: 0 0 20px rgba(220,38,38,.5);"
-            title="Panic Button">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-        </svg>
+{{-- Sidebar collapsed tooltips (desktop) --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var setTitles = function () {
+            document.querySelectorAll('.app-sidebar').forEach(function (aside) {
+                var collapsed = aside.classList.contains('collapsed');
+                aside.querySelectorAll('.sidebar-link, .sidebar-sub-link').forEach(function (link) {
+                    if (collapsed) {
+                        if (!link.dataset.t) link.dataset.t = link.textContent.trim();
+                        link.setAttribute('title', link.dataset.t);
+                    } else {
+                        link.removeAttribute('title');
+                    }
+                });
+            });
+        };
+        var mo = new MutationObserver(setTitles);
+        document.querySelectorAll('.app-sidebar').forEach(function (a) {
+            mo.observe(a, { attributes: true, attributeFilter: ['class'] });
+        });
+        setTitles();
+    });
+</script>
+
+{{-- ===== EMERGENCY (discreet) ===== --}}
+<div x-data="{ open: false, typed: '', mode: 'security' }" class="fixed bottom-5 right-5 z-40">
+    <button @click="open = !open" type="button"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--color-danger)] text-[var(--color-danger)] bg-[var(--color-surface)] hover:bg-[var(--color-danger-soft)] text-sm font-semibold shadow-sm"
+            title="Peringatan darurat">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span class="hidden sm:inline">Darurat</span>
     </button>
-    <div x-show="open" x-cloak @click.outside="open = false"
-         class="absolute bottom-16 right-0 w-80 bg-white border border-rule shadow-2xl p-5">
-        <div class="flex justify-between items-center mb-3">
-            <h3 class="font-serif font-semibold text-red-700 text-base">Peringatan Darurat</h3>
-            <button @click="open = false" class="text-gray-400 hover:text-gray-600">✕</button>
-        </div>
-        <form method="POST" action="{{ route('admin.emergency.quick') }}">
-            @csrf
-            <div class="space-y-3">
+
+    <div x-show="open" x-cloak @click.outside="open = false" x-trap.inert.noscroll="open" class="fixed inset-0 z-40 flex items-end sm:items-center justify-center sm:p-4" style="background: rgba(11,29,58,.55);">
+        <div class="w-full max-w-md bg-[var(--color-surface)] border border-[var(--color-border)] rounded-t-2xl sm:rounded-xl shadow-2xl" style="max-height: 90vh; overflow-y: auto;">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border)]">
+                <h3 class="font-bold text-[var(--color-danger)]">Peringatan Darurat</h3>
+                <button @click="open = false" type="button" class="btn-icon" aria-label="Tutup"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <form method="POST" action="{{ route('admin.emergency.quick') }}" class="p-5 space-y-4">
+                @csrf
                 <div>
-                    <select name="alert_type" class="w-full border border-rule p-2 text-sm">
+                    <label class="label" for="em-type">Kategori</label>
+                    <select name="alert_type" id="em-type" x-model="mode" class="select">
                         <option value="security">🛡️ Keamanan</option>
                         <option value="fire">🔥 Kebakaran</option>
                         <option value="earthquake">🌍 Gempa</option>
@@ -325,15 +254,21 @@ document.addEventListener('click', (e) => {
                     </select>
                 </div>
                 <div>
-                    <textarea name="message" rows="3" required class="w-full border border-rule p-2 text-sm"
-                              placeholder="Deskripsikan situasi darurat..."></textarea>
+                    <label class="label" for="em-msg">Pesan siaran <span class="req">*</span></label>
+                    <textarea name="message" id="em-msg" rows="3" required class="textarea" placeholder="Deskripsikan situasi darurat…"></textarea>
                 </div>
-                <button type="submit" class="w-full py-2.5 text-white text-sm font-semibold bg-red-600 hover:bg-red-700 transition"
-                        onclick="return confirm('Kirim peringatan darurat ke SEMUA?')">
-                    KIRIM PENTING!
+                <div class="text-xs text-[var(--color-text-muted)]">
+                    Siaran ini akan dikirim ke <strong>seluruh pengguna</strong> sekolah melalui channel aktif (WA, push, email).
+                </div>
+                <div>
+                    <label class="label" for="em-confirm">Ketik <code>DARURAT</code> untuk konfirmasi</label>
+                    <input type="text" id="em-confirm" x-model="typed" class="input" autocomplete="off">
+                </div>
+                <button type="submit" class="btn btn-danger w-full" :disabled="typed.toUpperCase() !== 'DARURAT'" x-bind:class="typed.toUpperCase() !== 'DARURAT' && 'opacity-50 cursor-not-allowed'">
+                    Siarkan Peringatan
                 </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
