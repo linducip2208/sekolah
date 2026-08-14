@@ -867,16 +867,63 @@ html[data-theme="dark"] .skeleton::after {
 .notif-item.read .notif-dot { background: var(--color-border-strong); }
 
 /* ---------------------------------------------------------------
-   18. RESPONSIVE
+   18. RESPONSIVE — mobile-first, scale up at sm/md/lg
+   Target viewports: 320 / 375 / 390 / 414 / 768 / 1024 / 1280 / 1440
    --------------------------------------------------------------- */
 @media (max-width: 1023px) {
     .app-sidebar.collapsed { width: 16rem !important; }
+    .page-title { font-size: 1.375rem; }
 }
+
+@media (max-width: 768px) {
+    .lp-section { padding-top: 3rem; padding-bottom: 3rem; }
+}
+
 @media (max-width: 640px) {
+    /* Collapse all multi-column grids to a single column on phones
+       (overrides Tailwind CDN's .grid-cols-* utilities for legacy views). */
+    .grid { grid-template-columns: 1fr !important; }
+
     .page-title { font-size: 1.25rem; }
-    .btn { min-height: 40px; }
+    .section-title { font-size: 1rem; }
+
+    /* WCAG 2.5.5 touch targets — every interactive control >= 44px */
+    .btn, .btn-icon, .btn-sm, .dropdown-item, [role="tab"],
+    .sidebar-section-header, .sidebar-link, .sidebar-sub-link {
+        min-height: 44px;
+    }
+    .input, .select, .textarea {
+        min-height: 44px;
+        font-size: 16px; /* prevent iOS zoom-on-focus */
+    }
+
     .card-pad { padding: 1rem; }
     .table-elite thead th, .table-elite tbody td { padding: 0.55rem 0.6rem; font-size: 12.5px; }
+
+    /* Overlays fill the viewport width */
+    .modal-backdrop { padding: 0.75rem; align-items: flex-end; }
+    .modal-panel { margin: 0 auto; border-radius: var(--radius-lg) var(--radius-lg) 0 0; max-height: 92vh; }
+    .dropdown-panel { width: min(22rem, calc(100vw - 2rem)); }
+
+    /* Toast stack edge-to-edge */
+    .toast-stack { left: 1rem; right: 1rem; width: auto; }
+
+    /* Sidebar drawer */
+    .app-sidebar { width: 84vw !important; max-width: 320px !important; }
+
+    /* Full-width primary actions in headers */
+    .topbar .lp-container { gap: 0.5rem; }
+}
+
+@media (max-width: 400px) {
+    .page-title { font-size: 1.15rem; }
+    .btn { font-size: 0.8125rem; padding: 0.5rem 0.85rem; }
+    .card-pad { padding: 0.85rem; }
+}
+
+/* Pointer: coarse (touch) devices — ensure comfortable tap targets */
+@media (pointer: coarse) {
+    .dropdown-item, .command-item, .sidebar-sub-link { min-height: 44px; }
 }
 
 /* ---------------------------------------------------------------
