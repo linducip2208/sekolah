@@ -140,8 +140,39 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
                     <div class="min-w-0">
-                        @if(!empty($breadcrumbs))
-                            <x-navigation.breadcrumbs :items="$breadcrumbs" />
+                        @php
+                            $routeName = request()->route()?->getName() ?? '';
+                            $crumbGroup = null;
+                            $crumbPrefixes = [
+                                'Academic' => ['admin.academic', 'admin.curriculum', 'admin.timetable', 'admin.classroom', 'admin.assignments', 'admin.exams', 'admin.qbank', 'admin.raport-interaktif', 'admin.lesson-plan', 'admin.live-class'],
+                                'Students' => ['admin.students', 'admin.import', 'admin.attendance', 'admin.discipline', 'admin.counseling', 'admin.clinic', 'admin.achievements', 'admin.portfolios', 'admin.misc.career', 'admin.misc.internships', 'admin.qr-attendance'],
+                                'Admissions' => ['admin.ppdb'],
+                                'People' => ['admin.staff', 'admin.pkg', 'admin.training', 'admin.lesson-study', 'admin.payroll'],
+                                'Finance' => ['admin.fee', 'admin.payment', 'admin.budget', 'admin.cooperative', 'admin.finance', 'admin.currency'],
+                                'Procurement' => ['admin.procurement'],
+                                'Inventory' => ['admin.inventory', 'admin.misc.maintenance'],
+                                'Facilities' => ['admin.hostel', 'admin.transport', 'admin.facilities', 'admin.visitor', 'admin.operations', 'admin.dapodik'],
+                                'Library' => ['admin.library'],
+                                'Student Life' => ['admin.extracurricular', 'admin.events', 'admin.leaderboard', 'admin.osis', 'admin.canteen', 'admin.religious', 'admin.donations', 'admin.scholarship', 'admin.misc.daily-reports'],
+                                'Alumni' => ['admin.alumni', 'admin.tracer', 'admin.jobs', 'admin.bkk'],
+                                'Communication' => ['admin.notices', 'admin.chat', 'admin.wa-bot', 'admin.reminders', 'admin.emergency', 'admin.notif', 'admin.forum', 'admin.conferences', 'admin.committee'],
+                                'AI & Analytics' => ['admin.analytics', 'admin.ai'],
+                                'Reports' => ['admin.reports', 'admin.foundation.benchmark'],
+                                'Automation' => ['admin.webhooks', 'admin.workflow'],
+                                'System' => ['admin.branding', 'admin.blog', 'admin.documents', 'admin.letters', 'admin.surveys', 'admin.exports', 'admin.audit', 'admin.signage', 'admin.dashboard-tv', 'admin.accreditation', 'admin.adiwiyata'],
+                            ];
+                            foreach ($crumbPrefixes as $group => $prefixes) {
+                                foreach ($prefixes as $p) {
+                                    if (str_starts_with($routeName, $p)) { $crumbGroup = $group; break 2; }
+                                }
+                            }
+                            $crumbTitle = trim((string) $__env->yieldContent('title'));
+                            $crumbs = [['label' => 'Dashboard', 'url' => route('admin.dashboard')]];
+                            if ($crumbGroup) $crumbs[] = ['label' => $crumbGroup];
+                            if ($crumbTitle && $crumbTitle !== $crumbGroup && $crumbTitle !== 'Dashboard') $crumbs[] = ['label' => $crumbTitle];
+                        @endphp
+                        @if(count($crumbs) > 1)
+                            <x-navigation.breadcrumbs :items="$crumbs" />
                         @endif
                         <div class="text-sm font-semibold text-[var(--color-text)] truncate">@yield('title', 'Administrator')</div>
                     </div>
