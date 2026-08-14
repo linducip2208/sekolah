@@ -16,6 +16,12 @@ class ResolveSchool
             ->where('is_active', true)
             ->first();
 
+        // Fallback: no custom subdomain (e.g. localhost) → resolve the
+        // authenticated user's school so `current_school` is always bound.
+        if (!$school && auth()->check()) {
+            $school = auth()->user()->school;
+        }
+
         if ($school) {
             app()->instance('current_school', $school);
         }

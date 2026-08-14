@@ -10,7 +10,7 @@ class EnsureActiveSubscription
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $school = app('current_school') ?? $request->user()?->school;
+        $school = app()->bound('current_school') ? app('current_school') : ($request->user()?->school);
 
         if ($school && !$school->isSubscriptionActive()) {
             if ($request->expectsJson()) {
