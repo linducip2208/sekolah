@@ -77,46 +77,52 @@ if ('serviceWorker' in navigator) {
 
     .btn-elite {
         display: inline-flex; align-items: center; justify-content: center;
-        padding: .85rem 1.85rem;
-        font-family: 'Inter', sans-serif;
-        font-size: .78rem;
-        letter-spacing: .22em;
-        text-transform: uppercase;
+        gap: .5rem;
+        padding: .65rem 1.35rem;
+        font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif;
+        font-size: .875rem;
+        letter-spacing: 0;
+        text-transform: none;
         font-weight: 600;
         border: 1px solid var(--c-primary);
+        border-radius: 10px;
         background: var(--c-primary);
         color: #fff;
-        transition: all .25s ease;
+        transition: all .18s ease;
     }
-    .btn-elite:hover { background: var(--c-secondary); border-color: var(--c-secondary); }
+    .btn-elite:hover { background: var(--c-secondary); border-color: var(--c-secondary); transform: translateY(-1px); box-shadow: 0 2px 8px -2px rgba(15, 118, 110, .35); }
     .btn-elite-ghost {
         display: inline-flex; align-items: center; justify-content: center;
-        padding: .85rem 1.85rem;
-        font-family: 'Inter', sans-serif;
-        font-size: .78rem;
-        letter-spacing: .22em;
-        text-transform: uppercase;
+        gap: .5rem;
+        padding: .65rem 1.35rem;
+        font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif;
+        font-size: .875rem;
+        letter-spacing: 0;
+        text-transform: none;
         font-weight: 600;
         border: 1px solid var(--c-primary);
+        border-radius: 10px;
         background: transparent;
         color: var(--c-primary);
-        transition: all .25s ease;
+        transition: all .18s ease;
     }
     .btn-elite-ghost:hover { background: var(--c-primary); color: #fff; }
     .btn-elite-gold {
         display: inline-flex; align-items: center; justify-content: center;
-        padding: .85rem 1.85rem;
-        font-family: 'Inter', sans-serif;
-        font-size: .78rem;
-        letter-spacing: .22em;
-        text-transform: uppercase;
+        gap: .5rem;
+        padding: .65rem 1.35rem;
+        font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif;
+        font-size: .875rem;
+        letter-spacing: 0;
+        text-transform: none;
         font-weight: 600;
         border: 1px solid var(--c-accent);
+        border-radius: 10px;
         background: var(--c-accent);
         color: #fff;
-        transition: all .25s ease;
+        transition: all .18s ease;
     }
-    .btn-elite-gold:hover { filter: brightness(.92); }
+    .btn-elite-gold:hover { filter: brightness(.92); transform: translateY(-1px); }
 
     .ornament { position: relative; }
     .ornament::before { content: '❦'; display: block; font-family: serif; color: var(--c-accent); font-size: 1.5rem; line-height: 1; opacity: .85; }
@@ -152,26 +158,27 @@ if ('serviceWorker' in navigator) {
     .elite-card {
         background: #fff;
         border: 1px solid var(--c-rule);
+        border-radius: 14px;
         transition: all .3s ease;
     }
-    .elite-card:hover { box-shadow: 0 18px 40px -20px rgba(11,29,58,.18); }
+    .elite-card:hover { box-shadow: 0 18px 40px -20px rgba(15, 118, 110, .22); }
 
     /* Print-style footnote */
-    .footnote { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; color: #5a544c; }
+    .footnote { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-style: italic; color: #5a544c; }
 
     /* Form polishing — applied to all default inputs */
     input[type=text], input[type=email], input[type=password], input[type=url], input[type=tel],
     input[type=number], input[type=search], input[type=date], input[type=color], select, textarea {
-        border-radius: 2px !important;
+        border-radius: 10px;
     }
     input:focus, select:focus, textarea:focus {
-        --tw-ring-color: var(--c-accent) !important;
-        border-color: var(--c-accent) !important;
+        --tw-ring-color: var(--c-primary) !important;
+        border-color: var(--c-primary) !important;
     }
 
-    .table-elite { font-family: 'Inter', sans-serif; }
+    .table-elite { font-family: 'Plus Jakarta Sans', sans-serif; }
     .table-elite thead th {
-        font-size: .68rem; letter-spacing: .25em; text-transform: uppercase;
+        font-size: .72rem; letter-spacing: .05em; text-transform: uppercase;
         font-weight: 600; color: var(--c-primary);
         border-bottom: 2px solid var(--c-primary);
         padding: 1rem .75rem;
