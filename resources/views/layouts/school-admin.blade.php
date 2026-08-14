@@ -87,8 +87,8 @@
            x-transition:leave="transition-transform ease-in duration-150"
            x-transition:leave-start="translate-x-0"
            x-transition:leave-end="-translate-x-full"
-           class="fixed inset-y-0 left-0 z-40 w-72 lg:static lg:translate-x-0 flex flex-col flex-shrink-0 text-white"
-           style="background: var(--c-primary);">
+            class="fixed inset-y-0 left-0 z-40 w-72 lg:static lg:translate-x-0 flex flex-col flex-shrink-0 text-white"
+            style="background: linear-gradient(180deg, var(--c-primary) 0%, var(--c-secondary) 100%);">
         {{-- Brand --}}
         <div class="px-5 sm:px-6 py-5 border-b flex items-start justify-between gap-2" style="border-color: rgba(255,255,255,.12);">
             <div class="flex items-center gap-3 flex-1 min-w-0 sidebar-brand">

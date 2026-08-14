@@ -204,9 +204,8 @@ if ('serviceWorker' in navigator) {
     /* Mobile drawer backdrop for sidebars */
     .sidebar-backdrop {
         position: fixed; inset: 0;
-        background: rgba(11,29,58,.55);
+        background: rgba(15, 23, 42, .55);
         z-index: 39;
-        backdrop-filter: blur(2px);
     }
 
     /* =================  TABLET (<= 1023px)  ================= */
