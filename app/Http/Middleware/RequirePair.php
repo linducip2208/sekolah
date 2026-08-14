@@ -62,8 +62,8 @@ class RequirePair
             if (str_starts_with($path, $prefix)) return true;
         }
 
-        // Localhost dev bypass
-        if (config('license.dev_bypass') && app()->environment('local')) {
+        // Localhost / test dev bypass
+        if (config('license.dev_bypass') && (app()->environment('local') || app()->environment('testing'))) {
             $host = $request->getHost();
             if ($this->isDevHost($host)) return true;
         }

@@ -12,7 +12,9 @@ class EnsureActiveSubscription
     {
         $school = app()->bound('current_school') ? app('current_school') : ($request->user()?->school);
 
-        if ($school && !$school->isSubscriptionActive()) {
+        // Only enforce for schools with a finite subscription (plan_expires_at set).
+        // Free / unlimited schools (no expiry) are never blocked.
+        if ($school && $school->plan_expires_at && !$school->isSubscriptionActive()) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Subscription expired. Please renew your plan.'], 402);
             }
