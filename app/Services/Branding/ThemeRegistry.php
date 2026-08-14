@@ -11,7 +11,7 @@ namespace App\Services\Branding;
  */
 class ThemeRegistry
 {
-    public const DEFAULT = 'modern';
+    public const DEFAULT = 'corporate';
 
     public const FONT = "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif";
     public const FONT_URL = 'https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800';
