@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\PPDB;
 
+use App\Models\Academic\AcademicYear;
 use App\Models\Plan;
 use App\Models\PPDB\PpdbApplication;
 use App\Models\PPDB\PpdbPeriod;
@@ -13,10 +14,11 @@ class PpdbRegistrationTest extends TestCase
     public function test_public_can_view_published_periods(): void
     {
         $school = $this->makeSchool('test-school');
+        $year   = AcademicYear::factory()->create(['school_id' => $school->id]);
 
         PpdbPeriod::create([
             'school_id'        => $school->id,
-            'academic_year_id' => 1,
+            'academic_year_id' => $year->id,
             'name'             => 'PPDB 2025/2026',
             'open_date'        => now()->subDay(),
             'close_date'       => now()->addMonth(),
@@ -25,7 +27,7 @@ class PpdbRegistrationTest extends TestCase
 
         PpdbPeriod::create([
             'school_id'        => $school->id,
-            'academic_year_id' => 1,
+            'academic_year_id' => $year->id,
             'name'             => 'Draft',
             'open_date'        => now(),
             'close_date'       => now()->addMonth(),
@@ -40,9 +42,10 @@ class PpdbRegistrationTest extends TestCase
     public function test_public_can_register(): void
     {
         $school = $this->makeSchool('register-test');
+        $year   = AcademicYear::factory()->create(['school_id' => $school->id]);
         $period = PpdbPeriod::create([
             'school_id'        => $school->id,
-            'academic_year_id' => 1,
+            'academic_year_id' => $year->id,
             'name'             => 'PPDB 2025/2026',
             'open_date'        => now()->subDay(),
             'close_date'       => now()->addMonth(),

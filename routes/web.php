@@ -78,6 +78,7 @@ use App\Http\Controllers\Web\VisitorRegistrationController;
 use App\Http\Controllers\Web\Admin\Academic\QrAttendanceController as WebQrAttendanceController;
 use App\Http\Controllers\Web\ForumController as PublicForumController;
 use App\Http\Controllers\Web\Admin\Workflow\WorkflowController;
+use App\Http\Controllers\Web\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\LandingController::class, 'index'])->name('home');
@@ -131,63 +132,13 @@ Route::get('/daftar/{registration}/sukses',                     [PublicSubscript
 
 // School Admin Web Panel
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/login', fn() => view('school-admin.login'))->name('login');
-    Route::post('/login', function (\Illuminate\Http\Request $request) {
-        $creds = $request->validate(['email' => 'required|email', 'password' => 'required']);
-        $user  = \App\Models\User::where('email', $creds['email'])->first();
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login.post');
 
-        if (!$user || !\Illuminate\Support\Facades\Hash::check($creds['password'], $user->password)) {
-            return back()->withErrors(['email' => 'Email atau kata sandi salah.'])->withInput($request->only('email'));
-        }
-
-        auth()->login($user, $request->boolean('remember'));
-        $user = auth()->user();
-
-        if ($user->hasRole('super_admin')) {
-            $request->session()->regenerate();
-            return redirect()->route('super.dashboard')
-                ->with('success', 'Anda login sebagai Super Admin — diarahkan ke panel platform.');
-        }
-
-        if ($user->hasAnyRole(['admin', 'accountant'])) {
-            $request->session()->regenerate();
-            return redirect()->route('admin.dashboard');
-        }
-
-        if ($user->hasRole('parent')) {
-            $request->session()->regenerate();
-            return redirect()->route('portal.dashboard')
-                ->with('success', 'Selamat datang di Portal Wali.');
-        }
-
-        if ($user->hasRole('student')) {
-            $request->session()->regenerate();
-            return redirect()->route('student.dashboard')
-                ->with('success', 'Selamat datang.');
-        }
-
-        if ($user->hasRole('teacher')) {
-            $request->session()->regenerate();
-            return redirect()->route('teacher.dashboard')
-                ->with('success', 'Selamat datang.');
-        }
-
-        $role = $user->getRoleNames()->first() ?? 'tanpa role';
-        auth()->logout();
-        return back()->withErrors([
-            'email' => "Akun ini ber-role '{$role}'. Hubungi admin sekolah.",
-        ])->withInput($request->only('email'));
-    })->middleware('throttle:login')->name('login.post');
-
-    Route::post('/logout', function (\Illuminate\Http\Request $request) {
-        auth()->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('admin.login');
-    })->name('logout');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::middleware(['auth', 'role:admin|accountant', 'subscription.active', '2fa.enforce'])->group(function () {
-        Route::get('/dashboard', fn() => view('school-admin.dashboard'))->name('dashboard');
+        Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 
         // ==================== AKADEMIK ====================
         Route::get('/academic/years',                    [AcademicWebController::class, 'years'])->name('academic.years.index');
@@ -1230,7 +1181,7 @@ Route::get('/blog/{slug}', [\App\Http\Controllers\Web\BlogController::class, 'sh
 // ============================================================
 Route::prefix('s/{subdomain}')->group(function () {
     Route::get('/',                                    [\App\Http\Controllers\Web\SchoolWebsiteController::class, 'homepage'])->name('school-website.home');
-    Route::get('/kontak',                              fn() => ''); // handled via widget
+    Route::get('/kontak', [AuthController::class, 'kontak']);
     Route::post('/kontak',                             [\App\Http\Controllers\Web\SchoolWebsiteController::class, 'postContact'])->name('school-website.contact');
     Route::get('/{slug}',                              [\App\Http\Controllers\Web\SchoolWebsiteController::class, 'customPage'])->name('school-website.page');
 });
@@ -1238,7 +1189,7 @@ Route::prefix('s/{subdomain}')->group(function () {
 // ============================================================
 // Public Alumni Tracer Study Form
 // ============================================================
-Route::get('/alumni/tracer', fn() => view('alumni.tracer'))->name('alumni.tracer');
+Route::get('/alumni/tracer', [AuthController::class, 'alumniTracer'])->name('alumni.tracer');
 
 // ============================================================
 // Programmatic SEO (public, indexable)
@@ -1281,20 +1232,8 @@ Route::get('/ekstrakurikuler-{name}-{city}',                   [PseoController::
 // Super Admin Web Panel
 Route::prefix('super')->name('super.')->group(function () {
     // Auth
-    Route::get('/login', fn() => view('super-admin.login'))->name('login');
-    Route::post('/login', function (\Illuminate\Http\Request $request) {
-        $creds = $request->validate(['email' => 'required|email', 'password' => 'required']);
-        $user  = \App\Models\User::where('email', $creds['email'])->first();
-        if (!$user || !\Illuminate\Support\Facades\Hash::check($creds['password'], $user->password)) {
-            return back()->withErrors(['email' => 'Kredensial tidak valid.']);
-        }
-        if (!$user->hasRole('super_admin')) {
-            return back()->withErrors(['email' => 'Anda bukan super admin.']);
-        }
-        auth()->login($user);
-        $request->session()->regenerate();
-        return redirect()->route('super.dashboard');
-    })->middleware('throttle:login')->name('login.post');
+    Route::get('/login', [AuthController::class, 'showSuperLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'superLogin'])->middleware('throttle:login')->name('login.post');
 
     // Protected routes
     Route::middleware(['auth', 'role:super_admin'])->group(function () {

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Scholarship;
 
+use App\Models\Academic\Student;
 use App\Models\Finance\FeeInvoice;
 use App\Models\Finance\FeeStructure;
 use App\Models\Plan;
@@ -35,6 +36,7 @@ class ScholarshipTest extends TestCase
     public function test_grant_applies_discount_to_invoice(): void
     {
         $admin = $this->makeAdmin();
+        $student = Student::factory()->create(['school_id' => $admin->school_id]);
 
         $program = ScholarshipProgram::create([
             'school_id'             => $admin->school_id,
@@ -58,7 +60,7 @@ class ScholarshipTest extends TestCase
 
         $invoice = FeeInvoice::create([
             'school_id'        => $admin->school_id,
-            'student_id'       => 1,
+            'student_id'       => $student->id,
             'fee_structure_id' => $structure->id,
             'invoice_no'       => 'INV-TEST-001',
             'due_date'         => today()->endOfMonth(),
@@ -69,7 +71,7 @@ class ScholarshipTest extends TestCase
         $app = ScholarshipApplication::create([
             'school_id'              => $admin->school_id,
             'scholarship_program_id' => $program->id,
-            'student_id'             => 1,
+            'student_id'             => $student->id,
             'status'                 => 'submitted',
         ]);
 

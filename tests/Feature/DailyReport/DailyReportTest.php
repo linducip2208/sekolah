@@ -15,9 +15,10 @@ class DailyReportTest extends TestCase
     public function test_generates_report_for_student(): void
     {
         $school = School::factory()->create(['plan_id' => Plan::factory()->create()->id]);
+        $student = Student::factory()->create(['school_id' => $school->id]);
 
         $service = app(DailyReportService::class);
-        $report = $service->generateForStudent($school->id, 1, today()->toDateString());
+        $report = $service->generateForStudent($school->id, $student->id, today()->toDateString());
 
         $this->assertInstanceOf(DailyReport::class, $report);
         $this->assertEquals(today()->toDateString(), $report->report_date->toDateString());

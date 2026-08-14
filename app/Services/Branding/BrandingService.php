@@ -24,7 +24,9 @@ class BrandingService
     public function getForSchool(int $schoolId): array
     {
         return Cache::remember("branding:school:{$schoolId}", 3600, function () use ($schoolId) {
-            $branding = SchoolBranding::firstOrCreate(['school_id' => $schoolId]);
+            // Pass cache_version explicitly so the freshly-created in-memory
+            // model reflects the DB default (firstOrCreate doesn't hydrate it).
+            $branding = SchoolBranding::firstOrCreate(['school_id' => $schoolId], ['cache_version' => 1]);
             return $this->toArray($branding);
         });
     }

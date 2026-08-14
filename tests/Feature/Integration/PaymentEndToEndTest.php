@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Integration;
 
+use App\Models\Academic\Student;
 use App\Models\Finance\FeeInvoice;
 use App\Models\Finance\FeeStructure;
 use App\Models\Payment\PaymentMethod;
@@ -97,9 +98,11 @@ class PaymentEndToEndTest extends TestCase
             'is_active' => true,
         ]);
 
+        $student = Student::factory()->create(['school_id' => $school->id]);
+
         $invoice = FeeInvoice::create([
             'school_id'        => $school->id,
-            'student_id'       => 1,
+            'student_id'       => $student->id,
             'fee_structure_id' => $structure->id,
             'invoice_no'       => 'INV-TEST-' . uniqid(),
             'due_date'         => today()->endOfMonth(),

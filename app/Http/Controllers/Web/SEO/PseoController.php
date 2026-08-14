@@ -714,7 +714,7 @@ class PseoController extends Controller
         }
         $xml .= '</urlset>';
 
-        return response($xml)->header('Content-Type', 'application/xml');
+        return response($xml)->header('Content-Type', 'application/xml; charset=UTF-8');
     }
 
     public function robots(): \Illuminate\Http\Response
