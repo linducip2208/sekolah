@@ -45,6 +45,7 @@ class BrandingService
             'display_name', 'tagline', 'school_type_label', 'academic_year_format',
             'color_primary', 'color_secondary', 'color_success', 'color_warning', 'color_danger',
             'color_accent', 'color_sidebar', 'color_sidebar_text',
+            'color_text', 'color_text_muted', 'font_scale', 'radius_scale',
             'font_family', 'google_fonts_url', 'custom_domain', 'custom_css', 'custom_js',
             'theme',
             'background_mode',
@@ -166,13 +167,28 @@ class BrandingService
         $fontBody    = $b->font_family ?: $theme['fonts']['body'];
         $fontDisplay = $theme['fonts']['display'];
 
+        // Text colours & scale (overridable per school)
+        $ink   = $b->color_text ?: $theme['surface']['ink'];
+        $muted = $b->color_text_muted ?: $theme['surface']['muted'];
+
+        $radius = match ($b->radius_scale) {
+            'small'  => ['sm' => '6px',  'md' => '10px', 'lg' => '14px'],
+            'large'  => ['sm' => '12px', 'md' => '16px', 'lg' => '22px'],
+            default  => ['sm' => '10px', 'md' => '12px', 'lg' => '16px'],
+        };
+        $textBase = match ($b->font_scale) {
+            'compact' => '0.8125rem',
+            'large'   => '0.9375rem',
+            default   => '0.875rem',
+        };
+
         $css = ":root {\n";
         $css .= "  --c-primary: {$primary};\n";
         $css .= "  --c-secondary: {$secondary};\n";
         $css .= "  --c-accent: {$accent};\n";
         $css .= "  --c-paper: {$theme['surface']['paper']};\n";
-        $css .= "  --c-ink: {$theme['surface']['ink']};\n";
-        $css .= "  --c-muted: {$theme['surface']['muted']};\n";
+        $css .= "  --c-ink: {$ink};\n";
+        $css .= "  --c-muted: {$muted};\n";
         $css .= "  --c-rule: {$theme['surface']['rule']};\n";
         $css .= "  --brand-primary: {$primary};\n";
         $css .= "  --brand-secondary: {$secondary};\n";
@@ -184,10 +200,12 @@ class BrandingService
         $css .= "  --brand-sidebar-text: {$sidebarTxt};\n";
         $css .= "  --brand-font-family: {$fontBody};\n";
         $css .= "  --brand-display-font: {$fontDisplay};\n";
-        $css .= "  --radius-sm: {$theme['radius']['sm']};\n";
-        $css .= "  --radius-md: {$theme['radius']['md']};\n";
-        $css .= "  --radius-lg: {$theme['radius']['lg']};\n";
+        $css .= "  --brand-text-base: {$textBase};\n";
+        $css .= "  --brand-radius-sm: {$radius['sm']};\n";
+        $css .= "  --brand-radius-md: {$radius['md']};\n";
+        $css .= "  --brand-radius-lg: {$radius['lg']};\n";
         $css .= "}\n";
+        $css .= "html { font-size: var(--brand-text-base); }\n";
         $css .= "body { font-family: var(--brand-font-family); }\n";
         $css .= ".font-display, .elite-h1, .elite-h2, .elite-h3, .page-title, .section-title { font-family: var(--brand-display-font); }\n";
 
@@ -214,6 +232,8 @@ class BrandingService
                 'accent'    => $b->color_accent ?? '#0EA5E9',
                 'sidebar'   => $b->color_sidebar ?? '#0F172A',
                 'sidebar_text' => $b->color_sidebar_text ?? '#F1F5F9',
+                'text'      => $b->color_text ?? $theme['surface']['ink'],
+                'text_muted' => $b->color_text_muted ?? $theme['surface']['muted'],
                 'success'   => $b->color_success,
                 'warning'   => $b->color_warning,
                 'danger'    => $b->color_danger,
@@ -221,6 +241,10 @@ class BrandingService
             'font' => [
                 'family'           => $b->font_family ?: $theme['fonts']['body'],
                 'google_fonts_url' => $b->google_fonts_url ?: $theme['fonts']['url'],
+            ],
+            'typography' => [
+                'font_scale'  => $b->font_scale ?? 'normal',
+                'radius_scale' => $b->radius_scale ?? 'medium',
             ],
             'custom' => [
                 'domain' => $b->custom_domain,

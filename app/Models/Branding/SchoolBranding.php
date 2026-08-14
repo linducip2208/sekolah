@@ -16,6 +16,7 @@ class SchoolBranding extends Model
         'logo_primary_path', 'logo_secondary_path', 'logo_monochrome_path', 'favicon_path',
         'color_primary', 'color_secondary', 'color_success', 'color_warning', 'color_danger',
         'color_accent', 'color_sidebar', 'color_sidebar_text',
+        'color_text', 'color_text_muted', 'font_scale', 'radius_scale',
         'font_family', 'google_fonts_url', 'custom_domain', 'custom_css', 'custom_js',
         'theme',
         'background_mode',

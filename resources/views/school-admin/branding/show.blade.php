@@ -98,6 +98,82 @@
             @endforeach
         </div>
 
+        {{-- Font & Tipografi --}}
+        @php
+            $fontFamilies = collect($fontPresets)->mapWithKeys(fn ($p, $k) => [$k => $p['family']])->all();
+            $currentFontKey = null;
+            foreach ($fontPresets as $k => $p) {
+                if ($p['family'] === ($branding['font']['family'] ?? null)) { $currentFontKey = $k; break; }
+            }
+            $currentFontKey ??= 'manrope';
+        @endphp
+        <div x-data="{
+            font: '{{ $currentFontKey }}',
+            text: '{{ $branding['colors']['text'] ?? '#0F172A' }}',
+            muted: '{{ $branding['colors']['text_muted'] ?? '#64748B' }}',
+            primary: '{{ $branding['colors']['primary'] ?? '#2563EB' }}',
+            accent: '{{ $branding['colors']['accent'] ?? '#F59E0B' }}',
+            radius: '{{ $branding['typography']['radius_scale'] ?? 'medium' }}',
+            fonts: @json($fontFamilies)
+        }">
+            <h3 class="font-semibold pt-4">Font &amp; Tipografi</h3>
+            <div class="grid sm:grid-cols-2 gap-4 mt-3">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Jenis Font</label>
+                    <select name="font_preset" x-model="font" class="w-full border rounded px-3 py-2 text-sm">
+                        @foreach($fontPresets as $k => $p)
+                            <option value="{{ $k }}">{{ $p['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Warna Teks</label>
+                        <input type="color" name="color_text" x-model="text" class="h-10 w-full border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Warna Teks Muted</label>
+                        <input type="color" name="color_text_muted" x-model="muted" class="h-10 w-full border rounded">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Ukuran Font</label>
+                    <div class="flex gap-2">
+                        @foreach(['compact' => 'Kecil', 'normal' => 'Normal', 'large' => 'Besar'] as $fs => $fsl)
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="font_scale" value="{{ $fs }}" class="peer sr-only" {{ ($branding['typography']['font_scale'] ?? 'normal') === $fs ? 'checked' : '' }}>
+                                <span class="block text-center text-sm border rounded px-2 py-2 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:font-semibold">{{ $fsl }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Bentuk Sudut (Radius)</label>
+                    <div class="flex gap-2">
+                        @foreach(['small' => 'Kotak', 'medium' => 'Sedang', 'large' => 'Bulat'] as $rs => $rsl)
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="radius_scale" value="{{ $rs }}" x-model="radius" class="peer sr-only">
+                                <span class="block text-center text-sm border rounded px-2 py-2 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:font-semibold">{{ $rsl }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            {{-- Live preview --}}
+            <div class="mt-4 p-4 rounded-lg border" style="background: #F8FAFC;">
+                <div class="text-xs uppercase tracking-wide mb-2" style="color: #64748B;">Pratinjau</div>
+                <div class="p-4 rounded-lg" style="background: #FFFFFF; border: 1px solid #E2E8F0;" :style="'font-family: ' + fonts[font]">
+                    <div class="text-lg font-bold" :style="'color: ' + text">Judul Halaman</div>
+                    <div class="text-sm mt-1" :style="'color: ' + muted">Ini adalah contoh teks paragraf dengan warna muted untuk melihat hasil font dan tipografi.</div>
+                    <div class="mt-3 flex items-center gap-2">
+                        <span class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white" :style="'background: ' + primary + '; border-radius: ' + (radius === 'small' ? '6px' : radius === 'large' ? '16px' : '12px')">Tombol Utama</span>
+                        <span class="inline-flex items-center px-4 py-2 text-sm font-semibold border" :style="'color: ' + primary + '; border-color: ' + primary + '; border-radius: ' + (radius === 'small' ? '6px' : radius === 'large' ? '16px' : '12px')">Tombol Sekunder</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <h3 class="font-semibold pt-4">Mobile App</h3>
         <div class="grid grid-cols-3 gap-4">
             <div>
