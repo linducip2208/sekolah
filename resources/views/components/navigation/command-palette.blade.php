@@ -5,38 +5,38 @@
 
     $actions = collect($isAdmin
         ? [
-            ['title' => 'Tambah Siswa',       'group' => 'Aksi', 'icon' => '👨‍🎓', 'url' => $safe('admin.students.create')],
-            ['title' => 'Tambah Staff / Guru', 'group' => 'Aksi', 'icon' => '👨‍🏫', 'url' => $safe('admin.staff.create')],
-            ['title' => 'Buat Pengumuman',    'group' => 'Aksi', 'icon' => '📢', 'url' => $safe('admin.notices.create')],
-            ['title' => 'Absensi Harian',     'group' => 'Aksi', 'icon' => '📋', 'url' => $safe('admin.attendance.index')],
-            ['title' => 'Kelola Invoice',     'group' => 'Aksi', 'icon' => '🧾', 'url' => $safe('admin.fee.invoices.index')],
-            ['title' => 'Dashboard PPDB',     'group' => 'Aksi', 'icon' => '🧒', 'url' => $safe('admin.ppdb.dashboard')],
+            ['title' => 'Tambah Siswa',       'group' => 'Aksi', 'icon' => 'user', 'url' => $safe('admin.students.create')],
+            ['title' => 'Tambah Staff / Guru', 'group' => 'Aksi', 'icon' => 'users', 'url' => $safe('admin.staff.create')],
+            ['title' => 'Buat Pengumuman',    'group' => 'Aksi', 'icon' => 'bell', 'url' => $safe('admin.notices.create')],
+            ['title' => 'Absensi Harian',     'group' => 'Aksi', 'icon' => 'check', 'url' => $safe('admin.attendance.index')],
+            ['title' => 'Kelola Invoice',     'group' => 'Aksi', 'icon' => 'money', 'url' => $safe('admin.fee.invoices.index')],
+            ['title' => 'Dashboard PPDB',     'group' => 'Aksi', 'icon' => 'school', 'url' => $safe('admin.ppdb.dashboard')],
         ]
         : [
-            ['title' => 'Kelola Invoice',     'group' => 'Aksi', 'icon' => '🧾', 'url' => $safe('admin.fee.invoices.index')],
-            ['title' => 'Slip Gaji',          'group' => 'Aksi', 'icon' => '💳', 'url' => $safe('admin.payroll.slips.index')],
-            ['title' => 'Ringkasan Keuangan', 'group' => 'Aksi', 'icon' => '📊', 'url' => $safe('admin.finance.reports.summary')],
-            ['title' => 'Buat Laporan',       'group' => 'Aksi', 'icon' => '📈', 'url' => $safe('admin.reports.builder.index')],
+            ['title' => 'Kelola Invoice',     'group' => 'Aksi', 'icon' => 'money', 'url' => $safe('admin.fee.invoices.index')],
+            ['title' => 'Slip Gaji',          'group' => 'Aksi', 'icon' => 'users', 'url' => $safe('admin.payroll.slips.index')],
+            ['title' => 'Ringkasan Keuangan', 'group' => 'Aksi', 'icon' => 'chart', 'url' => $safe('admin.finance.reports.summary')],
+            ['title' => 'Buat Laporan',       'group' => 'Aksi', 'icon' => 'chart', 'url' => $safe('admin.reports.builder.index')],
         ])->filter(fn ($a) => $a['url'] !== '#')->values()->all();
 
     $nav = collect($isAdmin
         ? [
-            ['title' => 'Dashboard',          'group' => 'Navigasi', 'icon' => '🏠', 'url' => $safe('admin.dashboard')],
-            ['title' => 'Data Siswa',         'group' => 'Navigasi', 'icon' => '👨‍🎓', 'url' => $safe('admin.students.index')],
-            ['title' => 'Staff & Guru',       'group' => 'Navigasi', 'icon' => '👨‍🏫', 'url' => $safe('admin.staff.index')],
-            ['title' => 'Jadwal Pelajaran',   'group' => 'Navigasi', 'icon' => '📅', 'url' => $safe('admin.timetable.index')],
-            ['title' => 'Ujian',              'group' => 'Navigasi', 'icon' => '📝', 'url' => $safe('admin.exams.index')],
-            ['title' => 'Invoice / Tagihan',  'group' => 'Navigasi', 'icon' => '💰', 'url' => $safe('admin.fee.invoices.index')],
-            ['title' => 'Report Builder',     'group' => 'Navigasi', 'icon' => '📊', 'url' => $safe('admin.reports.builder.index')],
-            ['title' => 'Pengumuman',         'group' => 'Navigasi', 'icon' => '📢', 'url' => $safe('admin.notices.index')],
-            ['title' => 'Perpustakaan',       'group' => 'Navigasi', 'icon' => '📚', 'url' => $safe('admin.library.books.index')],
+            ['title' => 'Dashboard',          'group' => 'Navigasi', 'icon' => 'home', 'url' => $safe('admin.dashboard')],
+            ['title' => 'Data Siswa',         'group' => 'Navigasi', 'icon' => 'user', 'url' => $safe('admin.students.index')],
+            ['title' => 'Staff & Guru',       'group' => 'Navigasi', 'icon' => 'users', 'url' => $safe('admin.staff.index')],
+            ['title' => 'Jadwal Pelajaran',   'group' => 'Navigasi', 'icon' => 'calendar', 'url' => $safe('admin.timetable.index')],
+            ['title' => 'Ujian',              'group' => 'Navigasi', 'icon' => 'edit', 'url' => $safe('admin.exams.index')],
+            ['title' => 'Invoice / Tagihan',  'group' => 'Navigasi', 'icon' => 'money', 'url' => $safe('admin.fee.invoices.index')],
+            ['title' => 'Report Builder',     'group' => 'Navigasi', 'icon' => 'chart', 'url' => $safe('admin.reports.builder.index')],
+            ['title' => 'Pengumuman',         'group' => 'Navigasi', 'icon' => 'bell', 'url' => $safe('admin.notices.index')],
+            ['title' => 'Perpustakaan',       'group' => 'Navigasi', 'icon' => 'book', 'url' => $safe('admin.library.books.index')],
         ]
         : [
-            ['title' => 'Dashboard',          'group' => 'Navigasi', 'icon' => '🏠', 'url' => $safe('admin.dashboard')],
-            ['title' => 'Invoice / Tagihan',  'group' => 'Navigasi', 'icon' => '💰', 'url' => $safe('admin.fee.invoices.index')],
-            ['title' => 'Slip Gaji',          'group' => 'Navigasi', 'icon' => '💳', 'url' => $safe('admin.payroll.slips.index')],
-            ['title' => 'Ringkasan Keuangan', 'group' => 'Navigasi', 'icon' => '📊', 'url' => $safe('admin.finance.reports.summary')],
-            ['title' => 'Report Builder',     'group' => 'Navigasi', 'icon' => '📈', 'url' => $safe('admin.reports.builder.index')],
+            ['title' => 'Dashboard',          'group' => 'Navigasi', 'icon' => 'home', 'url' => $safe('admin.dashboard')],
+            ['title' => 'Invoice / Tagihan',  'group' => 'Navigasi', 'icon' => 'money', 'url' => $safe('admin.fee.invoices.index')],
+            ['title' => 'Slip Gaji',          'group' => 'Navigasi', 'icon' => 'users', 'url' => $safe('admin.payroll.slips.index')],
+            ['title' => 'Ringkasan Keuangan', 'group' => 'Navigasi', 'icon' => 'chart', 'url' => $safe('admin.finance.reports.summary')],
+            ['title' => 'Report Builder',     'group' => 'Navigasi', 'icon' => 'chart', 'url' => $safe('admin.reports.builder.index')],
         ])->filter(fn ($a) => $a['url'] !== '#')->values()->all();
 @endphp
 
@@ -95,7 +95,7 @@
             {{-- Search results --}}
             <template x-for="(r, idx) in results" :key="'r' + idx">
                 <a :href="r.url" class="command-item" :class="{ active: active === idx }" @mouseenter="active = idx" @click.prevent="choose(r)">
-                    <span class="text-lg" aria-hidden="true" x-text="r.icon"></span>
+                    <svg class="w-5 h-5 text-[var(--color-text-muted)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path :d="iconPaths[r.icon] || iconPaths.school"></path></svg>
                     <span class="flex-1 min-w-0">
                         <span class="block truncate font-medium" x-text="r.title"></span>
                         <span class="block text-xs text-[var(--color-text-muted)] truncate" x-text="r.sub"></span>
@@ -109,7 +109,7 @@
                     <div class="dropdown-label px-4 pt-1">Aksi</div>
                     <template x-for="(a, idx) in filteredActions" :key="'a' + idx">
                         <a :href="a.url" class="command-item" :class="{ active: active === (mode === 'results' ? results.length + idx : idx) }" @mouseenter="active = (mode === 'results' ? results.length + idx : idx)" @click.prevent="choose(a)">
-                            <span class="text-lg" aria-hidden="true" x-text="a.icon"></span>
+                            <svg class="w-5 h-5 text-[var(--color-text-muted)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path :d="iconPaths[a.icon] || iconPaths.school"></path></svg>
                             <span class="flex-1 min-w-0 truncate" x-text="a.title"></span>
                             <span class="text-[11px] text-[var(--color-text-muted)]" x-text="a.group"></span>
                         </a>
@@ -123,7 +123,7 @@
                     <div class="dropdown-label px-4 pt-1">Navigasi</div>
                     <template x-for="(n, idx) in filteredNav" :key="'n' + idx">
                         <a :href="n.url" class="command-item" :class="{ active: active === (mode === 'results' ? results.length + filteredActions.length + idx : filteredActions.length + idx) }" @mouseenter="active = (mode === 'results' ? results.length + filteredActions.length + idx : filteredActions.length + idx)" @click.prevent="choose(n)">
-                            <span class="text-lg" aria-hidden="true" x-text="n.icon"></span>
+                            <svg class="w-5 h-5 text-[var(--color-text-muted)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path :d="iconPaths[n.icon] || iconPaths.school"></path></svg>
                             <span class="flex-1 min-w-0 truncate" x-text="n.title"></span>
                             <span class="text-[11px] text-[var(--color-text-muted)]" x-text="n.group"></span>
                         </a>

@@ -41,7 +41,7 @@ class GlobalSearchController extends Controller
             ->get()
             ->map(fn ($s) => [
                 'type'  => 'student',
-                'icon'  => '👨‍🎓',
+                'icon'  => 'user',
                 'title' => $s->name,
                 'sub'   => 'NIS '.$s->admission_no.' · '.$s->email,
                 'url'   => route('admin.students.edit', $s->id),
@@ -59,7 +59,7 @@ class GlobalSearchController extends Controller
             ->get()
             ->map(fn ($s) => [
                 'type'  => 'staff',
-                'icon'  => '👨‍🏫',
+                'icon'  => 'users',
                 'title' => $s->name,
                 'sub'   => ($s->employee_id ?? '—').' · '.($s->designation ?? '—'),
                 'url'   => route('admin.staff.edit', $s->id),
@@ -77,7 +77,7 @@ class GlobalSearchController extends Controller
             ->get()
             ->map(fn ($i) => [
                 'type'  => 'invoice',
-                'icon'  => '🧾',
+                'icon'  => 'money',
                 'title' => $i->invoice_no.' · '.$i->student_name,
                 'sub'   => 'Rp '.number_format($i->amount/100, 0, ',', '.').' · '.$i->status,
                 'url'   => route('admin.fee.invoices.show', $i->id),
@@ -91,7 +91,7 @@ class GlobalSearchController extends Controller
             ->get()
             ->map(fn ($n) => [
                 'type'  => 'notice',
-                'icon'  => '📢',
+                'icon'  => 'bell',
                 'title' => $n->title,
                 'sub'   => $n->is_published ? 'Published' : 'Draft',
                 'url'   => route('admin.notices.edit', $n->id),
@@ -115,7 +115,7 @@ class GlobalSearchController extends Controller
             $userName = DB::table('users')->where('id', $s['user_id'] ?? 0)->value('name') ?? '—';
             $results[] = [
                 'type'  => 'student',
-                'icon'  => '👨‍🎓',
+                'icon'  => 'user',
                 'title' => $userName,
                 'sub'   => 'NIS ' . ($s['admission_no'] ?? '—'),
                 'url'   => route('admin.students.edit', $s['id']),
@@ -125,7 +125,7 @@ class GlobalSearchController extends Controller
             $userName = DB::table('users')->where('id', $s['user_id'] ?? 0)->value('name') ?? '—';
             $results[] = [
                 'type'  => 'staff',
-                'icon'  => '👨‍🏫',
+                'icon'  => 'users',
                 'title' => $userName,
                 'sub'   => ($s['employee_id'] ?? '—') . ' · ' . ($s['designation'] ?? '—'),
                 'url'   => route('admin.staff.edit', $s['id']),
@@ -134,7 +134,7 @@ class GlobalSearchController extends Controller
         foreach ($grouped['invoices'] ?? [] as $i) {
             $results[] = [
                 'type'  => 'invoice',
-                'icon'  => '🧾',
+                'icon'  => 'money',
                 'title' => $i['invoice_no'] ?? '—',
                 'sub'   => money($i['amount'] ?? 0) . ' · ' . ($i['status'] ?? '—'),
                 'url'   => route('admin.fee.invoices.show', $i['id']),
@@ -143,7 +143,7 @@ class GlobalSearchController extends Controller
         foreach ($grouped['notices'] ?? [] as $n) {
             $results[] = [
                 'type'  => 'notice',
-                'icon'  => '📢',
+                'icon'  => 'bell',
                 'title' => $n['title'] ?? '—',
                 'sub'   => 'Pengumuman',
                 'url'   => route('admin.notices.edit', $n['id']),
