@@ -280,6 +280,7 @@
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.ai.providers.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.*') }}">AI Providers</a>
         <a href="{{ route('admin.ai.usage') }}" class="sidebar-sub-link {{ $isActive('admin.ai.usage') }}">AI Usage Dashboard</a>
+        <a href="{{ route('admin.analytics.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.dashboard') }}">School Intelligence</a>
         <a href="{{ route('admin.analytics.risks.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.risks.*') }}">Learning Analytics</a>
         <a href="{{ route('admin.analytics.dropout-risk.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.dropout-risk.*') }}">Deteksi Dropout</a>
     </div>

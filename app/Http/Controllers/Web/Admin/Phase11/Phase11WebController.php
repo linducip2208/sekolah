@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Web\Admin\Phase11;
 
 use App\Http\Controllers\Controller;
+use App\Models\Analytics\AiDropoutPrediction;
 use App\Models\Analytics\StudentRiskScore;
+use App\Models\Academic\Student;
 use App\Models\Dapodik\DapodikConfig;
 use App\Models\Dapodik\DapodikSyncLog;
 use App\Models\Inventory\Asset;
@@ -56,16 +58,33 @@ class Phase11WebController extends Controller
     public function analytics(): View
     {
         $schoolId = auth()->user()->school_id;
+
+        // Latest snapshot per student (scores are ordered desc by date).
+        $scores = StudentRiskScore::where('school_id', $schoolId)
+            ->with('student.user:id,name,email')
+            ->orderByDesc('snapshot_date')->get();
+        $latest = $scores->unique('student_id');
+
+        $atRisk = $latest->whereIn('risk_level', ['high', 'critical'])
+            ->sortByDesc('overall_risk')->values();
+
+        $dropouts = AiDropoutPrediction::where('school_id', $schoolId)
+            ->with('student.user:id,name,email')
+            ->orderByDesc('prediction_date')->get()
+            ->unique('student_id')
+            ->whereIn('risk_level', ['high', 'critical', 'medium'])
+            ->values();
+
+        $distribution = collect(['low', 'medium', 'high', 'critical'])
+            ->mapWithKeys(fn ($lvl) => [$lvl => $latest->where('risk_level', $lvl)->count()]);
+
         return view('school-admin.analytics.dashboard', [
-            'atRisk' => StudentRiskScore::where('school_id', $schoolId)
-                ->whereDate('snapshot_date', today())
-                ->whereIn('risk_level', ['high', 'critical'])
-                ->orderByDesc('overall_risk')
-                ->limit(50)->get(),
-            'distribution' => StudentRiskScore::where('school_id', $schoolId)
-                ->whereDate('snapshot_date', today())
-                ->selectRaw('risk_level, COUNT(*) as cnt')
-                ->groupBy('risk_level')->pluck('cnt', 'risk_level'),
+            'atRisk'        => $atRisk,
+            'dropouts'      => $dropouts,
+            'distribution'  => $distribution,
+            'totalStudents' => Student::where('school_id', $schoolId)->count(),
+            'assessed'      => $latest->count(),
+            'lastSnapshot'  => $scores->first()?->snapshot_date,
         ]);
     }
 }
