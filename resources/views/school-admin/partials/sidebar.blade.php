@@ -2,6 +2,17 @@
     $isActive = fn($pattern) => request()->routeIs($pattern) ? 'active' : '';
     $icon = fn($d) => "<svg class='w-4 h-4 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='1.8'><path stroke-linecap='round' stroke-linejoin='round' d='{$d}'/></svg>";
     $chevron = "<svg class='w-3 h-3 transition-transform duration-200' :class=\"open ? 'rotate-90' : ''\" fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2.5'><path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'/></svg>";
+
+    // Role-based navigation: admin sees the full menu; accountant sees
+    // finance, reports and analytics only. (Backend authorization is enforced
+    // separately via policies/middleware — this is presentation only.)
+    $role    = auth()->check() ? (auth()->user()->getRoleNames()->first() ?? 'admin') : 'admin';
+    $isAdmin = in_array($role, ['admin', 'super_admin'], true);
+
+    $navCounts = [
+        'ppdb'     => rescue(fn () => \App\Models\PPDB\PpdbApplication::where('school_id', auth()->user()->school_id)->count(), 0, false),
+        'invoices' => rescue(fn () => \App\Models\Finance\FeeInvoice::where('school_id', auth()->user()->school_id)->whereIn('status', ['unpaid', 'partial', 'overdue'])->count(), 0, false),
+    ];
 @endphp
 
 <div class="px-3 pt-3 pb-1.5 flex items-center gap-1.5 sidebar-search">
@@ -17,6 +28,7 @@
 
 <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ $isActive('admin.dashboard') }}">{!! $icon('M3 12l9-9 9 9M5 10v10h14V10') !!}<span>Dashboard</span></a>
 
+@if($isAdmin)
 {{-- 📚 AKADEMIK INTI --}}
 <div class="sidebar-section" x-data="{ open: true }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2"><span class="text-xs">📚</span>Akademik Inti</span>{!! $chevron !!}</button>
@@ -112,7 +124,7 @@
 
 {{-- 🧒 PPDB & SISWA --}}
 <div class="sidebar-section" x-data="{ open: true }">
-    <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2"><span class="text-xs">🧒</span>PPDB & Kesiswaan</span>{!! $chevron !!}</button>
+    <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2"><span class="text-xs">🧒</span>PPDB & Kesiswaan</span>@if($navCounts['ppdb'] > 0)<span class="sidebar-badge">{{ $navCounts['ppdb'] }}</span>@endif{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.ppdb.periods.index') }}" class="sidebar-sub-link {{ $isActive('admin.ppdb.periods.*') }}">Periode PPDB</a>
         <a href="{{ route('admin.ppdb.applications.index') }}" class="sidebar-sub-link {{ $isActive('admin.ppdb.applications.*') }}">Pendaftar PPDB</a>
@@ -167,9 +179,11 @@
     </div>
 </div>
 
+@endif
+
 {{-- 💰 KEUANGAN --}}
 <div class="sidebar-section" x-data="{ open: true }">
-    <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2"><span class="text-xs">💰</span>Keuangan</span>{!! $chevron !!}</button>
+    <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2"><span class="text-xs">💰</span>Keuangan</span>@if($navCounts['invoices'] > 0)<span class="sidebar-badge">{{ $navCounts['invoices'] }}</span>@endif{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.fee.structures.index') }}" class="sidebar-sub-link {{ $isActive('admin.fee.structures.*') }}">Struktur Biaya</a>
         <a href="{{ route('admin.fee.invoices.index') }}" class="sidebar-sub-link {{ $isActive('admin.fee.invoices.*') }}">Invoice / Tagihan</a>
@@ -191,6 +205,7 @@
     </div>
 </div>
 
+@if($isAdmin)
 {{-- 🏫 FASILITAS --}}
 <div class="sidebar-section" x-data="{ open: true }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2"><span class="text-xs">🏫</span>Fasilitas</span>{!! $chevron !!}</button>
@@ -243,6 +258,8 @@
     </div>
 </div>
 
+@endif
+
 {{-- 📊 LAPORAN --}}
 <div class="sidebar-section" x-data="{ open: true }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2"><span class="text-xs">📊</span>Laporan</span>{!! $chevron !!}</button>
@@ -268,6 +285,7 @@
     </div>
 </div>
 
+@if($isAdmin)
 {{-- 📋 ADMINISTRASI --}}
 <div class="sidebar-section" x-data="{ open: true }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2"><span class="text-xs">📋</span>Administrasi</span>{!! $chevron !!}</button>
@@ -304,3 +322,4 @@
         <a href="{{ route('admin.adiwiyata.indicators') }}" class="sidebar-sub-link {{ $isActive('admin.adiwiyata.indicators') }}">Indikator Adiwiyata</a>
     </div>
 </div>
+@endif

@@ -19,6 +19,19 @@
 
     $hour = (int) now()->format('G');
     $greeting = $hour < 11 ? 'Selamat pagi' : ($hour < 15 ? 'Selamat siang' : ($hour < 18 ? 'Selamat sore' : 'Selamat malam'));
+
+    $role = auth()->user()->getRoleNames()->first() ?? 'admin';
+    $isAdmin = in_array($role, ['admin', 'super_admin'], true);
+
+    // My Tasks — aggregated from real, current data (no fake counts).
+    $tasks = [
+        ['label' => 'Tagihan belum lunas',    'count' => $stats['invoices_unpaid'], 'href' => route('admin.fee.invoices.index'), 'tone' => 'danger'],
+        ['label' => 'Pendaftar PPDB',         'count' => $stats['ppdb'],            'href' => route('admin.ppdb.applications.index'), 'tone' => 'warning'],
+        ['label' => 'Permintaan pengadaan',   'count' => $safe(fn () => \App\Models\Finance\ProcurementRequest::where('school_id', $sid)->count()), 'href' => route('admin.procurement.index'), 'tone' => 'warning'],
+        ['label' => 'Persetujuan dokumen',    'count' => $safe(fn () => \App\Models\Communication\DocumentApproval::where('school_id', $sid)->count()), 'href' => route('admin.documents.approvals'), 'tone' => 'warning'],
+        ['label' => 'Booking ruangan',        'count' => $safe(fn () => \App\Models\RoomBooking\RoomBooking::where('school_id', $sid)->count()), 'href' => route('admin.facilities.rooms.index'), 'tone' => 'info'],
+    ];
+    $tasks = array_values(array_filter($tasks, fn ($t) => $t['count'] > 0));
 @endphp
 
 <div class="space-y-6">
@@ -34,20 +47,34 @@
             </p>
         </div>
         <div class="flex flex-wrap gap-2">
-            <x-ui.button href="{{ route('admin.students.create') }}" icon="plus">Tambah Siswa</x-ui.button>
-            <x-ui.button href="{{ route('admin.notices.create') }}" variant="secondary">Buat Pengumuman</x-ui.button>
+            @if($isAdmin)
+                <x-ui.button href="{{ route('admin.students.create') }}" icon="plus">Tambah Siswa</x-ui.button>
+                <x-ui.button href="{{ route('admin.notices.create') }}" variant="secondary">Buat Pengumuman</x-ui.button>
+            @else
+                <x-ui.button href="{{ route('admin.fee.invoices.index') }}" icon="plus">Kelola Tagihan</x-ui.button>
+                <x-ui.button href="{{ route('admin.finance.reports.summary') }}" variant="secondary">Ringkasan Keuangan</x-ui.button>
+            @endif
         </div>
     </div>
 
     {{-- Stats overview --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         @php
-            $cards = [
-                ['label' => 'Siswa',           'value' => number_format($stats['students'], 0, ',', '.'), 'icon' => '👨‍🎓', 'href' => route('admin.students.index')],
-                ['label' => 'Staff & Guru',    'value' => number_format($stats['staff'], 0, ',', '.'), 'icon' => '👨‍🏫', 'href' => route('admin.staff.index')],
-                ['label' => 'Tagihan Belum Lunas', 'value' => number_format($stats['invoices_unpaid'], 0, ',', '.'), 'icon' => '🧾', 'href' => route('admin.fee.invoices.index'), 'tone' => 'warning'],
-                ['label' => 'Pendaftar PPDB',  'value' => number_format($stats['ppdb'], 0, ',', '.'), 'icon' => '🧒', 'href' => route('admin.ppdb.applications.index')],
-            ];
+            if ($isAdmin) {
+                $cards = [
+                    ['label' => 'Siswa',           'value' => number_format($stats['students'], 0, ',', '.'), 'icon' => '👨‍🎓', 'href' => route('admin.students.index')],
+                    ['label' => 'Staff & Guru',    'value' => number_format($stats['staff'], 0, ',', '.'), 'icon' => '👨‍🏫', 'href' => route('admin.staff.index')],
+                    ['label' => 'Tagihan Belum Lunas', 'value' => number_format($stats['invoices_unpaid'], 0, ',', '.'), 'icon' => '🧾', 'href' => route('admin.fee.invoices.index'), 'tone' => 'warning'],
+                    ['label' => 'Pendaftar PPDB',  'value' => number_format($stats['ppdb'], 0, ',', '.'), 'icon' => '🧒', 'href' => route('admin.ppdb.applications.index')],
+                ];
+            } else {
+                $cards = [
+                    ['label' => 'Tagihan Belum Lunas', 'value' => number_format($stats['invoices_unpaid'], 0, ',', '.'), 'icon' => '🧾', 'href' => route('admin.fee.invoices.index'), 'tone' => 'warning'],
+                    ['label' => 'Total Piutang',   'value' => money($stats['outstanding'], $school), 'icon' => '💰', 'href' => route('admin.finance.reports.outstanding')],
+                    ['label' => 'Slip Gaji',       'value' => number_format($safe(fn () => \App\Models\Finance\SalarySlip::where('school_id', $sid)->count()), 0, ',', '.'), 'icon' => '💳', 'href' => route('admin.payroll.slips.index')],
+                    ['label' => 'Ringkasan Keuangan', 'value' => 'Buka', 'icon' => '📊', 'href' => route('admin.finance.reports.summary')],
+                ];
+            }
         @endphp
         @foreach($cards as $c)
             <a href="{{ $c['href'] }}" class="card card-pad card-hover">
@@ -63,45 +90,54 @@
         @endforeach
     </div>
 
-    {{-- Outstanding + actions row --}}
+    {{-- My Tasks + quick actions --}}
     <div class="grid lg:grid-cols-3 gap-4">
         <div class="card card-pad lg:col-span-2">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="section-title">Perlu Tindakan</h2>
-                <a href="{{ route('admin.fee.invoices.index') }}" class="text-sm text-[var(--color-primary)] hover:underline">Lihat semua</a>
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="section-title">Tugas Saya</h2>
+                @if(!empty($tasks))<span class="badge badge-warning">{{ count($tasks) }} menunggu</span>@endif
             </div>
-            <div class="flex items-center gap-4">
-                <div class="flex-1">
-                    <div class="text-sm text-[var(--color-text-secondary)]">Total piutang belum lunas</div>
-                    <div class="text-3xl font-extrabold tracking-tight mt-1">{{ money($stats['outstanding'], $school) }}</div>
-                </div>
-                <div class="text-right">
-                    <div class="text-sm text-[var(--color-text-secondary)]">Tagihan</div>
-                    <div class="text-3xl font-extrabold tracking-tight mt-1">{{ number_format($stats['invoices_unpaid'], 0, ',', '.') }}</div>
-                </div>
-            </div>
-            @if($stats['invoices_unpaid'] > 0)
-                <div class="mt-4 p-3 rounded-lg" style="background: var(--color-warning-soft);">
-                    <p class="text-sm" style="color: #a16207;">Ada {{ $stats['invoices_unpaid'] }} tagihan yang menunggu pembayaran. Kirim pengingat untuk mempercepat pelunasan.</p>
-                </div>
+            @if(empty($tasks))
+                <p class="text-sm text-[var(--color-text-muted)] py-6 text-center">Semua tugas selesai. Tidak ada yang menunggu tindakan.</p>
             @else
-                <div class="mt-4 p-3 rounded-lg" style="background: var(--color-success-soft);">
-                    <p class="text-sm" style="color: #15803d;">Semua tagihan telah lunas. Kerja bagus!</p>
-                </div>
+                <ul>
+                    @foreach($tasks as $t)
+                        <li>
+                            <a href="{{ $t['href'] }}" class="flex items-center justify-between py-3 group" style="border-bottom: 1px solid var(--color-border);">
+                                <span class="flex items-center gap-3">
+                                    <span class="badge badge-{{ $t['tone'] }}">{{ $t['count'] }}</span>
+                                    <span class="text-sm font-medium">{{ $t['label'] }}</span>
+                                </span>
+                                <span class="text-sm text-[var(--color-text-muted)] group-hover:text-[var(--color-primary)]">Lihat →</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
             @endif
         </div>
 
         <div class="card card-pad">
             <h2 class="section-title mb-4">Aksi Cepat</h2>
             <div class="space-y-1">
-                @foreach([
-                    ['admin.attendance.index', 'Catat Absensi', '📋'],
-                    ['admin.timetable.index', 'Jadwal Pelajaran', '📅'],
-                    ['admin.exams.index', 'Kelola Ujian', '📝'],
-                    ['admin.library.books.index', 'Perpustakaan', '📚'],
-                    ['admin.reports.builder.index', 'Buat Laporan', '📊'],
-                    ['admin.branding.show', 'Branding Sekolah', '🎨'],
-                ] as $qa)
+                @php
+                    $quickActions = $isAdmin
+                        ? [
+                            ['admin.students.create', 'Tambah Siswa', '➕'],
+                            ['admin.attendance.index', 'Catat Absensi', '📋'],
+                            ['admin.exams.index', 'Kelola Ujian', '📝'],
+                            ['admin.notices.create', 'Buat Pengumuman', '📢'],
+                            ['admin.fee.invoices.index', 'Kelola Tagihan', '🧾'],
+                            ['admin.reports.builder.index', 'Buat Laporan', '📊'],
+                          ]
+                        : [
+                            ['admin.fee.invoices.index', 'Kelola Tagihan', '🧾'],
+                            ['admin.fee.structures.index', 'Struktur Biaya', '💰'],
+                            ['admin.payroll.slips.index', 'Slip Gaji', '💳'],
+                            ['admin.finance.reports.summary', 'Ringkasan Keuangan', '📊'],
+                            ['admin.reports.builder.index', 'Buat Laporan', '📈'],
+                          ];
+                @endphp
+                @foreach($quickActions as $qa)
                     <a href="{{ route($qa[0]) }}" class="dropdown-item rounded-lg"><span aria-hidden="true">{{ $qa[2] }}</span> {{ $qa[1] }}</a>
                 @endforeach
             </div>
@@ -133,6 +169,9 @@
             ['Metode Pembayaran',     'VA, QRIS, e-wallet, manual transfer.',             'admin.payment.methods.index',   'Keuangan'],
             ['Branding & Logo',       'Warna, logo, splash screen mobile.',               'admin.branding.show',           'Tampilan'],
         ];
+        if (!$isAdmin) {
+            $modules = array_values(array_filter($modules, fn ($m) => $m[3] === 'Keuangan'));
+        }
         $grouped = collect($modules)->groupBy(3);
     @endphp
 

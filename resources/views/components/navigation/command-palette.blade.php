@@ -1,25 +1,43 @@
 @php
     $safe = fn (string $name) => rescue(fn () => route($name), '#', false);
-    $actions = collect([
-        ['title' => 'Tambah Siswa',       'group' => 'Aksi', 'icon' => '👨‍🎓', 'url' => $safe('admin.students.create')],
-        ['title' => 'Tambah Staff / Guru', 'group' => 'Aksi', 'icon' => '👨‍🏫', 'url' => $safe('admin.staff.create')],
-        ['title' => 'Buat Pengumuman',    'group' => 'Aksi', 'icon' => '📢', 'url' => $safe('admin.notices.create')],
-        ['title' => 'Absensi Harian',     'group' => 'Aksi', 'icon' => '📋', 'url' => $safe('admin.attendance.index')],
-        ['title' => 'Kelola Invoice',     'group' => 'Aksi', 'icon' => '🧾', 'url' => $safe('admin.fee.invoices.index')],
-        ['title' => 'Dashboard PPDB',     'group' => 'Aksi', 'icon' => '🧒', 'url' => $safe('admin.ppdb.dashboard')],
-    ])->filter(fn ($a) => $a['url'] !== '#')->values()->all();
+    $role    = auth()->check() ? (auth()->user()->getRoleNames()->first() ?? 'admin') : 'admin';
+    $isAdmin = in_array($role, ['admin', 'super_admin'], true);
 
-    $nav = collect([
-        ['title' => 'Dashboard',          'group' => 'Navigasi', 'icon' => '🏠', 'url' => $safe('admin.dashboard')],
-        ['title' => 'Data Siswa',         'group' => 'Navigasi', 'icon' => '👨‍🎓', 'url' => $safe('admin.students.index')],
-        ['title' => 'Staff & Guru',       'group' => 'Navigasi', 'icon' => '👨‍🏫', 'url' => $safe('admin.staff.index')],
-        ['title' => 'Jadwal Pelajaran',   'group' => 'Navigasi', 'icon' => '📅', 'url' => $safe('admin.timetable.index')],
-        ['title' => 'Ujian',              'group' => 'Navigasi', 'icon' => '📝', 'url' => $safe('admin.exams.index')],
-        ['title' => 'Invoice / Tagihan',  'group' => 'Navigasi', 'icon' => '💰', 'url' => $safe('admin.fee.invoices.index')],
-        ['title' => 'Report Builder',     'group' => 'Navigasi', 'icon' => '📊', 'url' => $safe('admin.reports.builder.index')],
-        ['title' => 'Pengumuman',         'group' => 'Navigasi', 'icon' => '📢', 'url' => $safe('admin.notices.index')],
-        ['title' => 'Perpustakaan',       'group' => 'Navigasi', 'icon' => '📚', 'url' => $safe('admin.library.books.index')],
-    ])->filter(fn ($a) => $a['url'] !== '#')->values()->all();
+    $actions = collect($isAdmin
+        ? [
+            ['title' => 'Tambah Siswa',       'group' => 'Aksi', 'icon' => '👨‍🎓', 'url' => $safe('admin.students.create')],
+            ['title' => 'Tambah Staff / Guru', 'group' => 'Aksi', 'icon' => '👨‍🏫', 'url' => $safe('admin.staff.create')],
+            ['title' => 'Buat Pengumuman',    'group' => 'Aksi', 'icon' => '📢', 'url' => $safe('admin.notices.create')],
+            ['title' => 'Absensi Harian',     'group' => 'Aksi', 'icon' => '📋', 'url' => $safe('admin.attendance.index')],
+            ['title' => 'Kelola Invoice',     'group' => 'Aksi', 'icon' => '🧾', 'url' => $safe('admin.fee.invoices.index')],
+            ['title' => 'Dashboard PPDB',     'group' => 'Aksi', 'icon' => '🧒', 'url' => $safe('admin.ppdb.dashboard')],
+        ]
+        : [
+            ['title' => 'Kelola Invoice',     'group' => 'Aksi', 'icon' => '🧾', 'url' => $safe('admin.fee.invoices.index')],
+            ['title' => 'Slip Gaji',          'group' => 'Aksi', 'icon' => '💳', 'url' => $safe('admin.payroll.slips.index')],
+            ['title' => 'Ringkasan Keuangan', 'group' => 'Aksi', 'icon' => '📊', 'url' => $safe('admin.finance.reports.summary')],
+            ['title' => 'Buat Laporan',       'group' => 'Aksi', 'icon' => '📈', 'url' => $safe('admin.reports.builder.index')],
+        ])->filter(fn ($a) => $a['url'] !== '#')->values()->all();
+
+    $nav = collect($isAdmin
+        ? [
+            ['title' => 'Dashboard',          'group' => 'Navigasi', 'icon' => '🏠', 'url' => $safe('admin.dashboard')],
+            ['title' => 'Data Siswa',         'group' => 'Navigasi', 'icon' => '👨‍🎓', 'url' => $safe('admin.students.index')],
+            ['title' => 'Staff & Guru',       'group' => 'Navigasi', 'icon' => '👨‍🏫', 'url' => $safe('admin.staff.index')],
+            ['title' => 'Jadwal Pelajaran',   'group' => 'Navigasi', 'icon' => '📅', 'url' => $safe('admin.timetable.index')],
+            ['title' => 'Ujian',              'group' => 'Navigasi', 'icon' => '📝', 'url' => $safe('admin.exams.index')],
+            ['title' => 'Invoice / Tagihan',  'group' => 'Navigasi', 'icon' => '💰', 'url' => $safe('admin.fee.invoices.index')],
+            ['title' => 'Report Builder',     'group' => 'Navigasi', 'icon' => '📊', 'url' => $safe('admin.reports.builder.index')],
+            ['title' => 'Pengumuman',         'group' => 'Navigasi', 'icon' => '📢', 'url' => $safe('admin.notices.index')],
+            ['title' => 'Perpustakaan',       'group' => 'Navigasi', 'icon' => '📚', 'url' => $safe('admin.library.books.index')],
+        ]
+        : [
+            ['title' => 'Dashboard',          'group' => 'Navigasi', 'icon' => '🏠', 'url' => $safe('admin.dashboard')],
+            ['title' => 'Invoice / Tagihan',  'group' => 'Navigasi', 'icon' => '💰', 'url' => $safe('admin.fee.invoices.index')],
+            ['title' => 'Slip Gaji',          'group' => 'Navigasi', 'icon' => '💳', 'url' => $safe('admin.payroll.slips.index')],
+            ['title' => 'Ringkasan Keuangan', 'group' => 'Navigasi', 'icon' => '📊', 'url' => $safe('admin.finance.reports.summary')],
+            ['title' => 'Report Builder',     'group' => 'Navigasi', 'icon' => '📈', 'url' => $safe('admin.reports.builder.index')],
+        ])->filter(fn ($a) => $a['url'] !== '#')->values()->all();
 @endphp
 
 <div x-data="commandPalette({{ Js::from(['searchUrl' => $safe('admin.search'), 'actions' => $actions, 'nav' => $nav]) }})"
