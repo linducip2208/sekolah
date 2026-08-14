@@ -226,6 +226,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/students/{student}',                [StudentWebController::class, 'update'])->name('students.update');
         Route::delete('/students/{student}',             [StudentWebController::class, 'destroy'])->name('students.destroy');
         Route::get('/students/timeline',                [StudentWebController::class, 'timeline'])->name('students.timeline');
+        Route::get('/students/{student}',               [StudentWebController::class, 'show'])->name('students.show');
 
         // Timetable
         Route::get('/timetable',                         [TimetableWebController::class, 'index'])->name('timetable.index');

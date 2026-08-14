@@ -109,6 +109,56 @@ class StudentWebController extends Controller
         ]);
     }
 
+    /**
+     * Student 360 — unified, tabbed profile aggregating data across all modules.
+     */
+    public function show(Student $student): View
+    {
+        $this->authorizeOwn($student);
+        $student->load(['user', 'classSection.classRoom', 'classSection.section', 'parents']);
+
+        $safe = function (callable $fn, $default = null) {
+            try { return $fn(); } catch (\Throwable $e) { return $default; }
+        };
+
+        $attendance = $safe(fn () => \App\Models\Academic\Attendance::where('student_id', $student->id)->get(), collect());
+        $attSummary = [
+            'total'   => $attendance->count(),
+            'present' => $attendance->whereIn('status', ['present', 'late'])->count(),
+            'absent'  => $attendance->whereIn('status', ['absent'])->count(),
+            'pct'     => $attendance->count() > 0
+                ? round($attendance->whereIn('status', ['present', 'late'])->count() / $attendance->count() * 100)
+                : 0,
+        ];
+
+        $marks = $safe(fn () => \App\Models\Academic\Mark::where('student_id', $student->id)
+            ->with(['subject:id,name', 'exam:id,name'])->latest()->limit(20)->get(), collect());
+        $avgMark = $marks->isNotEmpty()
+            ? round($marks->avg(fn ($m) => $m->total_marks > 0 ? ($m->obtained_marks / $m->total_marks) * 100 : 0))
+            : null;
+
+        $discipline   = $safe(fn () => \App\Models\Discipline\DisciplineRecord::where('student_id', $student->id)->latest('incident_date')->limit(20)->get(), collect());
+        $counseling   = $safe(fn () => \App\Models\Counseling\CounselingSession::where('student_id', $student->id)->latest('scheduled_at')->limit(20)->get(), collect());
+        $health       = $safe(fn () => \App\Models\Medical\ClinicVisit::where('student_id', $student->id)->latest('visit_at')->limit(20)->get(), collect());
+        $achievements = $safe(fn () => \App\Models\Achievement\StudentAchievement::where('student_id', $student->id)->latest('achieved_at')->limit(20)->get(), collect());
+        $activities   = $safe(fn () => \App\Models\Activity\StudentActivityLog::where('student_id', $student->id)->latest()->limit(20)->get(), collect());
+
+        $invoices = $safe(fn () => \App\Models\Finance\FeeInvoice::where('student_id', $student->id)->latest('due_date')->get(), collect());
+        $financeSummary = [
+            'total'       => $invoices->count(),
+            'unpaid'      => $invoices->whereIn('status', ['unpaid', 'partial', 'overdue'])->count(),
+            'outstanding' => $invoices->whereIn('status', ['unpaid', 'partial', 'overdue'])->sum(fn ($i) => $i->amount - $i->paid_amount),
+        ];
+
+        $risk    = $safe(fn () => \App\Models\Analytics\StudentRiskScore::where('student_id', $student->id)->latest('snapshot_date')->first());
+        $dropout = $safe(fn () => \App\Models\Analytics\AiDropoutPrediction::where('student_id', $student->id)->latest('prediction_date')->first());
+
+        return view('school-admin.students.show', compact(
+            'student', 'attSummary', 'marks', 'avgMark', 'discipline', 'counseling',
+            'health', 'achievements', 'activities', 'invoices', 'financeSummary', 'risk', 'dropout'
+        ));
+    }
+
     public function update(Request $request, Student $student): RedirectResponse
     {
         $this->authorizeOwn($student);

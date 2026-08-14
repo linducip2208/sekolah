@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="px-3 py-3"><input type="checkbox" class="bulk-cb" value="{{ $s->id }}" @change="$event.target.checked ? checked.push($event.target.value) : (checked = checked.filter(v => v !== $event.target.value))"></td>
                     <td class="px-4 py-3 font-mono text-xs">{{ $s->admission_no ?? '—' }}</td>
                     <td class="px-4 py-3">
-                        <div class="font-serif font-semibold ink-primary">{{ $s->user?->name }}</div>
+                        <a href="{{ route('admin.students.show', $s) }}" class="font-serif font-semibold ink-primary hover:underline">{{ $s->user?->name }}</a>
                         <div class="text-xs text-gray-500">{{ $s->user?->email }}</div>
                     </td>
                     <td class="px-4 py-3">{{ $s->classSection?->classRoom?->name }} {{ $s->classSection?->section?->name }}</td>
@@ -96,7 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         @endif
                     </td>
                     <td class="px-4 py-3 text-right whitespace-nowrap">
-                        <a href="{{ route('admin.students.edit', $s) }}" class="text-xs underline ink-secondary hover:ink-accent">Edit</a>
+                        <a href="{{ route('admin.students.show', $s) }}" class="text-xs underline ink-secondary hover:ink-accent">Profil</a>
+                        <a href="{{ route('admin.students.edit', $s) }}" class="text-xs underline ink-secondary hover:ink-accent ml-2">Edit</a>
                         <form method="POST" action="{{ route('admin.students.destroy', $s) }}" class="inline ml-2"
                               onsubmit="return confirm('Nonaktifkan siswa ini?')">
                             @csrf @method('DELETE')
