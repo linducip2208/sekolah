@@ -16,7 +16,7 @@ return new class extends Migration
                 $table->boolean('pre_registered')->default(false)->after('qr_code');
             }
             if (!Schema::hasColumn('visitor_logs', 'host_staff_id')) {
-                $table->foreignId('host_staff_id')->nullable()->after('pre_registered')->constrained('staff')->nullOnDelete();
+                $table->foreignId('host_staff_id')->nullable()->after('pre_registered')->constrained('staffs')->nullOnDelete();
             }
             if (!Schema::hasColumn('visitor_logs', 'vehicle_plate')) {
                 $table->string('vehicle_plate', 20)->nullable()->after('host_staff_id');
