@@ -79,7 +79,7 @@ if ('serviceWorker' in navigator) {
         display: inline-flex; align-items: center; justify-content: center;
         gap: .5rem;
         padding: .65rem 1.35rem;
-        font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif;
+        font-family: 'Manrope', ui-sans-serif, sans-serif;
         font-size: .875rem;
         letter-spacing: 0;
         text-transform: none;
@@ -95,7 +95,7 @@ if ('serviceWorker' in navigator) {
         display: inline-flex; align-items: center; justify-content: center;
         gap: .5rem;
         padding: .65rem 1.35rem;
-        font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif;
+        font-family: 'Manrope', ui-sans-serif, sans-serif;
         font-size: .875rem;
         letter-spacing: 0;
         text-transform: none;
@@ -111,7 +111,7 @@ if ('serviceWorker' in navigator) {
         display: inline-flex; align-items: center; justify-content: center;
         gap: .5rem;
         padding: .65rem 1.35rem;
-        font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif;
+        font-family: 'Manrope', ui-sans-serif, sans-serif;
         font-size: .875rem;
         letter-spacing: 0;
         text-transform: none;
@@ -164,7 +164,7 @@ if ('serviceWorker' in navigator) {
     .elite-card:hover { box-shadow: 0 18px 40px -20px rgba(15, 118, 110, .22); }
 
     /* Print-style footnote */
-    .footnote { font-family: 'Plus Jakarta Sans', ui-sans-serif, sans-serif; font-style: italic; color: #5a544c; }
+    .footnote { font-family: 'Manrope', ui-sans-serif, sans-serif; font-style: italic; color: #5a544c; }
 
     /* Form polishing — applied to all default inputs */
     input[type=text], input[type=email], input[type=password], input[type=url], input[type=tel],
@@ -176,7 +176,7 @@ if ('serviceWorker' in navigator) {
         border-color: var(--c-primary) !important;
     }
 
-    .table-elite { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .table-elite { font-family: 'Manrope', sans-serif; }
     .table-elite thead th {
         font-size: .72rem; letter-spacing: .05em; text-transform: uppercase;
         font-weight: 600; color: var(--c-primary);
