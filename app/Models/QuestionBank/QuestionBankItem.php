@@ -2,9 +2,11 @@
 
 namespace App\Models\QuestionBank;
 
+use App\Models\Academic\ExamQuestion;
 use App\Models\Academic\Subject;
 use App\Models\SchoolModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class QuestionBankItem extends SchoolModel
 {
@@ -17,9 +19,18 @@ class QuestionBankItem extends SchoolModel
         return $this->belongsTo(QuestionBankCategory::class, 'question_bank_category_id');
     }
 
+    public function examQuestions(): HasMany
+    {
+        return $this->hasMany(ExamQuestion::class, 'question_bank_item_id');
+    }
+
     protected $table = 'question_bank_items';
 
-    public const TYPES = ['mcq','multi_select','true_false','essay','fill_blank','matching','numeric'];
+    public const TYPES = ['multiple_choice', 'true_false', 'short_answer', 'essay'];
+
+    public const DIFFICULTIES = ['easy', 'medium', 'hard'];
+
+    public const COGNITIVE_LEVELS = ['remembering', 'understanding', 'applying', 'analyzing', 'evaluating', 'creating'];
 
     protected $fillable = [
         'school_id','subject_id','question_bank_category_id','author_id',

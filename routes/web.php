@@ -215,6 +215,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/exams/{exam}/marks',                [ExamWebController::class, 'inputMarks'])->name('exams.marks');
         Route::post('/exams/{exam}/marks',               [ExamWebController::class, 'saveMarks'])->name('exams.marks.save');
         Route::get('/exams/{exam}/analysis',             [ExamWebController::class, 'analysis'])->name('exams.analysis');
+        Route::get('/exams/{exam}/generate',             [ExamWebController::class, 'generateFromBank'])->name('exams.generate');
+        Route::post('/exams/{exam}/generate',            [ExamWebController::class, 'storeGeneratedFromBank'])->name('exams.generate.store');
 
         // AI Essay Grading
         Route::get('/academic/essay-grading',              [EssayGradingController::class, 'index'])->name('academic.essay-grading.index');

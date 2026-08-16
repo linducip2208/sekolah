@@ -2,13 +2,14 @@
 
 namespace App\Models\Academic;
 
+use App\Models\QuestionBank\QuestionBankItem;
 use App\Models\SchoolModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ExamQuestion extends SchoolModel
 {
     protected $fillable = [
-        'school_id', 'exam_id', 'question', 'type', 'options', 'correct_answer', 'marks', 'order',
+        'school_id', 'exam_id', 'question_bank_item_id', 'question', 'type', 'options', 'correct_answer', 'marks', 'order',
         'difficulty_index', 'discrimination_index', 'distractor_analysis',
     ];
 
@@ -24,5 +25,10 @@ class ExamQuestion extends SchoolModel
     public function exam(): BelongsTo
     {
         return $this->belongsTo(Exam::class);
+    }
+
+    public function questionBankItem(): BelongsTo
+    {
+        return $this->belongsTo(QuestionBankItem::class, 'question_bank_item_id');
     }
 }

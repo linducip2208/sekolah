@@ -133,13 +133,60 @@ class ClassroomExtrasController extends Controller
             'question_bank_category_id' => 'required|exists:question_bank_categories,id',
             'question_html'             => 'required|string|max:10000',
             'type'                      => 'required|in:multiple_choice,true_false,short_answer,essay',
+            'difficulty'                => 'required|in:easy,medium,hard',
+            'cognitive_level'           => 'nullable|in:remembering,understanding,applying,analyzing,evaluating,creating',
             'answer_key'                => 'nullable|string',
             'explanation_html'          => 'nullable|string',
+            'tags'                      => 'nullable|string',
+            'options_text'              => 'nullable|string',
+            'is_published'              => 'nullable|boolean',
         ]);
+
+        $options = $this->parseOptions($data['options_text'] ?? '');
+        $answerKey = $data['answer_key'] ?? null;
+
+        if ($data['type'] === 'multiple_choice' && $options) {
+            $answerKey = $answerKey ?: implode(',', collect($options)->where('is_correct')->pluck('text')->all());
+        }
+
+        $answerKey = $answerKey === null || $answerKey === '' ? '' : $answerKey;
+
         $data['school_id'] = $this->schoolId();
         $data['author_id'] = auth()->id();
+        $data['options']   = $options;
+        $data['answer_key'] = $answerKey;
+        $data['tags']      = $this->parseTags($data['tags'] ?? '');
+        $data['is_published'] = $request->boolean('is_published');
+
+        unset($data['options_text'], $data['tags_text']);
+
         QuestionBankItem::create($data);
         return back()->with('success', 'Soal ditambahkan ke bank.');
+    }
+
+    private function parseOptions(string $raw): array
+    {
+        return collect(preg_split('/\r\n|\r|\n/', $raw))
+            ->map(fn ($line) => trim($line))
+            ->filter(fn ($line) => $line !== '')
+            ->map(function ($line) {
+                $isCorrect = str_starts_with($line, '*');
+                return [
+                    'text'       => $isCorrect ? ltrim(substr($line, 1)) : $line,
+                    'is_correct' => $isCorrect,
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    private function parseTags(string $raw): array
+    {
+        return collect(preg_split('/,/', $raw))
+            ->map(fn ($t) => trim($t))
+            ->filter(fn ($t) => $t !== '')
+            ->values()
+            ->all();
     }
 
     public function deleteQuestionBankItem(QuestionBankItem $item): RedirectResponse

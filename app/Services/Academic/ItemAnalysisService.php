@@ -4,6 +4,7 @@ namespace App\Services\Academic;
 
 use App\Models\Academic\Exam;
 use App\Models\Academic\ExamQuestion;
+use App\Models\QuestionBank\QuestionBankItem;
 use Illuminate\Support\Collection;
 
 class ItemAnalysisService
@@ -102,6 +103,13 @@ class ItemAnalysisService
                 'discrimination_index' => $discrimination,
                 'distractor_analysis'  => $distractorAnalysis,
             ]);
+
+            if ($q->question_bank_item_id) {
+                QuestionBankItem::where('id', $q->question_bank_item_id)->update([
+                    'avg_score_pct'  => $difficulty !== null ? round($difficulty * 100, 2) : null,
+                    'discrimination' => $discrimination,
+                ]);
+            }
 
             return [
                 'id'            => $q->id,

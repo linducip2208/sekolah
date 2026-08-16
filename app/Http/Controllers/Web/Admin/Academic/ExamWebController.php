@@ -9,7 +9,9 @@ use App\Models\Academic\Mark;
 use App\Models\Academic\Semester;
 use App\Models\Academic\Student;
 use App\Models\Academic\Subject;
+use App\Models\QuestionBank\QuestionBankCategory;
 use App\Services\Academic\ItemAnalysisService;
+use App\Services\QuestionBank\QuestionBankService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -134,6 +136,67 @@ class ExamWebController extends Controller
             'exam'     => $exam,
             'analysis' => $analysis,
         ]);
+    }
+
+    public function generateFromBank(Exam $exam): View
+    {
+        $this->authorizeOwn($exam);
+
+        $schoolId = $this->schoolId();
+
+        $categories = QuestionBankCategory::where('school_id', $schoolId)
+            ->where('subject_id', $exam->subject_id)
+            ->orderBy('name')->get();
+
+        $bankStats = \App\Models\QuestionBank\QuestionBankItem::where('school_id', $schoolId)
+            ->where('subject_id', $exam->subject_id)
+            ->where('is_published', true)
+            ->selectRaw('difficulty, count(*) as total')
+            ->groupBy('difficulty')
+            ->pluck('total', 'difficulty');
+
+        return view('school-admin.exams.generate', [
+            'exam'       => $exam,
+            'categories' => $categories,
+            'bankStats'  => $bankStats,
+        ]);
+    }
+
+    public function storeGeneratedFromBank(Request $request, Exam $exam, QuestionBankService $service): RedirectResponse
+    {
+        $this->authorizeOwn($exam);
+
+        $data = $request->validate([
+            'question_bank_category_id' => 'nullable|exists:question_bank_categories,id',
+            'easy'   => 'nullable|integer|min:0|max:200',
+            'medium' => 'nullable|integer|min:0|max:200',
+            'hard'   => 'nullable|integer|min:0|max:200',
+        ]);
+
+        $distribution = array_filter([
+            'easy'   => (int) ($data['easy'] ?? 0),
+            'medium' => (int) ($data['medium'] ?? 0),
+            'hard'   => (int) ($data['hard'] ?? 0),
+        ], fn ($count) => $count > 0);
+
+        if (empty($distribution)) {
+            return back()->withErrors('Tentukan jumlah soal minimal satu tingkat kesulitan.');
+        }
+
+        $items = $service->generateExamQuestions(
+            $this->schoolId(),
+            $exam->subject_id,
+            $distribution,
+            $data['question_bank_category_id'] ?? null
+        );
+
+        if ($items->isEmpty()) {
+            return back()->withErrors('Tidak ada soal tersedia di bank untuk kriteria ini. Tambahkan soal terlebih dahulu.');
+        }
+
+        $created = $service->attachToExam($exam, $items);
+
+        return back()->with('success', "$created soal dari bank ditambahkan ke ujian.");
     }
 
     private function grade(int $obtained, int $total): string
