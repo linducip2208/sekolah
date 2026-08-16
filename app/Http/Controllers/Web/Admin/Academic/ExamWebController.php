@@ -9,6 +9,7 @@ use App\Models\Academic\Mark;
 use App\Models\Academic\Semester;
 use App\Models\Academic\Student;
 use App\Models\Academic\Subject;
+use App\Services\Academic\ItemAnalysisService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -121,6 +122,18 @@ class ExamWebController extends Controller
         });
 
         return back()->with('success', 'Nilai tersimpan.');
+    }
+
+    public function analysis(Exam $exam, ItemAnalysisService $service): View
+    {
+        $this->authorizeOwn($exam);
+
+        $analysis = $service->analyze($exam);
+
+        return view('school-admin.exams.analysis', [
+            'exam'     => $exam,
+            'analysis' => $analysis,
+        ]);
     }
 
     private function grade(int $obtained, int $total): string

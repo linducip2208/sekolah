@@ -98,6 +98,7 @@
                     <td class="px-4 py-3"><span class="elite-kicker text-[.55rem]">{{ ucfirst($e->type) }}</span></td>
                     <td class="px-4 py-3 text-right whitespace-nowrap">
                         <a href="{{ route('admin.exams.marks', $e) }}" class="text-xs underline ink-secondary hover:ink-accent">Input Nilai</a>
+                        <a href="{{ route('admin.exams.analysis', $e) }}" class="text-xs underline ink-secondary hover:ink-accent ml-2">Analisis Butir</a>
                         <form method="POST" action="{{ route('admin.exams.destroy', $e) }}" class="inline ml-2" onsubmit="return confirm('Hapus?')">
                             @csrf @method('DELETE')
                             <button class="text-xs text-red-700 hover:underline">Hapus</button>

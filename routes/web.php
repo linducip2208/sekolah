@@ -214,6 +214,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/exams/{exam}',                   [ExamWebController::class, 'destroy'])->name('exams.destroy');
         Route::get('/exams/{exam}/marks',                [ExamWebController::class, 'inputMarks'])->name('exams.marks');
         Route::post('/exams/{exam}/marks',               [ExamWebController::class, 'saveMarks'])->name('exams.marks.save');
+        Route::get('/exams/{exam}/analysis',             [ExamWebController::class, 'analysis'])->name('exams.analysis');
 
         // AI Essay Grading
         Route::get('/academic/essay-grading',              [EssayGradingController::class, 'index'])->name('academic.essay-grading.index');

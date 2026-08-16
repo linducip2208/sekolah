@@ -2,16 +2,24 @@
 
 namespace App\Models\Academic;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\SchoolModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ExamQuestion extends Model
+class ExamQuestion extends SchoolModel
 {
     protected $fillable = [
-        'exam_id', 'question', 'type', 'options', 'correct_answer', 'marks', 'order',
+        'school_id', 'exam_id', 'question', 'type', 'options', 'correct_answer', 'marks', 'order',
+        'difficulty_index', 'discrimination_index', 'distractor_analysis',
     ];
 
-    protected $casts = ['options' => 'array'];
+    protected $casts = [
+        'options'               => 'array',
+        'distractor_analysis'   => 'array',
+        'difficulty_index'      => 'decimal:3',
+        'discrimination_index'  => 'decimal:3',
+        'marks'                 => 'integer',
+        'order'                 => 'integer',
+    ];
 
     public function exam(): BelongsTo
     {

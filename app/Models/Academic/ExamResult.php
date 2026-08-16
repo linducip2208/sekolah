@@ -2,13 +2,13 @@
 
 namespace App\Models\Academic;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\SchoolModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ExamResult extends Model
+class ExamResult extends SchoolModel
 {
     protected $fillable = [
-        'exam_id', 'student_id', 'obtained_marks', 'status',
+        'school_id', 'exam_id', 'student_id', 'obtained_marks', 'status',
         'started_at', 'submitted_at', 'answers',
     ];
 
@@ -16,6 +16,7 @@ class ExamResult extends Model
         'started_at'   => 'datetime',
         'submitted_at' => 'datetime',
         'answers'      => 'array',
+        'obtained_marks' => 'integer',
     ];
 
     public function exam(): BelongsTo
