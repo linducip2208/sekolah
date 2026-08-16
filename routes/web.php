@@ -34,6 +34,7 @@ use App\Http\Controllers\Web\Admin\DigitalSignageController;
 use App\Http\Controllers\Web\Admin\Facilities\HostelWebController;
 use App\Http\Controllers\Web\Admin\Facilities\RoomBookingController as AdminRoomBookingController;
 use App\Http\Controllers\Web\Admin\Finance\BudgetController;
+use App\Http\Controllers\Web\Admin\Finance\AccountingController;
 use App\Http\Controllers\Web\Admin\Library\DigitalLibraryController;
 use App\Http\Controllers\Web\ReaderController;
 use App\Http\Controllers\Web\Admin\Finance\FeeWebController;
@@ -813,6 +814,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/finance/reports',                   [FinanceReportController::class, 'summary'])->name('finance.reports.summary');
         Route::get('/finance/reports/outstanding',       [FinanceReportController::class, 'outstanding'])->name('finance.reports.outstanding');
         Route::get('/finance/reports/export',            [FinanceReportController::class, 'exportCsv'])->name('finance.reports.export');
+
+        // ============== AKUNTANSI (COA + Jurnal + Laporan) ==============
+        Route::get('/accounting/coa',                    [AccountingController::class, 'coa'])->name('accounting.coa');
+        Route::post('/accounting/coa',                   [AccountingController::class, 'storeAccount'])->name('accounting.coa.store');
+        Route::put('/accounting/coa/{account}',          [AccountingController::class, 'updateAccount'])->name('accounting.coa.update');
+        Route::delete('/accounting/coa/{account}',       [AccountingController::class, 'deleteAccount'])->name('accounting.coa.destroy');
+        Route::post('/accounting/coa/seed',              [AccountingController::class, 'seedCoa'])->name('accounting.coa.seed');
+        Route::get('/accounting/journal',                [AccountingController::class, 'journal'])->name('accounting.journal.index');
+        Route::post('/accounting/journal',               [AccountingController::class, 'storeJournal'])->name('accounting.journal.store');
+        Route::get('/accounting/journal/{entry}',        [AccountingController::class, 'showJournal'])->name('accounting.journal.show');
+        Route::post('/accounting/journal/{entry}/post',  [AccountingController::class, 'postJournal'])->name('accounting.journal.post');
+        Route::delete('/accounting/journal/{entry}',     [AccountingController::class, 'deleteJournal'])->name('accounting.journal.destroy');
+        Route::get('/accounting/trial-balance',          [AccountingController::class, 'trialBalance'])->name('accounting.trial-balance');
+        Route::get('/accounting/profit-loss',            [AccountingController::class, 'profitLoss'])->name('accounting.profit-loss');
+        Route::get('/accounting/balance-sheet',          [AccountingController::class, 'balanceSheet'])->name('accounting.balance-sheet');
 
         // ============== KOPERASI ==============
         Route::get('/cooperative',                       [CooperativeController::class, 'dashboard'])->name('cooperative.dashboard');

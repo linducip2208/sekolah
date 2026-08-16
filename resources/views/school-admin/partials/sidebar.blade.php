@@ -134,7 +134,7 @@
 @endif
 
 {{-- FINANCE --}}
-<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.fee.*','admin.payment.*','admin.budget.*','admin.cooperative.*','admin.finance.*','admin.currency.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.fee.*','admin.payment.*','admin.budget.*','admin.cooperative.*','admin.finance.*','admin.currency.*','admin.accounting.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['finance']) !!}Finance</span>@if($navCounts['invoices'] > 0)<span class="sidebar-badge">{{ $navCounts['invoices'] }}</span>@endif{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.fee.structures.index') }}" class="sidebar-sub-link {{ $isActive('admin.fee.structures.*') }}">SPP / Billing</a>
@@ -144,6 +144,7 @@
         <a href="{{ route('admin.cooperative.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.cooperative.*') }}">Cooperative</a>
         <a href="{{ route('admin.finance.reports.summary') }}" class="sidebar-sub-link {{ $isActive('admin.finance.reports.summary') }}">Financial Summary</a>
         <a href="{{ route('admin.finance.reports.outstanding') }}" class="sidebar-sub-link {{ $isActive('admin.finance.reports.outstanding') }}">SPP Outstanding</a>
+        <a href="{{ route('admin.accounting.coa') }}" class="sidebar-sub-link {{ $isActive('admin.accounting.*') }}">Akuntansi (COA)</a>
         <a href="{{ route('admin.currency.show') }}" class="sidebar-sub-link {{ $isActive('admin.currency.*') }}">Currency</a>
     </div>
 </div>
