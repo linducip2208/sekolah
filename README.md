@@ -2,6 +2,21 @@
 
 Platform manajemen sekolah multi-tenant berbasis cloud. Mencakup akademik, keuangan, PPDB, perpustakaan, transportasi, kantin cashless, dashboard yayasan, hingga AI assistant. Satu platform untuk seluruh ekosistem sekolah Indonesia.
 
+> **Roadmap & Feature Audit:** lihat [`docs/ROADMAP.md`](docs/ROADMAP.md) — peta 30 fase + status fitur (existing/partial/missing).
+
+---
+
+## What's New (sesi pengembangan terakhir)
+
+- **Design System Enterprise** — semantic tokens, komponen reusable (`x-ui.*`, `x-landing.*`), dark mode, responsive mobile-first, font Manrope, primary Deep Blue `#2563EB` + accent Amber `#F59E0B`.
+- **Multi-Theme White-Label** — 5 tema sekolah + 5 tema landing; kontrol font, warna teks, ukuran font, radius, warna sidebar/tabel per sekolah (`/admin/branding`) dan landing (`/super/whitelabel`).
+- **Student 360** — profil tabbed lengkap (akademik, absensi, disiplin, konseling, kesehatan, keuangan, prestasi, timeline, early warning).
+- **School Intelligence** — dashboard AI & analitik: distribusi risiko, at-risk students, dropout prediction.
+- **Workflow & Approval Engine** — generic approval (leave/purchase/expense/transfer/discount/refund) + antrian persetujuan.
+- **Landing Page 5 Template** — modern/corporate/classic/minimal/islamic, background system, real screenshot, pricing dari Plan.
+- **Enterprise Navigation** — domain IA, favorites (pin), breadcrumbs otomatis, command palette SVG, sidebar collapsible + drawer mobile.
+- **Quality** — 131 test passing, responsive audit Playwright (7 viewport), `route:cache` enabled, `deploy.sh`.
+
 ---
 
 ## Tech Stack
@@ -122,6 +137,14 @@ Platform manajemen sekolah multi-tenant berbasis cloud. Mencakup akademik, keuan
 - Whitelabel — custom domain, branding, logo per sekolah
 - Platform Analytics — MRR, churn rate, growth
 - Lisensi — RSA-signed payload, AES-256-GCM encrypted lock
+
+### Enterprise UX & White-label (baru)
+- Design System — semantic tokens, komponen `x-ui.*`/`x-landing.*`, dark mode, responsive
+- Multi-theme — 5 tema sekolah + 5 tema landing + kontrol tipografi/warna/radius
+- Student 360 — profil siswa tabbed + early warning (risk score, dropout)
+- School Intelligence — dashboard AI & analitik (at-risk, distribusi risiko, prediksi dropout)
+- Workflow & Approval — generic engine (`workflow_requests`), approve/reject, My Tasks
+- Enterprise Navigation — domain IA, favorites (pin), breadcrumbs otomatis, command palette SVG
 
 ### Mobile & Infrastructure
 - Flutter App (Android + iOS)

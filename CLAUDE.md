@@ -24,8 +24,8 @@ This file is your entry point. All decisions flow from the docs here.
 
 | Layer | Technology |
 |---|---|
-| Backend | Laravel 11 (PHP 8.3) |
-| Frontend web | Blade + Alpine.js + Tailwind CSS |
+| Backend | Laravel 13 (PHP 8.3) |
+| Frontend web | Blade + Alpine.js + Tailwind CSS v4 + design system (`resources/css/app.css`, font Manrope) |
 | Mobile | Flutter 3.x (Dart) |
 | Database | MySQL 8 (primary), Redis 7 (cache/queue) |
 | Storage | S3-compatible (local `storage/` in dev) |
@@ -34,10 +34,10 @@ This file is your entry point. All decisions flow from the docs here.
 | Permissions | Spatie Laravel-Permission |
 | Modules | nwidart/laravel-modules |
 | Notifications | Firebase FCM (push) + SMTP (email) + SMS gateway |
-| Real-time | Laravel Broadcasting + Pusher/Soketi (WebSocket) |
+| Real-time | Laravel Broadcasting + Reverb (WebSocket) |
 | Multi-tenancy | **Shared database, school_id on every table** |
 | License | whitelabel.co.id (see `docs/modules/00-license.md`) |
-| Deployment | Docker + Nginx + Let's Encrypt |
+| Deployment | Docker + Nginx + Let's Encrypt (`deploy.sh`) |
 
 ---
 
@@ -188,6 +188,15 @@ Phase 11 — Operations & Intelligence
   34. docs/modules/34-inventory-aset.md
   41. docs/modules/41-yayasan-dashboard.md
   45. docs/modules/45-learning-analytics.md
+
+Phase 12 — Enterprise UX & White-label (DONE — sudah terimplementasi)
+  - Design System           → resources/css/app.css (semantic tokens, komponen, dark mode)
+  - Multi-Theme White-label → app/Services/Branding/ThemeRegistry.php (5 tema sekolah)
+  - Landing Templates       → app/Services/LandingThemeRegistry.php (5 tema landing)
+  - Student 360             → school-admin/students/show.blade.php
+  - School Intelligence     → school-admin/analytics/dashboard.blade.php
+  - Workflow & Approval     → app/Services/Workflow/WorkflowService.php (generic)
+  - Enterprise Navigation   → school-admin/partials/sidebar.blade.php (domain IA + favorites)
 ```
 
 **To execute a module, say:**
@@ -195,11 +204,14 @@ Phase 11 — Operations & Intelligence
 
 Claude Code will read the spec doc and implement exactly what is specified there.
 
+**Roadmap & audit:** lihat `docs/ROADMAP.md` sebelum mengerjakan fitur besar — peta 30 fase + status existing/partial/missing.
+
 ---
 
 ## Key Conventions
 
 - See `docs/ARCHITECTURE.md` for full system overview
+- See `docs/ROADMAP.md` for 30-phase roadmap + feature audit
 - See `docs/schema/conventions.md` for DB naming
 - See `docs/roles/rbac.md` for permission matrix
 - See `docs/schema/multi-tenant.md` for tenancy rules
@@ -207,3 +219,14 @@ Claude Code will read the spec doc and implement exactly what is specified there
 - See `docs/flutter/setup.md` for Flutter dev setup
 - See `docs/testing/strategy.md` for testing approach
 - See `LICENSE_API.md` for license API reference
+
+## Key Services (design system & white-label)
+
+| Service | Fungsi |
+|---|---|
+| `App\Services\Branding\ThemeRegistry` | 5 tema sekolah (warna + font + radius) |
+| `App\Services\Branding\BrandingService` | generateCss + toArray + update (white-label) |
+| `App\Services\LandingThemeRegistry` | 5 template landing page |
+| `App\Services\FontRegistry` | font presets (Manrope/Inter/Figtree/dll) |
+| `App\Services\Workflow\WorkflowService` | generic approval engine |
+| `App\Services\PlatformSettingsService` | konfigurasi platform (cache) |
