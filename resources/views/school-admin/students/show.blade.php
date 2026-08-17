@@ -40,6 +40,63 @@
         </div>
     </div>
 
+    {{-- Lifecycle --}}
+    @php
+        $lcLabels = \App\Services\Academic\StudentLifecycleService::LABELS;
+        $lcTransitions = \App\Services\Academic\StudentLifecycleService::TRANSITIONS[$s->status ?? 'active'] ?? [];
+    @endphp
+    <div class="card card-pad">
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="text-sm font-semibold">Siklus Hidup Siswa</div>
+            <x-ui.badge variant="{{ $s->status === 'active' ? 'success' : ($s->status === 'withdrawn' ? 'danger' : 'warning') }}">
+                {{ $lcLabels[$s->status ?? 'active'] ?? $s->status }}
+            </x-ui.badge>
+        </div>
+
+        @if($lcTransitions)
+        <div class="flex flex-wrap gap-2 mt-3">
+            @foreach($lcTransitions as $to)
+                <form method="POST" action="{{ route('admin.students.transition', $s) }}" class="inline">
+                    @csrf
+                    <input type="hidden" name="to_status" value="{{ $to }}">
+                    <button class="text-xs px-3 py-1.5 rounded border border-rule hover:bg-gray-50" onclick="return confirm('Ubah status ke {{ $lcLabels[$to] ?? $to }}?')">
+                        {{ $to === 'graduated' ? '🎓' : '→' }} {{ $lcLabels[$to] ?? $to }}
+                    </button>
+                </form>
+            @endforeach
+        </div>
+        @endif
+
+        <form method="POST" action="{{ route('admin.students.promote', $s) }}" class="flex flex-wrap gap-2 mt-3 items-end">
+            @csrf
+            <div>
+                <label class="text-xs block mb-1 text-[var(--color-text-secondary)]">Promosi / Kenaikan Kelas</label>
+                <select name="class_section_id" required class="input text-sm">
+                    <option value="">— pilih kelas —</option>
+                    @foreach($classSections as $cs)
+                        <option value="{{ $cs->id }}" @selected($cs->id === $s->class_section_id)>{{ $cs->classRoom?->name }} {{ $cs->section?->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button class="text-xs px-3 py-1.5 rounded bg-[var(--c-primary)] text-white">Promosikan</button>
+        </form>
+
+        @if($s->statusHistory->isNotEmpty())
+        <div class="mt-4 text-xs">
+            <div class="font-semibold mb-2 text-[var(--color-text-secondary)]">Riwayat Status</div>
+            <div class="space-y-1">
+                @foreach($s->statusHistory as $h)
+                <div class="flex items-center gap-2">
+                    <span class="text-[var(--color-text-muted)]">{{ $h->created_at->format('d M Y') }}</span>
+                    <span>{{ $lcLabels[$h->from_status] ?? $h->from_status }} → <b>{{ $lcLabels[$h->to_status] ?? $h->to_status }}</b></span>
+                    @if($h->note)<span class="text-[var(--color-text-muted)]">· {{ $h->note }}</span>@endif
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+    </div>
+
     {{-- Summary cards --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <a href="#attendance" class="card card-pad card-hover">

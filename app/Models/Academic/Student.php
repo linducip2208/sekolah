@@ -14,14 +14,18 @@ class Student extends SchoolModel
     use AuditableModel;
 
     protected $fillable = [
-        'user_id', 'school_id', 'class_section_id', 'admission_no',
-        'admission_date', 'date_of_birth', 'gender', 'blood_group',
+        'user_id', 'school_id', 'class_section_id', 'status',
+        'admission_no', 'admission_date', 'enrolled_at', 'graduated_at', 'transferred_at',
+        'date_of_birth', 'gender', 'blood_group',
         'address', 'guardian_name', 'guardian_phone', 'whatsapp_phone',
         'has_hostel', 'has_transport',
     ];
 
     protected $casts = [
         'admission_date' => 'date',
+        'enrolled_at'    => 'date',
+        'graduated_at'   => 'date',
+        'transferred_at' => 'date',
         'date_of_birth'  => 'date',
         'has_hostel'     => 'boolean',
         'has_transport'  => 'boolean',
@@ -45,5 +49,10 @@ class Student extends SchoolModel
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    public function statusHistory(): HasMany
+    {
+        return $this->hasMany(StudentStatusHistory::class)->orderByDesc('created_at');
     }
 }

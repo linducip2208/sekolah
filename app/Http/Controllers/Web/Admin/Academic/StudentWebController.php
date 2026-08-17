@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Admin\Academic;
 
 use App\Http\Controllers\Controller;
+use App\Services\Academic\StudentLifecycleService;
 use App\Models\Academic\ClassSection;
 use App\Models\Academic\Student;
 use App\Models\User;
@@ -115,7 +116,12 @@ class StudentWebController extends Controller
     public function show(Student $student): View
     {
         $this->authorizeOwn($student);
-        $student->load(['user', 'classSection.classRoom', 'classSection.section', 'parents']);
+        $student->load(['user', 'classSection.classRoom', 'classSection.section', 'parents', 'statusHistory.changedBy']);
+
+        $classSections = ClassSection::where('school_id', $this->schoolId())
+            ->with(['classRoom', 'section'])
+            ->orderBy('id')
+            ->get();
 
         $safe = function (callable $fn, $default = null) {
             try { return $fn(); } catch (\Throwable $e) { return $default; }
@@ -155,7 +161,8 @@ class StudentWebController extends Controller
 
         return view('school-admin.students.show', compact(
             'student', 'attSummary', 'marks', 'avgMark', 'discipline', 'counseling',
-            'health', 'achievements', 'activities', 'invoices', 'financeSummary', 'risk', 'dropout'
+            'health', 'achievements', 'activities', 'invoices', 'financeSummary', 'risk', 'dropout',
+            'classSections'
         ));
     }
 
@@ -223,5 +230,49 @@ class StudentWebController extends Controller
             ->with('user:id,name')->orderBy('id')->get();
 
         return view('school-admin.students.timeline', compact('students'));
+    }
+
+    public function transition(Request $request, Student $student): RedirectResponse
+    {
+        $this->authorizeOwn($student);
+
+        $data = $request->validate([
+            'to_status' => 'required|string|max:20',
+            'note'      => 'nullable|string|max:255',
+        ]);
+
+        app(StudentLifecycleService::class)->transition($student, $data['to_status'], $data['note'] ?? null, auth()->id());
+
+        return back()->with('success', 'Status siswa diperbarui.');
+    }
+
+    public function promote(Request $request, Student $student): RedirectResponse
+    {
+        $this->authorizeOwn($student);
+
+        $data = $request->validate([
+            'class_section_id' => 'required|exists:class_sections,id',
+            'note'             => 'nullable|string|max:255',
+        ]);
+
+        app(StudentLifecycleService::class)->promote($student, (int) $data['class_section_id'], $data['note'] ?? null);
+
+        return back()->with('success', 'Siswa dipromosikan ke kelas baru.');
+    }
+
+    public function bulkPromote(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'from_class_section_id' => 'required|exists:class_sections,id',
+            'to_class_section_id'   => 'required|exists:class_sections,id|different:from_class_section_id',
+        ]);
+
+        $count = app(StudentLifecycleService::class)->bulkPromote(
+            $this->schoolId(),
+            (int) $data['from_class_section_id'],
+            (int) $data['to_class_section_id'],
+        );
+
+        return back()->with('success', "$count siswa dipromosikan (kenaikan kelas).");
     }
 }

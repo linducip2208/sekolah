@@ -201,6 +201,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/students/{student}',             [StudentWebController::class, 'destroy'])->name('students.destroy');
         Route::get('/students/timeline',                [StudentWebController::class, 'timeline'])->name('students.timeline');
         Route::get('/students/{student}',               [StudentWebController::class, 'show'])->name('students.show');
+        Route::post('/students/{student}/transition',   [StudentWebController::class, 'transition'])->name('students.transition');
+        Route::post('/students/{student}/promote',      [StudentWebController::class, 'promote'])->name('students.promote');
+        Route::post('/students/bulk-promote',           [StudentWebController::class, 'bulkPromote'])->name('students.bulk-promote');
 
         // Timetable
         Route::get('/timetable',                         [TimetableWebController::class, 'index'])->name('timetable.index');
