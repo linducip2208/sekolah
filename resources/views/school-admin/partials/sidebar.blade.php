@@ -89,7 +89,8 @@
         <a href="{{ route('admin.exams.index') }}" class="sidebar-sub-link {{ $isActive('admin.exams.*') }}">Exams</a>
         <a href="{{ route('admin.qbank.items.index') }}" class="sidebar-sub-link {{ $isActive('admin.qbank.*') }}">Question Bank</a>
         <a href="{{ route('admin.raport-interaktif.index') }}" class="sidebar-sub-link {{ $isActive('admin.raport-interaktif.*') }}">Report Cards</a>
-        <a href="{{ route('admin.grades.index') }}" class="sidebar-sub-link {{ $isActive('admin.grades.*') }}">Grading Scale</a>
+        <a href="{{ route('admin.grades.index') }}" class="sidebar-sub-link {{ $isActive('admin.grades.index') }}">Grading Scale</a>
+        <a href="{{ route('admin.grades.approval') }}" class="sidebar-sub-link {{ $isActive('admin.grades.approval') }}">Grade Approval</a>
         <a href="{{ route('admin.lesson-plan.index') }}" class="sidebar-sub-link {{ $isActive('admin.lesson-plan.*') }}">Lesson Plans</a>
         <a href="{{ route('admin.live-class.index') }}" class="sidebar-sub-link {{ $isActive('admin.live-class.*') }}">Live Class</a>
         <a href="{{ route('admin.courses.index') }}" class="sidebar-sub-link {{ $isActive('admin.courses.*') }}">Kursus (LMS)</a>
