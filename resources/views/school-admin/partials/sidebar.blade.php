@@ -145,7 +145,8 @@
         <a href="{{ route('admin.cooperative.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.cooperative.*') }}">Cooperative</a>
         <a href="{{ route('admin.finance.reports.summary') }}" class="sidebar-sub-link {{ $isActive('admin.finance.reports.summary') }}">Financial Summary</a>
         <a href="{{ route('admin.finance.reports.outstanding') }}" class="sidebar-sub-link {{ $isActive('admin.finance.reports.outstanding') }}">SPP Outstanding</a>
-        <a href="{{ route('admin.accounting.coa') }}" class="sidebar-sub-link {{ $isActive('admin.accounting.*') }}">Akuntansi (COA)</a>
+        <a href="{{ route('admin.accounting.coa') }}" class="sidebar-sub-link {{ $isActive('admin.accounting.coa') }}">Akuntansi (COA)</a>
+        <a href="{{ route('admin.accounting.bank-reconciliation') }}" class="sidebar-sub-link {{ $isActive('admin.accounting.bank-reconciliation') }}">Rekonsiliasi Bank</a>
         <a href="{{ route('admin.currency.show') }}" class="sidebar-sub-link {{ $isActive('admin.currency.*') }}">Currency</a>
     </div>
 </div>

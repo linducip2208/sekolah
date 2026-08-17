@@ -18,7 +18,7 @@
 | 5 | LMS | ✅ | Classroom (Lessons, Assignments, Submissions), Live Class, Digital Library, **Kursus (Course → Module → Lesson + enrollment + progress tracking)** ADA. **MISSING**: Quiz engine terpisah, Discussion/forum terintegrasi, Completion certificates, prerequisite. |
 | 6 | Student Life | ✅ | Attendance + QR, Discipline, Counseling, Bullying, UKS/Clinic, Vaccination, Achievement, Extracurricular, Canteen ADA. **MISSING**: GPS/biometric/face attendance, Point reward system, Wellbeing check. |
 | 7 | PPDB | 🟡 | Period, Public registration, Applications, Verification, Zoning ADA. **MISSING**: Form builder, Interview/test scoring/ranking, Quota, Auto student creation, Waiting list, Admission letter. |
-| 8 | Finance | ✅ | Fee structure, Invoices, Recurring + bulk generate, Payments, Partial, **Installment (cicilan SPP) + auto overdue + late fee + refund**, Discount, Gateway (BYOK: VA/QRIS/EWallet), Cash flow, Budget/RKAS, Cooperative, **Accounting (COA + Jurnal + Neraca Saldo + Laba Rugi + Neraca)** ADA. **MISSING**: Bank reconciliation. |
+| 8 | Finance | ✅ | Fee structure, Invoices, Recurring + bulk generate, Payments, Partial, **Installment (cicilan SPP) + auto overdue + late fee + refund**, Discount, Gateway (BYOK: VA/QRIS/EWallet), Cash flow, Budget/RKAS, Cooperative, **Accounting (COA + Jurnal + Neraca Saldo + Laba Rugi + Neraca) + Rekonsiliasi Bank** ADA. **MISSING**: — (finance lengkap). |
 | 9 | HR & Payroll | 🟡 | Staff, Payroll structures/slips, PKG, Training, Certification ADA. **MISSING**: Contract/employment history, Leave/Overtime, Tax/BPJS component, KPI review, Document expiry reminder. |
 | 10 | Procurement & Asset | ✅ | Supplier, Purchase Request, Approval, Inventory, Asset, Depreciation, Maintenance, Write-off, QR label ADA. **MISSING**: PO/receiving/goods receipt, Stock opname/transfer. |
 | 11 | Library | ✅ | Books, Categories, Issues/Returns, Fines, Digital Library, Reading progress ADA. **MISSING**: Authors/Publishers/ISBN terpisah, Reservation, RFID. |
@@ -78,9 +78,8 @@
 1. Quiz engine terpisah + Discussion/forum terintegrasi + sertifikat penyelesaian kursus.
 2. Role expansion (principal/HR/transport/hostel admin).
 3. Automation engine generic (trigger/action).
-4. Bank reconciliation untuk finance.
-5. Transport attendance + driver schedule.
-6. Anomaly detection + OCR/document untuk AI.
-7. Internal audit workflow + compliance dashboard gabungan.
+4. Transport attendance + driver schedule.
+5. Anomaly detection + OCR/document untuk AI.
+6. Internal audit workflow + compliance dashboard gabungan.
 
 > Dokumen ini = hasil Phase 1 AUDIT. Implementasi per fase dilakukan bertahap sesuai prioritas di atas.

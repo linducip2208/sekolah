@@ -35,6 +35,7 @@ use App\Http\Controllers\Web\Admin\Facilities\HostelWebController;
 use App\Http\Controllers\Web\Admin\Facilities\RoomBookingController as AdminRoomBookingController;
 use App\Http\Controllers\Web\Admin\Finance\BudgetController;
 use App\Http\Controllers\Web\Admin\Finance\AccountingController;
+use App\Http\Controllers\Web\Admin\Finance\BankReconciliationController;
 use App\Http\Controllers\Web\Admin\Library\DigitalLibraryController;
 use App\Http\Controllers\Web\ReaderController;
 use App\Http\Controllers\Web\Admin\Finance\FeeWebController;
@@ -856,6 +857,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/accounting/trial-balance',          [AccountingController::class, 'trialBalance'])->name('accounting.trial-balance');
         Route::get('/accounting/profit-loss',            [AccountingController::class, 'profitLoss'])->name('accounting.profit-loss');
         Route::get('/accounting/balance-sheet',          [AccountingController::class, 'balanceSheet'])->name('accounting.balance-sheet');
+
+        // ============== REKONSILIASI BANK ==============
+        Route::get('/accounting/bank-reconciliation',         [BankReconciliationController::class, 'index'])->name('accounting.bank-reconciliation');
+        Route::post('/accounting/bank-reconciliation/import', [BankReconciliationController::class, 'import'])->name('accounting.bank-reconciliation.import');
+        Route::post('/accounting/bank-reconciliation/{statement}/match', [BankReconciliationController::class, 'match'])->name('accounting.bank-reconciliation.match');
+        Route::post('/accounting/bank-reconciliation/{statement}/unmatch', [BankReconciliationController::class, 'unmatch'])->name('accounting.bank-reconciliation.unmatch');
 
         // ============== KOPERASI ==============
         Route::get('/cooperative',                       [CooperativeController::class, 'dashboard'])->name('cooperative.dashboard');
