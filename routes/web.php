@@ -295,6 +295,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/ppdb/periods/{period}',          [Phase8CrudController::class, 'deletePpdbPeriod'])->name('ppdb.periods.destroy');
         Route::get('/ppdb/applications',                 [Phase8CrudController::class, 'ppdbApplications'])->name('ppdb.applications.index');
         Route::post('/ppdb/applications/{application}/review', [Phase8CrudController::class, 'reviewPpdbApplication'])->name('ppdb.applications.review');
+        Route::post('/ppdb/applications/{application}/score', [Phase8CrudController::class, 'scoreApplicant'])->name('ppdb.applications.score');
+        Route::post('/ppdb/applications/{application}/enroll', [Phase8CrudController::class, 'enrollApplicant'])->name('ppdb.applications.enroll');
 
         Route::get('/clinic/visits',                     [Phase8CrudController::class, 'clinicVisits'])->name('clinic.visits.index');
         Route::post('/clinic/visits',                    [Phase8CrudController::class, 'storeClinicVisit'])->name('clinic.visits.store');

@@ -5,7 +5,10 @@ namespace App\Services\PPDB;
 use App\Models\PPDB\PpdbApplication;
 use App\Models\PPDB\PpdbPeriod;
 use App\Models\PPDB\PpdbZonasiZone;
+use App\Models\Academic\Student;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class PpdbService
@@ -132,8 +135,56 @@ class PpdbService
                 'undian'    => mt_rand(0, 1000) / 10,
                 default     => (float) ($app->average_score ?? 0),
             };
+
+            // Blend in entrance test + interview scores when present (weighted).
+            $score += (float) ($app->entrance_test_score ?? 0) * 0.3;
+            $score += (float) ($app->interview_score ?? 0) * 0.2;
+
             $app->ranking_score = round($score, 3);
             return $app;
+        });
+    }
+
+    /** Convert an accepted applicant into an actual Student (+ login user). */
+    public function enrollStudent(PpdbApplication $app, int $classSectionId, ?string $admissionNo = null, int $enrollerId = null): Student
+    {
+        abort_unless($app->status === 'accepted', 422, 'Hanya pendaftar yang sudah diterima yang bisa didaftarkan.');
+        abort_if($app->enrolled_student_id, 422, 'Pendaftar ini sudah menjadi siswa.');
+
+        return DB::transaction(function () use ($app, $classSectionId, $admissionNo, $enrollerId) {
+            $email = strtolower(Str::slug($app->student_name, '.') . '.' . $app->id . '@' . 'student.sikadpro.app');
+
+            $user = User::create([
+                'name'      => $app->student_name,
+                'email'     => $email,
+                'password'  => Hash::make(Str::random(16)),
+                'school_id' => $app->school_id,
+                'is_active' => true,
+            ]);
+            $user->assignRole('student');
+
+            $student = Student::create([
+                'user_id'         => $user->id,
+                'school_id'       => $app->school_id,
+                'class_section_id'=> $classSectionId,
+                'admission_no'    => $admissionNo ?? $app->registration_no,
+                'admission_date'  => now()->toDateString(),
+                'enrolled_at'     => now()->toDateString(),
+                'date_of_birth'   => $app->date_of_birth,
+                'gender'          => $app->gender,
+                'address'         => $app->address,
+                'guardian_name'   => $app->parent_name,
+                'guardian_phone'  => $app->parent_phone,
+                'status'          => 'enrolled',
+            ]);
+
+            $app->update([
+                'status'              => 'enrolled',
+                'enrolled_student_id' => $student->id,
+                'reviewer_id'         => $enrollerId ?? $app->reviewer_id,
+            ]);
+
+            return $student;
         });
     }
 

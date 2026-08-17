@@ -18,8 +18,9 @@ class PpdbApplication extends SchoolModel
         'student_name','nisn','date_of_birth','gender','address','district','city',
         'home_lat','home_lng','distance_km','previous_school',
         'parent_name','parent_phone','parent_email',
-        'documents','achievements','average_score','ranking_score','rank_position',
-        'status','reviewer_id','reviewer_note','form_payment_id',
+        'documents','achievements','average_score','entrance_test_score','interview_score',
+        'ranking_score','rank_position',
+        'status','reviewer_id','reviewer_note','form_payment_id','enrolled_student_id',
         'submitted_at','verified_at','accepted_at',
     ];
 
@@ -31,6 +32,8 @@ class PpdbApplication extends SchoolModel
         'documents'       => 'array',
         'achievements'    => 'array',
         'average_score'   => 'decimal:2',
+        'entrance_test_score' => 'decimal:2',
+        'interview_score' => 'decimal:2',
         'ranking_score'   => 'decimal:3',
         'submitted_at'    => 'datetime',
         'verified_at'     => 'datetime',
@@ -45,5 +48,10 @@ class PpdbApplication extends SchoolModel
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewer_id');
+    }
+
+    public function enrolledStudent(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Academic\Student::class, 'enrolled_student_id');
     }
 }

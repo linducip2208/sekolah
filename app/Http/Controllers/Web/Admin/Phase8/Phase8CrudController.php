@@ -94,6 +94,7 @@ class Phase8CrudController extends Controller
         return view('school-admin.ppdb.applications', [
             'applications' => $applications,
             'periods'      => PpdbPeriod::where('school_id', $this->schoolId())->get(),
+            'classSections'=> \App\Models\Academic\ClassSection::where('school_id', $this->schoolId())->with(['classRoom', 'section'])->get(),
         ]);
     }
 
@@ -103,6 +104,42 @@ class Phase8CrudController extends Controller
         $request->validate(['status' => 'required|in:submitted,review,accepted,waitlist,rejected,enrolled']);
         $application->update(['status' => $request->status]);
         return back()->with('success', 'Status pendaftaran diperbarui.');
+    }
+
+    public function scoreApplicant(Request $request, PpdbApplication $application): RedirectResponse
+    {
+        $this->authorizeOwn($application);
+
+        $data = $request->validate([
+            'entrance_test_score' => 'nullable|numeric|min:0|max:100',
+            'interview_score'     => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        $application->update([
+            'entrance_test_score' => $data['entrance_test_score'] ?? null,
+            'interview_score'     => $data['interview_score'] ?? null,
+        ]);
+
+        return back()->with('success', 'Nilai tes & wawancara disimpan.');
+    }
+
+    public function enrollApplicant(Request $request, PpdbApplication $application): RedirectResponse
+    {
+        $this->authorizeOwn($application);
+
+        $data = $request->validate([
+            'class_section_id' => 'required|exists:class_sections,id',
+            'admission_no'     => 'nullable|string|max:50',
+        ]);
+
+        app(\App\Services\PPDB\PpdbService::class)->enrollStudent(
+            $application,
+            (int) $data['class_section_id'],
+            $data['admission_no'] ?? null,
+            auth()->id(),
+        );
+
+        return back()->with('success', 'Pendaftar dikonversi menjadi siswa.');
     }
 
     /* ============================== UKS / CLINIC ============================== */
