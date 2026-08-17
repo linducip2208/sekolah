@@ -324,6 +324,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/courses/{course}/enroll',          [CourseController::class, 'enroll'])->name('courses.enroll');
         Route::delete('/courses/enrollments/{enrollment}',[CourseController::class, 'unenroll'])->name('courses.enrollments.destroy');
         Route::post('/courses/enrollments/{enrollment}/complete/{lesson}', [CourseController::class, 'markComplete'])->name('courses.enrollments.complete');
+        Route::post('/courses/enrollments/{enrollment}/certificate', [CourseController::class, 'issueCertificate'])->name('courses.enrollments.certificate');
+        Route::get('/courses/certificates/{certificate}', [CourseController::class, 'certificate'])->name('courses.certificates.show');
 
         Route::get('/ai/providers',                      [Phase9CrudController::class, 'aiProviders'])->name('ai.providers.index');
         Route::post('/ai/providers',                     [Phase9CrudController::class, 'storeAiProvider'])->name('ai.providers.store');

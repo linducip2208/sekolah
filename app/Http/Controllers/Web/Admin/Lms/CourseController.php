@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Admin\Lms;
 use App\Http\Controllers\Controller;
 use App\Models\Academic\Student;
 use App\Models\Lms\Course;
+use App\Models\Lms\CourseCertificate;
 use App\Models\Lms\CourseEnrollment;
 use App\Models\Lms\CourseLesson;
 use App\Models\Lms\CourseModule;
@@ -66,7 +67,7 @@ class CourseController extends Controller
     {
         $this->authorizeOwn($course);
 
-        $course->load(['modules.lessons', 'enrollments.student.user']);
+        $course->load(['modules.lessons', 'enrollments.student.user', 'enrollments.certificate']);
 
         $students = Student::where('school_id', $this->schoolId())
             ->with('user:id,name')
@@ -200,5 +201,21 @@ class CourseController extends Controller
         $this->authorizeOwn($enrollment);
         $this->service->completeLesson($enrollment, $lesson->id, $enrollment->student_id);
         return back()->with('success', 'Materi ditandai selesai.');
+    }
+
+    public function issueCertificate(CourseEnrollment $enrollment): RedirectResponse
+    {
+        $this->authorizeOwn($enrollment);
+        $this->service->issueCertificate($enrollment, auth()->id());
+        return back()->with('success', 'Sertifikat diterbitkan.');
+    }
+
+    public function certificate(CourseCertificate $certificate): View
+    {
+        $this->authorizeOwn($certificate);
+
+        return view('school-admin.lms.certificate', [
+            'certificate' => $certificate->load('enrollment.course', 'enrollment.student.user', 'issuedBy'),
+        ]);
     }
 }

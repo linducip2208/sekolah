@@ -83,8 +83,13 @@
                             <div class="h-2 bg-gray-100 rounded overflow-hidden"><div class="h-full bg-green-500" style="width:{{ $e->progress_pct }}%"></div></div>
                         </td>
                         <td class="px-3 py-2 text-xs font-mono">{{ $e->progress_pct }}%</td>
-                        <td class="px-3 py-2 text-right">
-                            <form method="POST" action="{{ route('admin.courses.enrollments.destroy', $e) }}" onsubmit="return confirm('Hapus pendaftaran?')">@csrf @method('DELETE')<button class="text-xs text-red-700 hover:underline">Hapus</button></form>
+                        <td class="px-3 py-2 text-right whitespace-nowrap">
+                            @if($e->certificate)
+                                <a href="{{ route('admin.courses.certificates.show', $e->certificate) }}" class="text-xs underline ink-secondary mr-2">Sertifikat</a>
+                            @elseif($e->progress_pct >= 100)
+                                <form method="POST" action="{{ route('admin.courses.enrollments.certificate', $e) }}" class="inline mr-2">@csrf<button class="text-xs underline ink-secondary">Terbitkan Sertifikat</button></form>
+                            @endif
+                            <form method="POST" action="{{ route('admin.courses.enrollments.destroy', $e) }}" class="inline" onsubmit="return confirm('Hapus pendaftaran?')">@csrf @method('DELETE')<button class="text-xs text-red-700 hover:underline">Hapus</button></form>
                         </td>
                     </tr>
                     @empty

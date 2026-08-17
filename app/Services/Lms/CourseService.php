@@ -3,10 +3,12 @@
 namespace App\Services\Lms;
 
 use App\Models\Lms\Course;
+use App\Models\Lms\CourseCertificate;
 use App\Models\Lms\CourseEnrollment;
 use App\Models\Lms\CourseLesson;
 use App\Models\Lms\CourseLessonCompletion;
 use App\Models\Academic\Student;
+use Illuminate\Support\Str;
 
 class CourseService
 {
@@ -81,5 +83,32 @@ class CourseService
                 'status'       => $e->status,
             ])
             ->all();
+    }
+
+    /** Issue a completion certificate for an enrollment. Requires 100% progress. */
+    public function issueCertificate(CourseEnrollment $enrollment, int $userId): CourseCertificate
+    {
+        $this->refreshProgress($enrollment);
+
+        abort_unless($enrollment->status === 'completed', 422, 'Kursus belum selesai (progres belum 100%).');
+
+        return CourseCertificate::firstOrCreate(
+            [
+                'school_id'            => $enrollment->school_id,
+                'course_enrollment_id' => $enrollment->id,
+            ],
+            [
+                'certificate_no' => 'CRT-' . strtoupper(Str::random(12)),
+                'issued_at'      => now()->toDateString(),
+                'issued_by'      => $userId,
+            ]
+        );
+    }
+
+    public function certificateFor(CourseEnrollment $enrollment): ?CourseCertificate
+    {
+        return CourseCertificate::where('school_id', $enrollment->school_id)
+            ->where('course_enrollment_id', $enrollment->id)
+            ->first();
     }
 }

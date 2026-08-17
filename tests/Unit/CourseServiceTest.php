@@ -72,3 +72,24 @@ it('returns progress for a student across courses', function () {
     expect($progress)->toHaveCount(1);
     expect($progress[0]['title'])->toBe('Kursus Matematika');
 });
+
+it('issues a certificate only when course is completed', function () {
+    $enrollment = $this->service->enroll($this->school->id, $this->course->id, $this->student->id);
+    $this->service->completeLesson($enrollment, $this->lessonA->id, $this->student->id);
+
+    $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+    $this->service->issueCertificate($enrollment->fresh(), $this->student->user_id);
+});
+
+it('issues a completion certificate idempotently', function () {
+    $enrollment = $this->service->enroll($this->school->id, $this->course->id, $this->student->id);
+    $this->service->completeLesson($enrollment, $this->lessonA->id, $this->student->id);
+    $this->service->completeLesson($enrollment, $this->lessonB->id, $this->student->id);
+
+    $cert = $this->service->issueCertificate($enrollment->fresh(), $this->student->user_id);
+
+    expect($cert->certificate_no)->toStartWith('CRT-');
+
+    $again = $this->service->issueCertificate($enrollment->fresh(), $this->student->user_id);
+    expect($again->id)->toBe($cert->id);
+});

@@ -6,6 +6,7 @@ use App\Models\Academic\Student;
 use App\Models\SchoolModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CourseEnrollment extends SchoolModel
 {
@@ -33,5 +34,10 @@ class CourseEnrollment extends SchoolModel
     public function lessonCompletions(): HasMany
     {
         return $this->hasMany(CourseLessonCompletion::class, 'enrollment_id');
+    }
+
+    public function certificate(): HasOne
+    {
+        return $this->hasOne(CourseCertificate::class, 'course_enrollment_id');
     }
 }
