@@ -70,7 +70,7 @@
 
 @if($isAdmin)
 {{-- ACADEMIC --}}
-<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.academic.*','admin.curriculum.*','admin.timetable.*','admin.classroom.lessons.*','admin.assignments.*','admin.exams.*','admin.qbank.*','admin.raport-interaktif.*','admin.lesson-plan.*','admin.live-class.*','admin.academic.essay-grading.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.academic.*','admin.curriculum.*','admin.timetable.*','admin.classroom.lessons.*','admin.assignments.*','admin.exams.*','admin.qbank.*','admin.raport-interaktif.*','admin.lesson-plan.*','admin.live-class.*','admin.academic.essay-grading.*','admin.courses.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['academic']) !!}Academic</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.academic.years.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.years.*') }}">Academic Years</a>
@@ -88,6 +88,7 @@
         <a href="{{ route('admin.raport-interaktif.index') }}" class="sidebar-sub-link {{ $isActive('admin.raport-interaktif.*') }}">Report Cards</a>
         <a href="{{ route('admin.lesson-plan.index') }}" class="sidebar-sub-link {{ $isActive('admin.lesson-plan.*') }}">Lesson Plans</a>
         <a href="{{ route('admin.live-class.index') }}" class="sidebar-sub-link {{ $isActive('admin.live-class.*') }}">Live Class</a>
+        <a href="{{ route('admin.courses.index') }}" class="sidebar-sub-link {{ $isActive('admin.courses.*') }}">Kursus (LMS)</a>
         <a href="{{ route('admin.academic.essay-grading.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.essay-grading.*') }}">AI Essay Grading</a>
     </div>
 </div>

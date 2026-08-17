@@ -15,7 +15,7 @@
 | 3 | Akademik Super Lengkap | 🟡 | Years, Semesters, Curriculum, Subjects, Classes, Sections, Rombel, Timetable + auto-generator, Calendar, Holiday ADA. **MISSING**: Curriculum version, Competency/Learning Outcomes, Homeroom Teacher, Substitute Teacher, Make-up Class. |
 | 3 | Student Master | ✅ | Student, Profile, Documents, Parents, Timeline ADA. **MISSING**: Enrollment/Promotion/Graduation/Transfer workflow, Student Tags. |
 | 4 | Assessment & Report Card | 🟡 | Exams, Marks, Grades, Report Card PDF, Raport Interaktif ADA. **MISSING**: Grading scale/weighting, Gradebook, Grade approval/lock/history, Transcript, GPA/ranking, QR verification. |
-| 5 | LMS | 🟡 | Classroom (Lessons, Assignments, Submissions), Live Class, Digital Library ADA. **MISSING**: Courses/modules/learning path/prerequisite, Quiz engine, Discussion/forum terintegrasi, Completion certificates, progress tracking. |
+| 5 | LMS | ✅ | Classroom (Lessons, Assignments, Submissions), Live Class, Digital Library, **Kursus (Course → Module → Lesson + enrollment + progress tracking)** ADA. **MISSING**: Quiz engine terpisah, Discussion/forum terintegrasi, Completion certificates, prerequisite. |
 | 6 | Student Life | ✅ | Attendance + QR, Discipline, Counseling, Bullying, UKS/Clinic, Vaccination, Achievement, Extracurricular, Canteen ADA. **MISSING**: GPS/biometric/face attendance, Point reward system, Wellbeing check. |
 | 7 | PPDB | 🟡 | Period, Public registration, Applications, Verification, Zoning ADA. **MISSING**: Form builder, Interview/test scoring/ranking, Quota, Auto student creation, Waiting list, Admission letter. |
 | 8 | Finance | ✅ | Fee structure, Invoices, Recurring + bulk generate, Payments, Partial, Discount, Gateway (BYOK: VA/QRIS/EWallet), Cash flow, Budget/RKAS, Cooperative, **Accounting (COA + Jurnal Umum + Neraca Saldo + Laba Rugi + Neraca)** ADA. **MISSING**: Installment, Late fee auto, Refund, bank reconciliation. |
@@ -75,10 +75,10 @@
 
 ## 5. Remaining TODO (prioritas berikutnya)
 
-1. LMS lengkap (courses/modules/learning path/quiz).
+1. Quiz engine terpisah + Discussion/forum terintegrasi + sertifikat penyelesaian kursus.
 2. Role expansion (principal/HR/transport/hostel admin).
 3. Automation engine generic (trigger/action).
-4. Compliance framework generic (improvement plan + internal audit).
+4. Compliance improvement plan + internal audit.
 5. Live bus tracking UI (map + parent ETA).
 6. Bank reconciliation + installment/late-fee/refund untuk finance.
 7. Anomaly detection + OCR/document untuk AI.

@@ -55,6 +55,7 @@ use App\Http\Controllers\Web\Admin\Print\PrintController;
 use App\Http\Controllers\Web\Admin\Phase8\Phase8WebController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9CrudController;
 use App\Http\Controllers\Web\Admin\AI\AiDataChatController;
+use App\Http\Controllers\Web\Admin\Lms\CourseController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10WebController;
@@ -286,6 +287,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/live-class/sessions',               [Phase9CrudController::class, 'liveClassSessions'])->name('live-class.index');
         Route::post('/live-class/sessions',              [Phase9CrudController::class, 'storeLiveClassSession'])->name('live-class.store');
         Route::delete('/live-class/sessions/{session}',  [Phase9CrudController::class, 'deleteLiveClassSession'])->name('live-class.destroy');
+
+        // ============== LMS: KURSUS ==============
+        Route::get('/courses',                           [CourseController::class, 'index'])->name('courses.index');
+        Route::post('/courses',                          [CourseController::class, 'store'])->name('courses.store');
+        Route::get('/courses/{course}',                  [CourseController::class, 'show'])->name('courses.show');
+        Route::put('/courses/{course}',                  [CourseController::class, 'update'])->name('courses.update');
+        Route::delete('/courses/{course}',               [CourseController::class, 'destroy'])->name('courses.destroy');
+        Route::post('/courses/{course}/modules',         [CourseController::class, 'storeModule'])->name('courses.modules.store');
+        Route::delete('/courses/modules/{module}',       [CourseController::class, 'deleteModule'])->name('courses.modules.destroy');
+        Route::post('/courses/modules/{module}/lessons', [CourseController::class, 'storeLesson'])->name('courses.lessons.store');
+        Route::delete('/courses/lessons/{lesson}',       [CourseController::class, 'deleteLesson'])->name('courses.lessons.destroy');
+        Route::post('/courses/{course}/enroll',          [CourseController::class, 'enroll'])->name('courses.enroll');
+        Route::delete('/courses/enrollments/{enrollment}',[CourseController::class, 'unenroll'])->name('courses.enrollments.destroy');
+        Route::post('/courses/enrollments/{enrollment}/complete/{lesson}', [CourseController::class, 'markComplete'])->name('courses.enrollments.complete');
 
         Route::get('/ai/providers',                      [Phase9CrudController::class, 'aiProviders'])->name('ai.providers.index');
         Route::post('/ai/providers',                     [Phase9CrudController::class, 'storeAiProvider'])->name('ai.providers.store');
