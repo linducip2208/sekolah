@@ -119,6 +119,18 @@
         </div>
     </div>
 
+    {{-- Role-specific KPI (per peran) --}}
+    @if(!empty($roleWidgets['kpis']))
+    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 mb-4">
+        @foreach($roleWidgets['kpis'] as $rk)
+        <a href="{{ $rk['href'] }}" class="card card-pad card-hover">
+            <div class="text-[12px] text-[var(--color-text-secondary)]">{{ $rk['label'] }}</div>
+            <div class="mt-1 text-2xl font-extrabold tracking-tight tabular-nums" style="color: var(--color-text);">{{ $rk['value'] ?? '—' }}</div>
+        </a>
+        @endforeach
+    </div>
+    @endif
+
     {{-- KPI overview --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         @php

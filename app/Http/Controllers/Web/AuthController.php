@@ -80,7 +80,13 @@ class AuthController extends Controller
 
     public function dashboard(): View
     {
-        return view('school-admin.dashboard');
+        $user = auth()->user();
+        $roleDashboard = app(\App\Services\Dashboard\RoleDashboardService::class)
+            ->forRole($user->school_id, $user->id, app(\App\Services\Dashboard\RoleDashboardService::class)->roleFor($user));
+
+        return view('school-admin.dashboard', [
+            'roleWidgets' => $roleDashboard,
+        ]);
     }
 
     public function showSuperLogin(): View
