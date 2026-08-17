@@ -253,6 +253,7 @@
         <a href="{{ route('admin.analytics.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.dashboard') }}">School Intelligence</a>
         <a href="{{ route('admin.analytics.risks.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.risks.*') }}">Student Risk</a>
         <a href="{{ route('admin.analytics.dropout-risk.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.dropout-risk.*') }}">Dropout Prediction</a>
+        <a href="{{ route('admin.analytics.anomalies.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.anomalies.*') }}">Anomaly Detection</a>
         <a href="{{ route('admin.ai.chat-data.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.chat-data.*') }}">Tanya Data (AI)</a>
         <a href="{{ route('admin.ai.providers.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.providers.*') }}">AI Providers</a>
         <a href="{{ route('admin.ai.usage') }}" class="sidebar-sub-link {{ $isActive('admin.ai.usage') }}">AI Usage</a>

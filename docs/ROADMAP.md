@@ -31,7 +31,7 @@
 | 18 | Alumni | ✅ | Alumni profile/directory, Tracer study, Job board, BKK, Events, Donation ADA. |
 | 19 | Yayasan / Multi School | 🟡 | Foundation, Benchmark antar sekolah, Consolidated dashboard ADA. **MISSING**: Central master data, Central user management, Per-cabang comparison UI lengkap. |
 | 20 | BI & Analytics | 🟡 | Learning Analytics (risk score), Dropout prediction, School Intelligence, Benchmark ADA. **MISSING**: Executive/PPDB/HR/Library dashboards, PPDB funnel, Predictive analytics lengkap. |
-| 21 | AI School Intelligence | ✅ | AI providers (dynamic), Essay grading, Lesson plan, Dropout prediction, Risk score, **AI Chat-with-data (Tanya Data Sekolah — NL → metric, rule-based fallback)** ADA. **MISSING**: Anomaly detection, OCR/document. |
+| 21 | AI School Intelligence | ✅ | AI providers (dynamic), Essay grading, Lesson plan, Dropout prediction, Risk score, **AI Chat-with-data**, **Anomaly detection (penurunan kehadiran dll)** ADA. **MISSING**: OCR/document. |
 | 22 | Automation | ✅ | Invoice generate, Payment reminder, Grade/daily report, Risk/dropout alert, **Automation engine (trigger→action: SPP jatuh tempo/menunggak/absen beruntun/ulang tahun → notify/email) + command + scheduler** ADA. **MISSING**: Document/contract expiry, PTM reminder. |
 | 23 | Digital Document | 🟡 | Document management, versioning, approval, share link, Letters (template + numbering + PDF), Certificates ADA. **MISSING**: Digital signature, QR public verification URL, Report card digital QR. |
 | 24 | Administrative Office | 🟡 | Letters (surat), Documents, Meetings (committee) ADA. **MISSING**: Incoming/outgoing mail + disposition, Agenda/minutes terpisah, Task management. |
@@ -77,7 +77,7 @@
 
 1. Quiz engine terpisah + Discussion/forum terintegrasi + sertifikat penyelesaian kursus.
 2. Driver schedule untuk transport.
-3. Anomaly detection + OCR/document untuk AI.
+3. OCR/document untuk AI.
 4. Internal audit workflow + compliance dashboard gabungan.
 5. Grade approval/lock/history + Transcript.
 

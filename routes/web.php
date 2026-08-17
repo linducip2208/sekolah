@@ -62,6 +62,7 @@ use App\Http\Controllers\Web\Admin\Transport\TransportAttendanceController;
 use App\Http\Controllers\Web\Student\StudentExamController;
 use App\Http\Controllers\Web\Admin\Automation\AutomationController;
 use App\Http\Controllers\Web\Admin\Academic\GradingScaleController;
+use App\Http\Controllers\Web\Admin\Analytics\AnomalyController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10WebController;
@@ -510,6 +511,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/analytics/dropout-risk/predict',     [DropoutRiskController::class, 'runPrediction'])->name('analytics.dropout-risk.predict');
         Route::post('/analytics/dropout-risk/predict-one', [DropoutRiskController::class, 'runSinglePrediction'])->name('analytics.dropout-risk.predict-one');
         Route::post('/analytics/dropout-risk/notify',      [DropoutRiskController::class, 'notifyParents'])->name('analytics.dropout-risk.notify');
+
+        // Anomaly detection
+        Route::get('/analytics/anomalies',                 [AnomalyController::class, 'index'])->name('analytics.anomalies.index');
+        Route::post('/analytics/anomalies/run',            [AnomalyController::class, 'run'])->name('analytics.anomalies.run');
+        Route::post('/analytics/anomalies/{alert}/resolve',[AnomalyController::class, 'resolve'])->name('analytics.anomalies.resolve');
 
         // ============== HOSTEL ==============
         Route::get('/hostel',                            [HostelWebController::class, 'hostels'])->name('hostel.list.index');
