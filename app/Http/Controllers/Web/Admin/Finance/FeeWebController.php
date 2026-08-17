@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Academic\ClassRoom;
 use App\Models\Academic\ClassSection;
 use App\Models\Academic\Student;
+use App\Models\Finance\FeeInstallment;
 use App\Models\Finance\FeeInvoice;
 use App\Models\Finance\FeePayment;
 use App\Models\Finance\FeeStructure;
+use App\Services\Finance\FeeInstallmentService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +20,7 @@ use Illuminate\View\View;
 
 class FeeWebController extends Controller
 {
+    public function __construct(private FeeInstallmentService $installments) {}
     private function schoolId(): int
     {
         return auth()->user()->school_id;
@@ -156,8 +159,38 @@ class FeeWebController extends Controller
     {
         $this->authorizeOwn($invoice);
         return view('school-admin.finance.invoice-show', [
-            'invoice'  => $invoice->load(['student.user', 'feeStructure', 'payments.collector']),
+            'invoice'  => $invoice->load(['student.user', 'feeStructure', 'payments.collector', 'installments']),
         ]);
+    }
+
+    public function createInstallments(Request $request, FeeInvoice $invoice): RedirectResponse
+    {
+        $this->authorizeOwn($invoice);
+
+        $data = $request->validate([
+            'count' => 'required|integer|min:2|max:24',
+        ]);
+
+        $dueDates = $request->input('due_dates', []);
+
+        $this->installments->createSchedule($invoice, (int) $data['count'], $dueDates);
+
+        return back()->with('success', 'Jadwal cicilan dibuat.');
+    }
+
+    public function payInstallment(Request $request, FeeInstallment $installment): RedirectResponse
+    {
+        abort_unless($installment->school_id === $this->schoolId(), 403);
+
+        $data = $request->validate([
+            'amount_rupiah'  => 'required|numeric|min:0',
+            'payment_method' => 'required|string|max:50',
+            'reference'      => 'nullable|string|max:200',
+        ]);
+
+        $this->installments->pay($installment, (int) round($data['amount_rupiah'] * 100), $data['payment_method'], $data['reference'] ?? null);
+
+        return back()->with('success', 'Cicilan dilunasi.');
     }
 
     public function deleteInvoice(FeeInvoice $invoice): RedirectResponse

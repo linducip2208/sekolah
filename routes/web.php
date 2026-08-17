@@ -700,6 +700,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/fee/invoices/generate',            [FeeWebController::class, 'generateInvoices'])->name('fee.invoices.generate');
         Route::get('/fee/invoices/{invoice}',            [FeeWebController::class, 'showInvoice'])->name('fee.invoices.show');
         Route::post('/fee/invoices/{invoice}/pay',       [FeeWebController::class, 'recordPayment'])->name('fee.invoices.pay');
+        Route::post('/fee/invoices/{invoice}/installments', [FeeWebController::class, 'createInstallments'])->name('fee.invoices.installments.store');
+        Route::post('/fee/installments/{installment}/pay',  [FeeWebController::class, 'payInstallment'])->name('fee.installments.pay');
         Route::delete('/fee/invoices/{invoice}',         [FeeWebController::class, 'deleteInvoice'])->name('fee.invoices.destroy');
 
         // ============== PRINT / PDF ==============

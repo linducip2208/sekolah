@@ -39,6 +39,11 @@ class FeeInvoice extends SchoolModel
         return $this->hasMany(FeePayment::class);
     }
 
+    public function installments(): HasMany
+    {
+        return $this->hasMany(FeeInstallment::class, 'fee_invoice_id')->orderBy('installment_no');
+    }
+
     public function getAmountRupiahAttribute(): string
     {
         return 'Rp ' . number_format($this->amount / 100, 0, ',', '.');

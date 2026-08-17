@@ -61,6 +61,65 @@
                 </table>
             @endif
         </div>
+        <div class="bg-white border border-rule p-7">
+            <h3 class="elite-h3 text-lg ink-primary mb-4">Cicilan (Installment)</h3>
+
+            @if($invoice->installments->isEmpty())
+                @if($invoice->status !== 'paid')
+                <p class="font-serif text-sm text-gray-500 italic mb-3">Belum ada jadwal cicilan. Bagilah tagihan menjadi beberapa cicilan.</p>
+                <form method="POST" action="{{ route('admin.fee.invoices.installments.store', $invoice) }}" class="space-y-3 max-w-sm">
+                    @csrf
+                    <div>
+                        <label class="elite-kicker text-[.6rem] block mb-1">Jumlah Cicilan</label>
+                        <input type="number" name="count" min="2" max="24" required value="3" class="w-full border-2 border-rule px-3 py-2 font-mono text-sm">
+                    </div>
+                    <button class="btn-elite" style="padding:.5rem 1rem;font-size:.65rem;">Buat Jadwal Cicilan</button>
+                </form>
+                @else
+                    <p class="font-serif text-sm text-gray-500 italic">Invoice dibayar langsung tanpa cicilan.</p>
+                @endif
+            @else
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50"><tr>
+                        <th class="text-left px-3 py-2 elite-kicker text-[.6rem]">#</th>
+                        <th class="text-left px-3 py-2 elite-kicker text-[.6rem]">Jumlah</th>
+                        <th class="text-left px-3 py-2 elite-kicker text-[.6rem]">Jatuh Tempo</th>
+                        <th class="text-left px-3 py-2 elite-kicker text-[.6rem]">Status</th>
+                        <th class="text-right px-3 py-2 elite-kicker text-[.6rem]">Aksi</th>
+                    </tr></thead>
+                    <tbody>
+                        @foreach($invoice->installments as $ins)
+                        <tr class="border-t border-rule">
+                            <td class="px-3 py-2 font-mono text-xs">{{ $ins->installment_no }}</td>
+                            <td class="px-3 py-2 font-mono">Rp {{ number_format($ins->amount/100, 0, ',', '.') }}</td>
+                            <td class="px-3 py-2 text-xs">{{ $ins->due_date?->format('d M Y') ?? '—' }}</td>
+                            <td class="px-3 py-2">
+                                @if($ins->status === 'paid')<span class="text-xs text-green-700">✓ Lunas</span>
+                                @elseif($ins->status === 'overdue')<span class="text-xs text-red-700">Terlambat</span>
+                                @else<span class="text-xs text-amber-700">Pending</span>@endif
+                            </td>
+                            <td class="px-3 py-2 text-right">
+                                @if($ins->status !== 'paid')
+                                <form method="POST" action="{{ route('admin.fee.installments.pay', $ins) }}" class="inline-flex gap-2">
+                                    @csrf
+                                    <input type="hidden" name="amount_rupiah" value="{{ $ins->remaining / 100 }}">
+                                    <select name="payment_method" class="border-2 border-rule px-2 py-1 text-xs">
+                                        <option value="cash">Tunai</option>
+                                        <option value="bank_transfer">Transfer</option>
+                                        <option value="qris">QRIS</option>
+                                        <option value="ewallet">E-Wallet</option>
+                                    </select>
+                                    <button class="text-xs underline ink-secondary hover:ink-accent">Bayar</button>
+                                </form>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+
     </div>
 
     <div class="space-y-4">
