@@ -92,3 +92,26 @@ it('shows exam result with review', function () {
         ->assertOk()
         ->assertSee('TIDAK LULUS');
 });
+
+it('syncs auto-graded exam results into marks (end-to-end)', function () {
+    [$user, $student, $exam] = cbtBuildExam();
+
+    $year = AcademicYear::where('school_id', $exam->school_id)->firstOrFail();
+    \App\Models\Academic\Semester::create([
+        'school_id' => $exam->school_id, 'academic_year_id' => $year->id, 'name' => 'Ganjil',
+        'start_date' => '2025-07-01', 'end_date' => '2025-12-31', 'is_active' => true,
+    ]);
+
+    $question = $exam->questions()->first();
+
+    $this->actingAs($user)->get(route('student.exams.take', $exam));
+    $this->actingAs($user)->post(route('student.exams.submit', $exam), ['answers' => [$question->id => '4']]);
+
+    $this->assertDatabaseHas('marks', [
+        'school_id' => $exam->school_id,
+        'student_id' => $student->id,
+        'exam_id' => $exam->id,
+        'subject_id' => $exam->subject_id,
+        'obtained_marks' => 10,
+    ]);
+});

@@ -166,6 +166,59 @@ class AccountingService
         ];
     }
 
+    /** Auto-post a journal entry for a fee payment (Debit Kas/Bank, Credit Pendapatan). */
+    public function postFeePayment(int $schoolId, int $amountCents, string $method, ?string $reference = null, ?string $date = null): void
+    {
+        if ($amountCents <= 0) {
+            return;
+        }
+
+        $assetCode = in_array($method, ['bank_transfer', 'va', 'qris', 'ewallet'], true) ? '1100' : '1000';
+        $asset   = ChartOfAccount::where('school_id', $schoolId)->where('code', $assetCode)->first();
+        $revenue = ChartOfAccount::where('school_id', $schoolId)->where('code', '4000')->first();
+
+        if (!$asset || !$revenue) {
+            return;
+        }
+
+        $entry = $this->createEntry($schoolId, [
+            'entry_date'   => $date ?? now()->toDateString(),
+            'reference_no' => $reference,
+            'description'  => 'Pembayaran SPP (otomatis)',
+        ], [
+            ['chart_of_account_id' => $asset->id,   'debit' => $amountCents, 'credit' => 0],
+            ['chart_of_account_id' => $revenue->id, 'debit' => 0,            'credit' => $amountCents],
+        ]);
+
+        $this->post($entry);
+    }
+
+    /** Auto-post a journal entry for a refund (Debit Pendapatan, Credit Kas). */
+    public function postRefund(int $schoolId, int $amountCents, ?string $reference = null): void
+    {
+        if ($amountCents <= 0) {
+            return;
+        }
+
+        $asset   = ChartOfAccount::where('school_id', $schoolId)->where('code', '1000')->first();
+        $revenue = ChartOfAccount::where('school_id', $schoolId)->where('code', '4000')->first();
+
+        if (!$asset || !$revenue) {
+            return;
+        }
+
+        $entry = $this->createEntry($schoolId, [
+            'entry_date'   => now()->toDateString(),
+            'reference_no' => $reference,
+            'description'  => 'Refund SPP (otomatis)',
+        ], [
+            ['chart_of_account_id' => $revenue->id, 'debit' => $amountCents, 'credit' => 0],
+            ['chart_of_account_id' => $asset->id,   'debit' => 0,            'credit' => $amountCents],
+        ]);
+
+        $this->post($entry);
+    }
+
     public function ledger(int $schoolId, int $accountId, ?string $from = null, ?string $to = null): Collection
     {
         return JournalEntryLine::where('school_id', $schoolId)

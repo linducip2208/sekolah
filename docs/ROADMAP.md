@@ -77,4 +77,16 @@
 
 - ✅ **Semua fase roadmap utama sudah diimplementasikan.** Tidak ada lagi item mayor yang tersisa.
 
+## 6. Integrasi End-to-End (gap ditutup)
+
+| Alur | Keterkaitan |
+|---|---|
+| Ujian online (CBT) → Nilai/Rapor | `ExamService::autoGrade` otomatis menulis `marks` (end-to-end) |
+| Pembayaran SPP → Jurnal Akuntansi | `AccountingService::postFeePayment`/`postRefund` auto-posting jurnal posted |
+| Bank Soal → Ujian & Kuis | `question_bank_item_id` + generator |
+| Ujian → Item Analysis → Bank Soal | agregasi balik `avg_score_pct`/`discrimination` |
+| Kursus → Progres → Sertifikat (+ prasyarat) | chain penuh |
+| Automation → Notifikasi | `AutomationService` → `NotificationLog` |
+| Anomaly ← Absensi | `AnomalyDetectionService` |
+
 > Dokumen ini = hasil Phase 1 AUDIT. Implementasi per fase dilakukan bertahap sesuai prioritas di atas.

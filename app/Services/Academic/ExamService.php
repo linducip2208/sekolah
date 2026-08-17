@@ -5,6 +5,8 @@ namespace App\Services\Academic;
 use App\Models\Academic\Exam;
 use App\Models\Academic\ExamQuestion;
 use App\Models\Academic\ExamResult;
+use App\Models\Academic\Mark;
+use App\Models\Academic\Semester;
 use App\Models\Academic\Student;
 
 class ExamService
@@ -78,5 +80,45 @@ class ExamService
             'obtained_marks' => $totalMarks,
             'status'         => $isPassed ? 'passed' : 'failed',
         ]);
+
+        $this->writeMark($result, $exam, $totalMarks);
+    }
+
+    /** Sync the auto-graded result into the marks/report-card table (end-to-end). */
+    protected function writeMark(ExamResult $result, Exam $exam, int $obtained): void
+    {
+        $semester = Semester::where('school_id', $exam->school_id)
+            ->where('is_active', true)
+            ->orderByDesc('id')
+            ->first()
+            ?? Semester::where('school_id', $exam->school_id)->orderByDesc('id')->first();
+
+        if (!$semester) {
+            return;
+        }
+
+        $pct   = $exam->total_marks > 0 ? ($obtained / $exam->total_marks) * 100 : 0;
+        $grade = app(MarksService::class)->resolveGrade($exam->school_id, $pct);
+
+        Mark::updateOrCreate(
+            [
+                'school_id'  => $exam->school_id,
+                'student_id' => $result->student_id,
+                'exam_id'    => $exam->id,
+                'subject_id' => $exam->subject_id,
+            ],
+            [
+                'semester_id'    => $semester->id,
+                'obtained_marks' => $obtained,
+                'total_marks'    => $exam->total_marks,
+                'grade'          => $grade ?? match (true) {
+                    $pct >= 90 => 'A',
+                    $pct >= 80 => 'B',
+                    $pct >= 70 => 'C',
+                    $pct >= 60 => 'D',
+                    default    => 'E',
+                },
+            ]
+        );
     }
 }

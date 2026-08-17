@@ -75,3 +75,24 @@ it('rejects an unbalanced journal on post', function () {
 
     $this->service->post($entry);
 });
+
+it('auto-posts a fee payment journal entry', function () {
+    $school = acctSchool();
+    $this->service->seedDefaultCoa($school->id);
+
+    $this->service->postFeePayment($school->id, 100000, 'cash', 'REF-1', '2026-08-17');
+
+    $entry = JournalEntry::where('school_id', $school->id)->first();
+    expect($entry)->not->toBeNull();
+    expect($entry->status)->toBe('posted');
+    expect($entry->lines()->count())->toBe(2);
+    expect((int) $entry->lines()->sum('debit'))->toBe(100000);
+});
+
+it('skips auto-posting when no COA is seeded', function () {
+    $school = acctSchool();
+
+    $this->service->postFeePayment($school->id, 100000, 'cash', 'REF-1');
+
+    expect(JournalEntry::where('school_id', $school->id)->count())->toBe(0);
+});

@@ -69,6 +69,10 @@ class FeeInstallmentService
             ]);
         });
 
+        app(AccountingService::class)->postFeePayment(
+            $invoice->school_id, $amount, $method, $reference, now()->toDateString()
+        );
+
         return $installment->fresh();
     }
 

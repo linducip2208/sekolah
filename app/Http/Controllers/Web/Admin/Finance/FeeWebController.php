@@ -208,7 +208,11 @@ class FeeWebController extends Controller
             'fee_payment_id'=> 'nullable|exists:fee_payments,id',
         ]);
 
-        $this->refunds->refund($invoice, (int) round($data['amount_rupiah'] * 100), $data['reason'] ?? '', $data['fee_payment_id'] ?? null);
+        $amountCents = (int) round($data['amount_rupiah'] * 100);
+
+        $this->refunds->refund($invoice, $amountCents, $data['reason'] ?? '', $data['fee_payment_id'] ?? null);
+
+        app(\App\Services\Finance\AccountingService::class)->postRefund($invoice->school_id, $amountCents, $data['fee_payment_id'] ?? null);
 
         return back()->with('success', 'Refund tercatat.');
     }
@@ -266,6 +270,10 @@ class FeeWebController extends Controller
                 'status'      => $newPaid >= $invoice->amount ? 'paid' : 'partial',
             ]);
         });
+
+        app(\App\Services\Finance\AccountingService::class)->postFeePayment(
+            $invoice->school_id, $amountCents, $data['payment_method'], $data['reference'] ?? null, $data['payment_date']
+        );
 
         return back()->with('success', 'Pembayaran tercatat.');
     }
