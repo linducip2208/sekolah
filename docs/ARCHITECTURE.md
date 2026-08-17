@@ -38,6 +38,18 @@ terisolasi, dan konfigurasi mandiri.
 
 ---
 
+## New Modules & Services (sesi 2026-08 — lihat docs/ROADMAP.md)
+
+| Area | Modul / Service baru |
+|---|---|
+| Assessment | Item Analysis (`ItemAnalysisService`), CBT web, Grading Scale, Grade Approval, Transcript, QR Verifikasi Rapor |
+| Finance | Accounting (`AccountingService` COA+Jurnal+Laporan), Rekonsiliasi Bank, Installment, Refund+Late Fee |
+| LMS | Course + Certificate + Prerequisite, Quiz engine (`QuizService`), Discussion terintegrasi |
+| AI & Analytics | AI Chat-with-data (`DataChatService`), Anomaly Detection, OCR (`OcrService`) |
+| Transport | Live tracking (`TransportTrackingService`), Transport Attendance, Driver Schedule |
+| Automation & Compliance | Automation engine (`AutomationService`), Internal Audit, Accreditation Action Plans, Compliance Dashboard |
+| RBAC | Role expansion (17 role: principal, hr, transport_admin, hostel_admin, procurement_admin, homeroom_teacher, driver) |
+
 ## Platform Components
 
 ### 1. Laravel Web Panel (Blade + Alpine.js + Tailwind CSS)

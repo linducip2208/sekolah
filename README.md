@@ -8,14 +8,27 @@ Platform manajemen sekolah multi-tenant berbasis cloud. Mencakup akademik, keuan
 
 ## What's New (sesi pengembangan terakhir)
 
-- **Design System Enterprise** — semantic tokens, komponen reusable (`x-ui.*`, `x-landing.*`), dark mode, responsive mobile-first, font Manrope, primary Deep Blue `#2563EB` + accent Amber `#F59E0B`.
-- **Multi-Theme White-Label** — 5 tema sekolah + 5 tema landing; kontrol font, warna teks, ukuran font, radius, warna sidebar/tabel per sekolah (`/admin/branding`) dan landing (`/super/whitelabel`).
-- **Student 360** — profil tabbed lengkap (akademik, absensi, disiplin, konseling, kesehatan, keuangan, prestasi, timeline, early warning).
-- **School Intelligence** — dashboard AI & analitik: distribusi risiko, at-risk students, dropout prediction.
-- **Workflow & Approval Engine** — generic approval (leave/purchase/expense/transfer/discount/refund) + antrian persetujuan.
-- **Landing Page 5 Template** — modern/corporate/classic/minimal/islamic, background system, real screenshot, pricing dari Plan.
-- **Enterprise Navigation** — domain IA, favorites (pin), breadcrumbs otomatis, command palette SVG, sidebar collapsible + drawer mobile.
-- **Quality** — 131 test passing, responsive audit Playwright (7 viewport), `route:cache` enabled, `deploy.sh`.
+**Enterprise UI & White-label**
+- Design System — semantic tokens, komponen `x-ui.*`/`x-landing.*`, dark mode, responsive, font Manrope, Deep Blue `#2563EB` + Amber `#F59E0B`.
+- Multi-Theme — 5 tema sekolah + 5 tema landing, kontrol font/warna/radius per sekolah & platform.
+- Student 360, School Intelligence, Workflow & Approval engine, Enterprise Navigation (favorites, breadcrumbs, command palette).
+
+**Fase Akademik (Assessment & LMS)**
+- CBT (ujian online web: timer, navigasi soal, ragu-ragu, auto-submit, review).
+- Item Analysis (difficulty/discrimination/distractor) + Bank Soal upgrade + Generate Exam dari Bank.
+- Grading Scale + Grade Approval/Lock + Transcript + QR Verifikasi Rapor.
+- LMS: Kursus (modul + enrollment + progress + sertifikat + prerequisite) + Quiz engine + Discussion terintegrasi.
+
+**Finance lengkap**
+- Akuntansi double-entry (COA + Jurnal + Neraca Saldo/Laba Rugi/Neraca) + Rekonsiliasi Bank.
+- Installment (cicilan SPP) + auto overdue + late fee + refund.
+
+**Operasional & Intelligence**
+- Live Bus Tracking (map Leaflet + polling) + Transport Attendance + Driver Schedule.
+- Automation engine (trigger→action) + Anomaly detection + AI Chat-with-data + OCR Dokumen.
+- Internal Audit workflow + Compliance Dashboard + Accreditation Action Plans + Role Expansion (17 role).
+
+**Quality** — **197 test passing (523 assertions)**, responsive audit Playwright, `route:cache`, `deploy.sh`.
 
 ---
 
