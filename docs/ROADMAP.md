@@ -35,7 +35,7 @@
 | 22 | Automation | ✅ | Invoice generate, Payment reminder, Grade/daily report, Risk/dropout alert, **Automation engine (trigger→action: SPP jatuh tempo/menunggak/absen beruntun/ulang tahun → notify/email) + command + scheduler** ADA. **MISSING**: Document/contract expiry, PTM reminder. |
 | 23 | Digital Document | 🟡 | Document management, versioning, approval, share link, Letters (template + numbering + PDF), Certificates ADA. **MISSING**: Digital signature, QR public verification URL, Report card digital QR. |
 | 24 | Administrative Office | 🟡 | Letters (surat), Documents, Meetings (committee) ADA. **MISSING**: Incoming/outgoing mail + disposition, Agenda/minutes terpisah, Task management. |
-| 25 | Compliance | ✅ | Accreditation (standards, instruments, scores, documents, **action plans / rencana perbaikan**), Adiwiyata ADA. **MISSING**: Internal audit workflow, Compliance dashboard gabungan. |
+| 25 | Compliance | ✅ | Accreditation (standards, instruments, scores, documents, action plans), Adiwiyata, **Internal audit (audit → temuan → tindakan → resolve)** ADA. **MISSING**: Compliance dashboard gabungan. |
 | 26 | SaaS | ✅ | Multi-tenant, Subscription, Plan, Billing, Trial, Custom domain, Whitelabel, Branding, Theme, Super admin, API key, Webhook, API docs ADA. **MISSING**: Coupon, Usage analytics per tenant. |
 | 27 | Role / Portal | ✅ | Roles: super_admin, admin, teacher, student, parent, accountant, librarian, receptionist, nurse, counselor, foundation_admin, **principal, hr, transport_admin, hostel_admin, procurement_admin, homeroom_teacher, driver** ADA. **MISSING**: VP role, per-role dashboard penuh. |
 | 28 | Navigation | ✅ | Konsolidasi domain-based (Dashboard/My Tasks/Calendar/Notifications + 16 grup), role-based, favorites, breadcrumbs, command palette, SVG icon. |
@@ -78,6 +78,6 @@
 1. Quiz engine terpisah + Discussion/forum terintegrasi + prerequisite kursus.
 2. Driver schedule untuk transport.
 3. OCR/document untuk AI.
-4. Internal audit workflow + compliance dashboard gabungan.
+4. Compliance dashboard gabungan.
 
 > Dokumen ini = hasil Phase 1 AUDIT. Implementasi per fase dilakukan bertahap sesuai prioritas di atas.

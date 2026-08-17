@@ -288,7 +288,7 @@
 </div>
 
 {{-- SYSTEM --}}
-<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.branding.*','admin.blog.*','admin.documents.*','admin.letters.*','admin.surveys.*','admin.exports.*','admin.audit.*','admin.signage.*','admin.dashboard-tv.*','admin.accreditation.*','admin.adiwiyata.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.branding.*','admin.blog.*','admin.documents.*','admin.letters.*','admin.surveys.*','admin.exports.*','admin.audit.*','admin.internal-audit.*','admin.signage.*','admin.dashboard-tv.*','admin.accreditation.*','admin.adiwiyata.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['system']) !!}System</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.branding.show') }}" class="sidebar-sub-link {{ $isActive('admin.branding.show') }}">Branding</a>
@@ -300,6 +300,7 @@
         <a href="{{ route('admin.surveys.templates.index') }}" class="sidebar-sub-link {{ $isActive('admin.surveys.*') }}">Surveys</a>
         <a href="{{ route('admin.exports.index') }}" class="sidebar-sub-link {{ $isActive('admin.exports.*') }}">Exports</a>
         <a href="{{ route('admin.audit.index') }}" class="sidebar-sub-link {{ $isActive('admin.audit.*') }}">Audit Log</a>
+        <a href="{{ route('admin.internal-audit.index') }}" class="sidebar-sub-link {{ $isActive('admin.internal-audit.*') }}">Internal Audit</a>
         <a href="{{ route('admin.signage.config') }}" class="sidebar-sub-link {{ $isActive('admin.signage.*') }}">Digital Signage</a>
         <a href="{{ route('admin.dashboard-tv.config') }}" class="sidebar-sub-link {{ $isActive('admin.dashboard-tv.*') }}">Dashboard TV</a>
         <a href="{{ route('admin.accreditation.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.accreditation.*') }}">Accreditation</a>

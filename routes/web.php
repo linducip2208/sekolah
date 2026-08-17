@@ -64,6 +64,7 @@ use App\Http\Controllers\Web\Admin\Automation\AutomationController;
 use App\Http\Controllers\Web\Admin\Academic\GradingScaleController;
 use App\Http\Controllers\Web\Admin\Academic\GradeApprovalController;
 use App\Http\Controllers\Web\Admin\Academic\TranscriptController;
+use App\Http\Controllers\Web\Admin\Audit\InternalAuditController;
 use App\Http\Controllers\Web\Admin\Analytics\AnomalyController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
@@ -901,6 +902,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/accounting/trial-balance',          [AccountingController::class, 'trialBalance'])->name('accounting.trial-balance');
         Route::get('/accounting/profit-loss',            [AccountingController::class, 'profitLoss'])->name('accounting.profit-loss');
         Route::get('/accounting/balance-sheet',          [AccountingController::class, 'balanceSheet'])->name('accounting.balance-sheet');
+
+        // ============== AUDIT INTERNAL ==============
+        Route::get('/internal-audit',                     [InternalAuditController::class, 'index'])->name('internal-audit.index');
+        Route::post('/internal-audit',                    [InternalAuditController::class, 'store'])->name('internal-audit.store');
+        Route::get('/internal-audit/{audit}',             [InternalAuditController::class, 'show'])->name('internal-audit.show');
+        Route::post('/internal-audit/{audit}/start',      [InternalAuditController::class, 'start'])->name('internal-audit.start');
+        Route::post('/internal-audit/{audit}/complete',   [InternalAuditController::class, 'complete'])->name('internal-audit.complete');
+        Route::post('/internal-audit/{audit}/findings',   [InternalAuditController::class, 'storeFinding'])->name('internal-audit.findings.store');
+        Route::post('/internal-audit/findings/{finding}/status', [InternalAuditController::class, 'updateFindingStatus'])->name('internal-audit.findings.status');
+        Route::delete('/internal-audit/findings/{finding}', [InternalAuditController::class, 'deleteFinding'])->name('internal-audit.findings.destroy');
 
         // ============== REKONSILIASI BANK ==============
         Route::get('/accounting/bank-reconciliation',         [BankReconciliationController::class, 'index'])->name('accounting.bank-reconciliation');
