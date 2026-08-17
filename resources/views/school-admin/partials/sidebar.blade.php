@@ -139,6 +139,7 @@
         <a href="{{ route('admin.training.certifications') }}" class="sidebar-sub-link {{ $isActive('admin.training.certifications') }}">Certifications</a>
         <a href="{{ route('admin.lesson-study.index') }}" class="sidebar-sub-link {{ $isActive('admin.lesson-study.*') }}">Lesson Study</a>
         <a href="{{ route('admin.payroll.slips.index') }}" class="sidebar-sub-link {{ $isActive('admin.payroll.*') }}">Payroll</a>
+        <a href="{{ route('admin.hr.index') }}" class="sidebar-sub-link {{ $isActive('admin.hr.*') }}">HR / Human Capital</a>
     </div>
 </div>
 @endif

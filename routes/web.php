@@ -72,6 +72,7 @@ use App\Http\Controllers\Web\Admin\Academic\CurriculumCompetencyController;
 use App\Http\Controllers\Web\Admin\Academic\TeachingJournalController;
 use App\Http\Controllers\Web\Admin\Audit\InternalAuditController;
 use App\Http\Controllers\Web\Admin\Inventory\InventoryStockController;
+use App\Http\Controllers\Web\Admin\Hr\HrController;
 use App\Http\Controllers\Web\Admin\Lms\QuizController;
 use App\Http\Controllers\Web\Admin\Analytics\AnomalyController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
@@ -960,6 +961,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/inventory/stock/{item}/out',       [InventoryStockController::class, 'stockOut'])->name('inventory.stock.out');
         Route::post('/inventory/stock/{item}/opname',    [InventoryStockController::class, 'opname'])->name('inventory.stock.opname');
         Route::delete('/inventory/stock/{item}',         [InventoryStockController::class, 'destroy'])->name('inventory.stock.destroy');
+
+        // ============== HR ==============
+        Route::get('/hr',                               [HrController::class, 'index'])->name('hr.index');
+        Route::post('/hr/contracts',                    [HrController::class, 'storeContract'])->name('hr.contracts.store');
+        Route::post('/hr/contracts/{contract}/terminate', [HrController::class, 'terminateContract'])->name('hr.contracts.terminate');
+        Route::post('/hr/leave',                        [HrController::class, 'storeLeave'])->name('hr.leave.store');
+        Route::post('/hr/leave/{leave}/decide',         [HrController::class, 'decideLeave'])->name('hr.leave.decide');
+        Route::post('/hr/overtime',                     [HrController::class, 'storeOvertime'])->name('hr.overtime.store');
+        Route::post('/hr/overtime/{record}/approve',    [HrController::class, 'approveOvertime'])->name('hr.overtime.approve');
 
         // ============== REKONSILIASI BANK ==============
         Route::get('/accounting/bank-reconciliation',         [BankReconciliationController::class, 'index'])->name('accounting.bank-reconciliation');
