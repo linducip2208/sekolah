@@ -59,6 +59,7 @@ use App\Http\Controllers\Web\Admin\AI\AiDataChatController;
 use App\Http\Controllers\Web\Admin\Lms\CourseController;
 use App\Http\Controllers\Web\Admin\Transport\TransportTrackingController;
 use App\Http\Controllers\Web\Student\StudentExamController;
+use App\Http\Controllers\Web\Admin\Automation\AutomationController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10WebController;
@@ -555,6 +556,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/webhooks/{webhook}',              [\App\Http\Controllers\Web\Admin\Communication\WebhookController::class, 'destroy'])->name('webhooks.destroy');
         Route::get('/webhooks/{webhook}/deliveries',      [\App\Http\Controllers\Web\Admin\Communication\WebhookController::class, 'deliveries'])->name('webhooks.deliveries');
         Route::post('/webhooks/deliveries/{delivery}/retry', [\App\Http\Controllers\Web\Admin\Communication\WebhookController::class, 'retry'])->name('webhooks.retry');
+
+        // ============== OTOMASI (Automation Rules) ==============
+        Route::get('/automation/rules',                   [AutomationController::class, 'index'])->name('automation.rules.index');
+        Route::post('/automation/rules',                  [AutomationController::class, 'store'])->name('automation.rules.store');
+        Route::post('/automation/rules/{rule}/toggle',    [AutomationController::class, 'toggle'])->name('automation.rules.toggle');
+        Route::delete('/automation/rules/{rule}',         [AutomationController::class, 'destroy'])->name('automation.rules.destroy');
 
         // ============== DOKUMEN ==============
         Route::get('/documents',                             [\App\Http\Controllers\Web\Admin\Communication\DocumentController::class, 'index'])->name('documents.index');

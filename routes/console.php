@@ -37,3 +37,6 @@ Schedule::command('wa-bot:expire-sessions')->dailyAt('03:00');
 
 // SPP Reminder Scheduler — send reminders daily at 07:00
 Schedule::command('reminders:send')->dailyAt('07:00');
+
+// Automation — evaluate trigger/action rules every morning
+Schedule::command('automation:evaluate')->dailyAt('06:30')->withoutOverlapping();

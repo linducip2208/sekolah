@@ -32,7 +32,7 @@
 | 19 | Yayasan / Multi School | 🟡 | Foundation, Benchmark antar sekolah, Consolidated dashboard ADA. **MISSING**: Central master data, Central user management, Per-cabang comparison UI lengkap. |
 | 20 | BI & Analytics | 🟡 | Learning Analytics (risk score), Dropout prediction, School Intelligence, Benchmark ADA. **MISSING**: Executive/PPDB/HR/Library dashboards, PPDB funnel, Predictive analytics lengkap. |
 | 21 | AI School Intelligence | ✅ | AI providers (dynamic), Essay grading, Lesson plan, Dropout prediction, Risk score, **AI Chat-with-data (Tanya Data Sekolah — NL → metric, rule-based fallback)** ADA. **MISSING**: Anomaly detection, OCR/document. |
-| 22 | Automation | 🟡 | Invoice generate, Payment reminder, Grade/daily report, Risk/dropout alert commands ADA. **MISSING**: Workflow automation engine terpadu (generic triggers), Document/contract expiry, Birthday, PTM reminder. |
+| 22 | Automation | ✅ | Invoice generate, Payment reminder, Grade/daily report, Risk/dropout alert, **Automation engine (trigger→action: SPP jatuh tempo/menunggak/absen beruntun/ulang tahun → notify/email) + command + scheduler** ADA. **MISSING**: Document/contract expiry, PTM reminder. |
 | 23 | Digital Document | 🟡 | Document management, versioning, approval, share link, Letters (template + numbering + PDF), Certificates ADA. **MISSING**: Digital signature, QR public verification URL, Report card digital QR. |
 | 24 | Administrative Office | 🟡 | Letters (surat), Documents, Meetings (committee) ADA. **MISSING**: Incoming/outgoing mail + disposition, Agenda/minutes terpisah, Task management. |
 | 25 | Compliance | ✅ | Accreditation (standards, instruments, scores, documents, **action plans / rencana perbaikan**), Adiwiyata ADA. **MISSING**: Internal audit workflow, Compliance dashboard gabungan. |
@@ -76,10 +76,9 @@
 ## 5. Remaining TODO (prioritas berikutnya)
 
 1. Quiz engine terpisah + Discussion/forum terintegrasi + sertifikat penyelesaian kursus.
-2. Automation engine generic (trigger/action).
-3. Transport attendance + driver schedule.
-4. Anomaly detection + OCR/document untuk AI.
-5. Internal audit workflow + compliance dashboard gabungan.
-6. Grading scale/weighting + grade approval + QR verification rapor.
+2. Transport attendance + driver schedule.
+3. Anomaly detection + OCR/document untuk AI.
+4. Internal audit workflow + compliance dashboard gabungan.
+5. Grading scale/weighting + grade approval + QR verification rapor.
 
 > Dokumen ini = hasil Phase 1 AUDIT. Implementasi per fase dilakukan bertahap sesuai prioritas di atas.

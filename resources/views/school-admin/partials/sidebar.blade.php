@@ -278,6 +278,7 @@
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.workflow.create') }}" class="sidebar-sub-link {{ $isActive('admin.workflow.create') }}">Workflow Request</a>
         <a href="{{ route('admin.webhooks.index') }}" class="sidebar-sub-link {{ $isActive('admin.webhooks.*') }}">Webhooks</a>
+        <a href="{{ route('admin.automation.rules.index') }}" class="sidebar-sub-link {{ $isActive('admin.automation.*') }}">Automation Rules</a>
     </div>
 </div>
 
