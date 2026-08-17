@@ -30,6 +30,9 @@
     // Role-based navigation (presentation only; backend authorization enforced separately).
     $role    = auth()->check() ? (auth()->user()->getRoleNames()->first() ?? 'admin') : 'admin';
     $isAdmin = in_array($role, ['admin', 'super_admin'], true);
+    $can = fn(array $roles) => in_array($role, $roles, true);
+    $canProcurement  = $can(['admin', 'super_admin', 'procurement_admin']);
+    $canAutomation   = $can(['admin', 'super_admin']);
 
     $sid = auth()->check() ? auth()->user()->school_id : null;
     $navCounts = [
@@ -68,7 +71,7 @@
 <a href="{{ route('admin.calendar.index') }}" class="sidebar-link {{ $isActive('admin.calendar.*') }}">{!! $icon($icons['calendar']) !!}<span>Calendar</span></a>
 <a href="{{ route('admin.notifications.index') }}" class="sidebar-link {{ $isActive('admin.notifications.*') }}">{!! $icon($icons['bell']) !!}<span>Notifications</span></a>
 
-@if($isAdmin)
+@if($can(['admin','super_admin','principal','homeroom_teacher','hr']))
 {{-- ACADEMIC --}}
 <div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.academic.*','admin.curriculum.*','admin.timetable.*','admin.classroom.lessons.*','admin.assignments.*','admin.exams.*','admin.qbank.*','admin.raport-interaktif.*','admin.lesson-plan.*','admin.live-class.*','admin.academic.essay-grading.*','admin.courses.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['academic']) !!}Academic</span>{!! $chevron !!}</button>
@@ -151,7 +154,7 @@
     </div>
 </div>
 
-@if($isAdmin)
+@if($canProcurement)
 {{-- PROCUREMENT --}}
 <div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.procurement.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['procurement']) !!}Procurement</span>{!! $chevron !!}</button>
@@ -268,7 +271,7 @@
     </div>
 </div>
 
-@if($isAdmin)
+@if($canAutomation)
 {{-- AUTOMATION --}}
 <div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.webhooks.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['automation']) !!}Automation</span>{!! $chevron !!}</button>

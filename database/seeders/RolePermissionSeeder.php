@@ -187,6 +187,19 @@ class RolePermissionSeeder extends Seeder
             'counselor'   => ['counseling.view', 'counseling.manage', 'discipline.view',
                               'discipline.manage', 'student.view', 'analytics.view'],
             'foundation_admin' => ['foundation.view'],
+
+            // ===== Enterprise roles (Role expansion) =====
+            'principal'     => ['school.manage', 'student.view', 'staff.view', 'attendance.view',
+                                'marks.view', 'fee.view', 'report.view', 'analytics.view',
+                                'notice.view', 'notice.manage', 'chat.use', 'curriculum.view',
+                                'lesson_plan.view', 'lesson_plan.approve', 'medical.view'],
+            'hr'            => ['staff.view', 'staff.manage', 'payroll.view', 'payroll.manage', 'report.view'],
+            'transport_admin' => ['transport.view', 'transport.manage', 'transport.tracking.view', 'gate.manage', 'gate.scan'],
+            'hostel_admin'  => ['hostel.view', 'hostel.manage', 'student.view'],
+            'procurement_admin' => ['inventory.view', 'inventory.manage', 'report.view'],
+            'homeroom_teacher' => ['attendance.view', 'attendance.manage', 'student.view', 'marks.view',
+                                   'marks.manage', 'notice.view', 'chat.use', 'classroom.view', 'report.view'],
+            'driver'        => ['gate.scan', 'transport.tracking.view'],
         ];
 
         foreach ($roles as $roleName => $rolePerms) {

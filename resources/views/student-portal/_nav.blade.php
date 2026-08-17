@@ -8,6 +8,7 @@
     ['student.attendance', 'Absensi', '📋'],
     ['student.lessons', 'Materi', '📖'],
     ['student.assignments', 'Tugas', '✍'],
+    ['student.exams.index', 'Ujian', '📝'],
     ['student.leaderboard', 'Leaderboard', '🏆'],
     ['student.surveys', 'Survei', '📝'],
     ['student.portfolios', 'Portofolio', '🖼️'],

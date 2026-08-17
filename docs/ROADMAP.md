@@ -14,7 +14,7 @@
 | 2 | Question Bank | 🟡 | QuestionBankCategory + QuestionBankItem ADA. **MISSING**: Tags, difficulty/cognitive level, matching/fill-blank/HOTS/AKM, versioning, review/approval, blueprint, package generator, item analysis. |
 | 3 | Akademik Super Lengkap | 🟡 | Years, Semesters, Curriculum, Subjects, Classes, Sections, Rombel, Timetable + auto-generator, Calendar, Holiday ADA. **MISSING**: Curriculum version, Competency/Learning Outcomes, Homeroom Teacher, Substitute Teacher, Make-up Class. |
 | 3 | Student Master | ✅ | Student, Profile, Documents, Parents, Timeline ADA. **MISSING**: Enrollment/Promotion/Graduation/Transfer workflow, Student Tags. |
-| 4 | Assessment & Report Card | 🟡 | Exams, Marks, Grades, Report Card PDF, Raport Interaktif ADA. **MISSING**: Grading scale/weighting, Gradebook, Grade approval/lock/history, Transcript, GPA/ranking, QR verification. |
+| 4 | Assessment & Report Card | ✅ | Exams, Marks, Grades, Report Card PDF, Raport Interaktif, **CBT (ujian online web: timer, navigasi soal, ragu-ragu, auto-submit, review)** + Item Analysis ADA. **MISSING**: Grading scale/weighting, Grade approval/lock/history, Transcript, QR verification. |
 | 5 | LMS | ✅ | Classroom (Lessons, Assignments, Submissions), Live Class, Digital Library, **Kursus (Course → Module → Lesson + enrollment + progress tracking)** ADA. **MISSING**: Quiz engine terpisah, Discussion/forum terintegrasi, Completion certificates, prerequisite. |
 | 6 | Student Life | ✅ | Attendance + QR, Discipline, Counseling, Bullying, UKS/Clinic, Vaccination, Achievement, Extracurricular, Canteen ADA. **MISSING**: GPS/biometric/face attendance, Point reward system, Wellbeing check. |
 | 7 | PPDB | 🟡 | Period, Public registration, Applications, Verification, Zoning ADA. **MISSING**: Form builder, Interview/test scoring/ranking, Quota, Auto student creation, Waiting list, Admission letter. |
@@ -37,7 +37,7 @@
 | 24 | Administrative Office | 🟡 | Letters (surat), Documents, Meetings (committee) ADA. **MISSING**: Incoming/outgoing mail + disposition, Agenda/minutes terpisah, Task management. |
 | 25 | Compliance | ✅ | Accreditation (standards, instruments, scores, documents, **action plans / rencana perbaikan**), Adiwiyata ADA. **MISSING**: Internal audit workflow, Compliance dashboard gabungan. |
 | 26 | SaaS | ✅ | Multi-tenant, Subscription, Plan, Billing, Trial, Custom domain, Whitelabel, Branding, Theme, Super admin, API key, Webhook, API docs ADA. **MISSING**: Coupon, Usage analytics per tenant. |
-| 27 | Role / Portal | 🟡 | Roles: super_admin, admin, teacher, student, parent, accountant, librarian, receptionist, nurse, counselor, foundation_admin ADA. **MISSING**: Principal, VP, HR, transport/hostel/procurement admin terpisah, homeroom teacher, driver, staff. |
+| 27 | Role / Portal | ✅ | Roles: super_admin, admin, teacher, student, parent, accountant, librarian, receptionist, nurse, counselor, foundation_admin, **principal, hr, transport_admin, hostel_admin, procurement_admin, homeroom_teacher, driver** ADA. **MISSING**: VP role, per-role dashboard penuh. |
 | 28 | Navigation | ✅ | Konsolidasi domain-based (Dashboard/My Tasks/Calendar/Notifications + 16 grup), role-based, favorites, breadcrumbs, command palette, SVG icon. |
 | 29 | Dashboard | ✅ | School Command Center (KPI, attention, quick actions, charts, at-risk, tasks, calendar, activity), role-aware. **MISSING**: Dashboard per role lengkap (principal/teacher/parent/student) — parent/student/teacher sudah ada di portal masing-masing. |
 | 30 | Quality | ✅ | 131 test passing, responsive audit (Playwright), route:cache, audit log, tenant isolation. |
@@ -76,10 +76,10 @@
 ## 5. Remaining TODO (prioritas berikutnya)
 
 1. Quiz engine terpisah + Discussion/forum terintegrasi + sertifikat penyelesaian kursus.
-2. Role expansion (principal/HR/transport/hostel admin).
-3. Automation engine generic (trigger/action).
-4. Transport attendance + driver schedule.
-5. Anomaly detection + OCR/document untuk AI.
-6. Internal audit workflow + compliance dashboard gabungan.
+2. Automation engine generic (trigger/action).
+3. Transport attendance + driver schedule.
+4. Anomaly detection + OCR/document untuk AI.
+5. Internal audit workflow + compliance dashboard gabungan.
+6. Grading scale/weighting + grade approval + QR verification rapor.
 
 > Dokumen ini = hasil Phase 1 AUDIT. Implementasi per fase dilakukan bertahap sesuai prioritas di atas.

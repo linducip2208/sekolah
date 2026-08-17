@@ -58,6 +58,7 @@ use App\Http\Controllers\Web\Admin\Phase9\Phase9CrudController;
 use App\Http\Controllers\Web\Admin\AI\AiDataChatController;
 use App\Http\Controllers\Web\Admin\Lms\CourseController;
 use App\Http\Controllers\Web\Admin\Transport\TransportTrackingController;
+use App\Http\Controllers\Web\Student\StudentExamController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10WebController;
@@ -142,7 +143,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::middleware(['auth', 'role:admin|accountant', 'subscription.active', '2fa.enforce'])->group(function () {
+    Route::middleware(['auth', 'role:admin|accountant|principal|hr|transport_admin|hostel_admin|procurement_admin|homeroom_teacher', 'subscription.active', '2fa.enforce'])->group(function () {
         Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 
         // ==================== AKADEMIK ====================
@@ -1132,6 +1133,12 @@ Route::prefix('siswa')->name('student.')->middleware(['auth', 'role:student'])->
     Route::post('/tugas/{assignment}/kumpulkan', [AssignmentController::class, 'submitAssignment'])->name('assignments.submit');
     Route::get('/leaderboard', [\App\Http\Controllers\Web\Student\StudentPortalController::class, 'leaderboard'])->name('leaderboard');
     Route::get('/aktivitas',  [\App\Http\Controllers\Web\Student\StudentPortalController::class, 'activity'])->name('activity');
+
+    // CBT — Ujian Online
+    Route::get('/ujian',                         [StudentExamController::class, 'index'])->name('exams.index');
+    Route::get('/ujian/{exam}',                  [StudentExamController::class, 'take'])->name('exams.take');
+    Route::post('/ujian/{exam}/kumpulkan',       [StudentExamController::class, 'submit'])->name('exams.submit');
+    Route::get('/ujian/{exam}/hasil',            [StudentExamController::class, 'result'])->name('exams.result');
 
     Route::get('/perpustakaan-digital', [\App\Http\Controllers\Web\Student\StudentPortalController::class, 'digitalLibrary'])->name('digital-library');
 
