@@ -77,7 +77,8 @@
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['academic']) !!}Academic</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.academic.years.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.years.*') }}">Academic Years</a>
-        <a href="{{ route('admin.curriculum.frameworks.index') }}" class="sidebar-sub-link {{ $isActive('admin.curriculum.*') }}">Curriculum</a>
+        <a href="{{ route('admin.curriculum.frameworks.index') }}" class="sidebar-sub-link {{ $isActive('admin.curriculum.frameworks.*') }}">Curriculum</a>
+        <a href="{{ route('admin.curriculum.competencies.index') }}" class="sidebar-sub-link {{ $isActive('admin.curriculum.competencies.*') }}">Kompetensi (CP/TP/ATP)</a>
         <a href="{{ route('admin.academic.subjects.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.subjects.*') }}">Subjects</a>
         <a href="{{ route('admin.academic.classes.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.classes.*') }}">Classes</a>
         <a href="{{ route('admin.academic.sections.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.sections.*') }}">Sections</a>
@@ -93,6 +94,7 @@
         <a href="{{ route('admin.grades.approval') }}" class="sidebar-sub-link {{ $isActive('admin.grades.approval') }}">Grade Approval</a>
         <a href="{{ route('admin.grades.transcript') }}" class="sidebar-sub-link {{ $isActive('admin.grades.transcript') }}">Transcript</a>
         <a href="{{ route('admin.lesson-plan.index') }}" class="sidebar-sub-link {{ $isActive('admin.lesson-plan.*') }}">Lesson Plans</a>
+        <a href="{{ route('admin.teaching-journal.index') }}" class="sidebar-sub-link {{ $isActive('admin.teaching-journal.*') }}">Teaching Journal</a>
         <a href="{{ route('admin.live-class.index') }}" class="sidebar-sub-link {{ $isActive('admin.live-class.*') }}">Live Class</a>
         <a href="{{ route('admin.courses.index') }}" class="sidebar-sub-link {{ $isActive('admin.courses.*') }}">Kursus (LMS)</a>
         <a href="{{ route('admin.quizzes.index') }}" class="sidebar-sub-link {{ $isActive('admin.quizzes.*') }}">Kuis</a>

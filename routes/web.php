@@ -68,6 +68,8 @@ use App\Http\Controllers\Web\Admin\Academic\GradingScaleController;
 use App\Http\Controllers\Web\Admin\Academic\GradeApprovalController;
 use App\Http\Controllers\Web\Admin\Academic\TranscriptController;
 use App\Http\Controllers\Web\Admin\Academic\ComplianceController;
+use App\Http\Controllers\Web\Admin\Academic\CurriculumCompetencyController;
+use App\Http\Controllers\Web\Admin\Academic\TeachingJournalController;
 use App\Http\Controllers\Web\Admin\Audit\InternalAuditController;
 use App\Http\Controllers\Web\Admin\Lms\QuizController;
 use App\Http\Controllers\Web\Admin\Analytics\AnomalyController;
@@ -702,6 +704,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/curriculum/frameworks',             [ClassroomExtrasController::class, 'curriculumFrameworks'])->name('curriculum.frameworks.index');
         Route::post('/curriculum/frameworks',            [ClassroomExtrasController::class, 'storeCurriculumFramework'])->name('curriculum.frameworks.store');
         Route::delete('/curriculum/frameworks/{framework}', [ClassroomExtrasController::class, 'deleteCurriculumFramework'])->name('curriculum.frameworks.destroy');
+        Route::get('/curriculum/competencies',           [CurriculumCompetencyController::class, 'index'])->name('curriculum.competencies.index');
+        Route::post('/curriculum/competencies',          [CurriculumCompetencyController::class, 'store'])->name('curriculum.competencies.store');
+        Route::put('/curriculum/competencies/{competency}', [CurriculumCompetencyController::class, 'update'])->name('curriculum.competencies.update');
+        Route::delete('/curriculum/competencies/{competency}', [CurriculumCompetencyController::class, 'destroy'])->name('curriculum.competencies.destroy');
+
+        // ============== TEACHING JOURNAL ==============
+        Route::get('/teaching-journal',                   [TeachingJournalController::class, 'index'])->name('teaching-journal.index');
+        Route::post('/teaching-journal',                  [TeachingJournalController::class, 'store'])->name('teaching-journal.store');
+        Route::put('/teaching-journal/{journal}',         [TeachingJournalController::class, 'update'])->name('teaching-journal.update');
+        Route::delete('/teaching-journal/{journal}',      [TeachingJournalController::class, 'destroy'])->name('teaching-journal.destroy');
 
         // ============== CALENDAR ==============
         Route::get('/calendar',                          [CalendarController::class, 'index'])->name('calendar.index');
