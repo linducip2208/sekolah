@@ -22,7 +22,7 @@
 | 9 | HR & Payroll | 🟡 | Staff, Payroll structures/slips, PKG, Training, Certification ADA. **MISSING**: Contract/employment history, Leave/Overtime, Tax/BPJS component, KPI review, Document expiry reminder. |
 | 10 | Procurement & Asset | ✅ | Supplier, Purchase Request, Approval, Inventory, Asset, Depreciation, Maintenance, Write-off, QR label ADA. **MISSING**: PO/receiving/goods receipt, Stock opname/transfer. |
 | 11 | Library | ✅ | Books, Categories, Issues/Returns, Fines, Digital Library, Reading progress ADA. **MISSING**: Authors/Publishers/ISBN terpisah, Reservation, RFID. |
-| 12 | Transport | ✅ | Vehicles, Routes, Stops, Student assignment, GPS (VehicleLocation), Trips, **Live tracking map (Leaflet) + polling + stale signal + ETA**, **Transport attendance (per rute + tanggal + arah)** ADA. **MISSING**: Driver schedule. |
+| 12 | Transport | ✅ | Vehicles, Routes, Stops, Student assignment, GPS, Trips, **Live tracking map**, **Transport attendance**, **Driver schedule** ADA. **MISSING**: — (transport lengkap). |
 | 13 | Hostel | 🟡 | Hostel, Rooms, Allocations ADA. **MISSING**: Beds, Warden, Hostel attendance, Gate pass, Mess/meal plan. |
 | 14 | Parent Portal | ✅ | Dashboard, children, attendance, marks, invoices, payment, achievements, health, counseling, discipline, conferences, surveys, raport ADA. |
 | 15 | Student Portal | ✅ | Dashboard, schedule, marks, attendance, lessons, assignments, leaderboard, portfolio, QR attendance, surveys, BKK, OSIS election ADA. |
@@ -35,7 +35,7 @@
 | 22 | Automation | ✅ | Invoice generate, Payment reminder, Grade/daily report, Risk/dropout alert, **Automation engine (trigger→action: SPP jatuh tempo/menunggak/absen beruntun/ulang tahun → notify/email) + command + scheduler** ADA. **MISSING**: Document/contract expiry, PTM reminder. |
 | 23 | Digital Document | 🟡 | Document management, versioning, approval, share link, Letters (template + numbering + PDF), Certificates ADA. **MISSING**: Digital signature, QR public verification URL, Report card digital QR. |
 | 24 | Administrative Office | 🟡 | Letters (surat), Documents, Meetings (committee) ADA. **MISSING**: Incoming/outgoing mail + disposition, Agenda/minutes terpisah, Task management. |
-| 25 | Compliance | ✅ | Accreditation (standards, instruments, scores, documents, action plans), Adiwiyata, **Internal audit (audit → temuan → tindakan → resolve)** ADA. **MISSING**: Compliance dashboard gabungan. |
+| 25 | Compliance | ✅ | Accreditation (standards, instruments, scores, documents, action plans), Adiwiyata, **Internal audit**, **Compliance dashboard gabungan** ADA. **MISSING**: — (compliance lengkap). |
 | 26 | SaaS | ✅ | Multi-tenant, Subscription, Plan, Billing, Trial, Custom domain, Whitelabel, Branding, Theme, Super admin, API key, Webhook, API docs ADA. **MISSING**: Coupon, Usage analytics per tenant. |
 | 27 | Role / Portal | ✅ | Roles: super_admin, admin, teacher, student, parent, accountant, librarian, receptionist, nurse, counselor, foundation_admin, **principal, hr, transport_admin, hostel_admin, procurement_admin, homeroom_teacher, driver** ADA. **MISSING**: VP role, per-role dashboard penuh. |
 | 28 | Navigation | ✅ | Konsolidasi domain-based (Dashboard/My Tasks/Calendar/Notifications + 16 grup), role-based, favorites, breadcrumbs, command palette, SVG icon. |
@@ -75,8 +75,6 @@
 
 ## 5. Remaining TODO (prioritas berikutnya)
 
-1. Driver schedule untuk transport.
-2. OCR/document untuk AI.
-3. Compliance dashboard gabungan.
+1. OCR/document untuk AI.
 
 > Dokumen ini = hasil Phase 1 AUDIT. Implementasi per fase dilakukan bertahap sesuai prioritas di atas.

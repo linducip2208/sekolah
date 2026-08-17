@@ -59,12 +59,14 @@ use App\Http\Controllers\Web\Admin\AI\AiDataChatController;
 use App\Http\Controllers\Web\Admin\Lms\CourseController;
 use App\Http\Controllers\Web\Admin\Transport\TransportTrackingController;
 use App\Http\Controllers\Web\Admin\Transport\TransportAttendanceController;
+use App\Http\Controllers\Web\Admin\Transport\DriverScheduleController;
 use App\Http\Controllers\Web\Student\StudentExamController;
 use App\Http\Controllers\Web\Student\StudentQuizController;
 use App\Http\Controllers\Web\Admin\Automation\AutomationController;
 use App\Http\Controllers\Web\Admin\Academic\GradingScaleController;
 use App\Http\Controllers\Web\Admin\Academic\GradeApprovalController;
 use App\Http\Controllers\Web\Admin\Academic\TranscriptController;
+use App\Http\Controllers\Web\Admin\Academic\ComplianceController;
 use App\Http\Controllers\Web\Admin\Audit\InternalAuditController;
 use App\Http\Controllers\Web\Admin\Lms\QuizController;
 use App\Http\Controllers\Web\Admin\Analytics\AnomalyController;
@@ -314,6 +316,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/transport/tracking/latest',         [TransportTrackingController::class, 'latest'])->name('transport.tracking.latest');
         Route::get('/transport/attendance',              [TransportAttendanceController::class, 'index'])->name('transport.attendance.index');
         Route::post('/transport/attendance',             [TransportAttendanceController::class, 'store'])->name('transport.attendance.store');
+        Route::get('/transport/driver-schedule',         [DriverScheduleController::class, 'index'])->name('transport.driver-schedule.index');
+        Route::post('/transport/driver-schedule',        [DriverScheduleController::class, 'store'])->name('transport.driver-schedule.store');
+        Route::delete('/transport/driver-schedule/{schedule}', [DriverScheduleController::class, 'destroy'])->name('transport.driver-schedule.destroy');
 
         // ============== PHASE 9 SUB-CRUD ==============
         Route::get('/lesson-plan',                       [LessonPlanController::class, 'index'])->name('lesson-plan.index');
@@ -1088,6 +1093,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ============== AKREDITASI ==============
         Route::get('/accreditation',                    [AccreditationController::class, 'dashboard'])->name('accreditation.dashboard');
+        Route::get('/compliance',                       [ComplianceController::class, 'index'])->name('compliance.dashboard');
         Route::get('/accreditation/instruments',        [AccreditationController::class, 'instruments'])->name('accreditation.instruments');
         Route::post('/accreditation/scores',            [AccreditationController::class, 'saveScore'])->name('accreditation.scores.save');
         Route::get('/accreditation/documents',          [AccreditationController::class, 'documents'])->name('accreditation.documents');

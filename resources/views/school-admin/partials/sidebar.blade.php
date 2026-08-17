@@ -188,6 +188,7 @@
         <a href="{{ route('admin.transport.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.transport.*') }}">Transportation</a>
         <a href="{{ route('admin.transport.tracking') }}" class="sidebar-sub-link {{ $isActive('admin.transport.tracking') }}">Live Tracking Bus</a>
         <a href="{{ route('admin.transport.attendance.index') }}" class="sidebar-sub-link {{ $isActive('admin.transport.attendance.*') }}">Transport Attendance</a>
+        <a href="{{ route('admin.transport.driver-schedule.index') }}" class="sidebar-sub-link {{ $isActive('admin.transport.driver-schedule.*') }}">Driver Schedule</a>
         <a href="{{ route('admin.facilities.rooms.index') }}" class="sidebar-sub-link {{ $isActive('admin.facilities.rooms.*') }}">Room Booking</a>
         <a href="{{ route('admin.visitor.logs.index') }}" class="sidebar-sub-link {{ $isActive('admin.visitor.*') }}">Visitors</a>
         <a href="{{ route('admin.operations.gate-devices.index') }}" class="sidebar-sub-link {{ $isActive('admin.operations.*') }}">Gate Devices</a>
@@ -289,7 +290,7 @@
 </div>
 
 {{-- SYSTEM --}}
-<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.branding.*','admin.blog.*','admin.documents.*','admin.letters.*','admin.surveys.*','admin.exports.*','admin.audit.*','admin.internal-audit.*','admin.signage.*','admin.dashboard-tv.*','admin.accreditation.*','admin.adiwiyata.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.branding.*','admin.blog.*','admin.documents.*','admin.letters.*','admin.surveys.*','admin.exports.*','admin.audit.*','admin.internal-audit.*','admin.signage.*','admin.dashboard-tv.*','admin.accreditation.*','admin.compliance.*','admin.adiwiyata.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['system']) !!}System</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.branding.show') }}" class="sidebar-sub-link {{ $isActive('admin.branding.show') }}">Branding</a>
@@ -305,6 +306,7 @@
         <a href="{{ route('admin.signage.config') }}" class="sidebar-sub-link {{ $isActive('admin.signage.*') }}">Digital Signage</a>
         <a href="{{ route('admin.dashboard-tv.config') }}" class="sidebar-sub-link {{ $isActive('admin.dashboard-tv.*') }}">Dashboard TV</a>
         <a href="{{ route('admin.accreditation.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.accreditation.*') }}">Accreditation</a>
+        <a href="{{ route('admin.compliance.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.compliance.*') }}">Compliance</a>
         <a href="{{ route('admin.adiwiyata.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.adiwiyata.*') }}">Adiwiyata</a>
     </div>
 </div>
