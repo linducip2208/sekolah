@@ -12,6 +12,7 @@ class AiModel extends SchoolModel
     protected $fillable = [
         'school_id','ai_provider_id','model_name','display_name','capability',
         'context_window','input_price_per_1k','output_price_per_1k','is_active',
+        'priority',
     ];
 
     protected $casts = [

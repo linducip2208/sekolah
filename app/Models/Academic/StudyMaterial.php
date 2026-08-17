@@ -2,12 +2,12 @@
 
 namespace App\Models\Academic;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\SchoolModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class StudyMaterial extends Model
+class StudyMaterial extends SchoolModel
 {
-    protected $fillable = ['lesson_id', 'title', 'type', 'url'];
+    protected $fillable = ['school_id', 'lesson_id', 'title', 'type', 'url'];
 
     public function lesson(): BelongsTo
     {

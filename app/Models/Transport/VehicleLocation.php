@@ -3,10 +3,10 @@
 namespace App\Models\Transport;
 
 use App\Models\Facilities\Vehicle;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\SchoolModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class VehicleLocation extends Model
+class VehicleLocation extends SchoolModel
 {
     protected $table = 'vehicle_locations';
     public $timestamps = false;

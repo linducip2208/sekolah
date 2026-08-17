@@ -5,7 +5,7 @@
 <div class="mb-7 flex justify-between items-end"><div>
 <div class="elite-kicker mb-2">Materiae</div>
 <h1 class="elite-h1 text-3xl ink-primary mb-2">Materi Pelajaran (Online Classroom)</h1><div class="elite-rule"></div></div>
-<a href="{{ route('admin.classroom.assignments.index') }}" class="btn-elite-ghost">Tugas →</a></div>
+<a href="{{ route('admin.assignments.index') }}" class="btn-elite-ghost">Tugas →</a></div>
 
 <details class="mb-6 bg-white border border-rule">
 <summary class="px-5 py-4 cursor-pointer elite-kicker">+ Tambah Materi</summary>
