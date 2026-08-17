@@ -57,6 +57,20 @@
                 <button class="btn-elite" style="padding:.4rem 1rem;font-size:.65rem;">Simpan Modul</button>
             </form>
         </details>
+
+        <div class="bg-white border border-rule overflow-hidden">
+            <div class="px-4 py-3 bg-gray-50 border-b border-rule elite-kicker text-[.7rem]">Diskusi Kursus ({{ $course->topics->count() }})</div>
+            <div class="divide-y divide-rule">
+                @forelse($course->topics as $topic)
+                <div class="px-4 py-3">
+                    <div class="font-serif text-sm">{{ $topic->title }}</div>
+                    <div class="text-xs text-gray-500">{{ $topic->user?->name ?? '—' }} · {{ $topic->created_at->diffForHumans() }}</div>
+                </div>
+                @empty
+                <div class="px-4 py-4 text-center text-gray-400 italic font-serif text-xs">Belum ada diskusi.</div>
+                @endforelse
+            </div>
+        </div>
     </div>
 
     <div>

@@ -14,6 +14,18 @@ class CourseService
 {
     public function enroll(int $schoolId, int $courseId, int $studentId): CourseEnrollment
     {
+        $course = Course::findOrFail($courseId);
+
+        if ($course->prerequisite_course_id) {
+            $prereqDone = CourseEnrollment::where('school_id', $schoolId)
+                ->where('course_id', $course->prerequisite_course_id)
+                ->where('student_id', $studentId)
+                ->where('status', 'completed')
+                ->exists();
+
+            abort_unless($prereqDone, 422, 'Selesaikan kursus prasyarat terlebih dahulu.');
+        }
+
         return CourseEnrollment::firstOrCreate(
             ['school_id' => $schoolId, 'course_id' => $courseId, 'student_id' => $studentId],
             ['status' => 'enrolled', 'progress_pct' => 0]

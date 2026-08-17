@@ -45,6 +45,7 @@ class CourseController extends Controller
         $data = $request->validate([
             'title'       => 'required|string|max:200',
             'subject_id'  => 'nullable|exists:subjects,id',
+            'prerequisite_course_id' => 'nullable|exists:courses,id',
             'description' => 'nullable|string',
             'icon'        => 'nullable|string|max:50',
             'is_published' => 'nullable|boolean',
@@ -54,6 +55,7 @@ class CourseController extends Controller
             'school_id'    => $this->schoolId(),
             'title'        => $data['title'],
             'subject_id'   => $data['subject_id'] ?? null,
+            'prerequisite_course_id' => $data['prerequisite_course_id'] ?? null,
             'teacher_id'   => auth()->id(),
             'description'  => $data['description'] ?? null,
             'icon'         => $data['icon'] ?? null,
@@ -67,7 +69,7 @@ class CourseController extends Controller
     {
         $this->authorizeOwn($course);
 
-        $course->load(['modules.lessons', 'enrollments.student.user', 'enrollments.certificate']);
+        $course->load(['modules.lessons', 'enrollments.student.user', 'enrollments.certificate', 'topics.user']);
 
         $students = Student::where('school_id', $this->schoolId())
             ->with('user:id,name')
@@ -90,6 +92,7 @@ class CourseController extends Controller
         $data = $request->validate([
             'title'       => 'required|string|max:200',
             'subject_id'  => 'nullable|exists:subjects,id',
+            'prerequisite_course_id' => 'nullable|exists:courses,id|not_in:' . $course->id,
             'description' => 'nullable|string',
             'icon'        => 'nullable|string|max:50',
             'is_published' => 'nullable|boolean',
@@ -98,6 +101,7 @@ class CourseController extends Controller
         $course->update([
             'title'        => $data['title'],
             'subject_id'   => $data['subject_id'] ?? null,
+            'prerequisite_course_id' => $data['prerequisite_course_id'] ?? null,
             'description'  => $data['description'] ?? null,
             'icon'         => $data['icon'] ?? null,
             'is_published' => $request->boolean('is_published'),

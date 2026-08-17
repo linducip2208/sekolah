@@ -2,6 +2,7 @@
 
 namespace App\Models\Communication;
 
+use App\Models\Lms\Course;
 use App\Models\SchoolModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ForumTopic extends SchoolModel
 {
     protected $fillable = [
-        'school_id', 'forum_category_id', 'user_id', 'title',
+        'school_id', 'forum_category_id', 'course_id', 'user_id', 'title',
         'content', 'is_pinned', 'is_locked', 'view_count', 'last_reply_at',
     ];
 
@@ -24,6 +25,11 @@ class ForumTopic extends SchoolModel
     public function category(): BelongsTo
     {
         return $this->belongsTo(ForumCategory::class, 'forum_category_id');
+    }
+
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class, 'course_id');
     }
 
     public function user(): BelongsTo

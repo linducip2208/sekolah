@@ -93,3 +93,18 @@ it('issues a completion certificate idempotently', function () {
     $again = $this->service->issueCertificate($enrollment->fresh(), $this->student->user_id);
     expect($again->id)->toBe($cert->id);
 });
+
+it('blocks enrollment until the prerequisite course is completed', function () {
+    $prereq = Course::create([
+        'school_id' => $this->school->id, 'title' => 'Kursus Dasar', 'is_published' => true,
+    ]);
+
+    $advanced = Course::create([
+        'school_id' => $this->school->id, 'title' => 'Kursus Lanjutan',
+        'prerequisite_course_id' => $prereq->id, 'is_published' => true,
+    ]);
+
+    // Not completed prerequisite → blocked
+    $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+    $this->service->enroll($this->school->id, $advanced->id, $this->student->id);
+});

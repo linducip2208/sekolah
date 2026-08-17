@@ -60,11 +60,13 @@ use App\Http\Controllers\Web\Admin\Lms\CourseController;
 use App\Http\Controllers\Web\Admin\Transport\TransportTrackingController;
 use App\Http\Controllers\Web\Admin\Transport\TransportAttendanceController;
 use App\Http\Controllers\Web\Student\StudentExamController;
+use App\Http\Controllers\Web\Student\StudentQuizController;
 use App\Http\Controllers\Web\Admin\Automation\AutomationController;
 use App\Http\Controllers\Web\Admin\Academic\GradingScaleController;
 use App\Http\Controllers\Web\Admin\Academic\GradeApprovalController;
 use App\Http\Controllers\Web\Admin\Academic\TranscriptController;
 use App\Http\Controllers\Web\Admin\Audit\InternalAuditController;
+use App\Http\Controllers\Web\Admin\Lms\QuizController;
 use App\Http\Controllers\Web\Admin\Analytics\AnomalyController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
@@ -339,6 +341,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/courses/enrollments/{enrollment}/complete/{lesson}', [CourseController::class, 'markComplete'])->name('courses.enrollments.complete');
         Route::post('/courses/enrollments/{enrollment}/certificate', [CourseController::class, 'issueCertificate'])->name('courses.enrollments.certificate');
         Route::get('/courses/certificates/{certificate}', [CourseController::class, 'certificate'])->name('courses.certificates.show');
+
+        // ============== LMS: KUIS ==============
+        Route::get('/quizzes',                          [QuizController::class, 'index'])->name('quizzes.index');
+        Route::post('/quizzes',                         [QuizController::class, 'store'])->name('quizzes.store');
+        Route::get('/quizzes/{quiz}',                   [QuizController::class, 'show'])->name('quizzes.show');
+        Route::delete('/quizzes/{quiz}',                [QuizController::class, 'destroy'])->name('quizzes.destroy');
+        Route::post('/quizzes/{quiz}/questions',        [QuizController::class, 'storeQuestion'])->name('quizzes.questions.store');
+        Route::post('/quizzes/{quiz}/generate',         [QuizController::class, 'generate'])->name('quizzes.generate');
+        Route::delete('/quizzes/questions/{question}',  [QuizController::class, 'deleteQuestion'])->name('quizzes.questions.destroy');
 
         Route::get('/ai/providers',                      [Phase9CrudController::class, 'aiProviders'])->name('ai.providers.index');
         Route::post('/ai/providers',                     [Phase9CrudController::class, 'storeAiProvider'])->name('ai.providers.store');
@@ -1193,6 +1204,11 @@ Route::prefix('siswa')->name('student.')->middleware(['auth', 'role:student'])->
     Route::get('/ujian/{exam}',                  [StudentExamController::class, 'take'])->name('exams.take');
     Route::post('/ujian/{exam}/kumpulkan',       [StudentExamController::class, 'submit'])->name('exams.submit');
     Route::get('/ujian/{exam}/hasil',            [StudentExamController::class, 'result'])->name('exams.result');
+
+    // Kuis (latihan)
+    Route::get('/kuis',                          [StudentQuizController::class, 'index'])->name('quizzes.index');
+    Route::get('/kuis/{quiz}',                   [StudentQuizController::class, 'take'])->name('quizzes.take');
+    Route::post('/kuis/{quiz}/kumpulkan',        [StudentQuizController::class, 'submit'])->name('quizzes.submit');
 
     Route::get('/perpustakaan-digital', [\App\Http\Controllers\Web\Student\StudentPortalController::class, 'digitalLibrary'])->name('digital-library');
 

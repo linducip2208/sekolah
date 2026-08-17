@@ -9,6 +9,7 @@
     ['student.lessons', 'Materi', '📖'],
     ['student.assignments', 'Tugas', '✍'],
     ['student.exams.index', 'Ujian', '📝'],
+    ['student.quizzes.index', 'Kuis', '🎯'],
     ['student.leaderboard', 'Leaderboard', '🏆'],
     ['student.surveys', 'Survei', '📝'],
     ['student.portfolios', 'Portofolio', '🖼️'],

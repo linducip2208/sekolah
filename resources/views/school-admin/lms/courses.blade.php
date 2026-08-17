@@ -22,6 +22,10 @@
                 <option value="{{ $s->id }}">{{ $s->name }}</option>
             @endforeach
         </select>
+        <select name="prerequisite_course_id" class="border-2 border-rule px-3 py-2 font-serif text-sm">
+            <option value="">— prasyarat (opsional) —</option>
+            @foreach($courses as $c)<option value="{{ $c->id }}">{{ $c->title }}</option>@endforeach
+        </select>
         <div class="flex items-center gap-2"><input type="checkbox" name="is_published" value="1" id="c-pub" class="w-4 h-4"><label for="c-pub" class="text-sm font-serif">Publish</label></div>
         <textarea name="description" rows="3" placeholder="Deskripsi kursus" class="md:col-span-2 border-2 border-rule px-3 py-2 font-serif text-sm"></textarea>
         <div class="md:col-span-2"><button class="btn-elite">Buat Kursus</button></div>
