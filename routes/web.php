@@ -63,6 +63,7 @@ use App\Http\Controllers\Web\Student\StudentExamController;
 use App\Http\Controllers\Web\Admin\Automation\AutomationController;
 use App\Http\Controllers\Web\Admin\Academic\GradingScaleController;
 use App\Http\Controllers\Web\Admin\Academic\GradeApprovalController;
+use App\Http\Controllers\Web\Admin\Academic\TranscriptController;
 use App\Http\Controllers\Web\Admin\Analytics\AnomalyController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
@@ -247,6 +248,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/grades/approval/{card}/approve',   [GradeApprovalController::class, 'approve'])->name('grades.approval.approve');
         Route::post('/grades/approval/{card}/reject',    [GradeApprovalController::class, 'reject'])->name('grades.approval.reject');
         Route::post('/grades/approval/{card}/lock',      [GradeApprovalController::class, 'lock'])->name('grades.approval.lock');
+
+        // ============== TRANSKRIP ==============
+        Route::get('/grades/transcript',                  [TranscriptController::class, 'index'])->name('grades.transcript');
 
         // AI Essay Grading
         Route::get('/academic/essay-grading',              [EssayGradingController::class, 'index'])->name('academic.essay-grading.index');
