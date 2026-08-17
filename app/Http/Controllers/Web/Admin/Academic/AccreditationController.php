@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Web\Admin\Academic;
 
 use App\Http\Controllers\Controller;
+use App\Models\AccreditationActionPlan;
 use App\Models\AccreditationDocument;
 use App\Models\AccreditationInstrument;
 use App\Models\AccreditationScore;
 use App\Models\AccreditationStandard;
 use App\Models\Communication\Document;
 use App\Models\Communication\DocumentCategory;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -264,6 +266,71 @@ class AccreditationController extends Controller
         }
         $document->delete();
         return back()->with('success', 'Dokumen dihapus.');
+    }
+
+    /* ==================== ACTION PLANS (RENCANA PERBAIKAN) ==================== */
+
+    public function actionPlans(Request $request): View
+    {
+        $schoolId = $this->schoolId();
+
+        $plans = AccreditationActionPlan::where('school_id', $schoolId)
+            ->with(['standard', 'instrument', 'responsible'])
+            ->when($request->status, fn ($q) => $q->where('status', $request->status))
+            ->orderBy('due_date')
+            ->orderByDesc('id')
+            ->paginate(25)
+            ->withQueryString();
+
+        $standards   = AccreditationStandard::orderBy('code')->get();
+        $instruments = AccreditationInstrument::with('standard')->orderBy('number')->get();
+        $users       = User::where('school_id', $schoolId)->orderBy('name')->get(['id', 'name']);
+
+        return view('school-admin.academic.accreditation.action-plans', compact(
+            'plans', 'standards', 'instruments', 'users'
+        ));
+    }
+
+    public function storeActionPlan(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'accreditation_standard_id'  => 'nullable|exists:accreditation_standards,id',
+            'accreditation_instrument_id'=> 'nullable|exists:accreditation_instruments,id',
+            'title'       => 'required|string|max:200',
+            'action'      => 'required|string',
+            'responsible_id' => 'nullable|exists:users,id',
+            'due_date'    => 'nullable|date',
+            'notes'       => 'nullable|string',
+        ]);
+
+        AccreditationActionPlan::create(array_merge($data, [
+            'school_id' => $this->schoolId(),
+            'status'    => 'pending',
+        ]));
+
+        return back()->with('success', 'Rencana perbaikan ditambahkan.');
+    }
+
+    public function updateActionPlanStatus(Request $request, AccreditationActionPlan $plan): RedirectResponse
+    {
+        abort_unless($plan->school_id === $this->schoolId(), 403);
+
+        $data = $request->validate([
+            'status' => 'required|in:pending,in_progress,completed',
+        ]);
+
+        $plan->update(['status' => $data['status']]);
+
+        return back()->with('success', 'Status rencana perbaikan diperbarui.');
+    }
+
+    public function deleteActionPlan(AccreditationActionPlan $plan): RedirectResponse
+    {
+        abort_unless($plan->school_id === $this->schoolId(), 403);
+
+        $plan->delete();
+
+        return back()->with('success', 'Rencana perbaikan dihapus.');
     }
 
     /* ==================== PRINT SUMMARY ==================== */

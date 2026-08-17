@@ -8,6 +8,11 @@
     <h1 class="elite-h1 text-3xl ink-primary mb-2">Dashboard Akreditasi (BAN-S/M)</h1>
     <div class="elite-rule"></div>
     <p class="font-serif text-sm text-gray-600 mt-3">Tracker persiapan akreditasi berdasarkan standar IASP 2020.</p>
+    <div class="flex gap-4 mt-3 text-sm">
+        <a href="{{ route('admin.accreditation.instruments') }}" class="elite-kicker text-xs ink-secondary hover:ink-accent">Instrumen</a>
+        <a href="{{ route('admin.accreditation.documents') }}" class="elite-kicker text-xs ink-secondary hover:ink-accent">Dokumen</a>
+        <a href="{{ route('admin.accreditation.action-plans') }}" class="elite-kicker text-xs ink-secondary hover:ink-accent">Rencana Perbaikan</a>
+    </div>
 </div>
 
 {{-- Predicted Score & Grade --}}

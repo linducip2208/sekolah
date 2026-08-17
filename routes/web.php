@@ -1012,6 +1012,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/accreditation/scores',            [AccreditationController::class, 'saveScore'])->name('accreditation.scores.save');
         Route::get('/accreditation/documents',          [AccreditationController::class, 'documents'])->name('accreditation.documents');
         Route::post('/accreditation/documents/upload',  [AccreditationController::class, 'uploadDocument'])->name('accreditation.documents.upload');
+        Route::get('/accreditation/action-plans',       [AccreditationController::class, 'actionPlans'])->name('accreditation.action-plans');
+        Route::post('/accreditation/action-plans',      [AccreditationController::class, 'storeActionPlan'])->name('accreditation.action-plans.store');
+        Route::post('/accreditation/action-plans/{plan}/status', [AccreditationController::class, 'updateActionPlanStatus'])->name('accreditation.action-plans.status');
+        Route::delete('/accreditation/action-plans/{plan}', [AccreditationController::class, 'deleteActionPlan'])->name('accreditation.action-plans.destroy');
         Route::post('/accreditation/documents/{document}/review', [AccreditationController::class, 'reviewDocument'])->name('accreditation.documents.review');
         Route::delete('/accreditation/documents/{document}', [AccreditationController::class, 'deleteDocument'])->name('accreditation.documents.destroy');
         Route::get('/accreditation/print-summary',      [AccreditationController::class, 'printSummary'])->name('accreditation.print-summary');
