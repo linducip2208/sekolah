@@ -120,6 +120,28 @@
             @endif
         </div>
 
+        @if($invoice->refunds->isNotEmpty())
+        <div class="bg-white border border-rule p-7">
+            <h3 class="elite-h3 text-lg ink-primary mb-4">Riwayat Refund</h3>
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50"><tr>
+                    <th class="text-left px-3 py-2 elite-kicker text-[.6rem]">Tanggal</th>
+                    <th class="text-left px-3 py-2 elite-kicker text-[.6rem]">Alasan</th>
+                    <th class="text-right px-3 py-2 elite-kicker text-[.6rem]">Jumlah</th>
+                </tr></thead>
+                <tbody>
+                    @foreach($invoice->refunds as $r)
+                    <tr class="border-t border-rule">
+                        <td class="px-3 py-2 text-xs">{{ $r->refunded_at->format('d M Y') }}</td>
+                        <td class="px-3 py-2 text-xs">{{ $r->reason ?? '—' }}</td>
+                        <td class="px-3 py-2 text-right font-mono">Rp {{ number_format($r->amount/100, 0, ',', '.') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+
     </div>
 
     <div class="space-y-4">
@@ -167,6 +189,33 @@
         @else
             <div class="bg-green-50 border-l-4 border-green-700 p-5">
                 <p class="font-serif text-sm text-green-900">✓ Invoice sudah lunas.</p>
+            </div>
+        @endif
+
+        @if($invoice->paid_amount > 0)
+            <div class="bg-white border border-rule p-6">
+                <div class="elite-kicker mb-2" style="color: var(--c-accent);">Refund</div>
+                <h4 class="elite-h3 text-base ink-primary mb-3">Catat Refund</h4>
+                <form method="POST" action="{{ route('admin.fee.invoices.refund', $invoice) }}" class="space-y-3">
+                    @csrf
+                    <div>
+                        <label class="elite-kicker text-[.6rem] block mb-1">Jumlah Refund (Rp)</label>
+                        <input type="number" step="1000" min="0" name="amount_rupiah" required
+                               class="w-full border-2 border-rule px-3 py-2 font-mono text-sm">
+                    </div>
+                    <div>
+                        <label class="elite-kicker text-[.6rem] block mb-1">Pembayaran (opsional)</label>
+                        <select name="fee_payment_id" class="w-full border-2 border-rule px-3 py-2 font-serif text-sm">
+                            <option value="">— pilih pembayaran —</option>
+                            @foreach($invoice->payments as $p)<option value="{{ $p->id }}">{{ $p->payment_date->format('d M') }} · Rp {{ number_format($p->amount/100,0,',','.') }}</option>@endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="elite-kicker text-[.6rem] block mb-1">Alasan</label>
+                        <textarea name="reason" rows="2" maxlength="500" class="w-full border-2 border-rule px-3 py-2 font-serif text-xs"></textarea>
+                    </div>
+                    <button class="btn-elite w-full" style="padding:.6rem;font-size:.65rem;">Catat Refund</button>
+                </form>
             </div>
         @endif
 

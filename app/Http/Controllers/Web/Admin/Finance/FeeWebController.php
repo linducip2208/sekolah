@@ -9,8 +9,10 @@ use App\Models\Academic\Student;
 use App\Models\Finance\FeeInstallment;
 use App\Models\Finance\FeeInvoice;
 use App\Models\Finance\FeePayment;
+use App\Models\Finance\FeeRefund;
 use App\Models\Finance\FeeStructure;
 use App\Services\Finance\FeeInstallmentService;
+use App\Services\Finance\FeeRefundService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +22,10 @@ use Illuminate\View\View;
 
 class FeeWebController extends Controller
 {
-    public function __construct(private FeeInstallmentService $installments) {}
+    public function __construct(
+        private FeeInstallmentService $installments,
+        private FeeRefundService $refunds,
+    ) {}
     private function schoolId(): int
     {
         return auth()->user()->school_id;
@@ -159,7 +164,7 @@ class FeeWebController extends Controller
     {
         $this->authorizeOwn($invoice);
         return view('school-admin.finance.invoice-show', [
-            'invoice'  => $invoice->load(['student.user', 'feeStructure', 'payments.collector', 'installments']),
+            'invoice'  => $invoice->load(['student.user', 'feeStructure', 'payments.collector', 'installments', 'refunds.refundedBy']),
         ]);
     }
 
@@ -191,6 +196,32 @@ class FeeWebController extends Controller
         $this->installments->pay($installment, (int) round($data['amount_rupiah'] * 100), $data['payment_method'], $data['reference'] ?? null);
 
         return back()->with('success', 'Cicilan dilunasi.');
+    }
+
+    public function refund(Request $request, FeeInvoice $invoice): RedirectResponse
+    {
+        $this->authorizeOwn($invoice);
+
+        $data = $request->validate([
+            'amount_rupiah' => 'required|numeric|min:0',
+            'reason'        => 'nullable|string|max:500',
+            'fee_payment_id'=> 'nullable|exists:fee_payments,id',
+        ]);
+
+        $this->refunds->refund($invoice, (int) round($data['amount_rupiah'] * 100), $data['reason'] ?? '', $data['fee_payment_id'] ?? null);
+
+        return back()->with('success', 'Refund tercatat.');
+    }
+
+    public function applyLateFee(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'daily_rate_rupiah' => 'required|numeric|min:0|max:1000000',
+        ]);
+
+        $count = $this->refunds->applyLateFee($this->schoolId(), (int) round($data['daily_rate_rupiah'] * 100));
+
+        return back()->with('success', "Denda keterlambatan diterapkan ke $count cicilan.");
     }
 
     public function deleteInvoice(FeeInvoice $invoice): RedirectResponse
