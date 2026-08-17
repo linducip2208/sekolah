@@ -56,6 +56,7 @@ use App\Http\Controllers\Web\Admin\Phase8\Phase8WebController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9CrudController;
 use App\Http\Controllers\Web\Admin\AI\AiDataChatController;
 use App\Http\Controllers\Web\Admin\Lms\CourseController;
+use App\Http\Controllers\Web\Admin\Transport\TransportTrackingController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10WebController;
@@ -276,6 +277,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/transport/routes',                  [Phase8CrudController::class, 'transportRoutes'])->name('transport.routes.index');
         Route::post('/transport/routes',                 [Phase8CrudController::class, 'storeTransportRoute'])->name('transport.routes.store');
         Route::delete('/transport/routes/{route}',       [Phase8CrudController::class, 'deleteTransportRoute'])->name('transport.routes.destroy');
+        Route::get('/transport/tracking',                [TransportTrackingController::class, 'index'])->name('transport.tracking');
+        Route::get('/transport/tracking/latest',         [TransportTrackingController::class, 'latest'])->name('transport.tracking.latest');
 
         // ============== PHASE 9 SUB-CRUD ==============
         Route::get('/lesson-plan',                       [LessonPlanController::class, 'index'])->name('lesson-plan.index');
