@@ -10,7 +10,7 @@ class ReportCard extends SchoolModel
     protected $fillable = [
         'school_id', 'student_id', 'semester_id',
         'total_percentage', 'overall_grade', 'gpa', 'rank', 'remarks', 'is_published',
-        'competency_scores', 'extracurricular_notes', 'attendance_summary', 'teacher_notes',
+        'verification_token', 'competency_scores', 'extracurricular_notes', 'attendance_summary', 'teacher_notes',
     ];
 
     protected $casts = [

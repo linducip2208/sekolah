@@ -14,7 +14,7 @@
 | 2 | Question Bank | 🟡 | QuestionBankCategory + QuestionBankItem ADA. **MISSING**: Tags, difficulty/cognitive level, matching/fill-blank/HOTS/AKM, versioning, review/approval, blueprint, package generator, item analysis. |
 | 3 | Akademik Super Lengkap | 🟡 | Years, Semesters, Curriculum, Subjects, Classes, Sections, Rombel, Timetable + auto-generator, Calendar, Holiday ADA. **MISSING**: Curriculum version, Competency/Learning Outcomes, Homeroom Teacher, Substitute Teacher, Make-up Class. |
 | 3 | Student Master | ✅ | Student, Profile, Documents, Parents, Timeline ADA. **MISSING**: Enrollment/Promotion/Graduation/Transfer workflow, Student Tags. |
-| 4 | Assessment & Report Card | ✅ | Exams, Marks, Grades, Report Card PDF, Raport Interaktif, **CBT (ujian online web: timer, navigasi soal, ragu-ragu, auto-submit, review)** + Item Analysis ADA. **MISSING**: Grading scale/weighting, Grade approval/lock/history, Transcript, QR verification. |
+| 4 | Assessment & Report Card | ✅ | Exams, Marks, Grades, Report Card PDF, Raport Interaktif, **CBT (ujian online web)**, Item Analysis, **Grading scale/weighting (GradeSystem + GradeRule + UI)**, **QR verifikasi rapor** ADA. **MISSING**: Grade approval/lock/history, Transcript. |
 | 5 | LMS | ✅ | Classroom (Lessons, Assignments, Submissions), Live Class, Digital Library, **Kursus (Course → Module → Lesson + enrollment + progress tracking)** ADA. **MISSING**: Quiz engine terpisah, Discussion/forum terintegrasi, Completion certificates, prerequisite. |
 | 6 | Student Life | ✅ | Attendance + QR, Discipline, Counseling, Bullying, UKS/Clinic, Vaccination, Achievement, Extracurricular, Canteen ADA. **MISSING**: GPS/biometric/face attendance, Point reward system, Wellbeing check. |
 | 7 | PPDB | 🟡 | Period, Public registration, Applications, Verification, Zoning ADA. **MISSING**: Form builder, Interview/test scoring/ranking, Quota, Auto student creation, Waiting list, Admission letter. |
@@ -79,6 +79,6 @@
 2. Transport attendance + driver schedule.
 3. Anomaly detection + OCR/document untuk AI.
 4. Internal audit workflow + compliance dashboard gabungan.
-5. Grading scale/weighting + grade approval + QR verification rapor.
+5. Grade approval/lock/history + Transcript.
 
 > Dokumen ini = hasil Phase 1 AUDIT. Implementasi per fase dilakukan bertahap sesuai prioritas di atas.

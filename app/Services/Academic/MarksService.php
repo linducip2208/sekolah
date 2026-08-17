@@ -90,6 +90,7 @@ class MarksService
                     'total_percentage' => $avgPct,
                     'overall_grade'    => $grade,
                     'is_published'     => false,
+                    'verification_token' => \Illuminate\Support\Str::random(40),
                 ]
             );
             $count++;

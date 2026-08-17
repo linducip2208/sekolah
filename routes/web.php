@@ -60,6 +60,7 @@ use App\Http\Controllers\Web\Admin\Lms\CourseController;
 use App\Http\Controllers\Web\Admin\Transport\TransportTrackingController;
 use App\Http\Controllers\Web\Student\StudentExamController;
 use App\Http\Controllers\Web\Admin\Automation\AutomationController;
+use App\Http\Controllers\Web\Admin\Academic\GradingScaleController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10WebController;
@@ -89,6 +90,10 @@ use App\Http\Controllers\Web\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\LandingController::class, 'index'])->name('home');
+
+// Public rapor verification (QR code) — no auth
+Route::get('/verifikasi-rapor/{token}', [\App\Http\Controllers\Web\RaportVerificationController::class, 'show'])->name('raport.verify');
+Route::get('/verifikasi-rapor/{token}/qrcode', [\App\Http\Controllers\Web\RaportVerificationController::class, 'qrcode'])->name('raport.verify.qrcode');
 
 // Public Digital Signage display (no auth)
 Route::get('/signage/{school_id}', [\App\Http\Controllers\Web\Admin\DigitalSignageController::class, 'display'])
@@ -224,6 +229,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/exams/{exam}/analysis',             [ExamWebController::class, 'analysis'])->name('exams.analysis');
         Route::get('/exams/{exam}/generate',             [ExamWebController::class, 'generateFromBank'])->name('exams.generate');
         Route::post('/exams/{exam}/generate',            [ExamWebController::class, 'storeGeneratedFromBank'])->name('exams.generate.store');
+
+        // ============== SISTEM PENILAIAN (GRADING SCALE) ==============
+        Route::get('/grades',                            [GradingScaleController::class, 'index'])->name('grades.index');
+        Route::post('/grades',                           [GradingScaleController::class, 'store'])->name('grades.store');
+        Route::post('/grades/{system}/rules',            [GradingScaleController::class, 'storeRule'])->name('grades.rules.store');
+        Route::delete('/grades/rules/{rule}',            [GradingScaleController::class, 'deleteRule'])->name('grades.rules.destroy');
+        Route::post('/grades/{system}/activate',         [GradingScaleController::class, 'activate'])->name('grades.activate');
+        Route::delete('/grades/{system}',                [GradingScaleController::class, 'destroy'])->name('grades.destroy');
 
         // AI Essay Grading
         Route::get('/academic/essay-grading',              [EssayGradingController::class, 'index'])->name('academic.essay-grading.index');

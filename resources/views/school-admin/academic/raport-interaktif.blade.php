@@ -75,6 +75,17 @@
                 </div>
             </div>
         </div>
+
+        @if($reportCard->verification_token)
+        <div class="mt-4 pt-4 border-t border-rule flex items-center gap-4 no-print">
+            <img src="{{ route('raport.verify.qrcode', $reportCard->verification_token) }}" alt="QR verifikasi rapor" class="w-24 h-24 bg-white border border-rule p-1">
+            <div class="text-xs text-gray-500">
+                <div class="elite-kicker text-[.6rem] mb-1">Verifikasi Keaslian</div>
+                <div class="font-mono text-[.65rem] break-all">{{ route('raport.verify', $reportCard->verification_token) }}</div>
+                <div class="mt-1">Scan QR untuk memverifikasi rapor ini secara publik.</div>
+            </div>
+        </div>
+        @endif
     </div>
 
     <div class="grid lg:grid-cols-2 gap-6 mb-6">

@@ -11,6 +11,7 @@ use App\Models\Academic\Student;
 use App\Models\Academic\Subject;
 use App\Models\QuestionBank\QuestionBankCategory;
 use App\Services\Academic\ItemAnalysisService;
+use App\Services\Academic\MarksService;
 use App\Services\QuestionBank\QuestionBankService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -202,6 +203,12 @@ class ExamWebController extends Controller
     private function grade(int $obtained, int $total): string
     {
         $pct = $total > 0 ? ($obtained / $total) * 100 : 0;
+
+        $resolved = app(MarksService::class)->resolveGrade($this->schoolId(), $pct);
+        if ($resolved) {
+            return $resolved;
+        }
+
         return match (true) {
             $pct >= 90 => 'A',
             $pct >= 80 => 'B',
