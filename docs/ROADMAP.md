@@ -22,7 +22,7 @@
 | 9 | HR & Payroll | 🟡 | Staff, Payroll structures/slips, PKG, Training, Certification ADA. **MISSING**: Contract/employment history, Leave/Overtime, Tax/BPJS component, KPI review, Document expiry reminder. |
 | 10 | Procurement & Asset | ✅ | Supplier, Purchase Request, Approval, Inventory, Asset, Depreciation, Maintenance, Write-off, QR label ADA. **MISSING**: PO/receiving/goods receipt, Stock opname/transfer. |
 | 11 | Library | ✅ | Books, Categories, Issues/Returns, Fines, Digital Library, Reading progress ADA. **MISSING**: Authors/Publishers/ISBN terpisah, Reservation, RFID. |
-| 12 | Transport | ✅ | Vehicles, Routes, Stops, Student assignment, GPS (VehicleLocation), Trips, **Live tracking map (Leaflet) + polling + stale signal + ETA** ADA. **MISSING**: Transport attendance, Driver schedule. |
+| 12 | Transport | ✅ | Vehicles, Routes, Stops, Student assignment, GPS (VehicleLocation), Trips, **Live tracking map (Leaflet) + polling + stale signal + ETA**, **Transport attendance (per rute + tanggal + arah)** ADA. **MISSING**: Driver schedule. |
 | 13 | Hostel | 🟡 | Hostel, Rooms, Allocations ADA. **MISSING**: Beds, Warden, Hostel attendance, Gate pass, Mess/meal plan. |
 | 14 | Parent Portal | ✅ | Dashboard, children, attendance, marks, invoices, payment, achievements, health, counseling, discipline, conferences, surveys, raport ADA. |
 | 15 | Student Portal | ✅ | Dashboard, schedule, marks, attendance, lessons, assignments, leaderboard, portfolio, QR attendance, surveys, BKK, OSIS election ADA. |
@@ -76,7 +76,7 @@
 ## 5. Remaining TODO (prioritas berikutnya)
 
 1. Quiz engine terpisah + Discussion/forum terintegrasi + sertifikat penyelesaian kursus.
-2. Transport attendance + driver schedule.
+2. Driver schedule untuk transport.
 3. Anomaly detection + OCR/document untuk AI.
 4. Internal audit workflow + compliance dashboard gabungan.
 5. Grade approval/lock/history + Transcript.

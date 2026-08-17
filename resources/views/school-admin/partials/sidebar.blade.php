@@ -184,6 +184,7 @@
         <a href="{{ route('admin.hostel.list.index') }}" class="sidebar-sub-link {{ $isActive('admin.hostel.*') }}">Dormitory</a>
         <a href="{{ route('admin.transport.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.transport.*') }}">Transportation</a>
         <a href="{{ route('admin.transport.tracking') }}" class="sidebar-sub-link {{ $isActive('admin.transport.tracking') }}">Live Tracking Bus</a>
+        <a href="{{ route('admin.transport.attendance.index') }}" class="sidebar-sub-link {{ $isActive('admin.transport.attendance.*') }}">Transport Attendance</a>
         <a href="{{ route('admin.facilities.rooms.index') }}" class="sidebar-sub-link {{ $isActive('admin.facilities.rooms.*') }}">Room Booking</a>
         <a href="{{ route('admin.visitor.logs.index') }}" class="sidebar-sub-link {{ $isActive('admin.visitor.*') }}">Visitors</a>
         <a href="{{ route('admin.operations.gate-devices.index') }}" class="sidebar-sub-link {{ $isActive('admin.operations.*') }}">Gate Devices</a>
