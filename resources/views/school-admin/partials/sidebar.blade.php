@@ -178,6 +178,7 @@
         <a href="{{ route('admin.inventory.assets.index') }}" class="sidebar-sub-link {{ $isActive('admin.inventory.assets.*') }}">Assets</a>
         <a href="{{ route('admin.inventory.categories.index') }}" class="sidebar-sub-link {{ $isActive('admin.inventory.categories.*') }}">Categories</a>
         <a href="{{ route('admin.inventory.loans.index') }}" class="sidebar-sub-link {{ $isActive('admin.inventory.loans.*') }}">Loans</a>
+        <a href="{{ route('admin.inventory.stock.index') }}" class="sidebar-sub-link {{ $isActive('admin.inventory.stock.*') }}">Stok Inventori</a>
         <a href="{{ route('admin.misc.maintenance.index') }}" class="sidebar-sub-link {{ $isActive('admin.misc.maintenance.*') }}">Maintenance</a>
     </div>
 </div>

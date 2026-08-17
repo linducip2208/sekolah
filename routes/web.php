@@ -71,6 +71,7 @@ use App\Http\Controllers\Web\Admin\Academic\ComplianceController;
 use App\Http\Controllers\Web\Admin\Academic\CurriculumCompetencyController;
 use App\Http\Controllers\Web\Admin\Academic\TeachingJournalController;
 use App\Http\Controllers\Web\Admin\Audit\InternalAuditController;
+use App\Http\Controllers\Web\Admin\Inventory\InventoryStockController;
 use App\Http\Controllers\Web\Admin\Lms\QuizController;
 use App\Http\Controllers\Web\Admin\Analytics\AnomalyController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
@@ -951,6 +952,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/internal-audit/{audit}/findings',   [InternalAuditController::class, 'storeFinding'])->name('internal-audit.findings.store');
         Route::post('/internal-audit/findings/{finding}/status', [InternalAuditController::class, 'updateFindingStatus'])->name('internal-audit.findings.status');
         Route::delete('/internal-audit/findings/{finding}', [InternalAuditController::class, 'deleteFinding'])->name('internal-audit.findings.destroy');
+
+        // ============== INVENTORY STOCK ==============
+        Route::get('/inventory/stock',                   [InventoryStockController::class, 'index'])->name('inventory.stock.index');
+        Route::post('/inventory/stock',                  [InventoryStockController::class, 'store'])->name('inventory.stock.store');
+        Route::post('/inventory/stock/{item}/in',        [InventoryStockController::class, 'stockIn'])->name('inventory.stock.in');
+        Route::post('/inventory/stock/{item}/out',       [InventoryStockController::class, 'stockOut'])->name('inventory.stock.out');
+        Route::post('/inventory/stock/{item}/opname',    [InventoryStockController::class, 'opname'])->name('inventory.stock.opname');
+        Route::delete('/inventory/stock/{item}',         [InventoryStockController::class, 'destroy'])->name('inventory.stock.destroy');
 
         // ============== REKONSILIASI BANK ==============
         Route::get('/accounting/bank-reconciliation',         [BankReconciliationController::class, 'index'])->name('accounting.bank-reconciliation');
