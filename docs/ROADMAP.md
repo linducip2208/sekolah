@@ -31,7 +31,7 @@
 | 18 | Alumni | ✅ | Alumni profile/directory, Tracer study, Job board, BKK, Events, Donation ADA. |
 | 19 | Yayasan / Multi School | 🟡 | Foundation, Benchmark antar sekolah, Consolidated dashboard ADA. **MISSING**: Central master data, Central user management, Per-cabang comparison UI lengkap. |
 | 20 | BI & Analytics | 🟡 | Learning Analytics (risk score), Dropout prediction, School Intelligence, Benchmark ADA. **MISSING**: Executive/PPDB/HR/Library dashboards, PPDB funnel, Predictive analytics lengkap. |
-| 21 | AI School Intelligence | 🟡 | AI providers (dynamic), Essay grading, Lesson plan, Dropout prediction, Risk score ADA. **MISSING**: AI chat-with-data (NL query DB), AI admin report summarizer, Anomaly detection, OCR/document. |
+| 21 | AI School Intelligence | ✅ | AI providers (dynamic), Essay grading, Lesson plan, Dropout prediction, Risk score, **AI Chat-with-data (Tanya Data Sekolah — NL → metric, rule-based fallback)** ADA. **MISSING**: Anomaly detection, OCR/document. |
 | 22 | Automation | 🟡 | Invoice generate, Payment reminder, Grade/daily report, Risk/dropout alert commands ADA. **MISSING**: Workflow automation engine terpadu (generic triggers), Document/contract expiry, Birthday, PTM reminder. |
 | 23 | Digital Document | 🟡 | Document management, versioning, approval, share link, Letters (template + numbering + PDF), Certificates ADA. **MISSING**: Digital signature, QR public verification URL, Report card digital QR. |
 | 24 | Administrative Office | 🟡 | Letters (surat), Documents, Meetings (committee) ADA. **MISSING**: Incoming/outgoing mail + disposition, Agenda/minutes terpisah, Task management. |
@@ -75,13 +75,12 @@
 
 ## 5. Remaining TODO (prioritas berikutnya)
 
-1. AI Chat-with-data (NL query → DB, respect RBAC/tenant).
-2. LMS lengkap (courses/modules/learning path/quiz).
-3. Question Bank item analysis paket generator (already partial: generator + analitik link ADA).
-4. Role expansion (principal/HR/transport/hostel admin).
-5. Automation engine generic (trigger/action).
-6. Compliance framework generic.
-7. Live bus tracking UI (map + parent ETA).
-8. Bank reconciliation + installment/late-fee/refund untuk finance.
+1. LMS lengkap (courses/modules/learning path/quiz).
+2. Role expansion (principal/HR/transport/hostel admin).
+3. Automation engine generic (trigger/action).
+4. Compliance framework generic (improvement plan + internal audit).
+5. Live bus tracking UI (map + parent ETA).
+6. Bank reconciliation + installment/late-fee/refund untuk finance.
+7. Anomaly detection + OCR/document untuk AI.
 
 > Dokumen ini = hasil Phase 1 AUDIT. Implementasi per fase dilakukan bertahap sesuai prioritas di atas.

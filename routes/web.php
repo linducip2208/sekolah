@@ -54,6 +54,7 @@ use App\Http\Controllers\Web\Admin\Import\BulkImportController;
 use App\Http\Controllers\Web\Admin\Print\PrintController;
 use App\Http\Controllers\Web\Admin\Phase8\Phase8WebController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9CrudController;
+use App\Http\Controllers\Web\Admin\AI\AiDataChatController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10WebController;
@@ -289,6 +290,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/ai/providers',                      [Phase9CrudController::class, 'aiProviders'])->name('ai.providers.index');
         Route::post('/ai/providers',                     [Phase9CrudController::class, 'storeAiProvider'])->name('ai.providers.store');
         Route::delete('/ai/providers/{provider}',        [Phase9CrudController::class, 'deleteAiProvider'])->name('ai.providers.destroy');
+
+        // AI Chat with Data (Tanya Data Sekolah)
+        Route::get('/ai/chat-data',                      [AiDataChatController::class, 'index'])->name('ai.chat-data.index');
+        Route::post('/ai/chat-data',                     [AiDataChatController::class, 'ask'])->name('ai.chat-data.ask');
 
         // PKG — Penilaian Kinerja Guru
         Route::get('/pkg',                               [PkgController::class, 'index'])->name('pkg.index');
