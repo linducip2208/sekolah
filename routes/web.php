@@ -56,6 +56,7 @@ use App\Http\Controllers\Web\Admin\Print\PrintController;
 use App\Http\Controllers\Web\Admin\Phase8\Phase8WebController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9CrudController;
 use App\Http\Controllers\Web\Admin\AI\AiDataChatController;
+use App\Http\Controllers\Web\Admin\AI\OcrController;
 use App\Http\Controllers\Web\Admin\Lms\CourseController;
 use App\Http\Controllers\Web\Admin\Transport\TransportTrackingController;
 use App\Http\Controllers\Web\Admin\Transport\TransportAttendanceController;
@@ -363,6 +364,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // AI Chat with Data (Tanya Data Sekolah)
         Route::get('/ai/chat-data',                      [AiDataChatController::class, 'index'])->name('ai.chat-data.index');
         Route::post('/ai/chat-data',                     [AiDataChatController::class, 'ask'])->name('ai.chat-data.ask');
+
+        // OCR Dokumen
+        Route::get('/ai/ocr',                            [OcrController::class, 'index'])->name('ai.ocr.index');
+        Route::post('/ai/ocr',                           [OcrController::class, 'upload'])->name('ai.ocr.upload');
+        Route::get('/ai/ocr/{result}',                   [OcrController::class, 'show'])->name('ai.ocr.show');
 
         // PKG — Penilaian Kinerja Guru
         Route::get('/pkg',                               [PkgController::class, 'index'])->name('pkg.index');
