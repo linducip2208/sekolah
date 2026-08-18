@@ -2,6 +2,9 @@
 
 namespace App\Services\PPDB;
 
+use App\Mail\PpdbAcceptanceMail;
+use App\Mail\PpdbRejectionMail;
+use App\Mail\PpdbSubmissionMail;
 use App\Models\PPDB\PpdbApplication;
 use App\Models\PPDB\PpdbPeriod;
 use App\Models\PPDB\PpdbZonasiZone;
@@ -9,6 +12,8 @@ use App\Models\Academic\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PpdbService
@@ -59,7 +64,11 @@ class PpdbService
             'status'       => 'submitted',
             'submitted_at' => now(),
         ]);
-        return $app->fresh();
+
+        $fresh = $app->fresh();
+        $this->dispatchEmail($fresh, 'submission');
+
+        return $fresh;
     }
 
     public function verify(PpdbApplication $app, int $reviewerId): PpdbApplication
@@ -80,7 +89,11 @@ class PpdbService
             'reviewer_note'  => $note,
             'accepted_at'    => now(),
         ]);
-        return $app->fresh();
+
+        $fresh = $app->fresh();
+        $this->dispatchEmail($fresh, 'acceptance');
+
+        return $fresh;
     }
 
     public function reject(PpdbApplication $app, int $reviewerId, string $note): PpdbApplication
@@ -90,7 +103,11 @@ class PpdbService
             'reviewer_id'   => $reviewerId,
             'reviewer_note' => $note,
         ]);
-        return $app->fresh();
+
+        $fresh = $app->fresh();
+        $this->dispatchEmail($fresh, 'rejection');
+
+        return $fresh;
     }
 
     public function runSelection(PpdbPeriod $period): array
@@ -125,6 +142,111 @@ class PpdbService
         return ['accepted_total' => $accepted];
     }
 
+    public function uploadDocument(PpdbApplication $app, string $docType, $file): PpdbApplication
+    {
+        $path = $file->store("ppdb/{$app->school_id}/{$app->id}", 'public');
+
+        $documents = (array) $app->documents;
+        $documents[] = [
+            'type'     => $docType,
+            'path'     => $path,
+            'original' => $file->getClientOriginalName(),
+            'size'     => $file->getSize(),
+            'uploaded_at' => now()->toIso8601String(),
+        ];
+
+        $app->update(['documents' => $documents]);
+
+        return $app->fresh();
+    }
+
+    public function batchEnroll(array $applicationIds, int $classSectionId, int $enrollerId): array
+    {
+        $enrolled = 0;
+        $failed   = [];
+
+        foreach ($applicationIds as $appId) {
+            $app = PpdbApplication::find($appId);
+            if (! $app || $app->status !== 'accepted' || $app->enrolled_student_id) {
+                $failed[] = $appId;
+                continue;
+            }
+
+            try {
+                $this->enrollStudent($app, $classSectionId, null, $enrollerId);
+                $enrolled++;
+            } catch (\Throwable) {
+                $failed[] = $appId;
+            }
+        }
+
+        return ['enrolled' => $enrolled, 'failed' => $failed];
+    }
+
+    public function getReports(int $schoolId, ?int $periodId = null): array
+    {
+        $query = PpdbApplication::where('school_id', $schoolId);
+
+        if ($periodId) {
+            $query->where('ppdb_period_id', $periodId);
+        }
+
+        $all = $query->get();
+
+        $byStatus = [];
+        foreach (PpdbApplication::STATUSES as $status) {
+            $byStatus[$status] = $all->where('status', $status)->count();
+        }
+
+        $byJalur = [];
+        foreach (PpdbApplication::JALUR as $jalur) {
+            $jalurApps = $all->where('jalur', $jalur);
+            $byJalur[$jalur] = [
+                'total'    => $jalurApps->count(),
+                'draft'    => $jalurApps->where('status', 'draft')->count(),
+                'submitted'=> $jalurApps->where('status', 'submitted')->count(),
+                'verified' => $jalurApps->where('status', 'verified')->count(),
+                'accepted' => $jalurApps->where('status', 'accepted')->count(),
+                'rejected' => $jalurApps->where('status', 'rejected')->count(),
+                'enrolled' => $jalurApps->where('status', 'enrolled')->count(),
+            ];
+        }
+
+        $total = $all->count();
+        $conversionRates = [
+            'draft_to_submitted'     => $total > 0 ? round($byStatus['submitted'] / $total * 100, 1) : 0,
+            'submitted_to_verified'  => $byStatus['submitted'] > 0 ? round($byStatus['verified'] / max($byStatus['submitted'], 1) * 100, 1) : 0,
+            'verified_to_accepted'   => $byStatus['verified'] > 0 ? round($byStatus['accepted'] / max($byStatus['verified'], 1) * 100, 1) : 0,
+            'accepted_to_enrolled'   => $byStatus['accepted'] > 0 ? round($byStatus['enrolled'] / max($byStatus['accepted'], 1) * 100, 1) : 0,
+            'overall_enrollment'     => $total > 0 ? round($byStatus['enrolled'] / $total * 100, 1) : 0,
+        ];
+
+        return [
+            'total'            => $total,
+            'by_status'        => $byStatus,
+            'by_jalur'         => $byJalur,
+            'conversion_rates' => $conversionRates,
+        ];
+    }
+
+    protected function dispatchEmail(PpdbApplication $app, string $type): void
+    {
+        if (empty($app->parent_email)) {
+            return;
+        }
+
+        $mailable = match ($type) {
+            'submission' => new PpdbSubmissionMail($app),
+            'acceptance' => new PpdbAcceptanceMail($app),
+            'rejection'  => new PpdbRejectionMail($app),
+            default      => null,
+        };
+
+        if ($mailable) {
+            Mail::to($app->parent_email)->queue($mailable);
+        }
+    }
+
     protected function scoreApplications($apps, string $jalur)
     {
         return $apps->map(function (PpdbApplication $app) use ($jalur) {
@@ -136,7 +258,6 @@ class PpdbService
                 default     => (float) ($app->average_score ?? 0),
             };
 
-            // Blend in entrance test + interview scores when present (weighted).
             $score += (float) ($app->entrance_test_score ?? 0) * 0.3;
             $score += (float) ($app->interview_score ?? 0) * 0.2;
 

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Academic\Staff;
 use App\Models\Academic\TeacherCertification;
 use App\Models\Hr\EmploymentContract;
 use App\Models\User;
@@ -9,23 +10,33 @@ use App\Services\Notification\FcmService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class CheckExpiringCertifications extends Command
+class CheckExpiringDocuments extends Command
 {
-    protected $signature = 'certification:check-expiring {--days=30}';
-    protected $description = 'Cek sertifikasi guru & kontrak kerja yang akan kadaluarsa dan kirim notifikasi';
+    protected $signature = 'documents:check-expiring {--days=30}';
+    protected $description = 'Cek sertifikasi & kontrak kerja yang akan kadaluarsa, kirim notifikasi ke admin/principal';
 
     public function handle(FcmService $fcm): int
     {
         $days = (int) $this->option('days');
         $threshold = Carbon::now()->addDays($days);
 
-        $this->checkCertifications($threshold, $days, $fcm);
-        $this->checkContracts($threshold, $days, $fcm);
+        $certCount = $this->checkCertifications($threshold, $days, $fcm);
+        $contractCount = $this->checkContracts($threshold, $days, $fcm);
+
+        $total = $certCount + $contractCount;
+
+        if ($total === 0) {
+            $this->info("Tidak ada dokumen yang akan kadaluarsa dalam {$days} hari.");
+            return self::SUCCESS;
+        }
+
+        $this->newLine();
+        $this->info("Ringkasan: {$certCount} sertifikasi + {$contractCount} kontrak perlu perpanjangan dalam {$days} hari.");
 
         return self::SUCCESS;
     }
 
-    private function checkCertifications(Carbon $threshold, int $days, FcmService $fcm): void
+    private function checkCertifications(Carbon $threshold, int $days, FcmService $fcm): int
     {
         $expiring = TeacherCertification::withoutGlobalScopes()
             ->where('expiry_date', '<=', $threshold)
@@ -34,8 +45,8 @@ class CheckExpiringCertifications extends Command
             ->get();
 
         if ($expiring->isEmpty()) {
-            $this->info('Tidak ada sertifikasi yang akan kadaluarsa dalam ' . $days . ' hari.');
-            return;
+            $this->info("Tidak ada sertifikasi yang akan kadaluarsa.");
+            return 0;
         }
 
         $this->info("Ditemukan {$expiring->count()} sertifikasi yang akan kadaluarsa:");
@@ -49,6 +60,8 @@ class CheckExpiringCertifications extends Command
                 ->pluck('id')
                 ->toArray();
 
+            if (empty($adminIds)) continue;
+
             $lines = [];
             foreach ($certs as $cert) {
                 $teacherName = $cert->staff->user->name ?? 'Unknown';
@@ -58,20 +71,18 @@ class CheckExpiringCertifications extends Command
                 $lines[] = "{$cert->certification_name} ({$teacherName}) — {$remaining} hari lagi";
             }
 
-            if (!empty($adminIds)) {
-                $title = "⚠️ {$certs->count()} sertifikasi akan kadaluarsa";
-                $body = "Sertifikasi yang perlu perpanjangan:\n" . implode("\n", $lines);
-                $fcm->logAndSend($schoolId, $adminIds, 'certification_expiry', $title, $body, [
-                    'type' => 'certification_expiry',
-                    'count' => $certs->count(),
-                ]);
-            }
+            $title = "⚠️ {$expiring->count()} sertifikasi akan kadaluarsa";
+            $body = "Sertifikasi yang perlu perpanjangan:\n" . implode("\n", $lines);
+            $fcm->logAndSend($schoolId, $adminIds, 'certification_expiry', $title, $body, [
+                'type' => 'certification_expiry',
+                'count' => $expiring->count(),
+            ]);
         }
 
-        $this->info("Ringkasan: {$expiring->count()} sertifikasi perlu perpanjangan dalam {$days} hari.");
+        return $expiring->count();
     }
 
-    private function checkContracts(Carbon $threshold, int $days, FcmService $fcm): void
+    private function checkContracts(Carbon $threshold, int $days, FcmService $fcm): int
     {
         $expiring = EmploymentContract::withoutGlobalScopes()
             ->where('status', 'active')
@@ -82,8 +93,8 @@ class CheckExpiringCertifications extends Command
             ->get();
 
         if ($expiring->isEmpty()) {
-            $this->info('Tidak ada kontrak kerja yang akan kadaluarsa dalam ' . $days . ' hari.');
-            return;
+            $this->info("Tidak ada kontrak kerja yang akan kadaluarsa.");
+            return 0;
         }
 
         $this->info("Ditemukan {$expiring->count()} kontrak kerja yang akan kadaluarsa:");
@@ -97,6 +108,8 @@ class CheckExpiringCertifications extends Command
                 ->pluck('id')
                 ->toArray();
 
+            if (empty($adminIds)) continue;
+
             $lines = [];
             foreach ($contracts as $contract) {
                 $staffName = $contract->staff->user->name ?? 'Unknown';
@@ -106,16 +119,14 @@ class CheckExpiringCertifications extends Command
                 $lines[] = "{$staffName} ({$contract->type}) — {$remaining} hari lagi";
             }
 
-            if (!empty($adminIds)) {
-                $title = "⚠️ {$contracts->count()} kontrak kerja akan berakhir";
-                $body = "Kontrak yang perlu diperpanjang:\n" . implode("\n", $lines);
-                $fcm->logAndSend($schoolId, $adminIds, 'contract_expiry', $title, $body, [
-                    'type' => 'contract_expiry',
-                    'count' => $contracts->count(),
-                ]);
-            }
+            $title = "⚠️ {$expiring->count()} kontrak kerja akan berakhir";
+            $body = "Kontrak yang perlu diperpanjang:\n" . implode("\n", $lines);
+            $fcm->logAndSend($schoolId, $adminIds, 'contract_expiry', $title, $body, [
+                'type' => 'contract_expiry',
+                'count' => $expiring->count(),
+            ]);
         }
 
-        $this->info("Ringkasan: {$expiring->count()} kontrak kerja perlu perpanjangan dalam {$days} hari.");
+        return $expiring->count();
     }
 }

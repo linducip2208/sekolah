@@ -21,13 +21,16 @@
 <th class="text-center px-4 py-3 elite-kicker text-[.6rem]">Terisi/Kapasitas</th>
 <th class="text-right px-4 py-3 elite-kicker text-[.6rem]">Biaya/bulan</th>
 <th class="text-left px-4 py-3 elite-kicker text-[.6rem]">Status</th>
-<th></th></tr></thead><tbody>
+<th class="text-right px-4 py-3 elite-kicker text-[.6rem]">Aksi</th></tr></thead><tbody>
 @forelse($rooms as $r)<tr class="border-t border-rule">
 <td class="px-4 py-3 font-mono font-semibold">{{ $r->room_no }}</td>
 <td class="px-4 py-3 text-center font-mono">{{ $r->occupied }}/{{ $r->capacity }}</td>
 <td class="px-4 py-3 text-right font-mono">Rp {{ number_format($r->fee_per_month/100, 0, ',', '.') }}</td>
 <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded {{ $r->status==='available' ? 'bg-green-100 text-green-700' : ($r->status==='full' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">{{ $r->status }}</span></td>
-<td class="px-4 py-3 text-right"><form method="POST" action="{{ route('admin.hostel.rooms.destroy', $r) }}" class="inline" onsubmit="return confirm('Hapus?')">@csrf @method('DELETE')<button class="text-xs text-red-700 hover:underline">Hapus</button></form></td>
+<td class="px-4 py-3 text-right">
+    <a href="{{ route('admin.hostel.beds.index', $r) }}" class="text-xs text-[var(--c-primary)] hover:underline font-semibold">Tempat Tidur</a>
+    <form method="POST" action="{{ route('admin.hostel.rooms.destroy', $r) }}" class="inline" onsubmit="return confirm('Hapus?')">@csrf @method('DELETE')<button class="text-xs text-red-700 hover:underline ml-2">Hapus</button></form>
+</td>
 </tr>@empty<tr><td colspan="5" class="p-10 text-center text-gray-500 italic font-serif">Belum ada kamar.</td></tr>@endforelse
 </tbody></table></div></div></div>
 @endsection

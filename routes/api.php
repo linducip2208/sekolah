@@ -341,12 +341,15 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     // Module 22 — PPDB
     Route::get('/ppdb/applications/me',           [PpdbController::class, 'myApplications']);
     Route::post('/ppdb/applications/{id}/submit', [PpdbController::class, 'submit']);
+    Route::post('/ppdb/applications/{id}/upload-doc', [PpdbController::class, 'uploadDoc']);
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/ppdb/applications',                  [PpdbController::class, 'adminIndex']);
         Route::post('/admin/ppdb/applications/{id}/verify',     [PpdbController::class, 'verify']);
         Route::post('/admin/ppdb/applications/{id}/accept',     [PpdbController::class, 'accept']);
         Route::post('/admin/ppdb/applications/{id}/reject',     [PpdbController::class, 'reject']);
         Route::post('/admin/ppdb/{periodId}/run-selection',     [PpdbController::class, 'runSelection']);
+        Route::post('/admin/ppdb/batch-enroll',                 [PpdbController::class, 'batchEnroll']);
+        Route::get('/admin/ppdb/reports',                       [PpdbController::class, 'reports']);
     });
 
     // Module 23 — Bus Tracking + ID Gate

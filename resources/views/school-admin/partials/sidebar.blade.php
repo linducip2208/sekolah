@@ -130,7 +130,7 @@
 </div>
 
 {{-- PEOPLE --}}
-<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.staff.*','admin.pkg.*','admin.training.*','admin.lesson-study.*','admin.payroll.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.staff.*','admin.pkg.*','admin.training.*','admin.lesson-study.*','admin.payroll.*','admin.hr.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['people']) !!}People</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.staff.index') }}" class="sidebar-sub-link {{ $isActive('admin.staff.*') }}">Teachers & Staff</a>
@@ -138,8 +138,15 @@
         <a href="{{ route('admin.training.index') }}" class="sidebar-sub-link {{ $isActive('admin.training.*') }}">Training</a>
         <a href="{{ route('admin.training.certifications') }}" class="sidebar-sub-link {{ $isActive('admin.training.certifications') }}">Certifications</a>
         <a href="{{ route('admin.lesson-study.index') }}" class="sidebar-sub-link {{ $isActive('admin.lesson-study.*') }}">Lesson Study</a>
-        <a href="{{ route('admin.payroll.slips.index') }}" class="sidebar-sub-link {{ $isActive('admin.payroll.*') }}">Payroll</a>
-        <a href="{{ route('admin.hr.index') }}" class="sidebar-sub-link {{ $isActive('admin.hr.*') }}">HR / Human Capital</a>
+        <a href="{{ route('admin.payroll.slips.index') }}" class="sidebar-sub-link {{ $isActive('admin.payroll.slips.*') }}">Slip Gaji</a>
+        <a href="{{ route('admin.payroll.structures.index') }}" class="sidebar-sub-link {{ $isActive('admin.payroll.structures.*') }}">Komponen Gaji</a>
+        <a href="{{ route('admin.payroll.bpjs.index') }}" class="sidebar-sub-link {{ $isActive('admin.payroll.bpjs.*') }}">Konfigurasi BPJS</a>
+        <a href="{{ route('admin.payroll.pph21.index') }}" class="sidebar-sub-link {{ $isActive('admin.payroll.pph21.*') }}">Bracket PPh21</a>
+        <a href="{{ route('admin.payroll.tax-profiles.index') }}" class="sidebar-sub-link {{ $isActive('admin.payroll.tax-profiles.*') }}">Profil Pajak Staff</a>
+        <a href="{{ route('admin.hr.index') }}" class="sidebar-sub-link {{ $isActive('admin.hr.*') && !$isActive('admin.hr.kpi.*') ? 'bg-[var(--c-primary)]/10 text-[var(--c-primary)] font-semibold' : '' }}">HR / Human Capital</a>
+        <a href="{{ route('admin.hr.kpi.index') }}" class="sidebar-sub-link {{ $isActive('admin.hr.kpi.*') ? 'bg-[var(--c-primary)]/10 text-[var(--c-primary)] font-semibold' : '' }}">KPI Appraisals</a>
+        <a href="{{ route('admin.hr.kpi.templates') }}" class="sidebar-sub-link {{ $isActive('admin.hr.kpi.templates') ? 'bg-[var(--c-primary)]/10 text-[var(--c-primary)] font-semibold' : '' }}">Template KPI</a>
+        <a href="{{ route('admin.hr.kpi.goals') }}" class="sidebar-sub-link {{ $isActive('admin.hr.kpi.goals') ? 'bg-[var(--c-primary)]/10 text-[var(--c-primary)] font-semibold' : '' }}">KPI Goals</a>
     </div>
 </div>
 @endif
@@ -188,7 +195,11 @@
 <div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.hostel.*','admin.transport.*','admin.facilities.rooms.*','admin.visitor.*','admin.operations.*','admin.dapodik.*','admin.visitors.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['facilities']) !!}Facilities &amp; Operations</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
-        <a href="{{ route('admin.hostel.list.index') }}" class="sidebar-sub-link {{ $isActive('admin.hostel.*') }}">Dormitory</a>
+        <a href="{{ route('admin.hostel.list.index') }}" class="sidebar-sub-link {{ $isActive('admin.hostel.list.*') }}">Dormitory</a>
+        <a href="{{ route('admin.hostel.allocations.index') }}" class="sidebar-sub-link {{ $isActive('admin.hostel.allocations.*') }}">Dormitory Allocations</a>
+        <a href="{{ route('admin.hostel.attendances.index') }}" class="sidebar-sub-link {{ $isActive('admin.hostel.attendances.*') }}">Dormitory Attendance</a>
+        <a href="{{ route('admin.hostel.gate-passes.index') }}" class="sidebar-sub-link {{ $isActive('admin.hostel.gate-passes.*') }}">Gate Pass</a>
+        <a href="{{ route('admin.hostel.mess-menus.index') }}" class="sidebar-sub-link {{ $isActive('admin.hostel.mess-menus.*') }}">Mess Menu</a>
         <a href="{{ route('admin.transport.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.transport.*') }}">Transportation</a>
         <a href="{{ route('admin.transport.tracking') }}" class="sidebar-sub-link {{ $isActive('admin.transport.tracking') }}">Live Tracking Bus</a>
         <a href="{{ route('admin.transport.attendance.index') }}" class="sidebar-sub-link {{ $isActive('admin.transport.attendance.*') }}">Transport Attendance</a>

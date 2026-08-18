@@ -2,13 +2,19 @@
 
 namespace App\Models\Facilities;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\SchoolModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class HostelRoom extends Model
+class HostelRoom extends SchoolModel
 {
-    protected $fillable = ['hostel_id', 'room_no', 'capacity', 'occupied', 'status', 'fee_per_month'];
+    protected $fillable = ['school_id', 'hostel_id', 'room_no', 'capacity', 'occupied', 'status', 'fee_per_month'];
+
+    protected $casts = [
+        'capacity'      => 'integer',
+        'occupied'      => 'integer',
+        'fee_per_month' => 'integer',
+    ];
 
     public function hostel(): BelongsTo
     {
@@ -18,5 +24,15 @@ class HostelRoom extends Model
     public function allocations(): HasMany
     {
         return $this->hasMany(HostelAllocation::class);
+    }
+
+    public function beds(): HasMany
+    {
+        return $this->hasMany(HostelBed::class);
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(HostelAttendance::class);
     }
 }

@@ -237,6 +237,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/payroll/slips/generate',           [PayrollWebController::class, 'generateSlips'])->name('payroll.slips.generate');
         Route::post('/payroll/slips/{slip}/pay',         [PayrollWebController::class, 'paySlip'])->name('payroll.slips.pay');
         Route::delete('/payroll/slips/{slip}',           [PayrollWebController::class, 'deleteSlip'])->name('payroll.slips.destroy');
+        Route::get('/payroll/bpjs-config',               [PayrollWebController::class, 'bpjsConfig'])->name('payroll.bpjs.index');
+        Route::post('/payroll/bpjs-config',              [PayrollWebController::class, 'updateBpjsConfig'])->name('payroll.bpjs.update');
+        Route::get('/payroll/pph21',                     [PayrollWebController::class, 'pph21Brackets'])->name('payroll.pph21.index');
+        Route::post('/payroll/pph21',                    [PayrollWebController::class, 'storePph21Bracket'])->name('payroll.pph21.store');
+        Route::delete('/payroll/pph21/{bracket}',        [PayrollWebController::class, 'deletePph21Bracket'])->name('payroll.pph21.destroy');
+        Route::get('/payroll/tax-profiles',              [PayrollWebController::class, 'staffTaxProfiles'])->name('payroll.tax-profiles.index');
+        Route::post('/payroll/tax-profiles/{staffId}',   [PayrollWebController::class, 'updateTaxProfile'])->name('payroll.tax-profile.update');
 
         // Exams & Marks
         Route::get('/exams',                             [ExamWebController::class, 'index'])->name('exams.index');
@@ -300,6 +307,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/ppdb/applications/{application}/review', [Phase8CrudController::class, 'reviewPpdbApplication'])->name('ppdb.applications.review');
         Route::post('/ppdb/applications/{application}/score', [Phase8CrudController::class, 'scoreApplicant'])->name('ppdb.applications.score');
         Route::post('/ppdb/applications/{application}/enroll', [Phase8CrudController::class, 'enrollApplicant'])->name('ppdb.applications.enroll');
+        Route::post('/ppdb/applications/{application}/upload-doc', [Phase8CrudController::class, 'uploadPpdbDoc'])->name('ppdb.applications.upload-doc');
+        Route::post('/ppdb/batch-enroll',                      [Phase8CrudController::class, 'ppdbBatchEnroll'])->name('ppdb.batch-enroll');
+        Route::get('/ppdb/reports',                            [Phase8CrudController::class, 'ppdbReports'])->name('ppdb.reports');
 
         Route::get('/clinic/visits',                     [Phase8CrudController::class, 'clinicVisits'])->name('clinic.visits.index');
         Route::post('/clinic/visits',                    [Phase8CrudController::class, 'storeClinicVisit'])->name('clinic.visits.store');
@@ -571,14 +581,29 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/analytics/anomalies/{alert}/resolve',[AnomalyController::class, 'resolve'])->name('analytics.anomalies.resolve');
 
         // ============== HOSTEL ==============
-        Route::get('/hostel',                            [HostelWebController::class, 'hostels'])->name('hostel.list.index');
-        Route::post('/hostel',                           [HostelWebController::class, 'storeHostel'])->name('hostel.list.store');
-        Route::delete('/hostel/{hostel}',                [HostelWebController::class, 'deleteHostel'])->name('hostel.list.destroy');
-        Route::get('/hostel/{hostel}/rooms',              [HostelWebController::class, 'rooms'])->name('hostel.rooms.index');
-        Route::post('/hostel/{hostel}/rooms',             [HostelWebController::class, 'storeRoom'])->name('hostel.rooms.store');
-        Route::delete('/hostel/rooms/{room}',             [HostelWebController::class, 'deleteRoom'])->name('hostel.rooms.destroy');
-        Route::get('/hostel-allocations',                [HostelWebController::class, 'allocations'])->name('hostel.allocations.index');
-        Route::post('/hostel-allocations',               [HostelWebController::class, 'storeAllocation'])->name('hostel.allocations.store');
+        Route::get('/hostel',                              [HostelWebController::class, 'hostels'])->name('hostel.list.index');
+        Route::post('/hostel',                             [HostelWebController::class, 'storeHostel'])->name('hostel.list.store');
+        Route::delete('/hostel/{hostel}',                  [HostelWebController::class, 'deleteHostel'])->name('hostel.list.destroy');
+        Route::get('/hostel/{hostel}/rooms',               [HostelWebController::class, 'rooms'])->name('hostel.rooms.index');
+        Route::post('/hostel/{hostel}/rooms',              [HostelWebController::class, 'storeRoom'])->name('hostel.rooms.store');
+        Route::delete('/hostel/rooms/{room}',              [HostelWebController::class, 'deleteRoom'])->name('hostel.rooms.destroy');
+        Route::get('/hostel/rooms/{room}/beds',            [HostelWebController::class, 'beds'])->name('hostel.beds.index');
+        Route::post('/hostel/rooms/{room}/beds',           [HostelWebController::class, 'storeBed'])->name('hostel.beds.store');
+        Route::post('/hostel/beds/allocate',               [HostelWebController::class, 'allocateBed'])->name('hostel.beds.allocate');
+        Route::post('/hostel/beds/{bed}/deallocate',       [HostelWebController::class, 'deallocateBed'])->name('hostel.beds.deallocate');
+        Route::get('/hostel-allocations',                  [HostelWebController::class, 'allocations'])->name('hostel.allocations.index');
+        Route::post('/hostel-allocations',                 [HostelWebController::class, 'storeAllocation'])->name('hostel.allocations.store');
+        Route::post('/hostel/checkout',                    [HostelWebController::class, 'checkout'])->name('hostel.checkout');
+        Route::get('/hostel/gate-passes',                  [HostelWebController::class, 'gatePasses'])->name('hostel.gate-passes.index');
+        Route::post('/hostel/gate-passes',                 [HostelWebController::class, 'storeGatePass'])->name('hostel.gate-passes.store');
+        Route::post('/hostel/gate-passes/{pass}/approve',  [HostelWebController::class, 'approveGatePass'])->name('hostel.gate-passes.approve');
+        Route::post('/hostel/gate-passes/{pass}/reject',   [HostelWebController::class, 'rejectGatePass'])->name('hostel.gate-passes.reject');
+        Route::post('/hostel/gate-passes/{pass}/complete', [HostelWebController::class, 'completeGatePass'])->name('hostel.gate-passes.complete');
+        Route::get('/hostel/attendances',                  [HostelWebController::class, 'attendances'])->name('hostel.attendances.index');
+        Route::post('/hostel/attendances',                 [HostelWebController::class, 'storeAttendance'])->name('hostel.attendances.store');
+        Route::get('/hostel/mess-menus',                   [HostelWebController::class, 'messMenus'])->name('hostel.mess-menus.index');
+        Route::post('/hostel/mess-menus',                  [HostelWebController::class, 'storeMessMenu'])->name('hostel.mess-menus.store');
+        Route::delete('/hostel/mess-menus/{menu}',         [HostelWebController::class, 'deleteMessMenu'])->name('hostel.mess-menus.destroy');
 
         // ============== ROOM BOOKING ==============
         Route::prefix('facilities/rooms')->name('facilities.rooms.')->group(function () {
@@ -978,6 +1003,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/hr/overtime',                     [HrController::class, 'storeOvertime'])->name('hr.overtime.store');
         Route::post('/hr/overtime/{record}/approve',    [HrController::class, 'approveOvertime'])->name('hr.overtime.approve');
 
+        // ============== KPI ==============
+        Route::get('/hr/kpi/templates',                 [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'templates'])->name('hr.kpi.templates');
+        Route::post('/hr/kpi/templates',                [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'storeTemplate'])->name('hr.kpi.templates.store');
+        Route::delete('/hr/kpi/templates/{template}',   [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'deleteTemplate'])->name('hr.kpi.templates.destroy');
+        Route::post('/hr/kpi/templates/{template}/criteria', [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'storeCriteria'])->name('hr.kpi.criteria.store');
+        Route::delete('/hr/kpi/criteria/{criteria}',    [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'deleteCriteria'])->name('hr.kpi.criteria.destroy');
+        Route::get('/hr/kpi',                           [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'index'])->name('hr.kpi.index');
+        Route::post('/hr/kpi',                          [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'store'])->name('hr.kpi.store');
+        Route::get('/hr/kpi/{appraisal}',               [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'show'])->name('hr.kpi.show');
+        Route::post('/hr/kpi/{appraisal}/scores',       [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'saveScores'])->name('hr.kpi.scores');
+        Route::post('/hr/kpi/{appraisal}/submit',       [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'submit'])->name('hr.kpi.submit');
+        Route::post('/hr/kpi/{appraisal}/finalize',     [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'finalize'])->name('hr.kpi.finalize');
+        Route::get('/hr/kpi-goals',                     [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'goals'])->name('hr.kpi.goals');
+        Route::post('/hr/kpi-goals',                    [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'storeGoal'])->name('hr.kpi.goals.store');
+        Route::post('/hr/kpi-goals/{goal}',             [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'updateGoal'])->name('hr.kpi.goals.update');
+        Route::delete('/hr/kpi-goals/{goal}',           [\App\Http\Controllers\Web\Admin\Hr\KpiController::class, 'deleteGoal'])->name('hr.kpi.goals.destroy');
+
         // ============== REKONSILIASI BANK ==============
         Route::get('/accounting/bank-reconciliation',         [BankReconciliationController::class, 'index'])->name('accounting.bank-reconciliation');
         Route::post('/accounting/bank-reconciliation/import', [BankReconciliationController::class, 'import'])->name('accounting.bank-reconciliation.import');
@@ -1080,6 +1122,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/staff',                             [StaffWebController::class, 'index'])->name('staff.index');
         Route::get('/staff/create',                      [StaffWebController::class, 'create'])->name('staff.create');
         Route::post('/staff',                            [StaffWebController::class, 'store'])->name('staff.store');
+        Route::get('/staff/{staff}/profile',             [\App\Http\Controllers\Web\Admin\Academic\StaffProfileController::class, 'show'])->name('staff.profile');
         Route::get('/staff/{staff}/edit',                [StaffWebController::class, 'edit'])->name('staff.edit');
         Route::put('/staff/{staff}',                     [StaffWebController::class, 'update'])->name('staff.update');
         Route::delete('/staff/{staff}',                  [StaffWebController::class, 'destroy'])->name('staff.destroy');

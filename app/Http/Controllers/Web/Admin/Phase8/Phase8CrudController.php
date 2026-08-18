@@ -142,6 +142,59 @@ class Phase8CrudController extends Controller
         return back()->with('success', 'Pendaftar dikonversi menjadi siswa.');
     }
 
+    public function uploadPpdbDoc(Request $request, PpdbApplication $application): RedirectResponse
+    {
+        $this->authorizeOwn($application);
+
+        $data = $request->validate([
+            'file'     => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png',
+            'doc_type' => 'required|string|max:50',
+        ]);
+
+        app(\App\Services\PPDB\PpdbService::class)->uploadDocument(
+            $application,
+            $data['doc_type'],
+            $request->file('file'),
+        );
+
+        return back()->with('success', 'Dokumen berhasil diupload.');
+    }
+
+    public function ppdbBatchEnroll(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'application_ids'   => 'required|array|min:1',
+            'application_ids.*' => 'integer|exists:ppdb_applications,id',
+            'class_section_id'  => 'required|exists:class_sections,id',
+        ]);
+
+        $result = app(\App\Services\PPDB\PpdbService::class)->batchEnroll(
+            $data['application_ids'],
+            $data['class_section_id'],
+            auth()->id(),
+        );
+
+        $msg = "Berhasil mendaftarkan {$result['enrolled']} siswa.";
+        if (count($result['failed']) > 0) {
+            $msg .= ' Gagal: ' . implode(', ', $result['failed']);
+        }
+
+        return back()->with('success', $msg);
+    }
+
+    public function ppdbReports(Request $request): View
+    {
+        $reports = app(\App\Services\PPDB\PpdbService::class)->getReports(
+            $this->schoolId(),
+            $request->input('period_id'),
+        );
+
+        return view('school-admin.ppdb.reports', [
+            'reports' => $reports,
+            'periods' => PpdbPeriod::where('school_id', $this->schoolId())->orderByDesc('open_date')->get(),
+        ]);
+    }
+
     /* ============================== UKS / CLINIC ============================== */
 
     public function clinicVisits(Request $request): View

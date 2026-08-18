@@ -115,6 +115,46 @@ class PpdbController extends Controller
         return response()->json($this->service->reject($app, $request->user()->id, $request->input('note')));
     }
 
+    public function uploadDoc(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'file'     => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png',
+            'doc_type' => 'required|string|max:50',
+        ]);
+
+        $app = PpdbApplication::where('school_id', $request->user()->school_id)->findOrFail($id);
+        $app = $this->service->uploadDocument($app, $request->input('doc_type'), $request->file('file'));
+
+        return response()->json($app);
+    }
+
+    public function batchEnroll(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'application_ids'   => 'required|array|min:1',
+            'application_ids.*' => 'integer|exists:ppdb_applications,id',
+            'class_section_id'  => 'required|exists:class_sections,id',
+        ]);
+
+        $result = $this->service->batchEnroll(
+            $data['application_ids'],
+            $data['class_section_id'],
+            $request->user()->id,
+        );
+
+        return response()->json($result);
+    }
+
+    public function reports(Request $request): JsonResponse
+    {
+        $reports = $this->service->getReports(
+            $request->user()->school_id,
+            $request->input('period_id'),
+        );
+
+        return response()->json($reports);
+    }
+
     public function runSelection(Request $request, int $periodId): JsonResponse
     {
         $period = PpdbPeriod::where('school_id', $request->user()->school_id)->findOrFail($periodId);

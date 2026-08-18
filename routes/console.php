@@ -43,3 +43,6 @@ Schedule::command('automation:evaluate')->dailyAt('06:30')->withoutOverlapping()
 
 // Anomaly detection — scan school data daily
 Schedule::command('analytics:detect-anomalies')->dailyAt('01:15')->withoutOverlapping(60);
+
+// Document expiry — check certifications & contracts expiring within 30 days
+Schedule::command('documents:check-expiring --days=30')->dailyAt('07:30');

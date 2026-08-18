@@ -53,7 +53,8 @@
                     </td>
                     <td class="px-4 py-3 font-mono text-xs">{{ $s->basic_salary ? 'Rp '.number_format($s->basic_salary/100, 0, ',', '.') : '—' }}</td>
                     <td class="px-4 py-3 text-right whitespace-nowrap">
-                        <a href="{{ route('admin.staff.edit', $s) }}" class="text-xs underline ink-secondary hover:ink-accent">Edit</a>
+                        <a href="{{ route('admin.staff.profile', $s) }}" class="text-xs underline ink-secondary hover:ink-accent">Profil</a>
+                        <a href="{{ route('admin.staff.edit', $s) }}" class="text-xs underline ink-secondary hover:ink-accent ml-2">Edit</a>
                         <form method="POST" action="{{ route('admin.staff.destroy', $s) }}" class="inline ml-2"
                               onsubmit="return confirm('Nonaktifkan staff ini?')">
                             @csrf @method('DELETE')
