@@ -5,4 +5,4 @@ Disallow: /super
 Disallow: /api
 Disallow: /__pair
 
-Sitemap: https://sikadpro.whitelabel.co.id/sitemap.xml
+Sitemap: /sitemap.xml
