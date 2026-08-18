@@ -41,6 +41,9 @@ Schedule::command('reminders:send')->dailyAt('07:00');
 // Automation — evaluate trigger/action rules every morning
 Schedule::command('automation:evaluate')->dailyAt('06:30')->withoutOverlapping();
 
+// PTM Reminder — send reminders for upcoming PTM within 7 days
+Schedule::command('ptm:send-reminders --days=7')->dailyAt('07:00');
+
 // Anomaly detection — scan school data daily
 Schedule::command('analytics:detect-anomalies')->dailyAt('01:15')->withoutOverlapping(60);
 

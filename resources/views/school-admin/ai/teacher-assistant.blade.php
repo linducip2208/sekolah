@@ -183,6 +183,37 @@
 </div>
 </div>
 
+<!-- LAPORAN ORANG TUA -->
+<div x-show="activeTab === 'parent-report'" x-cloak class="grid lg:grid-cols-2 gap-6">
+<div class="bg-white border border-rule p-6">
+    <h3 class="elite-kicker text-[.65rem] mb-3">Laporan Perkembangan untuk Orang Tua</h3>
+    <form @submit.prevent="callAi('parent-report', '{{ url('/ai/teacher-assistant/parent-report') }}')" class="space-y-3">
+        <select x-model="formParentReport.student_id" required class="w-full border-2 border-rule px-3 py-2 font-serif text-sm">
+            <option value="">-- Pilih Siswa --</option>
+            @foreach($students as $s)<option value="{{ $s->id }}">{{ $s->user?->name }} ({{ $s->admission_no }})</option>@endforeach
+        </select>
+        <input x-model="formParentReport.semester" required placeholder="Semester (contoh: Gasal 2026 / Genap 2026)" class="w-full border-2 border-rule px-3 py-2 font-serif text-sm">
+        <select x-model="formParentReport.language" class="w-full border-2 border-rule px-3 py-2 font-serif text-sm">
+            <option value="id">Bahasa Indonesia</option>
+            <option value="en">English</option>
+        </select>
+        <select x-model="formParentReport.ai_model_id" class="w-full border-2 border-rule px-3 py-2 font-serif text-sm">
+            <option value="">-- Model AI (otomatis) --</option>
+            @foreach($aiModels as $m)<option value="{{ $m->id }}">{{ $m->name ?? $m->model_name }} ({{ $m->provider?->name }})</option>@endforeach
+        </select>
+        <button type="submit" class="btn-elite w-full" :disabled="loading" style="padding:.6rem;font-size:.65rem;">
+            <span x-show="!loading">Generate Laporan Orang Tua</span>
+            <span x-show="loading">Generating...</span>
+        </button>
+    </form>
+</div>
+<div class="bg-white border border-rule p-6 overflow-auto max-h-[600px]">
+    <h3 class="elite-kicker text-[.65rem] mb-3">Hasil Laporan</h3>
+    <div x-show="resultParentReport" x-html="renderParentReport()" class="font-serif text-sm leading-relaxed"></div>
+    <div x-show="!resultParentReport && !loading" class="text-center text-gray-400 italic py-10 font-serif">Laporan perkembangan akan muncul di sini...</div>
+</div>
+</div>
+
 </div>
 @push('scripts')
 <script>
@@ -196,17 +227,20 @@ function aiTeacher() {
             { id: 'worksheet', label: 'Worksheet' },
             { id: 'variasi', label: 'Variasi Soal' },
             { id: 'remedial', label: 'Remedial / Pengayaan' },
+            { id: 'parent-report', label: 'Laporan Orang Tua' },
         ],
         formModulAjar: { subject_name: '', topic: '', grade_level: '', hours: 2, ai_model_id: '' },
         formRubrik: { assignment_title: '', criteria_text: '', max_score: 100, ai_model_id: '' },
         formWorksheet: { subject_name: '', topic: '', grade_level: '', question_count: 10, ai_model_id: '' },
         formVariasi: { question_id: '', variation_count: 3, ai_model_id: '' },
         formRemedial: { student_id: '', subject_name: '', weak_topics_text: '', ai_model_id: '' },
+        formParentReport: { student_id: '', semester: '', language: 'id', ai_model_id: '' },
         resultModulAjar: null,
         resultRubrik: null,
         resultWorksheet: null,
         resultVariasi: null,
         resultRemedial: null,
+        resultParentReport: null,
 
         async callAi(tool, url) {
             this.loading = true;
@@ -232,6 +266,13 @@ function aiTeacher() {
                         weak_topics: this.formRemedial.weak_topics_text.split('\n').filter(s => s.trim()),
                         ai_model_id: this.formRemedial.ai_model_id,
                     });
+                } else if (tool === 'parent-report') {
+                    body = JSON.stringify({
+                        student_id: this.formParentReport.student_id,
+                        semester: this.formParentReport.semester,
+                        language: this.formParentReport.language,
+                        ai_model_id: this.formParentReport.ai_model_id,
+                    });
                 }
                 const res = await fetch(url, {
                     method: 'POST',
@@ -248,6 +289,7 @@ function aiTeacher() {
                     else if (tool === 'rubrik') this.resultRubrik = data.parsed;
                     else if (tool === 'worksheet') this.resultWorksheet = data.parsed;
                     else if (tool === 'variasi') this.resultVariasi = data.parsed;
+                    else if (tool === 'parent-report') this.resultParentReport = data.parsed;
                     else if (tool === 'remedial') this.resultRemedial = data.parsed;
                 } else {
                     alert('Error: ' + (data.error || 'Unknown error'));
@@ -463,6 +505,90 @@ function aiTeacher() {
                 (d.enrichment.resources || []).forEach(r => { html += '<li>' + r + '</li>'; });
                 html += '</ul></div>';
             }
+            html += '</div>';
+            return html;
+        },
+
+        renderParentReport() {
+            if (!this.resultParentReport) return '';
+            const d = this.resultParentReport;
+            let html = '<div class="space-y-5">';
+            html += '<h4 class="font-bold text-base ink-primary">' + (d.report_title || 'Laporan Perkembangan Siswa') + '</h4>';
+            if (d.student_name) html += '<div class="text-xs text-gray-500">Siswa: <strong>' + d.student_name + '</strong> — Semester: <strong>' + (d.semester || '-') + '</strong></div>';
+
+            // Academic Performance
+            if (d.academic_performance) {
+                const ap = d.academic_performance;
+                html += '<div class="border border-rule rounded p-4">';
+                html += '<h5 class="font-bold text-sm mb-2">📊 Performa Akademik</h5>';
+                if (ap.summary) html += '<p class="text-xs mb-2">' + ap.summary + '</p>';
+                if (ap.strengths && ap.strengths.length) {
+                    html += '<div class="text-xs mb-1"><strong class="text-green-700">Kekuatan:</strong></div><ul class="list-disc ml-4 text-xs space-y-0.5">';
+                    ap.strengths.forEach(s => { html += '<li>' + s + '</li>'; });
+                    html += '</ul>';
+                }
+                if (ap.areas_for_improvement && ap.areas_for_improvement.length) {
+                    html += '<div class="text-xs mt-2 mb-1"><strong class="text-amber-700">Perlu Diperbaiki:</strong></div><ul class="list-disc ml-4 text-xs space-y-0.5">';
+                    ap.areas_for_improvement.forEach(a => { html += '<li>' + a + '</li>'; });
+                    html += '</ul>';
+                }
+                html += '</div>';
+            }
+
+            // Attendance
+            if (d.attendance_summary) {
+                const at = d.attendance_summary;
+                html += '<div class="border border-rule rounded p-4">';
+                html += '<h5 class="font-bold text-sm mb-2">📋 Kehadiran</h5>';
+                if (at.summary) html += '<p class="text-xs mb-2">' + at.summary + '</p>';
+                html += '<div class="grid grid-cols-3 gap-2 text-xs">';
+                html += '<div class="bg-green-50 rounded p-2 text-center"><div class="font-bold text-green-700">' + (at.present_days || 0) + '</div>Hadir</div>';
+                html += '<div class="bg-yellow-50 rounded p-2 text-center"><div class="font-bold text-yellow-700">' + (at.late_days || 0) + '</div>Terlambat</div>';
+                html += '<div class="bg-red-50 rounded p-2 text-center"><div class="font-bold text-red-700">' + (at.absent_days || 0) + '</div>Absen</div>';
+                html += '</div>';
+                html += '</div>';
+            }
+
+            // Behavior
+            if (d.behavioral_observations) {
+                const bo = d.behavioral_observations;
+                html += '<div class="border border-rule rounded p-4">';
+                html += '<h5 class="font-bold text-sm mb-2">🌟 Perilaku & Kedisiplinan</h5>';
+                if (bo.summary) html += '<p class="text-xs mb-2">' + bo.summary + '</p>';
+                if (bo.positive_behaviors && bo.positive_behaviors.length) {
+                    html += '<ul class="list-disc ml-4 text-xs space-y-0.5">';
+                    bo.positive_behaviors.forEach(p => { html += '<li class="text-green-700">' + p + '</li>'; });
+                    html += '</ul>';
+                }
+                html += '</div>';
+            }
+
+            // Highlights
+            if (d.highlights && d.highlights.length) {
+                html += '<div class="bg-amber-50 border border-amber-200 rounded p-4">';
+                html += '<h5 class="font-bold text-sm mb-2">🏆 Prestasi & Momen Positif</h5><ul class="list-disc ml-4 text-xs space-y-0.5">';
+                d.highlights.forEach(h => { html += '<li>' + h + '</li>'; });
+                html += '</ul></div>';
+            }
+
+            // Recommendations
+            if (d.recommendations && d.recommendations.length) {
+                html += '<div class="border border-rule rounded p-4">';
+                html += '<h5 class="font-bold text-sm mb-2">💡 Rekomendasi</h5>';
+                d.recommendations.forEach((r, i) => {
+                    html += '<div class="flex gap-2 text-xs mb-2"><span class="font-bold text-[var(--c-primary)]">' + (i + 1) + '.</span><div><strong>' + (r.area || '') + ':</strong> ' + (r.action || '') + ' <span class="text-gray-400">(' + (r.by_whom || '') + ')</span></div></div>';
+                });
+                html += '</div>';
+            }
+
+            // Overall
+            if (d.overall_assessment) {
+                html += '<div class="bg-blue-50 border border-blue-200 rounded p-4 text-xs"><strong>Penilaian Keseluruhan:</strong><br>' + d.overall_assessment + '</div>';
+            }
+            if (d.encouragement_message) {
+                html += '<div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded p-4 text-xs italic text-center">' + d.encouragement_message + '</div>';
+            }
+
             html += '</div>';
             return html;
         },

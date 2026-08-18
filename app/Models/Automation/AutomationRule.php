@@ -8,7 +8,7 @@ class AutomationRule extends SchoolModel
 {
     protected $table = 'automation_rules';
 
-    public const TRIGGERS = ['fee_due_soon', 'fee_overdue', 'student_absent_streak', 'birthday'];
+    public const TRIGGERS = ['fee_due_soon', 'fee_overdue', 'student_absent_streak', 'birthday', 'contract_expiry', 'certification_expiry', 'ptm_reminder'];
 
     public const ACTIONS = ['notify', 'email'];
 

@@ -28,6 +28,7 @@ use App\Http\Controllers\Web\Admin\Branding\BrandingWebController;
 use App\Http\Controllers\Web\Admin\Communication\ChatNotificationController;
 use App\Http\Controllers\Web\Admin\Communication\NoticeWebController;
 use App\Http\Controllers\Web\Admin\Academic\LessonStudyController;
+use App\Http\Controllers\Web\Admin\Academic\PtmScheduleController;
 use App\Http\Controllers\Web\Admin\Academic\TrainingController;
 use App\Http\Controllers\Web\Admin\DashboardTvController;
 use App\Http\Controllers\Web\Admin\DigitalSignageController;
@@ -106,6 +107,9 @@ use App\Http\Controllers\Web\SuperAdmin\PlatformBillingController;
 use App\Http\Controllers\Web\SuperAdmin\PlatformPanelController;
 use App\Http\Controllers\Web\SuperAdmin\PlatformWhitelabelController;
 use App\Http\Controllers\Web\SuperAdmin\SuperExtrasController;
+use App\Http\Controllers\Web\SuperAdmin\CouponController;
+use App\Http\Controllers\Web\SuperAdmin\TenantUsageController;
+use App\Http\Controllers\Web\Admin\Dashboard\RoleDashboardController;
 use App\Http\Controllers\Web\Admin\Academic\InteractiveRaportController;
 use App\Http\Controllers\Web\Admin\Academic\PortfolioController;
 use App\Http\Controllers\Web\Admin\Communication\ConferenceController;
@@ -183,6 +187,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware(['auth', 'role:admin|accountant|principal|hr|transport_admin|hostel_admin|procurement_admin|homeroom_teacher', 'subscription.active', '2fa.enforce'])->group(function () {
         Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard/role', [RoleDashboardController::class, 'index'])->name('dashboard.role');
 
         // ==================== AKADEMIK ====================
         Route::get('/academic/years',                    [AcademicWebController::class, 'years'])->name('academic.years.index');
@@ -455,6 +460,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/lesson-study/{lessonStudy}/reflect',   [LessonStudyController::class, 'storeReflection'])->name('lesson-study.store-reflection');
         Route::get('/lesson-study/{lessonStudy}/report-pdf', [LessonStudyController::class, 'reportPdf'])->name('lesson-study.report-pdf');
 
+        // ============== PTM (Parent-Teacher Meeting) ==============
+        Route::get('/ptm-schedules',                           [PtmScheduleController::class, 'index'])->name('ptm-schedules.index');
+        Route::post('/ptm-schedules',                          [PtmScheduleController::class, 'store'])->name('ptm-schedules.store');
+        Route::put('/ptm-schedules/{ptmSchedule}',             [PtmScheduleController::class, 'update'])->name('ptm-schedules.update');
+        Route::delete('/ptm-schedules/{ptmSchedule}',          [PtmScheduleController::class, 'destroy'])->name('ptm-schedules.destroy');
+        Route::post('/ptm-schedules/send-reminders',           [PtmScheduleController::class, 'sendReminders'])->name('ptm-schedules.send-reminders');
+
         // Enhanced Assignments (Online Classroom)
         Route::get('/classroom/assignments',                  [AssignmentController::class, 'index'])->name('assignments.index');
         Route::get('/classroom/assignments/create',           [AssignmentController::class, 'create'])->name('assignments.create');
@@ -596,6 +608,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/analytics/anomalies',                 [AnomalyController::class, 'index'])->name('analytics.anomalies.index');
         Route::post('/analytics/anomalies/run',            [AnomalyController::class, 'run'])->name('analytics.anomalies.run');
         Route::post('/analytics/anomalies/{alert}/resolve',[AnomalyController::class, 'resolve'])->name('analytics.anomalies.resolve');
+
+        // Predictive Analytics — At-Risk Prediction
+        Route::get('/analytics/predictive',                [\App\Http\Controllers\Web\Admin\Analytics\PredictiveAnalyticsController::class, 'index'])->name('analytics.predictive.index');
+        Route::get('/analytics/predictive/student/{student}', [\App\Http\Controllers\Web\Admin\Analytics\PredictiveAnalyticsController::class, 'studentDetail'])->name('analytics.predictive.detail');
 
         // Executive Dashboard
         Route::get('/analytics/executive',                 [ExecutiveDashboardController::class, 'index'])->name('analytics.executive');
@@ -739,6 +755,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/notif/providers/preset/{name}',       [\App\Http\Controllers\Web\Admin\Communication\NotificationProviderController::class, 'preset'])->name('notif.providers.preset');
         Route::delete('/notif/providers/{provider}',    [\App\Http\Controllers\Web\Admin\Communication\NotificationProviderController::class, 'destroy'])->name('notif.providers.destroy');
 
+        // Notification Preferences
+        Route::get('/notif/preferences',                [\App\Http\Controllers\Web\Admin\Communication\NotificationPreferenceController::class, 'index'])->name('notif-prefs.index');
+        Route::post('/notif/preferences',               [\App\Http\Controllers\Web\Admin\Communication\NotificationPreferenceController::class, 'update'])->name('notif-prefs.update');
+
+        // Broadcast Messages
+        Route::get('/broadcast',                        [\App\Http\Controllers\Web\Admin\Communication\BroadcastMessageController::class, 'index'])->name('broadcast.index');
+        Route::get('/broadcast/create',                 [\App\Http\Controllers\Web\Admin\Communication\BroadcastMessageController::class, 'create'])->name('broadcast.create');
+        Route::post('/broadcast',                       [\App\Http\Controllers\Web\Admin\Communication\BroadcastMessageController::class, 'store'])->name('broadcast.store');
+        Route::post('/broadcast/{message}/send',        [\App\Http\Controllers\Web\Admin\Communication\BroadcastMessageController::class, 'send'])->name('broadcast.send');
+        Route::delete('/broadcast/{message}',           [\App\Http\Controllers\Web\Admin\Communication\BroadcastMessageController::class, 'destroy'])->name('broadcast.destroy');
+
         // WhatsApp Bot
         Route::get('/wa-bot/commands',                  [WaBotController::class, 'commands'])->name('wa-bot.commands.index');
         Route::post('/wa-bot/commands',                 [WaBotController::class, 'store'])->name('wa-bot.commands.store');
@@ -793,6 +820,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/ai/teacher-assistant/variasi',     [$atc, 'generateVariation'])->name('ai.teacher-assistant.variasi');
         Route::post('/ai/teacher-assistant/variasi/save',[$atc, 'saveVariation'])->name('ai.teacher-assistant.variasi.save');
         Route::post('/ai/teacher-assistant/remedial',    [$atc, 'generateRemedial'])->name('ai.teacher-assistant.remedial');
+        Route::post('/ai/teacher-assistant/parent-report', [$atc, 'generateParentReport'])->name('ai.teacher-assistant.parent-report');
 
         // ============== EXTRACURRICULAR ==============
         Route::get('/extracurricular',                   [ClassroomExtrasController::class, 'extracurriculars'])->name('extracurricular.index');
@@ -1749,6 +1777,17 @@ Route::prefix('super')->name('super.')->group(function () {
         // ===== BENCHMARK ANTAR SEKOLAH (Module 11 - Super Admin) =====
         Route::get('/benchmark',                                 [BenchmarkController::class, 'index'])->name('benchmark.index');
         Route::get('/benchmark/drilldown',                       [BenchmarkController::class, 'drilldown'])->name('benchmark.drilldown');
+
+        // ===== COUPONS =====
+        Route::get('/coupons',                                    [CouponController::class, 'index'])->name('coupons.index');
+        Route::post('/coupons',                                   [CouponController::class, 'store'])->name('coupons.store');
+        Route::put('/coupons/{coupon}',                           [CouponController::class, 'update'])->name('coupons.update');
+        Route::delete('/coupons/{coupon}',                        [CouponController::class, 'destroy'])->name('coupons.destroy');
+        Route::post('/coupons/{coupon}/toggle',                   [CouponController::class, 'toggle'])->name('coupons.toggle');
+        Route::post('/coupons/validate',                          [CouponController::class, 'validateCoupon'])->name('coupons.validate');
+
+        // ===== TENANT USAGE =====
+        Route::get('/tenant-usage',                               [TenantUsageController::class, 'index'])->name('tenant-usage.index');
 
         Route::post('/logout',                                     [DashboardController::class, 'logout'])->name('logout');
     });

@@ -10,7 +10,7 @@ class EvaluateAutomationRules extends Command
 {
     protected $signature = 'automation:evaluate {school_id? : ID sekolah (default: semua)}';
 
-    protected $description = 'Evaluasi aturan otomasi (pengingat SPP, absen beruntun, ulang tahun)';
+    protected $description = 'Evaluasi aturan otomasi (pengingat SPP, absen beruntun, ulang tahun, kontrak, sertifikasi, PTM)';
 
     public function handle(AutomationService $service): int
     {
@@ -27,6 +27,9 @@ class EvaluateAutomationRules extends Command
             $total += $service->run($schoolId, 'fee_overdue', $service->feeOverdueEvents($schoolId));
             $total += $service->run($schoolId, 'student_absent_streak', $service->absentStreakEvents($schoolId));
             $total += $service->run($schoolId, 'birthday', $service->birthdayEvents($schoolId));
+            $total += $service->run($schoolId, 'contract_expiry', $service->contractExpiryEvents($schoolId));
+            $total += $service->run($schoolId, 'certification_expiry', $service->certificationExpiryEvents($schoolId));
+            $total += $service->run($schoolId, 'ptm_reminder', $service->ptmReminderEvents($schoolId));
         }
 
         $this->info("Otomasi dievaluasi: {$total} aksi diproses.");

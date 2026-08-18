@@ -67,6 +67,7 @@
 
 {{-- ===== TOP NAV ===== --}}
 <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ $isActive('admin.dashboard') }}">{!! $icon($icons['dashboard']) !!}<span>Dashboard</span></a>
+<a href="{{ route('admin.dashboard.role') }}" class="sidebar-link {{ $isActive('admin.dashboard.role') }}">{!! $icon($icons['academic']) !!}<span>Role Dashboard</span></a>
 <a href="{{ route('admin.workflow.index') }}" class="sidebar-link {{ $isActive('admin.workflow.*') }}">{!! $icon($icons['tasks']) !!}<span>My Tasks</span>@if($navCounts['workflow'] > 0)<span class="sidebar-badge">{{ $navCounts['workflow'] }}</span>@endif</a>
 <a href="{{ route('admin.calendar.index') }}" class="sidebar-link {{ $isActive('admin.calendar.*') }}">{!! $icon($icons['calendar']) !!}<span>Calendar</span></a>
 <a href="{{ route('admin.notifications.index') }}" class="sidebar-link {{ $isActive('admin.notifications.*') }}">{!! $icon($icons['bell']) !!}<span>Notifications</span></a>
@@ -109,6 +110,7 @@
         <a href="{{ route('admin.courses.index') }}" class="sidebar-sub-link {{ $isActive('admin.courses.*') }}">Kursus (LMS)</a>
         <a href="{{ route('admin.quizzes.index') }}" class="sidebar-sub-link {{ $isActive('admin.quizzes.*') }}">Kuis</a>
         <a href="{{ route('admin.academic.essay-grading.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.essay-grading.*') }}">AI Essay Grading</a>
+        <a href="{{ route('admin.ptm-schedules.index') }}" class="sidebar-sub-link {{ $isActive('admin.ptm-schedules.*') }}">Jadwal PTM</a>
     </div>
 </div>
 
@@ -263,7 +265,7 @@
 </div>
 
 {{-- COMMUNICATION --}}
-<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.notices.*','admin.chat.*','admin.wa-bot.*','admin.reminders.*','admin.emergency.*','admin.notif.*','admin.forum.*','admin.conferences.*','admin.committee.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.notices.*','admin.chat.*','admin.wa-bot.*','admin.reminders.*','admin.emergency.*','admin.notif.*','admin.notif-prefs.*','admin.broadcast.*','admin.forum.*','admin.conferences.*','admin.committee.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['comm']) !!}Communication</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.notices.index') }}" class="sidebar-sub-link {{ $isActive('admin.notices.*') }}">Announcements</a>
@@ -272,6 +274,8 @@
         <a href="{{ route('admin.reminders.index') }}" class="sidebar-sub-link {{ $isActive('admin.reminders.*') }}">Reminders</a>
         <a href="{{ route('admin.emergency.index') }}" class="sidebar-sub-link {{ $isActive('admin.emergency.*') }}">Emergency</a>
         <a href="{{ route('admin.notif.providers.index') }}" class="sidebar-sub-link {{ $isActive('admin.notif.*') }}">Notification Providers</a>
+        <a href="{{ route('admin.notif-prefs.index') }}" class="sidebar-sub-link {{ $isActive('admin.notif-prefs.*') }}">Notification Preferences</a>
+        <a href="{{ route('admin.broadcast.index') }}" class="sidebar-sub-link {{ $isActive('admin.broadcast.*') }}">Broadcast Messages</a>
         <a href="{{ route('admin.forum.categories') }}" class="sidebar-sub-link {{ $isActive('admin.forum.*') }}">Forum</a>
         <a href="{{ route('admin.conferences.index') }}" class="sidebar-sub-link {{ $isActive('admin.conferences.*') }}">Parent Conferences</a>
         <a href="{{ route('admin.committee.members') }}" class="sidebar-sub-link {{ $isActive('admin.committee.*') }}">Committee</a>
@@ -320,6 +324,7 @@
         <a href="{{ route('admin.analytics.risks.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.risks.*') }}">Student Risk</a>
         <a href="{{ route('admin.analytics.dropout-risk.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.dropout-risk.*') }}">Dropout Prediction</a>
         <a href="{{ route('admin.analytics.anomalies.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.anomalies.*') }}">Anomaly Detection</a>
+        <a href="{{ route('admin.analytics.predictive.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.predictive.*') }}">At-Risk Prediction</a>
         <a href="{{ route('admin.ai.chat-data.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.chat-data.*') }}">Tanya Data (AI)</a>
         <a href="{{ route('admin.ai.ocr.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.ocr.*') }}">OCR Dokumen</a>
         <a href="{{ route('admin.ai.recommendations.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.recommendations.*') }}">AI Recommendation</a>

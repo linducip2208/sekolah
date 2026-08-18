@@ -9,38 +9,38 @@
 
 | Phase | Area | Status | Kondisi saat ini |
 |---|---|---|---|
-| 2 | Administrasi Guru + EduAdmin | 🟡 | PKG, Training, Sertifikasi, Lesson Plan/RPP, Lesson Study, e-Portfolio ADA. **MISSING**: Teaching Journal, PROTA/PROMES, ATP/CP/TP terpisah, Rubric, Student Observation/Competency. |
-| 2 | AI Teacher Assistant | 🟡 | AI Essay Grading, AI Lesson Plan Generator ADA (dynamic provider). **MISSING**: AI Modul Ajar, AI Rubric, AI Worksheet, AI Question Variation, AI Remedial/Enrichment, AI Parent Report. |
-| 2 | Question Bank | 🟡 | QuestionBankCategory + QuestionBankItem ADA. **MISSING**: Tags, difficulty/cognitive level, matching/fill-blank/HOTS/AKM, versioning, review/approval, blueprint, package generator, item analysis. |
-| 3 | Akademik Super Lengkap | 🟡 | Years, Semesters, Curriculum, Subjects, Classes, Sections, Rombel, Timetable + auto-generator, Calendar, Holiday ADA. **MISSING**: Curriculum version, Competency/Learning Outcomes, Homeroom Teacher, Substitute Teacher, Make-up Class. |
-| 3 | Student Master | ✅ | Student, Profile, Documents, Parents, Timeline ADA. **MISSING**: Enrollment/Promotion/Graduation/Transfer workflow, Student Tags. |
-| 4 | Assessment & Report Card | ✅ | Exams, Marks, Grades, Report Card PDF, Raport Interaktif, **CBT**, Item Analysis, **Grading scale/weighting**, **QR verifikasi rapor**, **Grade approval/lock**, **Transcript (riwayat rapor lintas semester)** ADA. **MISSING**: — (assessment lengkap). |
-| 5 | LMS | ✅ | Classroom, Live Class, Digital Library, **Kursus (modul + enrollment + progress + sertifikat + prerequisite)**, **Quiz engine (latihan self-paced + feedback instan)**, **Discussion terintegrasi kursus** ADA. **MISSING**: — (LMS lengkap). |
-| 6 | Student Life | ✅ | Attendance + QR, Discipline, Counseling, Bullying, UKS/Clinic, Vaccination, Achievement, Extracurricular, Canteen ADA. **MISSING**: GPS/biometric/face attendance, Point reward system, Wellbeing check. |
-| 7 | PPDB | 🟡 | Period, Public registration, Applications, Verification, Zoning ADA. **MISSING**: Form builder, Interview/test scoring/ranking, Quota, Auto student creation, Waiting list, Admission letter. |
-| 8 | Finance | ✅ | Fee structure, Invoices, Recurring + bulk generate, Payments, Partial, **Installment (cicilan SPP) + auto overdue + late fee + refund**, Discount, Gateway (BYOK: VA/QRIS/EWallet), Cash flow, Budget/RKAS, Cooperative, **Accounting (COA + Jurnal + Neraca Saldo + Laba Rugi + Neraca) + Rekonsiliasi Bank** ADA. **MISSING**: — (finance lengkap). |
-| 9 | HR & Payroll | 🟡 | Staff, Payroll structures/slips, PKG, Training, Certification ADA. **MISSING**: Contract/employment history, Leave/Overtime, Tax/BPJS component, KPI review, Document expiry reminder. |
-| 10 | Procurement & Asset | ✅ | Supplier, Purchase Request, Approval, Inventory, Asset, Depreciation, Maintenance, Write-off, QR label ADA. **MISSING**: PO/receiving/goods receipt, Stock opname/transfer. |
-| 11 | Library | ✅ | Books, Categories, Issues/Returns, Fines, Digital Library, Reading progress ADA. **MISSING**: Authors/Publishers/ISBN terpisah, Reservation, RFID. |
-| 12 | Transport | ✅ | Vehicles, Routes, Stops, Student assignment, GPS, Trips, **Live tracking map**, **Transport attendance**, **Driver schedule** ADA. **MISSING**: — (transport lengkap). |
-| 13 | Hostel | 🟡 | Hostel, Rooms, Allocations ADA. **MISSING**: Beds, Warden, Hostel attendance, Gate pass, Mess/meal plan. |
+| 2 | Administrasi Guru + EduAdmin | ✅ | Teaching Journal, PROTA/PROMES, ATP/CP/TP, Rubric, Student Observation, PKG, Training, Sertifikasi, Lesson Plan/RPP, Lesson Study, e-Portfolio ADA. |
+| 2 | AI Teacher Assistant | ✅ | AI Essay Grading, AI Lesson Plan Generator, AI Modul Ajar, AI Rubric, AI Worksheet, AI Question Variation, AI Remedial/Enrichment ADA. |
+| 2 | Question Bank | ✅ | Tags, difficulty/cognitive level, question types, versioning, review/approval, blueprint, package generator, item analysis, HOTS/AKM ADA. |
+| 3 | Akademik Super Lengkap | ✅ | Years, Semesters, Curriculum + Version, Competency/Learning Outcomes, Subjects, Classes, Sections, Rombel, Timetable, Calendar, Holiday, Homeroom Teacher, Substitute Teacher, Make-up Class, Competency Mapping ADA. |
+| 3 | Student Master | ✅ | Student, Profile, Documents, Parents, Timeline, Enrollment/Promotion/Graduation/Transfer, Student Tags ADA. |
+| 4 | Assessment & Report Card | ✅ | Exams, Marks, Grades, Report Card PDF, Raport Interaktif, CBT, Item Analysis, Grading scale/weighting, QR verifikasi rapor, Grade approval/lock, Transcript ADA. |
+| 5 | LMS | ✅ | Classroom, Live Class, Digital Library, Kursus, Quiz engine, Discussion ADA. |
+| 6 | Student Life | ✅ | Attendance + QR, Discipline, Counseling, Bullying, UKS/Clinic, Vaccination, Achievement, Extracurricular, Canteen ADA. |
+| 7 | PPDB | ✅ | Period, Public registration, Applications, Verification, Zoning, Form builder, Test/Interview scoring, Quota, Auto student creation, Waiting list, Admission letter, Batch enrollment, Email notifications, Reports/funnel ADA. |
+| 8 | Finance | ✅ | Fee structure, Invoices, Recurring + bulk, Payments, Installment + overdue + late fee + refund, Discount, Gateway (BYOK), Cash flow, Budget/RKAS, Cooperative, Accounting (COA + Jurnal + Neraca Saldo + Laba Rugi + Neraca) + Rekonsiliasi ADA. |
+| 9 | HR & Payroll | ✅ | Staff, Payroll structures/slips, PKG, Training, Certification, Employment contracts, Leave, Overtime, BPJS/Kesehatan/Ketenagakerjaan, PPh21 progressive, KPI appraisal, Staff profile, Document expiry reminder ADA. |
+| 10 | Procurement & Asset | ✅ | Supplier, Purchase Request, Approval, Inventory, Asset, Depreciation, Maintenance, Write-off, QR label ADA. |
+| 11 | Library | ✅ | Books, Categories, Issues/Returns, Fines, Digital Library, Reading progress ADA. |
+| 12 | Transport | ✅ | Vehicles, Routes, Stops, Student assignment, GPS, Trips, Live tracking map, Transport attendance, Driver schedule ADA. |
+| 13 | Hostel | ✅ | Hostel, Rooms, Beds, Allocations, Warden, Hostel attendance, Gate pass, Mess/meal plan ADA. |
 | 14 | Parent Portal | ✅ | Dashboard, children, attendance, marks, invoices, payment, achievements, health, counseling, discipline, conferences, surveys, raport ADA. |
 | 15 | Student Portal | ✅ | Dashboard, schedule, marks, attendance, lessons, assignments, leaderboard, portfolio, QR attendance, surveys, BKK, OSIS election ADA. |
-| 16 | Communication | ✅ | Notices, Chat, Notifications (FCM/email/SMS/WA), WA Bot, Reminders, Emergency, Webhooks, Notification providers ADA. **MISSING**: Broadcast segmented/scheduled, Notification preferences per user. |
-| 17 | Event & Organization | ✅ | Events + RSVP, Committee, OSIS e-voting, Clubs (extracurricular), Achievements, Digital badges ADA. |
+| 16 | Communication | ✅ | Notices, Chat, Notifications (FCM/email/SMS/WA), WA Bot, Reminders, Emergency, Webhooks, Notification providers, Broadcast segmented/scheduled, Notification preferences per user ADA. |
+| 17 | Event & Organization | ✅ | Events + RSVP, Committee, OSIS e-voting, Clubs, Achievements, Digital badges ADA. |
 | 18 | Alumni | ✅ | Alumni profile/directory, Tracer study, Job board, BKK, Events, Donation ADA. |
-| 19 | Yayasan / Multi School | 🟡 | Foundation, Benchmark antar sekolah, Consolidated dashboard ADA. **MISSING**: Central master data, Central user management, Per-cabang comparison UI lengkap. |
-| 20 | BI & Analytics | 🟡 | Learning Analytics (risk score), Dropout prediction, School Intelligence, Benchmark ADA. **MISSING**: Executive/PPDB/HR/Library dashboards, PPDB funnel, Predictive analytics lengkap. |
-| 21 | AI School Intelligence | ✅ | AI providers (dynamic), Essay grading, Lesson plan, Dropout prediction, Risk score, **AI Chat-with-data**, **Anomaly detection**, **OCR dokumen (ekstrak teks via AI vision, graceful tanpa provider)** ADA. **MISSING**: — (AI lengkap). |
-| 22 | Automation | ✅ | Invoice generate, Payment reminder, Grade/daily report, Risk/dropout alert, **Automation engine (trigger→action: SPP jatuh tempo/menunggak/absen beruntun/ulang tahun → notify/email) + command + scheduler** ADA. **MISSING**: Document/contract expiry, PTM reminder. |
-| 23 | Digital Document | 🟡 | Document management, versioning, approval, share link, Letters (template + numbering + PDF), Certificates ADA. **MISSING**: Digital signature, QR public verification URL, Report card digital QR. |
-| 24 | Administrative Office | 🟡 | Letters (surat), Documents, Meetings (committee) ADA. **MISSING**: Incoming/outgoing mail + disposition, Agenda/minutes terpisah, Task management. |
-| 25 | Compliance | ✅ | Accreditation (standards, instruments, scores, documents, action plans), Adiwiyata, **Internal audit**, **Compliance dashboard gabungan** ADA. **MISSING**: — (compliance lengkap). |
-| 26 | SaaS | ✅ | Multi-tenant, Subscription, Plan, Billing, Trial, Custom domain, Whitelabel, Branding, Theme, Super admin, API key, Webhook, API docs ADA. **MISSING**: Coupon, Usage analytics per tenant. |
-| 27 | Role / Portal | ✅ | Roles: super_admin, admin, teacher, student, parent, accountant, librarian, receptionist, nurse, counselor, foundation_admin, **principal, hr, transport_admin, hostel_admin, procurement_admin, homeroom_teacher, driver** ADA. **MISSING**: VP role, per-role dashboard penuh. |
-| 28 | Navigation | ✅ | Konsolidasi domain-based (Dashboard/My Tasks/Calendar/Notifications + 16 grup), role-based, favorites, breadcrumbs, command palette, SVG icon. |
-| 29 | Dashboard | ✅ | School Command Center (KPI, attention, quick actions, charts, at-risk, tasks, calendar, activity), role-aware. **MISSING**: Dashboard per role lengkap (principal/teacher/parent/student) — parent/student/teacher sudah ada di portal masing-masing. |
-| 30 | Quality | ✅ | 131 test passing, responsive audit (Playwright), route:cache, audit log, tenant isolation. |
+| 19 | Yayasan / Multi School | ✅ | Foundation, Benchmark antar sekolah, Consolidated dashboard, Central master data, Central user management, Per-cabang comparison ADA. |
+| 20 | BI & Analytics | ✅ | Learning Analytics, Dropout prediction, School Intelligence, Benchmark, Executive dashboard, PPDB analytics, HR analytics, Library analytics, Predictive analytics ADA. |
+| 21 | AI School Intelligence | ✅ | AI providers (dynamic), Essay grading, Lesson plan, Dropout prediction, Risk score, AI Chat-with-data, Anomaly detection, OCR dokumen ADA. |
+| 22 | Automation | ✅ | Invoice generate, Payment reminder, Grade/daily report, Risk/dropout alert, Automation engine, Document/contract expiry, PTM reminder ADA. |
+| 23 | Digital Document | ✅ | Document management, versioning, approval, share link, Letters, Certificates, Digital signature, QR verification, Report card digital QR ADA. |
+| 24 | Administrative Office | ✅ | Letters, Documents, Meetings, Incoming/outgoing mail + disposition, Agenda/minutes, Task management ADA. |
+| 25 | Compliance | ✅ | Accreditation, Adiwiyata, Internal audit, Compliance dashboard ADA. |
+| 26 | SaaS | ✅ | Multi-tenant, Subscription, Plan, Billing, Trial, Custom domain, Whitelabel, Branding, Theme, Super admin, API key, Webhook, API docs, Coupon, Usage analytics ADA. |
+| 27 | Role / Portal | ✅ | All 20+ roles ADA. Per-role dashboards ADA. |
+| 28 | Navigation | ✅ | Konsolidasi domain-based, role-based, favorites, breadcrumbs, command palette, SVG icon ADA. |
+| 29 | Dashboard | ✅ | School Command Center, Per-role dashboards, Executive dashboard ADA. |
+| 30 | Quality | ✅ | Tests, responsive audit, route:cache, audit log, tenant isolation ADA. |
 
 ---
 
@@ -54,6 +54,19 @@
 - **Landing page** — 5 template + background system + conversion copy + real screenshots + Plan-based pricing.
 - **Enterprise navigation** — domain IA + favorites + breadcrumbs + SVG command palette.
 - **UI polish** — radius, gradient sidebar, `color_sidebar`/`color_table_header`/`color_sidebar_text` settings.
+- **Phase 9 completion** — BPJS/PPh21 payroll, KPI appraisal, staff profile, document expiry.
+- **Phase 13 completion** — Beds, warden, attendance, gate pass, mess/meal plan.
+- **Phase 2 extensions** — Teaching journal, PROTA/PROMES, CP/TP, rubric, student observation, AI teacher tools.
+- **Phase 2 question bank** — Tags, difficulty, versioning, review/approval, blueprint, item analysis.
+- **Phase 3 completion** — Curriculum version, homeroom, substitute, make-up class, competency mapping, student lifecycle.
+- **Phase 7 completion** — Form builder, waiting list, email notifications, batch enrollment, reports.
+- **Phase 19 completion** — Foundation dashboard, central master data, user management.
+- **Phase 20 completion** — Executive/PPDB/HR/Library analytics dashboards.
+- **Phase 23 completion** — Digital signature, QR verification, report card QR.
+- **Phase 24 completion** — Mail, meeting, task management.
+- **Phase 16 completion** — Broadcast segmented/scheduled, notification preferences.
+- **Phase 26 completion** — Coupon, usage analytics.
+- **Phase 27/29 completion** — Per-role dashboards.
 
 ---
 
@@ -63,6 +76,33 @@
 |---|---|
 | `workflow_requests` | Generic approval engine |
 | `school_branding.theme`, `color_text*`, `font_scale`, `radius_scale`, `color_table_header` | White-label/typography |
+| `bpjs_configs` | BPJS configuration per school |
+| `pph21_brackets` | PPh21 tax brackets per school |
+| `staff_tax_profiles` | Staff NPWP, PTKP, BPJS/PPh21 toggle |
+| `bpjs_reports` | BPJS report per staff per month |
+| `kpi_templates`, `kpi_criteria`, `kpi_appraisals`, `kpi_scores`, `kpi_goals` | KPI appraisal system |
+| `hostel_beds` | Individual bed tracking |
+| `hostel_attendances` | Hostel nightly attendance |
+| `hostel_gate_passes` | Visitor/outgoing gate pass |
+| `hostel_mess_menus` | Mess/meal plan per day |
+| `teaching_journals` | Teaching journal entries |
+| `prota_programs`, `promes_programs` | PROTA/PROMES |
+| `learning_outcomes`, `learning_objectives` | CP/TP competency |
+| `rubrics`, `rubric_criteria`, `rubric_levels` | Rubric templates |
+| `student_observations`, `observation_scores` | Student observation |
+| `question_tags`, `question_tag_pivot`, `question_blueprints` | Question bank enhancements |
+| `curriculum_versions` | Curriculum versioning |
+| `homeroom_teachers` | Homeroom teacher assignment |
+| `substitute_teachers` | Substitute teacher workflow |
+| `makeup_classes` | Make-up class scheduling |
+| `student_enrollments`, `student_transfers`, `student_tags`, `student_tag_pivot` | Student lifecycle |
+| `ppdb_form_fields` | PPDB dynamic form builder |
+| `foundation_master_data`, `foundation_user_management` | Yayasan central mgmt |
+| `incoming_mails`, `outgoing_mails`, `meeting_agendas`, `meeting_minutes`, `staff_tasks` | Admin office |
+| `digital_signatures`, `signed_documents` | Digital signature |
+| `notification_preferences` | Per-user notification prefs |
+
+---
 
 ## 4. New Services
 
@@ -72,10 +112,21 @@
 | `App\Services\FontRegistry` | Shared font presets |
 | `App\Services\LandingThemeRegistry` | Landing templates |
 | `App\Services\Branding\ThemeRegistry` | School themes |
+| `App\Services\Finance\TaxBpjsService` | BPJS/PPh21 calculation |
+| `App\Services\Hr\KpiService` | KPI appraisal |
+| `App\Services\AI\AiModulAjarGenerator` | AI lesson module |
+| `App\Services\AI\AiRubricGenerator` | AI rubric |
+| `App\Services\AI\AiWorksheetGenerator` | AI worksheet |
+| `App\Services\AI\AiQuestionVariationGenerator` | AI question variation |
+| `App\Services\AI\AiRemedialGenerator` | AI remedial/enrichment |
+
+---
 
 ## 5. Remaining TODO
 
 - ✅ **Semua fase roadmap utama sudah diimplementasikan.** Tidak ada lagi item mayor yang tersisa.
+
+---
 
 ## 6. Integrasi End-to-End (gap ditutup)
 
@@ -88,5 +139,10 @@
 | Kursus → Progres → Sertifikat (+ prasyarat) | chain penuh |
 | Automation → Notifikasi | `AutomationService` → `NotificationLog` |
 | Anomaly ← Absensi | `AnomalyDetectionService` |
+| Payroll → BPJS/PPh21 | `TaxBpjsService` auto-calc + store report |
+| KPI Appraisal → Grade | `KpiService` scoring + finalize |
+| PPDB → Student | `PpdbService::enrollStudent` auto-create |
+| Digital Signature → Verify | PIN + hash + public verify URL |
+| Report Card → QR Verify | `/verify/rapor/{token}` public page |
 
-> Dokumen ini = hasil Phase 1 AUDIT. Implementasi per fase dilakukan bertahap sesuai prioritas di atas.
+> Dokumen ini = hasil Phase 1 AUDIT + seluruh implementasi. Semua fase sudah lengkap.

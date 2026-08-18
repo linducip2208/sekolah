@@ -12,6 +12,7 @@ use App\Services\AI\AiModulAjarGenerator;
 use App\Services\AI\AiRubricGenerator;
 use App\Services\AI\AiWorksheetGenerator;
 use App\Services\AI\AiQuestionVariationGenerator;
+use App\Services\AI\AiParentReportGenerator;
 use App\Services\AI\AiRemedialGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,7 @@ class AiTeacherAssistantController extends Controller
         protected AiWorksheetGenerator $worksheet,
         protected AiQuestionVariationGenerator $variation,
         protected AiRemedialGenerator $remedial,
+        protected AiParentReportGenerator $parentReport,
     ) {}
 
     private function schoolId(): int
@@ -207,6 +209,29 @@ class AiTeacherAssistantController extends Controller
                 $this->schoolId(), auth()->id(),
                 (int) $data['student_id'], $data['subject_name'],
                 $data['weak_topics'],
+                $data['ai_provider_id'] ?? null, $data['ai_model_id'] ?? null,
+            );
+            return response()->json(['success' => true] + $result);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function generateParentReport(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'student_id'      => 'required|exists:students,id',
+            'semester'        => 'required|string|max:50',
+            'language'        => 'nullable|string|max:10',
+            'ai_provider_id'  => 'nullable|exists:ai_providers,id',
+            'ai_model_id'     => 'nullable|exists:ai_models,id',
+        ]);
+
+        try {
+            $result = $this->parentReport->generate(
+                $this->schoolId(), auth()->id(),
+                (int) $data['student_id'], $data['semester'],
+                $data['language'] ?? 'id',
                 $data['ai_provider_id'] ?? null, $data['ai_model_id'] ?? null,
             );
             return response()->json(['success' => true] + $result);

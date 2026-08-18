@@ -156,4 +156,87 @@ class AutomationService
             ])
             ->all();
     }
+
+    /** Employment contracts expiring within N days → notify admin. */
+    public function contractExpiryEvents(int $schoolId, int $days = 30): array
+    {
+        $from = now()->startOfDay();
+        $to   = now()->addDays($days)->endOfDay();
+
+        return \App\Models\Hr\EmploymentContract::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->where('status', 'active')
+            ->whereNotNull('end_date')
+            ->whereBetween('end_date', [$from, $to])
+            ->with('staff.user')
+            ->get()
+            ->map(fn ($c) => [
+                'user_id' => null,
+                'staff'   => $c->staff?->user?->name ?? '—',
+                'type'    => $c->type ?? '—',
+                'end'     => $c->end_date?->format('d M Y') ?? '—',
+            ])
+            ->all();
+    }
+
+    /** Teacher certifications expiring within N days → notify admin. */
+    public function certificationExpiryEvents(int $schoolId, int $days = 30): array
+    {
+        $from = now()->startOfDay();
+        $to   = now()->addDays($days)->endOfDay();
+
+        return \App\Models\Academic\TeacherCertification::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->whereNotNull('expiry_date')
+            ->whereBetween('expiry_date', [$from, $to])
+            ->with('staff.user')
+            ->get()
+            ->map(fn ($c) => [
+                'user_id' => null,
+                'staff'   => $c->staff?->user?->name ?? '—',
+                'cert'    => $c->certification_name ?? '—',
+                'end'     => $c->expiry_date?->format('d M Y') ?? '—',
+            ])
+            ->all();
+    }
+
+    /** PTM schedules within N days → notify parents + teachers. */
+    public function ptmReminderEvents(int $schoolId, int $days = 7): array
+    {
+        $from = now()->startOfDay();
+        $to   = now()->addDays($days)->endOfDay();
+
+        $events = [];
+
+        $schedules = \App\Models\Academic\PtmSchedule::where('school_id', $schoolId)
+            ->where('status', 'scheduled')
+            ->whereBetween('meeting_date', [$from, $to])
+            ->with(['student.user', 'parent', 'teacher'])
+            ->get();
+
+        foreach ($schedules as $s) {
+            $studentName = $s->student?->user?->name ?? '—';
+            $dateFormatted = $s->meeting_date->format('d M Y');
+
+            $events[] = [
+                'user_id'        => $s->parent_user_id,
+                'target_user_id' => $s->parent_user_id,
+                'student'        => $studentName,
+                'teacher'        => $s->teacher?->name ?? '—',
+                'date'           => $dateFormatted,
+                'time'           => $s->start_time,
+            ];
+
+            $events[] = [
+                'user_id'        => $s->teacher_id,
+                'target_user_id' => $s->teacher_id,
+                'student'        => $studentName,
+                'parent'         => $s->parent?->name ?? '—',
+                'date'           => $dateFormatted,
+                'time'           => $s->start_time,
+            ];
+        }
+
+        return $events;
+    }
 }
