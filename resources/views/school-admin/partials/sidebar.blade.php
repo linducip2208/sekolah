@@ -264,6 +264,7 @@
         <a href="{{ route('admin.analytics.anomalies.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.anomalies.*') }}">Anomaly Detection</a>
         <a href="{{ route('admin.ai.chat-data.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.chat-data.*') }}">Tanya Data (AI)</a>
         <a href="{{ route('admin.ai.ocr.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.ocr.*') }}">OCR Dokumen</a>
+        <a href="{{ route('admin.ai.recommendations.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.recommendations.*') }}">AI Recommendation</a>
         <a href="{{ route('admin.ai.providers.index') }}" class="sidebar-sub-link {{ $isActive('admin.ai.providers.*') }}">AI Providers</a>
         <a href="{{ route('admin.ai.usage') }}" class="sidebar-sub-link {{ $isActive('admin.ai.usage') }}">AI Usage</a>
     </div>

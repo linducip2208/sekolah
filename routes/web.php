@@ -57,6 +57,7 @@ use App\Http\Controllers\Web\Admin\Phase8\Phase8WebController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9CrudController;
 use App\Http\Controllers\Web\Admin\AI\AiDataChatController;
 use App\Http\Controllers\Web\Admin\AI\OcrController;
+use App\Http\Controllers\Web\Admin\AI\RecommendationController;
 use App\Http\Controllers\Web\Admin\Lms\CourseController;
 use App\Http\Controllers\Web\Admin\Transport\TransportTrackingController;
 use App\Http\Controllers\Web\Admin\Transport\TransportAttendanceController;
@@ -378,6 +379,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/ai/ocr',                            [OcrController::class, 'index'])->name('ai.ocr.index');
         Route::post('/ai/ocr',                           [OcrController::class, 'upload'])->name('ai.ocr.upload');
         Route::get('/ai/ocr/{result}',                   [OcrController::class, 'show'])->name('ai.ocr.show');
+
+        // AI Recommendation
+        Route::get('/ai/recommendations',                [RecommendationController::class, 'index'])->name('ai.recommendations.index');
+        Route::post('/ai/recommendations/generate',      [RecommendationController::class, 'generate'])->name('ai.recommendations.generate');
+        Route::post('/ai/recommendations/{recommendation}/action', [RecommendationController::class, 'action'])->name('ai.recommendations.action');
+        Route::post('/ai/recommendations/{recommendation}/dismiss', [RecommendationController::class, 'dismiss'])->name('ai.recommendations.dismiss');
 
         // PKG — Penilaian Kinerja Guru
         Route::get('/pkg',                               [PkgController::class, 'index'])->name('pkg.index');
