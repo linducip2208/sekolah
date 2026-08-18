@@ -70,12 +70,28 @@ use App\Http\Controllers\Web\Admin\Academic\GradeApprovalController;
 use App\Http\Controllers\Web\Admin\Academic\TranscriptController;
 use App\Http\Controllers\Web\Admin\Academic\ComplianceController;
 use App\Http\Controllers\Web\Admin\Academic\CurriculumCompetencyController;
+use App\Http\Controllers\Web\Admin\Academic\CurriculumVersionController;
+use App\Http\Controllers\Web\Admin\Academic\CompetencyMappingController;
+use App\Http\Controllers\Web\Admin\Academic\HomeroomTeacherController;
+use App\Http\Controllers\Web\Admin\Academic\SubstituteTeacherController;
+use App\Http\Controllers\Web\Admin\Academic\MakeupClassController;
+use App\Http\Controllers\Web\Admin\Academic\StudentLifecycleController;
 use App\Http\Controllers\Web\Admin\Academic\TeachingJournalController;
+use App\Http\Controllers\Web\Admin\Academic\ProtaPromesController;
+use App\Http\Controllers\Web\Admin\Academic\LearningOutcomeController;
+use App\Http\Controllers\Web\Admin\Academic\RubricController;
+use App\Http\Controllers\Web\Admin\Academic\StudentObservationController;
 use App\Http\Controllers\Web\Admin\Audit\InternalAuditController;
 use App\Http\Controllers\Web\Admin\Inventory\InventoryStockController;
 use App\Http\Controllers\Web\Admin\Hr\HrController;
 use App\Http\Controllers\Web\Admin\Lms\QuizController;
 use App\Http\Controllers\Web\Admin\Analytics\AnomalyController;
+use App\Http\Controllers\Web\Admin\Analytics\ExecutiveDashboardController;
+use App\Http\Controllers\Web\Admin\Analytics\PpdbAnalyticsController;
+use App\Http\Controllers\Web\Admin\Analytics\HrAnalyticsController;
+use App\Http\Controllers\Web\Admin\Analytics\LibraryAnalyticsController;
+use App\Http\Controllers\Web\Admin\Academic\DigitalSignatureController;
+use App\Http\Controllers\Web\Admin\Academic\ReportCardQrController as ReportCardQrWebController;
 use App\Http\Controllers\Web\Admin\Phase9\Phase9WebController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10CrudController;
 use App\Http\Controllers\Web\Admin\Phase10\Phase10WebController;
@@ -109,6 +125,7 @@ Route::get('/', [\App\Http\Controllers\Web\LandingController::class, 'index'])->
 // Public rapor verification (QR code) — no auth
 Route::get('/verifikasi-rapor/{token}', [\App\Http\Controllers\Web\RaportVerificationController::class, 'show'])->name('raport.verify');
 Route::get('/verifikasi-rapor/{token}/qrcode', [\App\Http\Controllers\Web\RaportVerificationController::class, 'qrcode'])->name('raport.verify.qrcode');
+Route::get('/verify/rapor/{token}', [\App\Http\Controllers\Web\Admin\Academic\ReportCardQrController::class, 'verifyPublic'])->name('rapor.qr-verify');
 
 // Public Digital Signage display (no auth)
 Route::get('/signage/{school_id}', [\App\Http\Controllers\Web\Admin\DigitalSignageController::class, 'display'])
@@ -580,6 +597,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/analytics/anomalies/run',            [AnomalyController::class, 'run'])->name('analytics.anomalies.run');
         Route::post('/analytics/anomalies/{alert}/resolve',[AnomalyController::class, 'resolve'])->name('analytics.anomalies.resolve');
 
+        // Executive Dashboard
+        Route::get('/analytics/executive',                 [ExecutiveDashboardController::class, 'index'])->name('analytics.executive');
+
+        // PPDB Analytics
+        Route::get('/analytics/ppdb',                      [PpdbAnalyticsController::class, 'index'])->name('analytics.ppdb');
+
+        // HR Analytics
+        Route::get('/analytics/hr',                        [HrAnalyticsController::class, 'index'])->name('analytics.hr');
+
+        // Library Analytics
+        Route::get('/analytics/library',                   [LibraryAnalyticsController::class, 'index'])->name('analytics.library');
+
+        // Digital Signature
+        Route::get('/digital-signatures',                  [DigitalSignatureController::class, 'index'])->name('digital-signatures.index');
+        Route::post('/digital-signatures',                 [DigitalSignatureController::class, 'store'])->name('digital-signatures.store');
+        Route::delete('/digital-signatures/{signature}',   [DigitalSignatureController::class, 'destroy'])->name('digital-signatures.destroy');
+        Route::post('/digital-signatures/sign',            [DigitalSignatureController::class, 'sign'])->name('digital-signatures.sign');
+        Route::get('/digital-signatures/verify/{hash}',    [DigitalSignatureController::class, 'verify'])->name('digital-signatures.verify');
+
+        // Report Card QR
+        Route::post('/report-cards/{reportCard}/generate-qr', [ReportCardQrWebController::class, 'generate'])->name('report-cards.generate-qr');
+
         // ============== HOSTEL ==============
         Route::get('/hostel',                              [HostelWebController::class, 'hostels'])->name('hostel.list.index');
         Route::post('/hostel',                             [HostelWebController::class, 'storeHostel'])->name('hostel.list.store');
@@ -730,6 +769,30 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/qbank/items',                       [ClassroomExtrasController::class, 'questionBankItems'])->name('qbank.items.index');
         Route::post('/qbank/items',                      [ClassroomExtrasController::class, 'storeQuestionBankItem'])->name('qbank.items.store');
         Route::delete('/qbank/items/{item}',             [ClassroomExtrasController::class, 'deleteQuestionBankItem'])->name('qbank.items.destroy');
+        Route::post('/qbank/items/{item}/submit',        [ClassroomExtrasController::class, 'submitForReview'])->name('qbank.items.submit');
+        Route::get('/qbank/items/{item}/variasi',        [ClassroomExtrasController::class, 'variationForm'])->name('qbank.variasi.form');
+
+        // Tags
+        Route::post('/qbank/tags',                      [ClassroomExtrasController::class, 'storeQuestionBankTag'])->name('qbank.tags.store');
+        Route::delete('/qbank/tags/{tag}',              [ClassroomExtrasController::class, 'deleteQuestionBankTag'])->name('qbank.tags.destroy');
+
+        // Blueprints
+        Route::post('/qbank/blueprints',                [ClassroomExtrasController::class, 'storeQuestionBlueprint'])->name('qbank.blueprints.store');
+        Route::delete('/qbank/blueprints/{blueprint}',  [ClassroomExtrasController::class, 'deleteQuestionBlueprint'])->name('qbank.blueprints.destroy');
+
+        // Review
+        Route::post('/qbank/{item}/review',             [ClassroomExtrasController::class, 'reviewAction'])->name('qbank.review.action');
+
+        // ============== AI TEACHER ASSISTANT ==============
+        $atc = \App\Http\Controllers\Web\Admin\Ai\AiTeacherAssistantController::class;
+        Route::get('/ai/teacher-assistant',              [$atc, 'index'])->name('ai.teacher-assistant.index');
+        Route::post('/ai/teacher-assistant/modul-ajar',  [$atc, 'generateModulAjar'])->name('ai.teacher-assistant.modul-ajar');
+        Route::post('/ai/teacher-assistant/rubrik',      [$atc, 'generateRubric'])->name('ai.teacher-assistant.rubrik');
+        Route::post('/ai/teacher-assistant/worksheet',   [$atc, 'generateWorksheet'])->name('ai.teacher-assistant.worksheet');
+        Route::post('/ai/teacher-assistant/worksheet/save', [$atc, 'saveWorksheet'])->name('ai.teacher-assistant.worksheet.save');
+        Route::post('/ai/teacher-assistant/variasi',     [$atc, 'generateVariation'])->name('ai.teacher-assistant.variasi');
+        Route::post('/ai/teacher-assistant/variasi/save',[$atc, 'saveVariation'])->name('ai.teacher-assistant.variasi.save');
+        Route::post('/ai/teacher-assistant/remedial',    [$atc, 'generateRemedial'])->name('ai.teacher-assistant.remedial');
 
         // ============== EXTRACURRICULAR ==============
         Route::get('/extracurricular',                   [ClassroomExtrasController::class, 'extracurriculars'])->name('extracurricular.index');
@@ -745,11 +808,94 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/curriculum/competencies/{competency}', [CurriculumCompetencyController::class, 'update'])->name('curriculum.competencies.update');
         Route::delete('/curriculum/competencies/{competency}', [CurriculumCompetencyController::class, 'destroy'])->name('curriculum.competencies.destroy');
 
+        // ============== CURRICULUM VERSIONS ==============
+        Route::get('/curriculum/versions',                  [CurriculumVersionController::class, 'index'])->name('curriculum.versions.index');
+        Route::post('/curriculum/versions',                 [CurriculumVersionController::class, 'store'])->name('curriculum.versions.store');
+        Route::put('/curriculum/versions/{version}',        [CurriculumVersionController::class, 'update'])->name('curriculum.versions.update');
+        Route::post('/curriculum/versions/{version}/activate', [CurriculumVersionController::class, 'activate'])->name('curriculum.versions.activate');
+        Route::delete('/curriculum/versions/{version}',     [CurriculumVersionController::class, 'destroy'])->name('curriculum.versions.destroy');
+
+        // ============== COMPETENCY MAPPING (TP → CP) ==============
+        Route::get('/curriculum/mapping',                   [CompetencyMappingController::class, 'index'])->name('curriculum.mapping.index');
+        Route::post('/curriculum/mapping',                  [CompetencyMappingController::class, 'store'])->name('curriculum.mapping.store');
+        Route::post('/curriculum/mapping/remove',           [CompetencyMappingController::class, 'destroy'])->name('curriculum.mapping.destroy');
+
         // ============== TEACHING JOURNAL ==============
         Route::get('/teaching-journal',                   [TeachingJournalController::class, 'index'])->name('teaching-journal.index');
         Route::post('/teaching-journal',                  [TeachingJournalController::class, 'store'])->name('teaching-journal.store');
         Route::put('/teaching-journal/{journal}',         [TeachingJournalController::class, 'update'])->name('teaching-journal.update');
         Route::delete('/teaching-journal/{journal}',      [TeachingJournalController::class, 'destroy'])->name('teaching-journal.destroy');
+        Route::post('/teaching-journal/{journal}/publish', [TeachingJournalController::class, 'publish'])->name('teaching-journal.publish');
+
+        // ============== PROTA & PROMES ==============
+        Route::get('/prota',                              [ProtaPromesController::class, 'protaIndex'])->name('prota.index');
+        Route::post('/prota',                             [ProtaPromesController::class, 'protaStore'])->name('prota.store');
+        Route::put('/prota/{prota}',                      [ProtaPromesController::class, 'protaUpdate'])->name('prota.update');
+        Route::delete('/prota/{prota}',                   [ProtaPromesController::class, 'protaDestroy'])->name('prota.destroy');
+
+        Route::get('/promes',                             [ProtaPromesController::class, 'promesIndex'])->name('promes.index');
+        Route::post('/promes',                            [ProtaPromesController::class, 'promesStore'])->name('promes.store');
+        Route::put('/promes/{promes}',                    [ProtaPromesController::class, 'promesUpdate'])->name('promes.update');
+        Route::delete('/promes/{promes}',                 [ProtaPromesController::class, 'promesDestroy'])->name('promes.destroy');
+
+        // ============== LEARNING OUTCOMES & OBJECTIVES (CP/TP) ==============
+        Route::get('/learning-outcomes',                  [LearningOutcomeController::class, 'index'])->name('learning-outcomes.index');
+        Route::post('/learning-outcomes',                 [LearningOutcomeController::class, 'store'])->name('learning-outcomes.store');
+        Route::put('/learning-outcomes/{outcome}',        [LearningOutcomeController::class, 'update'])->name('learning-outcomes.update');
+        Route::delete('/learning-outcomes/{outcome}',     [LearningOutcomeController::class, 'destroy'])->name('learning-outcomes.destroy');
+        Route::post('/learning-outcomes/objective',       [LearningOutcomeController::class, 'storeObjective'])->name('learning-outcomes.objective.store');
+        Route::put('/learning-outcomes/objective/{objective}', [LearningOutcomeController::class, 'updateObjective'])->name('learning-outcomes.objective.update');
+        Route::delete('/learning-outcomes/objective/{objective}', [LearningOutcomeController::class, 'destroyObjective'])->name('learning-outcomes.objective.destroy');
+
+        // ============== RUBRICS ==============
+        Route::get('/rubrics',                            [RubricController::class, 'index'])->name('rubrics.index');
+        Route::post('/rubrics',                           [RubricController::class, 'store'])->name('rubrics.store');
+        Route::get('/rubrics/{rubric}',                   [RubricController::class, 'show'])->name('rubrics.show');
+        Route::put('/rubrics/{rubric}',                   [RubricController::class, 'update'])->name('rubrics.update');
+        Route::delete('/rubrics/{rubric}',                [RubricController::class, 'destroy'])->name('rubrics.destroy');
+        Route::post('/rubrics/criterion',                 [RubricController::class, 'storeCriterion'])->name('rubrics.criterion.store');
+        Route::put('/rubrics/criterion/{criterion}',      [RubricController::class, 'updateCriterion'])->name('rubrics.criterion.update');
+        Route::delete('/rubrics/criterion/{criterion}',   [RubricController::class, 'destroyCriterion'])->name('rubrics.criterion.destroy');
+        Route::post('/rubrics/level',                     [RubricController::class, 'storeLevel'])->name('rubrics.level.store');
+        Route::put('/rubrics/level/{level}',              [RubricController::class, 'updateLevel'])->name('rubrics.level.update');
+        Route::delete('/rubrics/level/{level}',           [RubricController::class, 'destroyLevel'])->name('rubrics.level.destroy');
+
+        // ============== STUDENT OBSERVATIONS ==============
+        Route::get('/student-observations',              [StudentObservationController::class, 'index'])->name('student-observations.index');
+        Route::post('/student-observations',             [StudentObservationController::class, 'store'])->name('student-observations.store');
+        Route::put('/student-observations/{observation}', [StudentObservationController::class, 'update'])->name('student-observations.update');
+        Route::delete('/student-observations/{observation}', [StudentObservationController::class, 'destroy'])->name('student-observations.destroy');
+
+        // ============== HOMEROOM TEACHERS ==============
+        Route::get('/academic/homeroom-teachers',                       [HomeroomTeacherController::class, 'index'])->name('academic.homeroom-teachers.index');
+        Route::post('/academic/homeroom-teachers',                      [HomeroomTeacherController::class, 'store'])->name('academic.homeroom-teachers.store');
+        Route::post('/academic/homeroom-teachers/{assignment}/deactivate', [HomeroomTeacherController::class, 'deactivate'])->name('academic.homeroom-teachers.deactivate');
+        Route::delete('/academic/homeroom-teachers/{assignment}',       [HomeroomTeacherController::class, 'destroy'])->name('academic.homeroom-teachers.destroy');
+
+        // ============== SUBSTITUTE TEACHERS ==============
+        Route::get('/academic/substitute-teachers',                     [SubstituteTeacherController::class, 'index'])->name('academic.substitute-teachers.index');
+        Route::post('/academic/substitute-teachers',                    [SubstituteTeacherController::class, 'store'])->name('academic.substitute-teachers.store');
+        Route::post('/academic/substitute-teachers/{substitute}/approve', [SubstituteTeacherController::class, 'approve'])->name('academic.substitute-teachers.approve');
+        Route::post('/academic/substitute-teachers/{substitute}/cancel',  [SubstituteTeacherController::class, 'cancel'])->name('academic.substitute-teachers.cancel');
+        Route::delete('/academic/substitute-teachers/{substitute}',     [SubstituteTeacherController::class, 'destroy'])->name('academic.substitute-teachers.destroy');
+
+        // ============== MAKEUP CLASSES ==============
+        Route::get('/academic/makeup-classes',                         [MakeupClassController::class, 'index'])->name('academic.makeup-classes.index');
+        Route::post('/academic/makeup-classes',                        [MakeupClassController::class, 'store'])->name('academic.makeup-classes.store');
+        Route::post('/academic/makeup-classes/{makeup}/complete',      [MakeupClassController::class, 'complete'])->name('academic.makeup-classes.complete');
+        Route::post('/academic/makeup-classes/{makeup}/cancel',        [MakeupClassController::class, 'cancel'])->name('academic.makeup-classes.cancel');
+        Route::delete('/academic/makeup-classes/{makeup}',             [MakeupClassController::class, 'destroy'])->name('academic.makeup-classes.destroy');
+
+        // ============== STUDENT LIFECYCLE (Promotion / Transfer / Tags) ==============
+        Route::get('/students/lifecycle/batch-promote',                [StudentLifecycleController::class, 'batchPromoteForm'])->name('students.lifecycle.batch-promote-form');
+        Route::post('/students/lifecycle/batch-promote',               [StudentLifecycleController::class, 'batchPromote'])->name('students.lifecycle.batch-promote');
+        Route::get('/students/lifecycle/transfer',                     [StudentLifecycleController::class, 'transferForm'])->name('students.lifecycle.transfer-form');
+        Route::post('/students/lifecycle/transfer',                    [StudentLifecycleController::class, 'storeTransfer'])->name('students.lifecycle.store-transfer');
+        Route::get('/students/lifecycle/tags',                         [StudentLifecycleController::class, 'tags'])->name('students.lifecycle.tags');
+        Route::post('/students/lifecycle/tags',                        [StudentLifecycleController::class, 'storeTag'])->name('students.lifecycle.store-tag');
+        Route::delete('/students/lifecycle/tags/{tag}',                [StudentLifecycleController::class, 'destroyTag'])->name('students.lifecycle.destroy-tag');
+        Route::post('/students/lifecycle/tags/assign',                 [StudentLifecycleController::class, 'tagStudent'])->name('students.lifecycle.tag-student');
+        Route::post('/students/lifecycle/tags/unassign',               [StudentLifecycleController::class, 'untagStudent'])->name('students.lifecycle.untag-student');
 
         // ============== CALENDAR ==============
         Route::get('/calendar',                          [CalendarController::class, 'index'])->name('calendar.index');
@@ -1093,6 +1239,50 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ============== BENCHMARK YAYASAN (Module 11) ==============
         Route::get('/foundation/benchmark',                   [FoundationBenchmarkController::class, 'index'])->name('foundation.benchmark.index');
         Route::get('/foundation/benchmark/trend',             [FoundationBenchmarkController::class, 'trend'])->name('foundation.benchmark.trend');
+
+        // ============== PPDB FORM BUILDER ==============
+        Route::get('/ppdb/form-builder',                      [\App\Http\Controllers\Web\Admin\Phase8\PpdbFormBuilderController::class, 'index'])->name('ppdb.form-builder.index');
+        Route::post('/ppdb/form-builder',                     [\App\Http\Controllers\Web\Admin\Phase8\PpdbFormBuilderController::class, 'store'])->name('ppdb.form-builder.store');
+        Route::put('/ppdb/form-builder/{field}',              [\App\Http\Controllers\Web\Admin\Phase8\PpdbFormBuilderController::class, 'update'])->name('ppdb.form-builder.update');
+        Route::delete('/ppdb/form-builder/{field}',           [\App\Http\Controllers\Web\Admin\Phase8\PpdbFormBuilderController::class, 'destroy'])->name('ppdb.form-builder.destroy');
+        Route::post('/ppdb/form-builder/reorder',             [\App\Http\Controllers\Web\Admin\Phase8\PpdbFormBuilderController::class, 'reorder'])->name('ppdb.form-builder.reorder');
+
+        // ============== YAYASAN DASHBOARD & MASTER DATA ==============
+        Route::get('/foundation/dashboard',                   [\App\Http\Controllers\Web\Admin\Foundation\FoundationDashboardController::class, 'index'])->name('foundation.dashboard');
+        Route::get('/foundation/master-data',                 [\App\Http\Controllers\Web\Admin\Foundation\FoundationMasterDataController::class, 'index'])->name('foundation.master-data.index');
+        Route::post('/foundation/master-data',                [\App\Http\Controllers\Web\Admin\Foundation\FoundationMasterDataController::class, 'store'])->name('foundation.master-data.store');
+        Route::post('/foundation/master-data/{item}/sync',    [\App\Http\Controllers\Web\Admin\Foundation\FoundationMasterDataController::class, 'sync'])->name('foundation.master-data.sync');
+        Route::delete('/foundation/master-data/{item}',       [\App\Http\Controllers\Web\Admin\Foundation\FoundationMasterDataController::class, 'destroy'])->name('foundation.master-data.destroy');
+        Route::get('/foundation/user-management',             [\App\Http\Controllers\Web\Admin\Foundation\FoundationUserController::class, 'index'])->name('foundation.user-management.index');
+        Route::post('/foundation/user-management',            [\App\Http\Controllers\Web\Admin\Foundation\FoundationUserController::class, 'store'])->name('foundation.user-management.store');
+        Route::delete('/foundation/user-management/{assignment}', [\App\Http\Controllers\Web\Admin\Foundation\FoundationUserController::class, 'destroy'])->name('foundation.user-management.destroy');
+
+        // ============== ADMINISTRATIVE OFFICE: SURAT MASUK ==============
+        Route::get('/office/incoming-mails',                  [\App\Http\Controllers\Web\Admin\Office\IncomingMailController::class, 'index'])->name('office.incoming.index');
+        Route::post('/office/incoming-mails',                 [\App\Http\Controllers\Web\Admin\Office\IncomingMailController::class, 'store'])->name('office.incoming.store');
+        Route::post('/office/incoming-mails/{mail}/disposition', [\App\Http\Controllers\Web\Admin\Office\IncomingMailController::class, 'disposition'])->name('office.incoming.disposition');
+        Route::post('/office/incoming-mails/{mail}/archive',  [\App\Http\Controllers\Web\Admin\Office\IncomingMailController::class, 'archive'])->name('office.incoming.archive');
+        Route::delete('/office/incoming-mails/{mail}',        [\App\Http\Controllers\Web\Admin\Office\IncomingMailController::class, 'destroy'])->name('office.incoming.destroy');
+
+        // ============== ADMINISTRATIVE OFFICE: SURAT KELUAR ==============
+        Route::get('/office/outgoing-mails',                  [\App\Http\Controllers\Web\Admin\Office\OutgoingMailController::class, 'index'])->name('office.outgoing.index');
+        Route::post('/office/outgoing-mails',                 [\App\Http\Controllers\Web\Admin\Office\OutgoingMailController::class, 'store'])->name('office.outgoing.store');
+        Route::post('/office/outgoing-mails/{mail}/sent',     [\App\Http\Controllers\Web\Admin\Office\OutgoingMailController::class, 'markSent'])->name('office.outgoing.mark-sent');
+        Route::post('/office/outgoing-mails/{mail}/archive',  [\App\Http\Controllers\Web\Admin\Office\OutgoingMailController::class, 'archive'])->name('office.outgoing.archive');
+        Route::delete('/office/outgoing-mails/{mail}',        [\App\Http\Controllers\Web\Admin\Office\OutgoingMailController::class, 'destroy'])->name('office.outgoing.destroy');
+
+        // ============== ADMINISTRATIVE OFFICE: AGENDA RAPAT ==============
+        Route::get('/office/meetings',                        [\App\Http\Controllers\Web\Admin\Office\MeetingController::class, 'index'])->name('office.meetings.index');
+        Route::post('/office/meetings',                       [\App\Http\Controllers\Web\Admin\Office\MeetingController::class, 'store'])->name('office.meetings.store');
+        Route::post('/office/meetings/{agenda}/status',       [\App\Http\Controllers\Web\Admin\Office\MeetingController::class, 'updateStatus'])->name('office.meetings.update-status');
+        Route::delete('/office/meetings/{agenda}',            [\App\Http\Controllers\Web\Admin\Office\MeetingController::class, 'destroy'])->name('office.meetings.destroy');
+        Route::post('/office/meetings/{agenda}/minutes',      [\App\Http\Controllers\Web\Admin\Office\MeetingController::class, 'storeMinutes'])->name('office.meetings.store-minutes');
+
+        // ============== ADMINISTRATIVE OFFICE: TUGAS STAFF ==============
+        Route::get('/office/tasks',                           [\App\Http\Controllers\Web\Admin\Office\StaffTaskController::class, 'index'])->name('office.tasks.index');
+        Route::post('/office/tasks',                          [\App\Http\Controllers\Web\Admin\Office\StaffTaskController::class, 'store'])->name('office.tasks.store');
+        Route::post('/office/tasks/{task}/status',            [\App\Http\Controllers\Web\Admin\Office\StaffTaskController::class, 'updateStatus'])->name('office.tasks.update-status');
+        Route::delete('/office/tasks/{task}',                 [\App\Http\Controllers\Web\Admin\Office\StaffTaskController::class, 'destroy'])->name('office.tasks.destroy');
 
         // ============== SURVEYS ==============
         Route::get('/surveys/templates',                 [SurveyController::class, 'templates'])->name('surveys.templates.index');

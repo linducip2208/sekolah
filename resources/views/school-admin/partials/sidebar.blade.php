@@ -73,18 +73,23 @@
 
 @if($can(['admin','super_admin','principal','homeroom_teacher','hr']))
 {{-- ACADEMIC --}}
-<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.academic.*','admin.curriculum.*','admin.timetable.*','admin.classroom.lessons.*','admin.assignments.*','admin.exams.*','admin.qbank.*','admin.raport-interaktif.*','admin.lesson-plan.*','admin.live-class.*','admin.academic.essay-grading.*','admin.courses.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.academic.*','admin.curriculum.*','admin.timetable.*','admin.classroom.lessons.*','admin.assignments.*','admin.exams.*','admin.qbank.*','admin.raport-interaktif.*','admin.lesson-plan.*','admin.live-class.*','admin.academic.essay-grading.*','admin.courses.*','admin.academic.homeroom-teachers.*','admin.academic.substitute-teachers.*','admin.academic.makeup-classes.*','admin.teaching-journal.*','admin.prota.*','admin.promes.*','admin.learning-outcomes.*','admin.rubrics.*','admin.student-observations.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['academic']) !!}Academic</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.academic.years.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.years.*') }}">Academic Years</a>
         <a href="{{ route('admin.curriculum.frameworks.index') }}" class="sidebar-sub-link {{ $isActive('admin.curriculum.frameworks.*') }}">Curriculum</a>
+        <a href="{{ route('admin.curriculum.versions.index') }}" class="sidebar-sub-link {{ $isActive('admin.curriculum.versions.*') }}">Versi Kurikulum</a>
         <a href="{{ route('admin.curriculum.competencies.index') }}" class="sidebar-sub-link {{ $isActive('admin.curriculum.competencies.*') }}">Kompetensi (CP/TP/ATP)</a>
+        <a href="{{ route('admin.curriculum.mapping.index') }}" class="sidebar-sub-link {{ $isActive('admin.curriculum.mapping.*') }}">Mapping TP → CP</a>
         <a href="{{ route('admin.academic.subjects.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.subjects.*') }}">Subjects</a>
         <a href="{{ route('admin.academic.classes.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.classes.*') }}">Classes</a>
         <a href="{{ route('admin.academic.sections.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.sections.*') }}">Sections</a>
         <a href="{{ route('admin.academic.class-sections.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.class-sections.*') }}">Class Groups</a>
+        <a href="{{ route('admin.academic.homeroom-teachers.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.homeroom-teachers.*') }}">Wali Kelas</a>
         <a href="{{ route('admin.academic.mediums.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.mediums.*') }}">Mediums</a>
         <a href="{{ route('admin.timetable.index') }}" class="sidebar-sub-link {{ $isActive('admin.timetable.*') }}">Schedules</a>
+        <a href="{{ route('admin.academic.substitute-teachers.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.substitute-teachers.*') }}">Guru Pengganti</a>
+        <a href="{{ route('admin.academic.makeup-classes.index') }}" class="sidebar-sub-link {{ $isActive('admin.academic.makeup-classes.*') }}">Kelas Pengganti</a>
         <a href="{{ route('admin.classroom.lessons.index') }}" class="sidebar-sub-link {{ $isActive('admin.classroom.lessons.*') }}">Lessons</a>
         <a href="{{ route('admin.assignments.index') }}" class="sidebar-sub-link {{ $isActive('admin.assignments.*') }}">Assignments</a>
         <a href="{{ route('admin.exams.index') }}" class="sidebar-sub-link {{ $isActive('admin.exams.*') }}">Exams</a>
@@ -95,6 +100,11 @@
         <a href="{{ route('admin.grades.transcript') }}" class="sidebar-sub-link {{ $isActive('admin.grades.transcript') }}">Transcript</a>
         <a href="{{ route('admin.lesson-plan.index') }}" class="sidebar-sub-link {{ $isActive('admin.lesson-plan.*') }}">Lesson Plans</a>
         <a href="{{ route('admin.teaching-journal.index') }}" class="sidebar-sub-link {{ $isActive('admin.teaching-journal.*') }}">Teaching Journal</a>
+        <a href="{{ route('admin.prota.index') }}" class="sidebar-sub-link {{ $isActive('admin.prota.*') }}">PROTA (Program Tahunan)</a>
+        <a href="{{ route('admin.promes.index') }}" class="sidebar-sub-link {{ $isActive('admin.promes.*') }}">PROMES (Program Semester)</a>
+        <a href="{{ route('admin.learning-outcomes.index') }}" class="sidebar-sub-link {{ $isActive('admin.learning-outcomes.*') }}">CP / TP (Capaian & Tujuan)</a>
+        <a href="{{ route('admin.rubrics.index') }}" class="sidebar-sub-link {{ $isActive('admin.rubrics.*') }}">Rubrik Penilaian</a>
+        <a href="{{ route('admin.student-observations.index') }}" class="sidebar-sub-link {{ $isActive('admin.student-observations.*') }}">Observasi Siswa</a>
         <a href="{{ route('admin.live-class.index') }}" class="sidebar-sub-link {{ $isActive('admin.live-class.*') }}">Live Class</a>
         <a href="{{ route('admin.courses.index') }}" class="sidebar-sub-link {{ $isActive('admin.courses.*') }}">Kursus (LMS)</a>
         <a href="{{ route('admin.quizzes.index') }}" class="sidebar-sub-link {{ $isActive('admin.quizzes.*') }}">Kuis</a>
@@ -103,12 +113,15 @@
 </div>
 
 {{-- STUDENTS --}}
-<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.students.*','admin.import.*','admin.attendance.*','admin.discipline.*','admin.counseling.*','admin.clinic.*','admin.achievements.*','admin.portfolios.*','admin.misc.career','admin.misc.internships.*','admin.qr-attendance.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.students.*','admin.import.*','admin.attendance.*','admin.discipline.*','admin.counseling.*','admin.clinic.*','admin.achievements.*','admin.portfolios.*','admin.misc.career','admin.misc.internships.*','admin.qr-attendance.*','admin.students.lifecycle.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['students']) !!}Students</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.students.index') }}" class="sidebar-sub-link {{ $isActive('admin.students.*') }}">Student Directory</a>
         <a href="{{ route('admin.import.index') }}" class="sidebar-sub-link {{ $isActive('admin.import.*') }}">Import CSV</a>
         <a href="{{ route('admin.attendance.index') }}" class="sidebar-sub-link {{ $isActive('admin.attendance.*') }}">Attendance</a>
+        <a href="{{ route('admin.students.lifecycle.batch-promote-form') }}" class="sidebar-sub-link {{ $isActive('admin.students.lifecycle.batch-promote*') }}">Kenaikan Kelas</a>
+        <a href="{{ route('admin.students.lifecycle.transfer-form') }}" class="sidebar-sub-link {{ $isActive('admin.students.lifecycle.transfer*') }}">Pindah Sekolah</a>
+        <a href="{{ route('admin.students.lifecycle.tags') }}" class="sidebar-sub-link {{ $isActive('admin.students.lifecycle.tags') }}">Tag Siswa</a>
         <a href="{{ route('admin.discipline.records.index') }}" class="sidebar-sub-link {{ $isActive('admin.discipline.*') }}">Discipline</a>
         <a href="{{ route('admin.counseling.sessions.index') }}" class="sidebar-sub-link {{ $isActive('admin.counseling.*') }}">Counseling</a>
         <a href="{{ route('admin.clinic.visits.index') }}" class="sidebar-sub-link {{ $isActive('admin.clinic.*') || $isActive('admin.medical.*') }}">Health</a>
@@ -125,6 +138,7 @@
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.ppdb.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.ppdb.dashboard') }}">PPDB Dashboard</a>
         <a href="{{ route('admin.ppdb.applications.index') }}" class="sidebar-sub-link {{ $isActive('admin.ppdb.applications.*') }}">Applicants</a>
+        <a href="{{ route('admin.ppdb.form-builder.index') }}" class="sidebar-sub-link {{ $isActive('admin.ppdb.form-builder.*') }}">Form Builder</a>
         <a href="{{ route('admin.ppdb.periods.index') }}" class="sidebar-sub-link {{ $isActive('admin.ppdb.periods.*') }}">Periods</a>
     </div>
 </div>
@@ -265,11 +279,44 @@
 </div>
 @endif
 
+{{-- FOUNDATION (YAYASAN) --}}
+@if(auth()->check() && auth()->user() && auth()->user()->school_id)
+@php
+    $hasFoundation = \App\Models\School::where('id', auth()->user()->school_id)->whereNotNull('foundation_id')->exists();
+@endphp
+@if($hasFoundation)
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.foundation.*']) ? 'true' : 'false' }} }">
+    <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['people']) !!}Yayasan</span>{!! $chevron !!}</button>
+    <div x-show="open" x-collapse class="sidebar-section-body">
+        <a href="{{ route('admin.foundation.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.foundation.dashboard') }}">Dashboard</a>
+        <a href="{{ route('admin.foundation.master-data.index') }}" class="sidebar-sub-link {{ $isActive('admin.foundation.master-data.*') }}">Master Data</a>
+        <a href="{{ route('admin.foundation.user-management.index') }}" class="sidebar-sub-link {{ $isActive('admin.foundation.user-management.*') }}">User Management</a>
+        <a href="{{ route('admin.foundation.benchmark.index') }}" class="sidebar-sub-link {{ $isActive('admin.foundation.benchmark.*') }}">Benchmark</a>
+    </div>
+</div>
+@endif
+@endif
+
+{{-- ADMIN OFFICE --}}
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.office.*']) ? 'true' : 'false' }} }">
+    <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['tasks']) !!}Kantor</span>{!! $chevron !!}</button>
+    <div x-show="open" x-collapse class="sidebar-section-body">
+        <a href="{{ route('admin.office.incoming.index') }}" class="sidebar-sub-link {{ $isActive('admin.office.incoming.*') }}">Surat Masuk</a>
+        <a href="{{ route('admin.office.outgoing.index') }}" class="sidebar-sub-link {{ $isActive('admin.office.outgoing.*') }}">Surat Keluar</a>
+        <a href="{{ route('admin.office.meetings.index') }}" class="sidebar-sub-link {{ $isActive('admin.office.meetings.*') }}">Agenda Rapat</a>
+        <a href="{{ route('admin.office.tasks.index') }}" class="sidebar-sub-link {{ $isActive('admin.office.tasks.*') }}">Tugas Staff</a>
+    </div>
+</div>
+
 {{-- AI & ANALYTICS --}}
 <div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.analytics.*','admin.ai.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['ai']) !!}AI &amp; Analytics</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.analytics.dashboard') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.dashboard') }}">School Intelligence</a>
+        <a href="{{ route('admin.analytics.executive') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.executive') }}">Executive Dashboard</a>
+        <a href="{{ route('admin.analytics.ppdb') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.ppdb') }}">PPDB Analytics</a>
+        <a href="{{ route('admin.analytics.hr') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.hr') }}">HR Analytics</a>
+        <a href="{{ route('admin.analytics.library') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.library') }}">Library Analytics</a>
         <a href="{{ route('admin.analytics.risks.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.risks.*') }}">Student Risk</a>
         <a href="{{ route('admin.analytics.dropout-risk.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.dropout-risk.*') }}">Dropout Prediction</a>
         <a href="{{ route('admin.analytics.anomalies.index') }}" class="sidebar-sub-link {{ $isActive('admin.analytics.anomalies.*') }}">Anomaly Detection</a>
@@ -307,7 +354,7 @@
 </div>
 
 {{-- SYSTEM --}}
-<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.branding.*','admin.blog.*','admin.documents.*','admin.letters.*','admin.surveys.*','admin.exports.*','admin.audit.*','admin.internal-audit.*','admin.signage.*','admin.dashboard-tv.*','admin.accreditation.*','admin.compliance.*','admin.adiwiyata.*']) ? 'true' : 'false' }} }">
+<div class="sidebar-section" x-data="{ open: {{ $hasActive(['admin.branding.*','admin.blog.*','admin.documents.*','admin.letters.*','admin.surveys.*','admin.exports.*','admin.audit.*','admin.internal-audit.*','admin.signage.*','admin.dashboard-tv.*','admin.accreditation.*','admin.compliance.*','admin.adiwiyata.*','admin.digital-signatures.*']) ? 'true' : 'false' }} }">
     <button @click="open=!open" class="sidebar-section-header"><span class="flex items-center gap-2.5">{!! $icon($icons['system']) !!}System</span>{!! $chevron !!}</button>
     <div x-show="open" x-collapse class="sidebar-section-body">
         <a href="{{ route('admin.branding.show') }}" class="sidebar-sub-link {{ $isActive('admin.branding.show') }}">Branding</a>
@@ -315,6 +362,7 @@
         <a href="{{ route('admin.blog.index') }}" class="sidebar-sub-link {{ $isActive('admin.blog.*') }}">Blog</a>
         <a href="{{ route('admin.documents.index') }}" class="sidebar-sub-link {{ $isActive('admin.documents.*') }}">Documents</a>
         <a href="{{ route('admin.documents.approvals') }}" class="sidebar-sub-link {{ $isActive('admin.documents.approvals') }}">Document Approvals</a>
+        <a href="{{ route('admin.digital-signatures.index') }}" class="sidebar-sub-link {{ $isActive('admin.digital-signatures.*') }}">Digital Signatures</a>
         <a href="{{ route('admin.letters.templates') }}" class="sidebar-sub-link {{ $isActive('admin.letters.*') }}">Letters</a>
         <a href="{{ route('admin.surveys.templates.index') }}" class="sidebar-sub-link {{ $isActive('admin.surveys.*') }}">Surveys</a>
         <a href="{{ route('admin.exports.index') }}" class="sidebar-sub-link {{ $isActive('admin.exports.*') }}">Exports</a>

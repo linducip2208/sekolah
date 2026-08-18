@@ -16,10 +16,10 @@ class CurriculumCompetency extends SchoolModel
 
     protected $fillable = [
         'school_id','curriculum_framework_id','subject_id','class_room_id',
-        'code','description','level_type','parent_id','indicators',
+        'code','description','level_type','parent_id','indicators','mapping_rules',
     ];
 
-    protected $casts = ['indicators' => 'array'];
+    protected $casts = ['indicators' => 'array', 'mapping_rules' => 'array'];
 
     public function framework(): BelongsTo
     {

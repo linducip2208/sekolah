@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property \Illuminate\Support\Collection<\App\Models\Academic\StudentTag> $tags
+ */
+
 class Student extends SchoolModel
 {
     use AuditableModel;
@@ -54,5 +58,15 @@ class Student extends SchoolModel
     public function statusHistory(): HasMany
     {
         return $this->hasMany(StudentStatusHistory::class)->orderByDesc('created_at');
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(StudentTag::class, 'student_tag_pivot');
+    }
+
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(StudentEnrollment::class);
     }
 }

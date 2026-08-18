@@ -309,6 +309,57 @@ class PpdbService
         });
     }
 
+    /* ==================== WAITING LIST ==================== */
+
+    public function addToWaitingList(PpdbApplication $application): PpdbApplication
+    {
+        $maxPosition = PpdbApplication::where('school_id', $application->school_id)
+            ->where('ppdb_period_id', $application->ppdb_period_id)
+            ->whereNotNull('waiting_list_position')
+            ->max('waiting_list_position') ?? 0;
+
+        $application->update([
+            'status'                 => 'waitlist',
+            'waiting_list_position'  => $maxPosition + 1,
+        ]);
+
+        return $application->fresh();
+    }
+
+    public function promoteFromWaitingList(int $periodId, int $schoolId): ?PpdbApplication
+    {
+        $next = PpdbApplication::where('school_id', $schoolId)
+            ->where('ppdb_period_id', $periodId)
+            ->where('status', 'waitlist')
+            ->whereNotNull('waiting_list_position')
+            ->orderBy('waiting_list_position')
+            ->first();
+
+        if (!$next) {
+            return null;
+        }
+
+        $next->update([
+            'status'                => 'accepted',
+            'accepted_at'           => now(),
+            'waiting_list_position' => null,
+        ]);
+
+        $this->dispatchEmail($next->fresh(), 'acceptance');
+
+        return $next->fresh();
+    }
+
+    public function getWaitingList(int $periodId, int $schoolId): \Illuminate\Database\Eloquent\Collection
+    {
+        return PpdbApplication::where('school_id', $schoolId)
+            ->where('ppdb_period_id', $periodId)
+            ->where('status', 'waitlist')
+            ->whereNotNull('waiting_list_position')
+            ->orderBy('waiting_list_position')
+            ->get();
+    }
+
     protected function haversineKm(float $lat1, float $lng1, float $lat2, float $lng2): float
     {
         $earthRadiusKm = 6371;

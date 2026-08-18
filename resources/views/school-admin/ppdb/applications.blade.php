@@ -43,6 +43,7 @@
 @endforeach
 </select></form>
 @if($a->ranking_score)<div class="text-xs text-gray-500 mt-1">Skor: {{ $a->ranking_score }} · Rank {{ $a->rank_position }}</div>@endif
+@if($a->status === 'waitlist' && $a->waiting_list_position)<div class="text-xs text-amber-600 mt-1 font-semibold">Waiting #{{ $a->waiting_list_position }}</div>@endif
 </td>
 <td class="px-3 py-3 text-right whitespace-nowrap">
     @if(in_array($a->status, ['verified','accepted']))

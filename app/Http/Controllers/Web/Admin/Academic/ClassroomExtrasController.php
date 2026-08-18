@@ -12,6 +12,8 @@ use App\Models\Curriculum\CurriculumFramework;
 use App\Models\Extracurricular\Extracurricular;
 use App\Models\QuestionBank\QuestionBankCategory;
 use App\Models\QuestionBank\QuestionBankItem;
+use App\Models\QuestionBank\QuestionBankTag;
+use App\Models\QuestionBank\QuestionBlueprint;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -118,11 +120,20 @@ class ClassroomExtrasController extends Controller
 
     public function questionBankItems(): View
     {
+        $schoolId = $this->schoolId();
         return view('school-admin.qbank.items', [
-            'items'    => QuestionBankItem::where('school_id', $this->schoolId())
-                ->with(['category', 'subject'])->orderByDesc('created_at')->paginate(25),
-            'categories' => QuestionBankCategory::where('school_id', $this->schoolId())->get(),
-            'subjects' => Subject::where('school_id', $this->schoolId())->get(),
+            'items'        => QuestionBankItem::where('school_id', $schoolId)
+                ->with(['category', 'subject', 'author:id,name', 'reviewer:id,name'])
+                ->orderByDesc('created_at')->paginate(25),
+            'categories'   => QuestionBankCategory::where('school_id', $schoolId)->get(),
+            'subjects'     => Subject::where('school_id', $schoolId)->get(),
+            'tags'         => QuestionBankTag::where('school_id', $schoolId)->withCount('items')->orderBy('name')->get(),
+            'blueprints'   => QuestionBlueprint::where('school_id', $schoolId)->orderByDesc('created_at')->get(),
+            'reviewItems'  => QuestionBankItem::where('school_id', $schoolId)
+                ->whereIn('status', ['submitted', 'approved', 'rejected'])
+                ->with(['subject', 'author:id,name', 'reviewer:id,name'])
+                ->orderByDesc('reviewed_at')->orderByDesc('created_at')
+                ->paginate(25),
         ]);
     }
 
@@ -132,20 +143,22 @@ class ClassroomExtrasController extends Controller
             'subject_id'                => 'required|exists:subjects,id',
             'question_bank_category_id' => 'required|exists:question_bank_categories,id',
             'question_html'             => 'required|string|max:10000',
-            'type'                      => 'required|in:multiple_choice,true_false,short_answer,essay',
+            'type'                      => 'required|in:multiple_choice,true_false,short_answer,essay,matching,fill_blank',
+            'question_type'             => 'nullable|in:multiple_choice,essay,true_false,matching,fill_blank',
             'difficulty'                => 'required|in:easy,medium,hard',
-            'cognitive_level'           => 'nullable|in:remembering,understanding,applying,analyzing,evaluating,creating',
+            'cognitive_level'           => 'nullable|in:c4,c5,c6,c7,c8,remembering,understanding,applying,analyzing,evaluating,creating',
             'answer_key'                => 'nullable|string',
             'explanation_html'          => 'nullable|string',
             'tags'                      => 'nullable|string',
             'options_text'              => 'nullable|string',
             'is_published'              => 'nullable|boolean',
+            'status'                    => 'nullable|in:draft,submitted',
         ]);
 
         $options = $this->parseOptions($data['options_text'] ?? '');
         $answerKey = $data['answer_key'] ?? null;
 
-        if ($data['type'] === 'multiple_choice' && $options) {
+        if (in_array($data['type'], ['multiple_choice']) && $options) {
             $answerKey = $answerKey ?: implode(',', collect($options)->where('is_correct')->pluck('text')->all());
         }
 
@@ -157,6 +170,9 @@ class ClassroomExtrasController extends Controller
         $data['answer_key'] = $answerKey;
         $data['tags']      = $this->parseTags($data['tags'] ?? '');
         $data['is_published'] = $request->boolean('is_published');
+        $data['question_type'] = $data['question_type'] ?? $data['type'];
+        $data['status'] = $data['status'] ?? 'draft';
+        $data['version'] = 1;
 
         unset($data['options_text'], $data['tags_text']);
 
@@ -194,6 +210,100 @@ class ClassroomExtrasController extends Controller
         $this->authorizeOwn($item);
         $item->delete();
         return back()->with('success', 'Soal dihapus.');
+    }
+
+    /* ============== QUESTION BANK TAGS ============== */
+
+    public function storeQuestionBankTag(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'name'  => 'required|string|max:100',
+            'color' => 'nullable|string|max:7',
+        ]);
+        $data['school_id'] = $this->schoolId();
+        QuestionBankTag::create($data);
+        return back()->with('success', 'Tag ditambahkan.');
+    }
+
+    public function deleteQuestionBankTag(QuestionBankTag $tag): RedirectResponse
+    {
+        $this->authorizeOwn($tag);
+        $tag->delete();
+        return back()->with('success', 'Tag dihapus.');
+    }
+
+    /* ============== QUESTION BANK BLUEPRINTS ============== */
+
+    public function storeQuestionBlueprint(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'name'         => 'required|string|max:200',
+            'total_items'  => 'required|integer|min:1|max:200',
+            'distribution' => 'nullable|string',
+        ]);
+
+        $distribution = null;
+        if (!empty($data['distribution'])) {
+            $distribution = json_decode($data['distribution'], true);
+            if (!is_array($distribution)) {
+                return back()->withErrors('Format distribusi JSON tidak valid.');
+            }
+        }
+
+        QuestionBlueprint::create([
+            'school_id'     => $this->schoolId(),
+            'name'          => $data['name'],
+            'total_items'   => $data['total_items'],
+            'distribution'  => $distribution,
+        ]);
+        return back()->with('success', 'Blueprint disimpan.');
+    }
+
+    public function deleteQuestionBlueprint(QuestionBlueprint $blueprint): RedirectResponse
+    {
+        $this->authorizeOwn($blueprint);
+        $blueprint->delete();
+        return back()->with('success', 'Blueprint dihapus.');
+    }
+
+    /* ============== QUESTION BANK REVIEW ============== */
+
+    public function reviewAction(QuestionBankItem $item, Request $request): RedirectResponse
+    {
+        $this->authorizeOwn($item);
+
+        $data = $request->validate([
+            'action' => 'required|in:approved,rejected',
+        ]);
+
+        $item->update([
+            'status'      => $data['action'],
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Soal ' . ($data['action'] === 'approved' ? 'disetujui' : 'ditolak') . '.');
+    }
+
+    public function submitForReview(QuestionBankItem $item): RedirectResponse
+    {
+        $this->authorizeOwn($item);
+        $item->update(['status' => 'submitted']);
+        return back()->with('success', 'Soal dikirim untuk review.');
+    }
+
+    /* ============== QUESTION VARIATION FORM ============== */
+
+    public function variationForm(QuestionBankItem $item): View
+    {
+        $this->authorizeOwn($item);
+        $schoolId = $this->schoolId();
+
+        return view('school-admin.qbank.variation', [
+            'item'      => $item,
+            'providers' => \App\Models\AI\AiProvider::where('school_id', $schoolId)->where('is_active', true)->get(),
+            'aiModels'  => \App\Models\AI\AiModel::where('school_id', $schoolId)->where('is_active', true)->with('provider')->get(),
+        ]);
     }
 
     /* ============== EXTRACURRICULAR ============== */
