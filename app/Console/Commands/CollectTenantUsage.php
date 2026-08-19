@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Console\Commands;
+namespace App\Console\Commands;
 
 use App\Models\Saas\TenantUsage;
 use App\Models\School;
