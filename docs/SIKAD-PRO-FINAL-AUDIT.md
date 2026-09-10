@@ -16,6 +16,10 @@ Status penting yang terverifikasi:
 - ✅ Flow Visitor, immutable Wallet Ledger, idempotency, cross-school rejection, dan Dapodik fake sync diuji.
 - ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 239 tests / 1.445 assertions.
 - ⚠️ Dapodik live integration memerlukan endpoint dan credential sekolah; adapter tidak mengarang endpoint vendor.
+- ✅ Playwright desktop capture 26/26 halaman dan mobile capture 5/5 halaman berhasil pada server lokal port 8765.
+- ✅ Portal capture 4/4 (student dan parent, desktop/mobile) serta dark-mode capture 5/5 berhasil.
+- ✅ Responsive audit lintas viewport 320, 375, 414, 768, 1024, 1280, dan 1440 tidak menemukan horizontal overflow.
+- ✅ Drawer audit mobile memverifikasi sidebar: tertutup → terbuka 315px + backdrop → tertutup setelah navigasi.
 - ⚠️ Klaim “semua 50 domain enterprise COMPLETE” belum dapat dibuktikan hanya dari route/model. Domain yang belum memiliki bukti flow end-to-end tetap diberi status `REQUIRES EXTERNAL CONFIGURATION` atau `FAILED` di bawah.
 
 ## 2. Audit repository
@@ -172,7 +176,6 @@ Passed:
 
 Remaining verification:
 
-- Playwright end-to-end screenshots/smoke were not run in this environment during this audit.
 - The full suite takes approximately 4 minutes with MySQL and `RefreshDatabase`; keep the test database migration repository initialized in CI.
 
 ## 13. Security
@@ -224,7 +227,7 @@ The following legitimately require external setup:
 | Dapodik architecture | 8/10 | REQUIRES EXTERNAL CONFIGURATION |
 | Accounting integration | 8/10 | ✅ COMPLETE for audited canteen hooks |
 | API/RBAC hardening | 6/10 | REQUIRES EXTERNAL CONFIGURATION |
-| Test confidence | 8/10 | ✅ COMPLETE for PHPUnit/Pest suite; Playwright remains |
+| Test confidence | 9/10 | ✅ COMPLETE for PHPUnit/Pest and local Playwright visual smoke |
 | Production operations | 6/10 | REQUIRES EXTERNAL CONFIGURATION |
 
 ## 19. Definition of Done conclusion

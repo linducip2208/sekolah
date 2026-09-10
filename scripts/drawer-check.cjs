@@ -1,13 +1,14 @@
 const { chromium } = require('playwright');
+const BASE = process.env.ESCHOOL_URL || 'http://127.0.0.1:8000';
 (async () => {
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ viewport: { width: 375, height: 667 } });
     const page = await context.newPage();
-    await page.goto('http://127.0.0.1:8000/admin/login', { waitUntil: 'networkidle' });
+    await page.goto(`${BASE}/admin/login`, { waitUntil: 'networkidle' });
     await page.fill('input[type=email]', 'admin@sman1demo.sch.id');
     await page.fill('input[type=password]', 'Admin123!');
     await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle' }), page.click('button[type=submit]')]);
-    await page.goto('http://127.0.0.1:8000/admin/dashboard', { waitUntil: 'networkidle' });
+    await page.goto(`${BASE}/admin/dashboard`, { waitUntil: 'networkidle' });
 
     // sidebar hidden initially
     let w = await page.evaluate(() => document.querySelector('aside').getBoundingClientRect().width);

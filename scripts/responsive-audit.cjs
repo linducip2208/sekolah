@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 
-const BASE = 'http://127.0.0.1:8000';
+const BASE = process.env.ESCHOOL_URL || 'http://127.0.0.1:8000';
 const VIEWPORTS = [
     { name: '320px (SE)',  width: 320,  height: 667 },
     { name: '375px',       width: 375,  height: 667 },
