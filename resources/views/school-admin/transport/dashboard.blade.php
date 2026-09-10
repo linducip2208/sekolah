@@ -20,7 +20,7 @@
                         <td class="px-4 py-2">Route #{{ $trip->transport_route_id }}</td>
                         <td class="px-4 py-2">{{ $trip->direction === 'pickup' ? 'Antar Jemput' : 'Antar Pulang' }}</td>
                         <td class="px-4 py-2 text-xs">{{ $trip->started_at?->format('H:i') }}</td>
-                        <td class="px-4 py-2 text-right"><a href="#" class="text-brand-primary text-xs">Lihat Map</a></td>
+                        <td class="px-4 py-2 text-right"><a href="{{ route('admin.transport.tracking', ['trip_id' => $trip->id]) }}" class="text-brand-primary text-xs">Lihat Map</a></td>
                     </tr>
                 @empty
                     <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">Tidak ada trip aktif</td></tr>

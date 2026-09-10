@@ -127,7 +127,7 @@
         <nav class="flex gap-0.5 overflow-x-auto pb-0.5" style="scrollbar-width: none; -webkit-overflow-scrolling: touch;" aria-label="Navigasi portal">
             @foreach($portalNav as [$rt, $label, $path])
                 @php
-                    $navUrl = rescue(fn () => route($rt), '#', false);
+                    $navUrl = rescue(fn () => route($rt), route('portal.dashboard'), false);
                     $isActive = request()->routeIs($rt) || ($rt === 'portal.dashboard' && request()->routeIs('portal.index'));
                 @endphp
                 <a href="{{ $navUrl }}" aria-current="{{ $isActive ? 'page' : false }}"

@@ -27,7 +27,7 @@
 @if($children->isEmpty())
     <div class="card mb-8">
         <x-feedback.empty-state icon="user" title="Belum ada data anak" description="Hubungi Tata Usaha sekolah untuk mengaitkan akun ini dengan data anak Anda.">
-            <a href="{{ rescue(fn () => route('portal.conferences'), '#', false) }}" class="btn btn-sm">Hubungi via Konferensi</a>
+            <a href="{{ rescue(fn () => route('portal.conferences'), route('portal.dashboard'), false) }}" class="btn btn-sm">Hubungi via Konferensi</a>
         </x-feedback.empty-state>
     </div>
 @else
@@ -59,7 +59,7 @@
         <div class="text-[12px] font-medium" style="color: var(--color-text-secondary);">Tagihan SPP</div>
         <div class="text-base font-extrabold mt-0.5" style="color: var(--color-text);">@if($outstandingTotal > 0)Rp {{ number_format($outstandingTotal/100, 0, ',', '.') }}@else Lunas @endif</div>
     </a>
-    <a href="{{ rescue(fn () => route('portal.conferences'), '#', false) }}" class="card card-pad card-hover">
+    <a href="{{ rescue(fn () => route('portal.conferences'), route('portal.dashboard'), false) }}" class="card card-pad card-hover">
         <x-ui.icon name="users" class="w-5 h-5 mb-2 text-[var(--color-info)]" />
         <div class="text-[12px] font-medium" style="color: var(--color-text-secondary);">Konferensi Guru</div>
         <div class="text-base font-extrabold mt-0.5" style="color: var(--color-text);">Booking</div>

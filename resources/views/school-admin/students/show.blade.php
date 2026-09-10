@@ -37,7 +37,7 @@
                 <x-ui.button href="{{ route('admin.print.id-card', $s) }}" variant="ghost">ID Card</x-ui.button>
                 <x-ui.button href="{{ route('admin.print.report-card', $s) }}" variant="ghost">Raport</x-ui.button>
                 @if(rescue(fn () => route('admin.fee.invoices.create'), null, false))
-                    <a href="{{ rescue(fn () => route('admin.fee.invoices.create'), '#', false) }}?student_id={{ $s->id }}" class="btn btn-sm">Buat Tagihan</a>
+                    <a href="{{ rescue(fn () => route('admin.fee.invoices.create'), route('admin.dashboard'), false) }}?student_id={{ $s->id }}" class="btn btn-sm">Buat Tagihan</a>
                 @endif
             </div>
         </div>

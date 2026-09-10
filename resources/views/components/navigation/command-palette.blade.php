@@ -1,5 +1,5 @@
 @php
-    $safe = fn (string $name) => rescue(fn () => route($name), '#', false);
+    $safe = fn (string $name) => rescue(fn () => route($name), url('/admin/dashboard'), false);
     $user = auth()->user();
 
     // Aksi cepat berbasis role (quick create yang benar-benar ada routenya).

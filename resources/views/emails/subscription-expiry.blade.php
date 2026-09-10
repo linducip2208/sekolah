@@ -17,7 +17,7 @@ body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: 
         ⚠️ Langganan plan <strong>{{ $planName }}</strong> Anda akan berakhir pada <strong>{{ $expiresAt }}</strong>.
     </div>
     <p>Untuk memastikan layanan tetap berjalan tanpa gangguan, silakan perpanjang langganan sebelum tanggal tersebut.</p>
-    <p style="margin-top:16px"><a href="#" class="btn">Perpanjang Sekarang</a></p>
+    <p style="margin-top:16px"><a href="{{ url('/admin/dashboard') }}" class="btn">Buka Panel Sekolah</a></p>
     <p style="margin-top:16px;font-size:12px;color:#888">Jika ada pertanyaan, hubungi kami di support@whitelabel.co.id</p>
 </div>
 <div class="footer">Sikad Pro — Platform Manajemen Sekolah</div>

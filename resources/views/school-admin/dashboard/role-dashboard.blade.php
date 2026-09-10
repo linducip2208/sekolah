@@ -26,7 +26,7 @@
     {{-- ===== KPI utama ===== --}}
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-{{ count($widgets) > 4 ? '5' : '4' }} gap-3 sm:gap-4">
         @foreach($widgets as $widget)
-            <a href="{{ $widget['url'] ?? '#' }}" class="card card-pad card-hover block group">
+            <a href="{{ $widget['url'] ?? route('admin.dashboard') }}" class="card card-pad card-hover block group">
                 <div class="flex items-start justify-between gap-2">
                     <p class="text-[12px] font-medium text-[var(--color-text-secondary)] leading-snug min-h-[2rem]">{{ $widget['title'] }}</p>
                     <span class="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105"
