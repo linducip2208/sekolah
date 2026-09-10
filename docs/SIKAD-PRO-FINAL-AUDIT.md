@@ -43,6 +43,7 @@ Temuan yang diperbaiki:
 - attendance dan marks maturity pass menambahkan lifecycle lock/reopen/correction, tenant-safe references, dan protection untuk rapor terkunci;
 - inventory dan procurement maturity pass menambahkan row locking, non-negative stock invariant, transfer movement types, scoped supplier/budget validation, serta bounded partial receiving;
 - accounting maturity pass menambahkan tenant-safe COA lines, double-entry line validation, row-locked posting, automatic reference idempotency, dan audit logging;
+- payroll maturity pass menambahkan tenant-safe staff lookup, finalization row lock, paid-slip replay protection, audit logging, dan idempotent payroll journal;
 - test baru menguji flow enterprise dan cross-school access.
 
 ## 3. Feature matrix aktual
@@ -66,7 +67,7 @@ Legenda: `✅ COMPLETE` berarti flow penting yang diaudit tersedia dan diuji; `R
 | Kesiswaan / BK / UKS | ✅ COMPLETE | Existing discipline, counseling, clinic, achievement and extracurricular domains. |
 | Finance / billing / payment | ✅ COMPLETE | Existing fee, invoice, refund and configurable provider path; live provider requires setup. |
 | Double-entry accounting | ✅ COMPLETE | Existing COA/journal/reporting plus tenant-safe lines, row-locked posting, idempotent automatic references, audit logging, and canteen posting hooks. |
-| HR / payroll | ✅ COMPLETE | Existing payroll, BPJS/PPh21, KPI and HR tables; staff attendance policy remains configuration-dependent. |
+| HR / payroll | ✅ COMPLETE | Existing payroll, BPJS/PPh21, KPI and HR tables now finalize paid slips through a locked service and idempotent accounting journal; staff attendance policy remains configuration-dependent. |
 | Procurement | ✅ COMPLETE | Existing request/approval/order/receipt domain now has scoped references, locked state transitions, partial receipt bounds, and workflow regression tests. |
 | Inventory / asset | ✅ COMPLETE | Existing stock and asset lifecycle routes/models; stock mutations use row locks, signed movement ledger entries, and non-negative invariants. |
 | Library | ✅ COMPLETE | Existing catalog, borrowing, fine and digital library flows. |
@@ -215,6 +216,7 @@ Implemented/hardened:
 - Grade and attendance mutations use `AuditableModel` so before/after changes are available in the activity log;
 - Inventory item, stock movement, stock opname, procurement request, procurement item, and procurement approval mutations now use activity logging;
 - Accounting COA, journal header, and journal line mutations now use activity logging; posted journals remain non-deletable through the admin flow;
+- Payroll structure and salary slip mutations now use activity logging; paid slips remain immutable through the API flow;
 - Counseling and Career student/counselor/assignee references are validated against the active school;
 - Lesson Plan API/admin writes validate class section, subject, semester, and teacher against the active school;
 - payment callbacks record payload fingerprints, reject already-processed replays, and serialize status application with a row lock;

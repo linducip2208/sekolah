@@ -29,7 +29,7 @@ class RolePermissionSeeder extends Seeder
             // Fee
             'fee.view', 'fee.manage', 'fee.payment',
             // Payroll
-            'payroll.view', 'payroll.manage',
+            'payroll.view', 'payroll.manage', 'payroll.finalize',
             // Library
             'library.view', 'library.manage',
             // Hostel
@@ -124,7 +124,7 @@ class RolePermissionSeeder extends Seeder
                 'staff.view', 'attendance.view', 'attendance.manage', 'attendance.approve', 'attendance.reopen', 'marks.view', 'marks.manage', 'marks.approve', 'marks.lock', 'marks.reopen', 'accounting.view', 'accounting.manage', 'accounting.post', 'accounting.reopen', 'timetable.manage',
                 'timetable.view', 'classroom.manage', 'classroom.view', 'exam.manage',
                 'exam.view', 'marks.manage', 'marks.view', 'fee.manage', 'fee.view',
-                'fee.payment', 'payroll.manage', 'payroll.view', 'library.manage',
+                'fee.payment', 'payroll.manage', 'payroll.view', 'payroll.finalize', 'library.manage',
                 'library.view', 'hostel.manage', 'hostel.view', 'transport.manage',
                 'transport.view', 'notice.manage', 'notice.view', 'admission.manage',
                 'admission.view', 'report.view', 'chat.use',
@@ -177,7 +177,7 @@ class RolePermissionSeeder extends Seeder
                 'donation.view', 'event.view', 'ppdb.view', 'canteen.view'],
 
             'accountant' => ['fee.manage', 'fee.view', 'fee.payment', 'accounting.view', 'accounting.manage', 'accounting.post', 'payroll.manage',
-                'payroll.view', 'report.view',
+                'payroll.view', 'payroll.finalize', 'report.view',
                 'donation.manage', 'scholarship.view', 'scholarship.manage',
                 'payment.providers.manage', 'analytics.view'],
 
@@ -199,7 +199,7 @@ class RolePermissionSeeder extends Seeder
                 'marks.view', 'marks.approve', 'marks.lock', 'marks.reopen', 'accounting.view', 'fee.view', 'report.view', 'analytics.view',
                 'notice.view', 'notice.manage', 'chat.use', 'curriculum.view',
                 'lesson_plan.view', 'lesson_plan.approve', 'medical.view'],
-            'hr' => ['staff.view', 'staff.manage', 'payroll.view', 'payroll.manage', 'report.view'],
+            'hr' => ['staff.view', 'staff.manage', 'payroll.view', 'payroll.manage', 'payroll.finalize', 'report.view'],
             'transport_admin' => ['transport.view', 'transport.manage', 'transport.tracking.view', 'gate.manage', 'gate.scan'],
             'hostel_admin' => ['hostel.view', 'hostel.manage', 'student.view'],
             'procurement_admin' => ['inventory.view', 'inventory.manage', 'report.view'],

@@ -1,10 +1,13 @@
 <?php
 
 use App\Models\Academic\Staff;
+use App\Models\Finance\JournalEntry;
 use App\Models\Finance\PayrollStructure;
 use App\Models\Finance\SalarySlip;
 use App\Models\School;
 use App\Models\User;
+use App\Services\Finance\AccountingService;
+use App\Services\Finance\TaxBpjsService;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
@@ -14,10 +17,10 @@ beforeEach(function () {
     $this->admin = User::factory()->create(['school_id' => $this->school->id, 'is_active' => true]);
     $this->admin->assignRole('admin');
 
-    $staffUser   = User::factory()->create(['school_id' => $this->school->id]);
+    $staffUser = User::factory()->create(['school_id' => $this->school->id]);
     $this->staff = Staff::create([
-        'school_id'    => $this->school->id,
-        'user_id'      => $staffUser->id,
+        'school_id' => $this->school->id,
+        'user_id' => $staffUser->id,
         'basic_salary' => 500000000, // 5.000.000 cents
     ]);
 });
@@ -26,10 +29,10 @@ test('admin can create payroll structure', function () {
     Sanctum::actingAs($this->admin);
 
     $response = $this->postJson('/api/v1/payroll/structures', [
-        'name'        => 'Tunjangan Transport',
-        'type'        => 'allowance',
+        'name' => 'Tunjangan Transport',
+        'type' => 'allowance',
         'calculation' => 'fixed',
-        'value'       => 10000000,
+        'value' => 10000000,
     ]);
 
     $response->assertStatus(201)->assertJsonPath('name', 'Tunjangan Transport');
@@ -40,25 +43,25 @@ test('admin can generate salary slip', function () {
     Sanctum::actingAs($this->admin);
 
     PayrollStructure::create([
-        'school_id'   => $this->school->id,
-        'name'        => 'Potongan BPJS',
-        'type'        => 'deduction',
+        'school_id' => $this->school->id,
+        'name' => 'Potongan BPJS',
+        'type' => 'deduction',
         'calculation' => 'fixed',
-        'value'       => 5000000,
-        'is_active'   => true,
+        'value' => 5000000,
+        'is_active' => true,
     ]);
 
     $response = $this->postJson('/api/v1/payroll/generate-slip', [
         'staff_id' => $this->staff->id,
-        'month'    => '2025-01',
+        'month' => '2025-01',
     ]);
 
     $response->assertStatus(201);
     $data = $response->json();
     // Net = basic − struktur potongan − BPJS karyawan − PPh21 (logika TaxBpjsService).
-    $bpjs = app(\App\Services\Finance\TaxBpjsService::class)
+    $bpjs = app(TaxBpjsService::class)
         ->calculateBpjs($this->school->id, $this->staff->id, 500000000);
-    $pph21 = app(\App\Services\Finance\TaxBpjsService::class)
+    $pph21 = app(TaxBpjsService::class)
         ->calculatePph21Monthly($this->school->id, $this->staff->id, 500000000);
     expect($data['net_salary'])->toBe(500000000 - 5000000 - $bpjs['totalEmployee'] - $pph21)
         ->and($data['status'])->toBe('draft')
@@ -69,18 +72,43 @@ test('admin can mark salary slip as paid', function () {
     Sanctum::actingAs($this->admin);
 
     $slip = SalarySlip::create([
-        'school_id'        => $this->school->id,
-        'staff_id'         => $this->staff->id,
-        'month'            => '2025-01',
-        'basic_salary'     => 500000000,
+        'school_id' => $this->school->id,
+        'staff_id' => $this->staff->id,
+        'month' => '2025-01',
+        'basic_salary' => 500000000,
         'total_allowances' => 0,
         'total_deductions' => 0,
-        'net_salary'       => 500000000,
-        'status'           => 'draft',
+        'net_salary' => 500000000,
+        'status' => 'draft',
     ]);
 
     $this->postJson("/api/v1/payroll/slips/{$slip->id}/mark-paid")->assertOk();
     $slip->refresh();
     expect($slip->status)->toBe('paid')
         ->and($slip->paid_on)->not->toBeNull();
+});
+
+test('finalizing payroll posts one accounting journal and rejects replay', function () {
+    Sanctum::actingAs($this->admin);
+    app(AccountingService::class)->seedDefaultCoa($this->school->id);
+    $slip = SalarySlip::create([
+        'school_id' => $this->school->id,
+        'staff_id' => $this->staff->id,
+        'month' => '2025-02',
+        'basic_salary' => 500000000,
+        'total_allowances' => 0,
+        'total_deductions' => 0,
+        'net_salary' => 500000000,
+        'status' => 'draft',
+    ]);
+
+    $this->postJson("/api/v1/payroll/slips/{$slip->id}/mark-paid")->assertOk();
+    $this->postJson("/api/v1/payroll/slips/{$slip->id}/mark-paid")->assertStatus(409);
+
+    $entry = JournalEntry::where('school_id', $this->school->id)
+        ->where('reference_no', 'PAYROLL-'.$slip->id)
+        ->first();
+    expect($entry)->not->toBeNull()
+        ->and($entry->status)->toBe('posted')
+        ->and(JournalEntry::where('reference_no', 'PAYROLL-'.$slip->id)->count())->toBe(1);
 });

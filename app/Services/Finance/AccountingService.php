@@ -65,7 +65,7 @@ class AccountingService
             $entry = JournalEntry::create(array_merge($header, [
                 'school_id' => $schoolId,
                 'status' => 'draft',
-                'created_by' => auth()->id(),
+                'created_by' => $header['created_by'] ?? auth()->id(),
             ]));
 
             foreach ($lines as $line) {
@@ -230,6 +230,39 @@ class AccountingService
         ]);
 
         $this->post($entry);
+    }
+
+    public function postPayroll(int $schoolId, int $amountCents, string $reference, ?string $date = null, ?int $actorId = null): void
+    {
+        if ($amountCents <= 0 || JournalEntry::where('school_id', $schoolId)->where('reference_no', $reference)->exists()) {
+            return;
+        }
+
+        $expense = ChartOfAccount::where('school_id', $schoolId)->where('code', '5000')->first();
+        $cash = ChartOfAccount::where('school_id', $schoolId)->where('code', '1000')->first();
+        if (! $expense || ! $cash) {
+            return;
+        }
+
+        $entry = DB::transaction(function () use ($schoolId, $amountCents, $reference, $date, $actorId, $expense, $cash): JournalEntry {
+            if (JournalEntry::where('school_id', $schoolId)->where('reference_no', $reference)->lockForUpdate()->exists()) {
+                return JournalEntry::where('school_id', $schoolId)->where('reference_no', $reference)->firstOrFail();
+            }
+
+            return $this->createEntry($schoolId, [
+                'entry_date' => $date ?? now()->toDateString(),
+                'reference_no' => $reference,
+                'description' => 'Payroll (otomatis)',
+                'created_by' => $actorId,
+            ], [
+                ['chart_of_account_id' => $expense->id, 'debit' => $amountCents, 'credit' => 0],
+                ['chart_of_account_id' => $cash->id, 'debit' => 0, 'credit' => $amountCents],
+            ]);
+        });
+
+        if ($entry->status !== 'posted') {
+            $this->post($entry);
+        }
     }
 
     /**
