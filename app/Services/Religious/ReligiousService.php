@@ -2,9 +2,10 @@
 
 namespace App\Services\Religious;
 
+use App\Models\Academic\Student;
 use App\Models\Religious\HafalanProgress;
+use App\Models\Religious\HafalanTarget;
 use App\Models\Religious\IbadahLog;
-use App\Models\Religious\KitabKuningProgress;
 use App\Models\Religious\ReligiousModeConfig;
 
 class ReligiousService
@@ -21,32 +22,40 @@ class ReligiousService
     {
         $config = $this->getOrCreateConfig($schoolId);
         $config->update($data);
+
         return $config->fresh();
     }
 
     public function recordHafalan(int $schoolId, int $studentId, int $verifiedBy, array $data): HafalanProgress
     {
+        $this->studentForSchool($schoolId, $studentId);
+        if (! empty($data['hafalan_target_id'])) {
+            HafalanTarget::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($data['hafalan_target_id']);
+        }
+
         return HafalanProgress::create([
-            'school_id'         => $schoolId,
-            'student_id'        => $studentId,
+            'school_id' => $schoolId,
+            'student_id' => $studentId,
             'hafalan_target_id' => $data['hafalan_target_id'] ?? null,
-            'verified_by'       => $verifiedBy,
-            'surah'             => $data['surah'],
-            'ayah_start'        => $data['ayah_start'],
-            'ayah_end'          => $data['ayah_end'],
-            'memorized_at'      => $data['memorized_at'] ?? today(),
-            'quality'           => $data['quality'] ?? 'good',
-            'note'              => $data['note'] ?? null,
-            'audio_path'        => $data['audio_path'] ?? null,
+            'verified_by' => $verifiedBy,
+            'surah' => $data['surah'],
+            'ayah_start' => $data['ayah_start'],
+            'ayah_end' => $data['ayah_end'],
+            'memorized_at' => $data['memorized_at'] ?? today(),
+            'quality' => $data['quality'] ?? 'good',
+            'note' => $data['note'] ?? null,
+            'audio_path' => $data['audio_path'] ?? null,
         ]);
     }
 
     public function logIbadah(int $schoolId, int $studentId, ?int $verifiedBy, array $data): IbadahLog
     {
+        $this->studentForSchool($schoolId, $studentId);
+
         return IbadahLog::updateOrCreate(
             ['student_id' => $studentId, 'log_date' => $data['log_date'] ?? today()],
             array_merge($data, [
-                'school_id'   => $schoolId,
+                'school_id' => $schoolId,
                 'verified_by' => $verifiedBy,
             ]),
         );
@@ -54,6 +63,7 @@ class ReligiousService
 
     public function studentHafalanSummary(int $schoolId, int $studentId): array
     {
+        $this->studentForSchool($schoolId, $studentId);
         $progress = HafalanProgress::where('school_id', $schoolId)
             ->where('student_id', $studentId)
             ->orderBy('surah')->orderBy('ayah_start')
@@ -62,15 +72,16 @@ class ReligiousService
         $totalAyat = $progress->sum(fn (HafalanProgress $p) => $p->ayah_end - $p->ayah_start + 1);
 
         return [
-            'total_records'        => $progress->count(),
+            'total_records' => $progress->count(),
             'total_ayat_memorized' => $totalAyat,
-            'quality_breakdown'    => $progress->groupBy('quality')->map->count(),
-            'recent_progress'      => $progress->take(20)->values(),
+            'quality_breakdown' => $progress->groupBy('quality')->map->count(),
+            'recent_progress' => $progress->take(20)->values(),
         ];
     }
 
     public function ibadahMonthSummary(int $schoolId, int $studentId, string $yearMonth): array
     {
+        $this->studentForSchool($schoolId, $studentId);
         [$y, $m] = explode('-', $yearMonth);
         $logs = IbadahLog::where('school_id', $schoolId)
             ->where('student_id', $studentId)
@@ -83,19 +94,26 @@ class ReligiousService
         $countDone = fn (string $field) => $logs->whereIn($field, ['done', 'jamaah'])->count();
 
         return [
-            'month'       => $yearMonth,
-            'total_days'  => $totalDays,
+            'month' => $yearMonth,
+            'total_days' => $totalDays,
             'logged_days' => $logs->count(),
             'sholat_5_waktu' => [
-                'subuh'   => $countDone('subuh'),
-                'dzuhur'  => $countDone('dzuhur'),
-                'ashar'   => $countDone('ashar'),
+                'subuh' => $countDone('subuh'),
+                'dzuhur' => $countDone('dzuhur'),
+                'ashar' => $countDone('ashar'),
                 'maghrib' => $countDone('maghrib'),
-                'isya'    => $countDone('isya'),
+                'isya' => $countDone('isya'),
             ],
-            'puasa_sunnah_days'  => $logs->where('puasa_sunnah', true)->count(),
-            'tilawah_done_days'  => $logs->where('tilawah_done', true)->count(),
+            'puasa_sunnah_days' => $logs->where('puasa_sunnah', true)->count(),
+            'tilawah_done_days' => $logs->where('tilawah_done', true)->count(),
             'tilawah_ayah_total' => $logs->sum('tilawah_ayah_count'),
         ];
+    }
+
+    private function studentForSchool(int $schoolId, int $studentId): Student
+    {
+        return Student::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->findOrFail($studentId);
     }
 }

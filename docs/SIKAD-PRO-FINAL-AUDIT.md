@@ -24,7 +24,7 @@ Status penting yang terverifikasi:
 
 ## 2. Audit repository
 
-Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.566 route setelah pass PPDB/kesiswaan/operasional. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
+Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.569 route setelah pass PPDB/kesiswaan/operasional/workflow. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
 
 Temuan yang diperbaiki:
 
@@ -42,6 +42,7 @@ Temuan yang diperbaiki:
 - backup UI membuat file sintetis ketika `mysqldump` gagal;
 - dashboard, parent portal, reminder, email subscription, tabs, dan command palette tidak lagi memiliki fallback actionable ke `#`; fallback navigasi kini menuju route yang valid atau tidak merender CTA;
 - attendance dan marks maturity pass menambahkan lifecycle lock/reopen/correction, tenant-safe references, dan protection untuk rapor terkunci;
+- classroom, timetable, dan religious service boundary pass menambahkan validasi referensi lintas sekolah, room/time conflict detection, atomic bulk timetable replacement, dan student ownership checks pada assignment/religious progress;
 - inventory dan procurement maturity pass menambahkan row locking, non-negative stock invariant, transfer movement types, scoped supplier/budget validation, serta bounded partial receiving;
 - accounting maturity pass menambahkan tenant-safe COA lines, double-entry line validation, row-locked posting, automatic reference idempotency, dan audit logging;
 - payroll maturity pass menambahkan tenant-safe staff lookup, finalization row lock, paid-slip replay protection, audit logging, dan idempotent payroll journal;
@@ -194,6 +195,7 @@ Passed:
 - `npm.cmd run build`;
 - enterprise test suite after test DB bootstrap: 5 tests / 13 assertions passed before assertion correction, then corrected wallet test passed independently (1 test / 4 assertions);
 - full PHPUnit/Pest suite: 269 tests / 1.516 assertions passed;
+- focused academic tenant-boundary regressions: Classroom 9 tests / 15 assertions, Timetable 8 tests / 16 assertions, Religious 2 tests / 2 assertions passed;
 - PPDB regression: 6 enrollment/lifecycle/selection tests plus 2 public-registration tests passed, including cross-school, deadline, duplicate-NISN, quota, and waitlist checks;
 - BK/Discipline/UKS regression: 6 service-boundary/lifecycle/threshold tests passed;
 - workflow/notification regression: 5 tenant-boundary/replay/recipient-filter/revision tests passed;

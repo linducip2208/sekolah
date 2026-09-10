@@ -18,13 +18,13 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 | Modul | Current before | After | Improvements | Integrations | Test coverage | Score |
 |---|---:|---:|---|---|---|---:|
 | PPDB | 3 | 4 | Open/close window, configured jalur/quota, duplicate NISN detection, guarded lifecycle, configurable scoring, row-locked selection/waitlist, batch enrollment, cross-school validation, student conversion, audit logging | PPDB → Student → Rombel → Billing | Registration/enrollment + lifecycle/selection regressions | 4/5 |
-| Akademik & Lesson Plan | 2 | 3 | Lifecycle plan, approval path, school validation for class/subject/semester/teacher | Teacher → class → subject → semester | Syntax/Pint; broader workflow regression still needed | 3/5 |
+| Akademik & Lesson Plan | 2 | 4 | Lifecycle plan, approval path, explicit school validation for class/subject/semester/teacher, timetable room/time conflict checks, atomic bulk replacement, and bounded classroom assignment grading | Teacher → class → subject → semester → timetable/LMS | Classroom 9 tests / 15 assertions; timetable 8 tests / 16 assertions; broader workflow regression still needed | 4/5 |
 | Absensi | 3 | 4 | Manual/QR flows, bulk validation, lock/reopen lifecycle, correction approval, observer/audit integration, queued absence notification | Student 360, parent notification, analytics, generic workflow | 4 workflow tests / 10 assertions; broader mobile/report regression remains | 4/5 |
 | Bank Soal | 3 | 3 | Question metadata, review/versioning and analysis paths exist | CBT, quiz, item analysis | Existing question-bank tests | 3/5 |
 | CBT/Ujian | 3 | 4 | Scheduling, token, attempt, autosave/grade paths and analysis | CBT → Marks → Raport | Existing exam/CBT tests | 4/5 |
 | Nilai | 3 | 4 | Tenant-safe bulk/edit validation, score bounds, automatic grade resolution, CBT service sync, locked report-card protection, audit model | CBT → Marks → Raport → Parent Portal | 6 marks tests / 15 assertions plus CBT integration | 4/5 |
 | Raport | 3 | 4 | PDF/QR verification, bulk generation and publication path | Marks → Report Card → Parent | Existing report-card tests and Playwright capture | 4/5 |
-| LMS | 3 | 3 | Classroom, lessons, assignments, quiz and progress paths exist | Student Portal, Teacher Portal | Portal smoke; deeper deadline/resubmission tests needed | 3/5 |
+| LMS | 3 | 4 | Classroom, lessons, assignments, quiz and progress paths with school-bound lesson/material/assignment/submission service boundaries | Student Portal, Teacher Portal | Classroom tenant-boundary and grading tests; deeper deadline/resubmission tests needed | 4/5 |
 | Student 360 | 2 | 3 | Consolidated profile/timeline and permission-aware tabs | Academic, finance, BK, health, library, transport | Visibility regression needs broader coverage | 3/5 |
 | BK/Counseling | 2 | 4 | Guarded scheduled/completed lifecycle, counselor/student tenant validation, overlapping-session detection, bullying assignment/closure rules, audit logging, restricted permissions | Attendance/risk/student profile → notification | Cross-school, overlap, and repeated-completion regressions | 4/5 |
 | Disiplin | 3 | 4 | Incident tenant validation, configurable points/threshold sanctions, parent notification job, history and audit logging | Student 360 → parent communication → intervention | Cross-school and threshold transition regressions | 4/5 |
@@ -60,6 +60,6 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 3. Add drill-down report tests and query profiling using the seeded multi-school dataset.
 4. Verify queue workers, scheduler, storage backup target, and provider credentials in a production-like environment.
 
-Latest verification snapshot: 269 tests / 1,516 assertions passed; route registry: 1,569 routes; frontend production build passed.
+Latest verification snapshot before the current academic boundary hardening: 269 tests / 1,516 assertions passed; the added focused regressions are tracked in the working checkpoint and will be included after the next full suite.
 
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.

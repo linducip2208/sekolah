@@ -22,22 +22,22 @@ beforeEach(function () {
     $this->teacher->assignRole('teacher');
 
     $academicYear = AcademicYear::create([
-        'school_id'  => $this->school->id,
-        'name'       => '2024/2025',
+        'school_id' => $this->school->id,
+        'name' => '2024/2025',
         'start_date' => '2024-07-01',
-        'end_date'   => '2025-06-30',
-        'is_active'  => true,
+        'end_date' => '2025-06-30',
+        'is_active' => true,
     ]);
 
-    $medium    = Medium::create(['school_id' => $this->school->id, 'name' => 'Indonesia']);
+    $medium = Medium::create(['school_id' => $this->school->id, 'name' => 'Indonesia']);
     $classRoom = ClassRoom::create(['school_id' => $this->school->id, 'medium_id' => $medium->id, 'name' => 'Kelas 10']);
-    $section   = Section::create(['school_id' => $this->school->id, 'name' => 'A']);
+    $section = Section::create(['school_id' => $this->school->id, 'name' => 'A']);
 
     $this->classSection = ClassSection::create([
-        'school_id'        => $this->school->id,
-        'class_room_id'    => $classRoom->id,
-        'section_id'       => $section->id,
-        'medium_id'        => $medium->id,
+        'school_id' => $this->school->id,
+        'class_room_id' => $classRoom->id,
+        'section_id' => $section->id,
+        'medium_id' => $medium->id,
         'academic_year_id' => $academicYear->id,
         'class_teacher_id' => $this->teacher->id,
     ]);
@@ -45,15 +45,15 @@ beforeEach(function () {
     $this->subject = Subject::create([
         'school_id' => $this->school->id,
         'medium_id' => $medium->id,
-        'name'      => 'Matematika',
-        'code'      => 'MTK',
-        'type'      => 'theory',
+        'name' => 'Matematika',
+        'code' => 'MTK',
+        'type' => 'theory',
     ]);
 
-    $studentUser    = User::factory()->create(['school_id' => $this->school->id]);
-    $this->student  = Student::create([
-        'user_id'          => $studentUser->id,
-        'school_id'        => $this->school->id,
+    $studentUser = User::factory()->create(['school_id' => $this->school->id]);
+    $this->student = Student::create([
+        'user_id' => $studentUser->id,
+        'school_id' => $this->school->id,
         'class_section_id' => $this->classSection->id,
     ]);
     $this->studentUser = $studentUser;
@@ -64,9 +64,9 @@ test('teacher can create a lesson', function () {
 
     $response = $this->postJson('/api/v1/classroom/lessons', [
         'class_section_id' => $this->classSection->id,
-        'subject_id'       => $this->subject->id,
-        'title'            => 'Bab 1 - Himpunan',
-        'description'      => 'Pengantar teori himpunan',
+        'subject_id' => $this->subject->id,
+        'title' => 'Bab 1 - Himpunan',
+        'description' => 'Pengantar teori himpunan',
     ]);
 
     $response->assertStatus(201)->assertJsonPath('title', 'Bab 1 - Himpunan');
@@ -77,19 +77,19 @@ test('teacher can create an assignment', function () {
     Sanctum::actingAs($this->teacher);
 
     $lesson = Lesson::create([
-        'school_id'        => $this->school->id,
+        'school_id' => $this->school->id,
         'class_section_id' => $this->classSection->id,
-        'subject_id'       => $this->subject->id,
-        'teacher_id'       => $this->teacher->id,
-        'title'            => 'Bab 1',
+        'subject_id' => $this->subject->id,
+        'teacher_id' => $this->teacher->id,
+        'title' => 'Bab 1',
     ]);
 
     $response = $this->postJson('/api/v1/classroom/assignments', [
-        'lesson_id'    => $lesson->id,
-        'title'        => 'Latihan 1',
+        'lesson_id' => $lesson->id,
+        'title' => 'Latihan 1',
         'instructions' => 'Kerjakan soal berikut',
-        'due_date'     => now()->addDays(7)->toDateTimeString(),
-        'total_marks'  => 100,
+        'due_date' => now()->addDays(7)->toDateTimeString(),
+        'total_marks' => 100,
     ]);
 
     $response->assertStatus(201)->assertJsonPath('title', 'Latihan 1');
@@ -99,18 +99,18 @@ test('student can submit assignment', function () {
     Sanctum::actingAs($this->studentUser);
 
     $lesson = Lesson::create([
-        'school_id'        => $this->school->id,
+        'school_id' => $this->school->id,
         'class_section_id' => $this->classSection->id,
-        'subject_id'       => $this->subject->id,
-        'teacher_id'       => $this->teacher->id,
-        'title'            => 'Bab 1',
+        'subject_id' => $this->subject->id,
+        'teacher_id' => $this->teacher->id,
+        'title' => 'Bab 1',
     ]);
 
     $assignment = Assignment::create([
-        'school_id'   => $this->school->id,
-        'lesson_id'   => $lesson->id,
-        'title'       => 'Latihan 1',
-        'due_date'    => now()->addDays(7),
+        'school_id' => $this->school->id,
+        'lesson_id' => $lesson->id,
+        'title' => 'Latihan 1',
+        'due_date' => now()->addDays(7),
         'total_marks' => 100,
     ]);
 
@@ -128,18 +128,18 @@ test('late submission is marked as late', function () {
     Sanctum::actingAs($this->studentUser);
 
     $lesson = Lesson::create([
-        'school_id'        => $this->school->id,
+        'school_id' => $this->school->id,
         'class_section_id' => $this->classSection->id,
-        'subject_id'       => $this->subject->id,
-        'teacher_id'       => $this->teacher->id,
-        'title'            => 'Bab 1',
+        'subject_id' => $this->subject->id,
+        'teacher_id' => $this->teacher->id,
+        'title' => 'Bab 1',
     ]);
 
     $assignment = Assignment::create([
-        'school_id'   => $this->school->id,
-        'lesson_id'   => $lesson->id,
-        'title'       => 'Latihan Lama',
-        'due_date'    => now()->subDays(2), // already past
+        'school_id' => $this->school->id,
+        'lesson_id' => $lesson->id,
+        'title' => 'Latihan Lama',
+        'due_date' => now()->subDays(2), // already past
         'total_marks' => 100,
     ]);
 
@@ -154,30 +154,30 @@ test('teacher can grade a submission', function () {
     Sanctum::actingAs($this->teacher);
 
     $lesson = Lesson::create([
-        'school_id'        => $this->school->id,
+        'school_id' => $this->school->id,
         'class_section_id' => $this->classSection->id,
-        'subject_id'       => $this->subject->id,
-        'teacher_id'       => $this->teacher->id,
-        'title'            => 'Bab 1',
+        'subject_id' => $this->subject->id,
+        'teacher_id' => $this->teacher->id,
+        'title' => 'Bab 1',
     ]);
 
     $assignment = Assignment::create([
-        'school_id'   => $this->school->id,
-        'lesson_id'   => $lesson->id,
-        'title'       => 'Latihan 1',
-        'due_date'    => now()->addDays(7),
+        'school_id' => $this->school->id,
+        'lesson_id' => $lesson->id,
+        'title' => 'Latihan 1',
+        'due_date' => now()->addDays(7),
         'total_marks' => 100,
     ]);
 
     $submission = AssignmentSubmission::create([
         'assignment_id' => $assignment->id,
-        'student_id'    => $this->student->id,
-        'answer'        => 'Jawaban',
-        'is_late'       => false,
+        'student_id' => $this->student->id,
+        'answer' => 'Jawaban',
+        'is_late' => false,
     ]);
 
     $response = $this->postJson("/api/v1/classroom/submissions/{$submission->id}/grade", [
-        'marks'    => 85,
+        'marks' => 85,
         'feedback' => 'Bagus sekali',
     ]);
 
@@ -188,32 +188,115 @@ test('grade cannot exceed total marks', function () {
     Sanctum::actingAs($this->teacher);
 
     $lesson = Lesson::create([
-        'school_id'        => $this->school->id,
+        'school_id' => $this->school->id,
         'class_section_id' => $this->classSection->id,
-        'subject_id'       => $this->subject->id,
-        'teacher_id'       => $this->teacher->id,
-        'title'            => 'Bab 1',
+        'subject_id' => $this->subject->id,
+        'teacher_id' => $this->teacher->id,
+        'title' => 'Bab 1',
     ]);
 
     $assignment = Assignment::create([
-        'school_id'   => $this->school->id,
-        'lesson_id'   => $lesson->id,
-        'title'       => 'Latihan 1',
-        'due_date'    => now()->addDays(7),
+        'school_id' => $this->school->id,
+        'lesson_id' => $lesson->id,
+        'title' => 'Latihan 1',
+        'due_date' => now()->addDays(7),
         'total_marks' => 100,
     ]);
 
     $submission = AssignmentSubmission::create([
         'assignment_id' => $assignment->id,
-        'student_id'    => $this->student->id,
-        'answer'        => 'Jawaban',
-        'is_late'       => false,
+        'student_id' => $this->student->id,
+        'answer' => 'Jawaban',
+        'is_late' => false,
     ]);
 
     $response = $this->postJson("/api/v1/classroom/submissions/{$submission->id}/grade", [
-        'marks'    => 150,
+        'marks' => 150,
         'feedback' => 'Terlalu besar',
     ]);
 
     $response->assertStatus(422);
+});
+
+test('classroom rejects a class from another school at the service boundary', function () {
+    Sanctum::actingAs($this->teacher);
+    $foreignSchool = School::factory()->create();
+    $foreignSection = Section::create(['school_id' => $foreignSchool->id, 'name' => 'B']);
+    $foreignClass = ClassSection::create([
+        'school_id' => $foreignSchool->id,
+        'class_room_id' => $this->classSection->class_room_id,
+        'section_id' => $foreignSection->id,
+        'medium_id' => $this->classSection->medium_id,
+        'academic_year_id' => $this->classSection->academic_year_id,
+        'class_teacher_id' => $this->teacher->id,
+    ]);
+
+    $this->postJson('/api/v1/classroom/lessons', [
+        'class_section_id' => $foreignClass->id,
+        'subject_id' => $this->subject->id,
+        'title' => 'Tidak boleh lintas sekolah',
+    ])->assertNotFound();
+});
+
+test('teacher cannot grade a submission belonging to another school', function () {
+    Sanctum::actingAs($this->teacher);
+    $foreignSchool = School::factory()->create();
+    $foreignLesson = Lesson::create([
+        'school_id' => $foreignSchool->id,
+        'class_section_id' => $this->classSection->id,
+        'subject_id' => $this->subject->id,
+        'teacher_id' => $this->teacher->id,
+        'title' => 'Lesson foreign',
+    ]);
+    $foreignAssignment = Assignment::create([
+        'school_id' => $foreignSchool->id,
+        'lesson_id' => $foreignLesson->id,
+        'title' => 'Assignment foreign',
+        'due_date' => now()->addDays(7),
+        'total_marks' => 100,
+    ]);
+    $submission = AssignmentSubmission::create([
+        'assignment_id' => $foreignAssignment->id,
+        'student_id' => $this->student->id,
+        'answer' => 'Tidak boleh dinilai',
+        'is_late' => false,
+    ]);
+
+    $this->postJson("/api/v1/classroom/submissions/{$submission->id}/grade", [
+        'marks' => 80,
+    ])->assertNotFound();
+});
+
+test('teacher cannot grade a foreign student submission on a local assignment', function () {
+    Sanctum::actingAs($this->teacher);
+    $foreignSchool = School::factory()->create();
+    $foreignUser = User::factory()->create(['school_id' => $foreignSchool->id]);
+    $foreignStudent = Student::create([
+        'school_id' => $foreignSchool->id,
+        'user_id' => $foreignUser->id,
+    ]);
+    $lesson = Lesson::create([
+        'school_id' => $this->school->id,
+        'class_section_id' => $this->classSection->id,
+        'subject_id' => $this->subject->id,
+        'teacher_id' => $this->teacher->id,
+        'title' => 'Lesson lokal',
+    ]);
+    $assignment = Assignment::create([
+        'school_id' => $this->school->id,
+        'lesson_id' => $lesson->id,
+        'title' => 'Assignment lokal',
+        'due_date' => now()->addDays(7),
+        'total_marks' => 100,
+    ]);
+    $submission = AssignmentSubmission::create([
+        'assignment_id' => $assignment->id,
+        'student_id' => $foreignStudent->id,
+        'answer' => 'Tidak boleh dinilai',
+        'is_late' => false,
+    ]);
+
+    $this->postJson("/api/v1/classroom/submissions/{$submission->id}/grade", [
+        'marks' => 80,
+    ])->assertNotFound();
 });
