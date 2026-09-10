@@ -14,7 +14,7 @@ Status penting yang terverifikasi:
 - ✅ Build frontend berhasil dengan `npm.cmd run build`.
 - ✅ Pint dan PHP syntax check berhasil pada file yang diubah.
 - ✅ Flow Visitor, immutable Wallet Ledger, idempotency, cross-school rejection, dan Dapodik fake sync diuji.
-- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 276 tests / 1.524 assertions.
+- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 283 tests / 1.532 assertions.
 - ⚠️ Dapodik live integration memerlukan endpoint dan credential sekolah; adapter tidak mengarang endpoint vendor.
 - ✅ Playwright desktop capture 26/26 halaman dan mobile capture 5/5 halaman berhasil pada server lokal port 8765.
 - ✅ Portal capture 4/4 (student dan parent, desktop/mobile) serta dark-mode capture 5/5 berhasil.
@@ -195,7 +195,7 @@ Passed:
 - Laravel Pint on changed implementation files;
 - `npm.cmd run build`;
 - enterprise test suite after test DB bootstrap: 5 tests / 13 assertions passed before assertion correction, then corrected wallet test passed independently (1 test / 4 assertions);
-- full PHPUnit/Pest suite: 276 tests / 1.524 assertions passed;
+- full PHPUnit/Pest suite: 283 tests / 1.532 assertions passed;
 - post-baseline focused regression: CourseService 9 tests, Exam 7 tests, RoomBooking 3 tests, BankReconciliation 5 tests passed;
 - focused academic tenant-boundary regressions are included in the full suite: Classroom 9 tests / 15 assertions, Timetable 8 tests / 16 assertions, Religious 2 tests / 2 assertions;
 - PPDB regression: 6 enrollment/lifecycle/selection tests plus 2 public-registration tests passed, including cross-school, deadline, duplicate-NISN, quota, and waitlist checks;
