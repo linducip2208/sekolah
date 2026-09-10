@@ -24,10 +24,16 @@ class AccountingController extends Controller
         abort_unless($model->school_id === $this->schoolId(), 403);
     }
 
+    private function requirePermission(string $permission): void
+    {
+        abort_unless(auth()->user()->hasRole('super_admin') || auth()->user()->can($permission), 403);
+    }
+
     /* ==================== CHART OF ACCOUNTS ==================== */
 
     public function coa(): View
     {
+        $this->requirePermission('accounting.view');
         $schoolId = $this->schoolId();
 
         $accounts = ChartOfAccount::where('school_id', $schoolId)
@@ -37,7 +43,7 @@ class AccountingController extends Controller
 
         return view('school-admin.finance.accounting.coa', [
             'accounts' => $accounts,
-            'types'    => ChartOfAccount::TYPES,
+            'types' => ChartOfAccount::TYPES,
             'typeLabels' => [
                 'asset' => 'Aset', 'liability' => 'Kewajiban', 'equity' => 'Ekuitas',
                 'revenue' => 'Pendapatan', 'expense' => 'Beban',
@@ -47,13 +53,17 @@ class AccountingController extends Controller
 
     public function storeAccount(Request $request): RedirectResponse
     {
+        $this->requirePermission('accounting.manage');
         $data = $request->validate([
-            'code'           => 'required|string|max:20',
-            'name'           => 'required|string|max:200',
-            'type'           => 'required|in:asset,liability,equity,revenue,expense',
+            'code' => 'required|string|max:20',
+            'name' => 'required|string|max:200',
+            'type' => 'required|in:asset,liability,equity,revenue,expense',
             'normal_balance' => 'required|in:debit,credit',
-            'parent_id'      => 'nullable|exists:chart_of_accounts,id',
+            'parent_id' => 'nullable|exists:chart_of_accounts,id',
         ]);
+        if (! empty($data['parent_id'])) {
+            abort_unless(ChartOfAccount::where('school_id', $this->schoolId())->whereKey($data['parent_id'])->exists(), 422, 'Akun induk bukan milik sekolah aktif.');
+        }
 
         ChartOfAccount::create(array_merge($data, [
             'school_id' => $this->schoolId(),
@@ -65,12 +75,13 @@ class AccountingController extends Controller
 
     public function updateAccount(Request $request, ChartOfAccount $account): RedirectResponse
     {
+        $this->requirePermission('accounting.manage');
         $this->authorizeOwn($account);
 
         $data = $request->validate([
-            'code'           => 'required|string|max:20',
-            'name'           => 'required|string|max:200',
-            'type'           => 'required|in:asset,liability,equity,revenue,expense',
+            'code' => 'required|string|max:20',
+            'name' => 'required|string|max:200',
+            'type' => 'required|in:asset,liability,equity,revenue,expense',
             'normal_balance' => 'required|in:debit,credit',
         ]);
 
@@ -81,6 +92,7 @@ class AccountingController extends Controller
 
     public function deleteAccount(ChartOfAccount $account): RedirectResponse
     {
+        $this->requirePermission('accounting.manage');
         $this->authorizeOwn($account);
 
         abort_if($account->lines()->exists(), 422, 'Akun tidak dapat dihapus karena sudah dipakai di jurnal.');
@@ -92,6 +104,7 @@ class AccountingController extends Controller
 
     public function seedCoa(): RedirectResponse
     {
+        $this->requirePermission('accounting.manage');
         $count = $this->service->seedDefaultCoa($this->schoolId());
 
         return back()->with('success', $count > 0 ? "$count akun default dibuat." : 'Bagan akun sudah ada.');
@@ -101,6 +114,7 @@ class AccountingController extends Controller
 
     public function journal(Request $request): View
     {
+        $this->requirePermission('accounting.view');
         $schoolId = $this->schoolId();
 
         $entries = JournalEntry::where('school_id', $schoolId)
@@ -121,30 +135,31 @@ class AccountingController extends Controller
 
     public function storeJournal(Request $request): RedirectResponse
     {
+        $this->requirePermission('accounting.manage');
         $data = $request->validate([
-            'entry_date'   => 'required|date',
+            'entry_date' => 'required|date',
             'reference_no' => 'nullable|string|max:100',
-            'description'  => 'nullable|string|max:500',
-            'lines'        => 'required|array|min:2',
+            'description' => 'nullable|string|max:500',
+            'lines' => 'required|array|min:2',
             'lines.*.chart_of_account_id' => 'required|exists:chart_of_accounts,id',
-            'lines.*.debit'  => 'nullable|numeric|min:0',
+            'lines.*.debit' => 'nullable|numeric|min:0',
             'lines.*.credit' => 'nullable|numeric|min:0',
             'lines.*.description' => 'nullable|string|max:500',
         ]);
 
         $lines = collect($data['lines'])->map(fn ($l) => [
             'chart_of_account_id' => $l['chart_of_account_id'],
-            'debit'               => (int) round(((float) ($l['debit'] ?? 0)) * 100),
-            'credit'              => (int) round(((float) ($l['credit'] ?? 0)) * 100),
-            'description'         => $l['description'] ?? null,
+            'debit' => (int) round(((float) ($l['debit'] ?? 0)) * 100),
+            'credit' => (int) round(((float) ($l['credit'] ?? 0)) * 100),
+            'description' => $l['description'] ?? null,
         ])->all();
 
-        abort_if(!$this->service->isBalanced($lines), 422, 'Jurnal tidak seimbang: total debit harus sama dengan total kredit.');
+        abort_if(! $this->service->isBalanced($lines), 422, 'Jurnal tidak seimbang: total debit harus sama dengan total kredit.');
 
         $this->service->createEntry($this->schoolId(), [
-            'entry_date'   => $data['entry_date'],
+            'entry_date' => $data['entry_date'],
             'reference_no' => $data['reference_no'] ?? null,
-            'description'  => $data['description'] ?? null,
+            'description' => $data['description'] ?? null,
         ], $lines);
 
         return back()->with('success', 'Jurnal dibuat (draft).');
@@ -152,6 +167,7 @@ class AccountingController extends Controller
 
     public function showJournal(JournalEntry $entry): View
     {
+        $this->requirePermission('accounting.view');
         $this->authorizeOwn($entry);
 
         return view('school-admin.finance.accounting.journal-show', [
@@ -161,6 +177,7 @@ class AccountingController extends Controller
 
     public function postJournal(JournalEntry $entry): RedirectResponse
     {
+        $this->requirePermission('accounting.post');
         $this->authorizeOwn($entry);
 
         $this->service->post($entry);
@@ -170,6 +187,7 @@ class AccountingController extends Controller
 
     public function deleteJournal(JournalEntry $entry): RedirectResponse
     {
+        $this->requirePermission('accounting.manage');
         $this->authorizeOwn($entry);
 
         abort_if($entry->status === 'posted', 422, 'Jurnal yang sudah diposting tidak dapat dihapus.');
@@ -184,29 +202,34 @@ class AccountingController extends Controller
 
     public function trialBalance(Request $request): View
     {
+        $this->requirePermission('accounting.view');
         $from = $request->from;
-        $to   = $request->to;
+        $to = $request->to;
 
         return view('school-admin.finance.accounting.trial-balance', [
             'rows' => $this->service->trialBalance($this->schoolId(), $from, $to),
             'from' => $from,
-            'to'   => $to,
+            'to' => $to,
         ]);
     }
 
     public function profitLoss(Request $request): View
     {
+        $this->requirePermission('accounting.view');
+
         return view('school-admin.finance.accounting.profit-loss', [
-            'pl'   => $this->service->profitLoss($this->schoolId(), $request->from, $request->to),
+            'pl' => $this->service->profitLoss($this->schoolId(), $request->from, $request->to),
             'from' => $request->from,
-            'to'   => $request->to,
+            'to' => $request->to,
         ]);
     }
 
     public function balanceSheet(Request $request): View
     {
+        $this->requirePermission('accounting.view');
+
         return view('school-admin.finance.accounting.balance-sheet', [
-            'bs'   => $this->service->balanceSheet($this->schoolId(), $request->as_of),
+            'bs' => $this->service->balanceSheet($this->schoolId(), $request->as_of),
             'asOf' => $request->as_of,
         ]);
     }

@@ -3,11 +3,14 @@
 namespace App\Models\Finance;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ChartOfAccount extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'chart_of_accounts';
 
     public const TYPES = ['asset', 'liability', 'equity', 'revenue', 'expense'];

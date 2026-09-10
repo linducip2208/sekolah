@@ -24,6 +24,8 @@ class RolePermissionSeeder extends Seeder
             'exam.view', 'exam.manage', 'exam.attempt',
             // Marks
             'marks.view', 'marks.manage', 'marks.approve', 'marks.lock', 'marks.reopen',
+            // Accounting
+            'accounting.view', 'accounting.manage', 'accounting.post', 'accounting.reopen',
             // Fee
             'fee.view', 'fee.manage', 'fee.payment',
             // Payroll
@@ -116,10 +118,10 @@ class RolePermissionSeeder extends Seeder
         $roles = [
             'super_admin' => ['saas.manage', 'school.manage', 'student.manage', 'staff.manage',
                 'report.view', 'fee.manage', 'payroll.manage', 'attendance.view', 'attendance.manage',
-                'attendance.approve', 'attendance.reopen', 'marks.view', 'marks.manage', 'marks.approve', 'marks.lock', 'marks.reopen'],
+                'attendance.approve', 'attendance.reopen', 'marks.view', 'marks.manage', 'marks.approve', 'marks.lock', 'marks.reopen', 'accounting.view', 'accounting.manage', 'accounting.post', 'accounting.reopen'],
 
             'admin' => ['school.manage', 'student.manage', 'student.view', 'staff.manage',
-                'staff.view', 'attendance.view', 'attendance.manage', 'attendance.approve', 'attendance.reopen', 'marks.view', 'marks.manage', 'marks.approve', 'marks.lock', 'marks.reopen', 'timetable.manage',
+                'staff.view', 'attendance.view', 'attendance.manage', 'attendance.approve', 'attendance.reopen', 'marks.view', 'marks.manage', 'marks.approve', 'marks.lock', 'marks.reopen', 'accounting.view', 'accounting.manage', 'accounting.post', 'accounting.reopen', 'timetable.manage',
                 'timetable.view', 'classroom.manage', 'classroom.view', 'exam.manage',
                 'exam.view', 'marks.manage', 'marks.view', 'fee.manage', 'fee.view',
                 'fee.payment', 'payroll.manage', 'payroll.view', 'library.manage',
@@ -174,7 +176,7 @@ class RolePermissionSeeder extends Seeder
                 'achievement.view', 'daily_report.view',
                 'donation.view', 'event.view', 'ppdb.view', 'canteen.view'],
 
-            'accountant' => ['fee.manage', 'fee.view', 'fee.payment', 'payroll.manage',
+            'accountant' => ['fee.manage', 'fee.view', 'fee.payment', 'accounting.view', 'accounting.manage', 'accounting.post', 'payroll.manage',
                 'payroll.view', 'report.view',
                 'donation.manage', 'scholarship.view', 'scholarship.manage',
                 'payment.providers.manage', 'analytics.view'],
@@ -194,7 +196,7 @@ class RolePermissionSeeder extends Seeder
 
             // ===== Enterprise roles (Role expansion) =====
             'principal' => ['school.manage', 'student.view', 'staff.view', 'attendance.view', 'attendance.approve', 'attendance.reopen',
-                'marks.view', 'marks.approve', 'marks.lock', 'marks.reopen', 'fee.view', 'report.view', 'analytics.view',
+                'marks.view', 'marks.approve', 'marks.lock', 'marks.reopen', 'accounting.view', 'fee.view', 'report.view', 'analytics.view',
                 'notice.view', 'notice.manage', 'chat.use', 'curriculum.view',
                 'lesson_plan.view', 'lesson_plan.approve', 'medical.view'],
             'hr' => ['staff.view', 'staff.manage', 'payroll.view', 'payroll.manage', 'report.view'],

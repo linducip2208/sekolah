@@ -4,8 +4,9 @@ use App\Models\Finance\ChartOfAccount;
 use App\Models\Finance\JournalEntry;
 use App\Models\School;
 use App\Services\Finance\AccountingService;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
-beforeEach(fn () => $this->service = new AccountingService());
+beforeEach(fn () => $this->service = new AccountingService);
 
 function acctSchool(): School
 {
@@ -26,13 +27,13 @@ it('posts a balanced journal and produces correct reports', function () {
     $school = acctSchool();
     $this->service->seedDefaultCoa($school->id);
 
-    $kas   = ChartOfAccount::where('school_id', $school->id)->where('code', '1000')->firstOrFail();
-    $spp   = ChartOfAccount::where('school_id', $school->id)->where('code', '4000')->firstOrFail();
+    $kas = ChartOfAccount::where('school_id', $school->id)->where('code', '1000')->firstOrFail();
+    $spp = ChartOfAccount::where('school_id', $school->id)->where('code', '4000')->firstOrFail();
 
     $entry = $this->service->createEntry($school->id, [
-        'entry_date'   => '2026-08-16',
+        'entry_date' => '2026-08-16',
         'reference_no' => 'JRN-1',
-        'description'  => 'Penerimaan SPP',
+        'description' => 'Penerimaan SPP',
     ], [
         ['chart_of_account_id' => $kas->id, 'debit' => 100000, 'credit' => 0],
         ['chart_of_account_id' => $spp->id, 'debit' => 0, 'credit' => 100000],
@@ -71,7 +72,7 @@ it('rejects an unbalanced journal on post', function () {
         ['chart_of_account_id' => $kas->id, 'debit' => 100000, 'credit' => 0],
     ]);
 
-    $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+    $this->expectException(HttpException::class);
 
     $this->service->post($entry);
 });
@@ -95,4 +96,29 @@ it('skips auto-posting when no COA is seeded', function () {
     $this->service->postFeePayment($school->id, 100000, 'cash', 'REF-1');
 
     expect(JournalEntry::where('school_id', $school->id)->count())->toBe(0);
+});
+
+it('rejects journal lines that reference another school account', function () {
+    $school = acctSchool();
+    $foreignSchool = acctSchool();
+    $this->service->seedDefaultCoa($school->id);
+    $this->service->seedDefaultCoa($foreignSchool->id);
+    $kas = ChartOfAccount::where('school_id', $school->id)->where('code', '1000')->firstOrFail();
+    $foreignRevenue = ChartOfAccount::where('school_id', $foreignSchool->id)->where('code', '4000')->firstOrFail();
+
+    $this->expectException(HttpException::class);
+    $this->service->createEntry($school->id, ['entry_date' => '2026-08-16'], [
+        ['chart_of_account_id' => $kas->id, 'debit' => 100000, 'credit' => 0],
+        ['chart_of_account_id' => $foreignRevenue->id, 'debit' => 0, 'credit' => 100000],
+    ]);
+});
+
+it('does not duplicate an automatic fee journal for the same reference', function () {
+    $school = acctSchool();
+    $this->service->seedDefaultCoa($school->id);
+
+    $this->service->postFeePayment($school->id, 100000, 'cash', 'REF-IDEMPOTENT');
+    $this->service->postFeePayment($school->id, 100000, 'cash', 'REF-IDEMPOTENT');
+
+    expect(JournalEntry::where('school_id', $school->id)->where('reference_no', 'REF-IDEMPOTENT')->count())->toBe(1);
 });

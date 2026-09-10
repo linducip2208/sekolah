@@ -42,6 +42,7 @@ Temuan yang diperbaiki:
 - backup UI membuat file sintetis ketika `mysqldump` gagal;
 - attendance dan marks maturity pass menambahkan lifecycle lock/reopen/correction, tenant-safe references, dan protection untuk rapor terkunci;
 - inventory dan procurement maturity pass menambahkan row locking, non-negative stock invariant, transfer movement types, scoped supplier/budget validation, serta bounded partial receiving;
+- accounting maturity pass menambahkan tenant-safe COA lines, double-entry line validation, row-locked posting, automatic reference idempotency, dan audit logging;
 - test baru menguji flow enterprise dan cross-school access.
 
 ## 3. Feature matrix aktual
@@ -64,7 +65,7 @@ Legenda: `✅ COMPLETE` berarti flow penting yang diaudit tersedia dan diuji; `R
 | PPDB | ✅ COMPLETE | Existing public registration, review, selection, acceptance and enrollment flow. |
 | Kesiswaan / BK / UKS | ✅ COMPLETE | Existing discipline, counseling, clinic, achievement and extracurricular domains. |
 | Finance / billing / payment | ✅ COMPLETE | Existing fee, invoice, refund and configurable provider path; live provider requires setup. |
-| Double-entry accounting | ✅ COMPLETE | Existing COA/journal/reporting plus idempotent canteen posting hooks. |
+| Double-entry accounting | ✅ COMPLETE | Existing COA/journal/reporting plus tenant-safe lines, row-locked posting, idempotent automatic references, audit logging, and canteen posting hooks. |
 | HR / payroll | ✅ COMPLETE | Existing payroll, BPJS/PPh21, KPI and HR tables; staff attendance policy remains configuration-dependent. |
 | Procurement | ✅ COMPLETE | Existing request/approval/order/receipt domain now has scoped references, locked state transitions, partial receipt bounds, and workflow regression tests. |
 | Inventory / asset | ✅ COMPLETE | Existing stock and asset lifecycle routes/models; stock mutations use row locks, signed movement ledger entries, and non-negative invariants. |
@@ -213,6 +214,7 @@ Implemented/hardened:
 - Marks bulk/offline/CBT writes validate student/subject/semester/exam ownership and reject edits for locked report cards;
 - Grade and attendance mutations use `AuditableModel` so before/after changes are available in the activity log;
 - Inventory item, stock movement, stock opname, procurement request, procurement item, and procurement approval mutations now use activity logging;
+- Accounting COA, journal header, and journal line mutations now use activity logging; posted journals remain non-deletable through the admin flow;
 - Counseling and Career student/counselor/assignee references are validated against the active school;
 - Lesson Plan API/admin writes validate class section, subject, semester, and teacher against the active school;
 - payment callbacks record payload fingerprints, reject already-processed replays, and serialize status application with a row lock;

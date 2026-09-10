@@ -54,6 +54,13 @@ class AccountingService
 
     public function createEntry(int $schoolId, array $header, array $lines): JournalEntry
     {
+        $usableLines = collect($lines)->filter(fn ($line) => ! empty($line['chart_of_account_id'])
+            && ((int) ($line['debit'] ?? 0) > 0 || (int) ($line['credit'] ?? 0) > 0)
+        )->values();
+        $accountIds = $usableLines->pluck('chart_of_account_id')->map(fn ($id) => (int) $id)->unique();
+        abort_unless($accountIds->count() === ChartOfAccount::where('school_id', $schoolId)->whereIn('id', $accountIds)->count(), 422, 'Semua akun jurnal harus berasal dari sekolah aktif.');
+        abort_if($usableLines->contains(fn ($line) => (int) ($line['debit'] ?? 0) < 0 || (int) ($line['credit'] ?? 0) < 0), 422, 'Nilai debit/kredit tidak boleh negatif.');
+
         return DB::transaction(function () use ($schoolId, $header, $lines) {
             $entry = JournalEntry::create(array_merge($header, [
                 'school_id' => $schoolId,
@@ -65,6 +72,7 @@ class AccountingService
                 if (empty($line['chart_of_account_id']) || ((int) ($line['debit'] ?? 0) === 0 && (int) ($line['credit'] ?? 0) === 0)) {
                     continue;
                 }
+                abort_if((int) ($line['debit'] ?? 0) > 0 && (int) ($line['credit'] ?? 0) > 0, 422, 'Satu line tidak boleh memiliki debit dan kredit sekaligus.');
                 JournalEntryLine::create([
                     'school_id' => $schoolId,
                     'journal_entry_id' => $entry->id,
@@ -81,18 +89,23 @@ class AccountingService
 
     public function post(JournalEntry $entry): void
     {
-        abort_if($entry->status === 'posted', 422, 'Jurnal sudah diposting.');
+        DB::transaction(function () use ($entry) {
+            $locked = JournalEntry::where('school_id', $entry->school_id)
+                ->whereKey($entry->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+            abort_if($locked->status === 'posted', 422, 'Jurnal sudah diposting.');
 
-        $debit = (int) $entry->lines()->sum('debit');
-        $credit = (int) $entry->lines()->sum('credit');
+            $debit = (int) $locked->lines()->sum('debit');
+            $credit = (int) $locked->lines()->sum('credit');
+            abort_if($debit === 0 || $debit !== $credit, 422, 'Jurnal tidak seimbang (debit ≠ kredit).');
 
-        abort_if($debit === 0 || $debit !== $credit, 422, 'Jurnal tidak seimbang (debit ≠ kredit).');
-
-        $entry->update([
-            'status' => 'posted',
-            'posted_by' => auth()->id(),
-            'posted_at' => now(),
-        ]);
+            $locked->update([
+                'status' => 'posted',
+                'posted_by' => auth()->id(),
+                'posted_at' => now(),
+            ]);
+        });
     }
 
     public function trialBalance(int $schoolId, ?string $from = null, ?string $to = null): Collection
@@ -169,7 +182,7 @@ class AccountingService
     /** Auto-post a journal entry for a fee payment (Debit Kas/Bank, Credit Pendapatan). */
     public function postFeePayment(int $schoolId, int $amountCents, string $method, ?string $reference = null, ?string $date = null): void
     {
-        if ($amountCents <= 0) {
+        if ($amountCents <= 0 || ($reference && JournalEntry::where('school_id', $schoolId)->where('reference_no', $reference)->exists())) {
             return;
         }
 
@@ -196,7 +209,7 @@ class AccountingService
     /** Auto-post a journal entry for a refund (Debit Pendapatan, Credit Kas). */
     public function postRefund(int $schoolId, int $amountCents, ?string $reference = null): void
     {
-        if ($amountCents <= 0) {
+        if ($amountCents <= 0 || ($reference && JournalEntry::where('school_id', $schoolId)->where('reference_no', $reference)->exists())) {
             return;
         }
 

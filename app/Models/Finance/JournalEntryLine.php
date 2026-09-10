@@ -3,10 +3,13 @@
 namespace App\Models\Finance;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class JournalEntryLine extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'journal_entry_lines';
 
     protected $fillable = [
@@ -14,7 +17,7 @@ class JournalEntryLine extends SchoolModel
     ];
 
     protected $casts = [
-        'debit'  => 'integer',
+        'debit' => 'integer',
         'credit' => 'integer',
     ];
 

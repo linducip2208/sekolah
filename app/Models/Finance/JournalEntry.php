@@ -3,12 +3,15 @@
 namespace App\Models\Finance;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class JournalEntry extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'journal_entries';
 
     protected $fillable = [
@@ -18,7 +21,7 @@ class JournalEntry extends SchoolModel
 
     protected $casts = [
         'entry_date' => 'date',
-        'posted_at'  => 'datetime',
+        'posted_at' => 'datetime',
     ];
 
     public function lines(): HasMany

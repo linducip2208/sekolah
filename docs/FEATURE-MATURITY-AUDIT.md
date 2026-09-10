@@ -32,7 +32,7 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 | Ekstrakurikuler | 2 | 3 | Program, registration, attendance and achievement paths exist | Student profile, certificates | Existing CRUD/workflow tests | 3/5 |
 | Finance/SPP | 3 | 4 | Invoice lifecycle, payment, reminders, refund and reconciliation paths | Payment → Invoice → Accounting → Notification | Finance and payment integration tests | 4/5 |
 | Payment | 3 | 4 | Provider abstraction, encrypted secrets, idempotency, signature verification, replay fingerprint, row lock | Payment → Fee Payment → Invoice | Invalid signature + duplicate callback tests | 4/5 |
-| Accounting | 3 | 4 | COA, journal, posting hooks, refund posting and source references | Finance, payroll, procurement, wallet | Accounting and integration tests; closing-period depth remains | 4/5 |
+| Accounting | 3 | 4 | COA, scoped double-entry lines, row-locked posting, idempotent automatic references, refund posting, source references, and audit logging | Finance, payroll, procurement, wallet | 7 accounting tests / 21 assertions; closing-period depth remains | 4/5 |
 | RKAS/Budget | 2 | 3 | Budget, allocation and realization paths exist | Finance/reporting | Regression coverage needs expansion | 3/5 |
 | HR & Payroll | 3 | 4 | Payroll inputs, BPJS/PPh21, payslip, KPI and expiry paths | Payroll → Accounting → Notification | Payroll/tax tests | 4/5 |
 | Procurement | 2 | 4 | Request/approval/order/partial receipt lifecycle, scoped budget/supplier references, row-locked transitions, quantity bounds, and audit logging | Procurement → Inventory/Asset → Accounting | 2 workflow tests / 8 assertions; inventory receiving integration remains configuration-dependent | 4/5 |
