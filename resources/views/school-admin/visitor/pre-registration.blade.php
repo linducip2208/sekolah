@@ -11,7 +11,7 @@
     </div>
     <div class="flex items-center gap-3">
         <a href="{{ route('admin.visitor.pre-registration.export') }}" class="btn-elite-ghost text-xs">Ekspor CSV</a>
-        <a href="{{ route('visitor.register') }}" class="btn-elite text-xs" target="_blank">Form Publik ↗</a>
+        <a href="{{ route('visitor.register', ['school' => auth()->user()->school?->subdomain]) }}" class="btn-elite text-xs" target="_blank">Form Publik ↗</a>
     </div>
 </div>
 

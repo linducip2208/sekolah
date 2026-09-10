@@ -8,7 +8,7 @@ class CanteenCategory extends SchoolModel
 {
     protected $table = 'canteen_categories';
 
-    protected $fillable = ['school_id','name','icon','healthy_tag'];
+    protected $fillable = ['school_id', 'name', 'icon', 'healthy_tag'];
 
     protected $casts = ['healthy_tag' => 'boolean'];
 }

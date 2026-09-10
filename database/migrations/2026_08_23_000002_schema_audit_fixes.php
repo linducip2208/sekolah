@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -53,13 +54,13 @@ return new class extends Migration
     public function up(): void
     {
         foreach ($this->addSoftDeletes as $table) {
-            if (Schema::hasTable($table) && !Schema::hasColumn($table, 'deleted_at')) {
+            if (Schema::hasTable($table) && ! Schema::hasColumn($table, 'deleted_at')) {
                 Schema::table($table, fn (Blueprint $t) => $t->softDeletes());
             }
         }
 
         foreach ($this->addSchoolId as $table => $cfg) {
-            if (!Schema::hasTable($table) || Schema::hasColumn($table, 'school_id')) {
+            if (! Schema::hasTable($table) || Schema::hasColumn($table, 'school_id')) {
                 continue;
             }
             $after = is_array($cfg) ? $cfg[0] : null;
@@ -76,7 +77,7 @@ return new class extends Migration
         if (Schema::hasTable('hostel_rooms') && Schema::hasColumn('hostel_rooms', 'school_id')) {
             DB::statement(
                 'UPDATE hostel_rooms hr JOIN hostels h ON h.id = hr.hostel_id '
-                . 'SET hr.school_id = h.school_id WHERE hr.school_id IS NULL'
+                .'SET hr.school_id = h.school_id WHERE hr.school_id IS NULL'
             );
         }
         // Backfill school_id untuk survey_answers dari surveys induk.
@@ -84,7 +85,7 @@ return new class extends Migration
             && Schema::hasTable('surveys') && Schema::hasColumn('surveys', 'school_id')) {
             DB::statement(
                 'UPDATE survey_answers sa JOIN surveys s ON s.id = sa.survey_id '
-                . 'SET sa.school_id = s.school_id WHERE sa.school_id IS NULL'
+                .'SET sa.school_id = s.school_id WHERE sa.school_id IS NULL'
             );
         }
         // Backfill school_id untuk job_applications dari job_listings.
@@ -92,12 +93,12 @@ return new class extends Migration
             && Schema::hasTable('job_listings') && Schema::hasColumn('job_listings', 'school_id')) {
             DB::statement(
                 'UPDATE job_applications ja JOIN job_listings jl ON jl.id = ja.job_listing_id '
-                . 'SET ja.school_id = jl.school_id WHERE ja.school_id IS NULL'
+                .'SET ja.school_id = jl.school_id WHERE ja.school_id IS NULL'
             );
         }
 
         // Tabel tenant_usages — model App\Models\Saas\TenantUsage sudah ada.
-        if (!Schema::hasTable('tenant_usages')) {
+        if (! Schema::hasTable('tenant_usages')) {
             Schema::create('tenant_usages', function (Blueprint $t) {
                 $t->id();
                 $t->foreignId('school_id')->constrained()->cascadeOnDelete();
@@ -128,10 +129,13 @@ return new class extends Migration
             if (Schema::hasTable($table) && Schema::hasColumn($table, 'school_id')) {
                 try {
                     Schema::table($table, function (Blueprint $t) {
-                        try { $t->dropForeign(['school_id']); } catch (\Throwable) {}
+                        try {
+                            $t->dropForeign(['school_id']);
+                        } catch (Throwable) {
+                        }
                         $t->dropColumn('school_id');
                     });
-                } catch (\Throwable) {
+                } catch (Throwable) {
                     // rollback best-effort
                 }
             }

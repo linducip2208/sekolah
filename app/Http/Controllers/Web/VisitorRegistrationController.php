@@ -4,83 +4,87 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Academic\Staff;
-use App\Models\Visitor\VisitorLog;
-use App\Models\Visitor\VisitorQrSession;
-use App\Services\Communication\WhatsAppNotificationService;
+use App\Models\School;
+use App\Services\Visitor\VisitorService;
+use chillerlan\QRCode\Output\QRGdImagePNG;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class VisitorRegistrationController extends Controller
 {
+    public function __construct(private readonly VisitorService $service) {}
+
     public function showForm(): View
     {
-        $staff = Staff::with('user:id,name')->orderBy('id')->get();
+        $schoolId = $this->schoolId(request());
+        abort_unless($schoolId, 404, 'Sekolah tujuan tidak ditemukan. Gunakan tautan pendaftaran dari sekolah Anda.');
+
+        $staff = Staff::withoutGlobalScopes()->where('school_id', $schoolId)
+            ->with('user:id,name')->orderBy('id')->get();
+
         return view('visitor.register', compact('staff'));
     }
 
     public function submit(Request $request): View|RedirectResponse
     {
         $validated = $request->validate([
-            'visitor_name'  => 'required|string|max:200',
-            'phone'         => 'required|string|max:30',
-            'purpose'       => 'required|string|max:200',
-            'host_staff_id' => 'nullable|exists:staff,id',
+            'visitor_name' => 'required|string|max:200',
+            'phone' => 'required|string|max:30',
+            'purpose' => 'required|string|max:200',
+            'host_staff_id' => 'required|integer|exists:staff,id',
             'expected_arrival' => 'required|date',
             'vehicle_plate' => 'nullable|string|max:20',
         ]);
 
-        $schoolId = Staff::find($validated['host_staff_id'])?->school_id;
-
-        if (!$schoolId) {
-            $schoolId = \App\Models\School::first()?->id ?? 1;
-        }
-
-        $qrToken = bin2hex(random_bytes(32));
-
-        $visitor = VisitorLog::create([
-            'school_id'        => $schoolId,
-            'visitor_name'     => $validated['visitor_name'],
-            'phone'            => $validated['phone'],
-            'purpose'          => $validated['purpose'],
-            'host_staff_id'    => $validated['host_staff_id'],
-            'expected_arrival' => $validated['expected_arrival'],
-            'vehicle_plate'    => $validated['vehicle_plate'] ?? null,
-            'pre_registered'   => true,
-            'status'           => 'pending',
-            'qr_code'          => $qrToken,
-        ]);
-
-        VisitorQrSession::create([
-            'visitor_log_id' => $visitor->id,
-            'qr_token'       => $qrToken,
-            'issued_at'      => now(),
-            'expires_at'     => now()->addHours(24),
-        ]);
+        $hostStaff = Staff::withoutGlobalScopes()->with('user')->findOrFail($validated['host_staff_id']);
+        $schoolId = $this->schoolId($request);
+        abort_unless($schoolId && (int) $hostStaff->school_id === (int) $schoolId, 422, 'Sekolah tujuan tidak valid.');
 
         try {
-            $hostStaff = Staff::with('user')->find($validated['host_staff_id']);
-            $wa = app(WhatsAppNotificationService::class);
-
-            $wa->send($validated['phone'], "✅ *Pendaftaran Kunjungan*\n\nHalo {$validated['visitor_name']}, kunjungan Anda ke sekolah telah terdaftar.\n\n📅 Tanggal: " . date('d M Y H:i', strtotime($validated['expected_arrival'])) . "\n🎯 Tujuan: {$validated['purpose']}\n\nQR Code Anda akan digunakan saat check-in di gerbang.", $schoolId);
-
-            if ($hostStaff?->whatsapp_phone) {
-                $wa->send($hostStaff->whatsapp_phone, "🔔 *Tamu Baru Terdaftar*\n\n{$validated['visitor_name']} akan berkunjung pada " . date('d M Y H:i', strtotime($validated['expected_arrival'])) . "\nTujuan: {$validated['purpose']}\nNo HP: {$validated['phone']}", $schoolId);
-            }
-        } catch (\Throwable $e) {
+            $visit = $this->service->register((int) $schoolId, [
+                'name' => $validated['visitor_name'],
+                'phone' => $validated['phone'],
+                'purpose' => $validated['purpose'],
+                'host_user_id' => $hostStaff->user_id,
+                'expected_arrival' => $validated['expected_arrival'],
+                'notes' => $validated['vehicle_plate'] ? 'Plat kendaraan: '.$validated['vehicle_plate'] : null,
+            ], null, true);
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['visitor_name' => $e->getMessage()])->withInput();
         }
 
-        $qrDataUrl = $this->generateQrDataUri($qrToken);
-
         return view('visitor.register-success', [
-            'visitor'  => $visitor,
-            'qrDataUrl' => $qrDataUrl,
+            'visit' => $visit,
+            'qrDataUrl' => $this->generateQrDataUri((string) $visit->qr_token),
         ]);
     }
 
     private function generateQrDataUri(string $token): string
     {
-        $data = 'https://chart.googleapis.com/chart?cht=qr&chs=250x250&chl=' . urlencode($token) . '&choe=UTF-8';
-        return $data;
+        $qrcode = new QRCode(new QROptions([
+            'outputInterface' => QRGdImagePNG::class,
+            'scale' => 5,
+            'margin' => 2,
+        ]));
+
+        return 'data:image/png;base64,'.base64_encode($qrcode->render($token));
+    }
+
+    private function schoolId(Request $request): ?int
+    {
+        if (app()->bound('current_school') && app('current_school')) {
+            return (int) app('current_school')->id;
+        }
+
+        $slug = $request->query('school', $request->input('school'));
+        if (! filled($slug)) {
+            return null;
+        }
+
+        return School::query()->where('subdomain', (string) $slug)
+            ->where('is_active', true)->value('id');
     }
 }

@@ -1,49 +1,28 @@
 # Module 33 — Visitor Management
 
-## Depends On
-Module 02 (Auth)
+## Status
 
-## What to Build
-Resepsionis log tamu masuk/keluar, scan KTP, auto-print badge, notify yang dituju, riwayat kunjungan, panic button.
+✅ COMPLETE untuk canonical registration, blacklist, pre-registration, approval, QR/badge, check-in, check-out, active visitor list, tenant isolation, dan audit trail.
 
-## Database Schema
+## Flow
 
-```php
-Schema::create('visitor_logs', function (Blueprint $t) {
-    $t->id();
-    $t->foreignId('school_id')->constrained()->cascadeOnDelete();
-    $t->string('visitor_name');
-    $t->string('id_number')->nullable();              // KTP/SIM
-    $t->string('phone')->nullable();
-    $t->string('photo_path')->nullable();
-    $t->string('purpose');
-    $t->foreignId('host_user_id')->nullable()->constrained('users');
-    $t->string('badge_no', 20)->nullable();
-    $t->timestamp('checked_in_at');
-    $t->timestamp('checked_out_at')->nullable();
-    $t->foreignId('logged_by')->constrained('users');
-    $t->json('items_carried')->nullable();
-    $t->boolean('is_blacklisted')->default(false);
-    $t->text('note')->nullable();
-    $t->timestamps();
-    $t->index(['school_id', 'checked_in_at']);
-});
+`Visitor register/pre-register → identity and blacklist check → select same-school host → optional approval → QR/badge → security check-in → host notification integration point → visit → check-out → badge returned → audit log`.
 
-Schema::create('visitor_blacklist', function (Blueprint $t) {
-    $t->id();
-    $t->foreignId('school_id')->constrained()->cascadeOnDelete();
-    $t->string('id_number')->nullable();
-    $t->string('full_name');
-    $t->text('reason');
-    $t->foreignId('added_by')->constrained('users');
-    $t->timestamps();
-});
-```
+Public registration must resolve an active school by subdomain or `school` slug. It never uses a first-school or ID-1 fallback.
 
-## Acceptance Criteria
-- [ ] Resepsionis input cepat dengan foto KTP (camera)
-- [ ] Auto-notify host user (FCM push)
-- [ ] Print badge dengan QR
-- [ ] Auto-check-out saat scan keluar
-- [ ] Blacklist alert saat KTP match
-- [ ] Daily report kunjungan
+## Data model
+
+Legacy `visitor_logs`, `visitor_blacklist`, dan QR session tetap dipertahankan. Canonical enterprise tables: `visitors`, `visitor_visits`, `visitor_blacklists`, `visitor_badges`, dan `visitor_audit_logs`.
+
+## API and routes
+
+- `GET/POST /kunjungan` public pre-registration;
+- `GET /api/v1/visitors`;
+- `GET /api/v1/visitors/active`;
+- `POST /api/v1/visitors/check-in`;
+- `POST /api/v1/visitors/pre-register`;
+- `POST /api/v1/visitors/{id}/approve`;
+- `POST /api/v1/visitors/{id}/check-out`;
+- `POST /api/v1/visitor/scan` QR scan compatibility path.
+
+Actions use Sanctum plus `visitor.view`/`visitor.manage`. Every canonical mutation records actor, school, event, IP, user agent, dan metadata. Camera upload, notification provider, dan physical badge printer remain deployment integrations.

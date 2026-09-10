@@ -5,12 +5,13 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
             // Attendance
@@ -76,6 +77,8 @@ class RolePermissionSeeder extends Seeder
             'dapodik.sync',
             // Visitor (Module 33)
             'visitor.view', 'visitor.manage',
+            // Cashless wallet settlement and Dapodik operations
+            'canteen.refund', 'canteen.settlement',
             // Inventory (Module 34)
             'inventory.view', 'inventory.manage',
             // Live Class (Module 35)
@@ -112,94 +115,97 @@ class RolePermissionSeeder extends Seeder
 
         $roles = [
             'super_admin' => ['saas.manage', 'school.manage', 'student.manage', 'staff.manage',
-                              'report.view', 'fee.manage', 'payroll.manage'],
+                'report.view', 'fee.manage', 'payroll.manage'],
 
-            'admin'       => ['school.manage', 'student.manage', 'student.view', 'staff.manage',
-                              'staff.view', 'attendance.view', 'attendance.manage', 'timetable.manage',
-                              'timetable.view', 'classroom.manage', 'classroom.view', 'exam.manage',
-                              'exam.view', 'marks.manage', 'marks.view', 'fee.manage', 'fee.view',
-                              'fee.payment', 'payroll.manage', 'payroll.view', 'library.manage',
-                              'library.view', 'hostel.manage', 'hostel.view', 'transport.manage',
-                              'transport.view', 'notice.manage', 'notice.view', 'admission.manage',
-                              'admission.view', 'report.view', 'chat.use',
-                              // Phase 8-11
-                              'ppdb.view', 'ppdb.manage', 'ppdb.review',
-                              'transport.tracking.view', 'gate.manage',
-                              'medical.view', 'medical.manage',
-                              'counseling.view', 'counseling.manage',
-                              'discipline.view', 'discipline.manage',
-                              'lesson_plan.view', 'lesson_plan.approve',
-                              'canteen.view', 'canteen.manage',
-                              'religious.view', 'religious.manage',
-                              'donation.view', 'donation.manage',
-                              'alumni.view', 'alumni.manage',
-                              'ai.use', 'ai.manage',
-                              'dapodik.sync',
-                              'visitor.view', 'visitor.manage',
-                              'inventory.view', 'inventory.manage',
-                              'liveclass.view', 'liveclass.manage',
-                              'question_bank.view', 'question_bank.manage',
-                              'achievement.view', 'achievement.manage',
-                              'scholarship.view', 'scholarship.manage',
-                              'career.view', 'career.manage',
-                              'curriculum.view', 'curriculum.manage',
-                              'event.view', 'event.manage',
-                              'daily_report.view', 'daily_report.manage',
-                              'ekskul.view', 'ekskul.manage',
-                              'analytics.view',
-                              'branding.manage', 'payment.providers.manage'],
+            'admin' => ['school.manage', 'student.manage', 'student.view', 'staff.manage',
+                'staff.view', 'attendance.view', 'attendance.manage', 'timetable.manage',
+                'timetable.view', 'classroom.manage', 'classroom.view', 'exam.manage',
+                'exam.view', 'marks.manage', 'marks.view', 'fee.manage', 'fee.view',
+                'fee.payment', 'payroll.manage', 'payroll.view', 'library.manage',
+                'library.view', 'hostel.manage', 'hostel.view', 'transport.manage',
+                'transport.view', 'notice.manage', 'notice.view', 'admission.manage',
+                'admission.view', 'report.view', 'chat.use',
+                // Phase 8-11
+                'ppdb.view', 'ppdb.manage', 'ppdb.review',
+                'transport.tracking.view', 'gate.manage',
+                'medical.view', 'medical.manage',
+                'counseling.view', 'counseling.manage',
+                'discipline.view', 'discipline.manage',
+                'lesson_plan.view', 'lesson_plan.approve',
+                'canteen.view', 'canteen.manage',
+                'religious.view', 'religious.manage',
+                'donation.view', 'donation.manage',
+                'alumni.view', 'alumni.manage',
+                'ai.use', 'ai.manage',
+                'dapodik.sync',
+                'visitor.view', 'visitor.manage',
+                'inventory.view', 'inventory.manage',
+                'liveclass.view', 'liveclass.manage',
+                'question_bank.view', 'question_bank.manage',
+                'achievement.view', 'achievement.manage',
+                'scholarship.view', 'scholarship.manage',
+                'career.view', 'career.manage',
+                'curriculum.view', 'curriculum.manage',
+                'event.view', 'event.manage',
+                'daily_report.view', 'daily_report.manage',
+                'ekskul.view', 'ekskul.manage',
+                'analytics.view',
+                'branding.manage', 'payment.providers.manage'],
 
-            'teacher'     => ['attendance.manage', 'attendance.view', 'timetable.view',
-                              'classroom.manage', 'classroom.view', 'exam.manage', 'exam.view',
-                              'marks.manage', 'marks.view', 'notice.view', 'student.view',
-                              'library.view', 'chat.use', 'report.view',
-                              'lesson_plan.view', 'lesson_plan.manage', 'discipline.manage',
-                              'achievement.manage', 'liveclass.view', 'liveclass.manage',
-                              'question_bank.view', 'question_bank.manage', 'curriculum.view',
-                              'ai.use', 'religious.manage', 'ekskul.manage'],
+            'teacher' => ['attendance.manage', 'attendance.view', 'timetable.view',
+                'classroom.manage', 'classroom.view', 'exam.manage', 'exam.view',
+                'marks.manage', 'marks.view', 'notice.view', 'student.view',
+                'library.view', 'chat.use', 'report.view',
+                'lesson_plan.view', 'lesson_plan.manage', 'discipline.manage',
+                'achievement.manage', 'liveclass.view', 'liveclass.manage',
+                'question_bank.view', 'question_bank.manage', 'curriculum.view',
+                'ai.use', 'religious.manage', 'ekskul.manage'],
 
-            'student'     => ['attendance.view', 'timetable.view', 'classroom.view',
-                              'exam.attempt', 'exam.view', 'marks.view', 'fee.view',
-                              'library.view', 'notice.view', 'chat.use',
-                              'scholarship.apply', 'achievement.view', 'event.view',
-                              'canteen.view', 'liveclass.view', 'ai.use'],
+            'student' => ['attendance.view', 'timetable.view', 'classroom.view',
+                'exam.attempt', 'exam.view', 'marks.view', 'fee.view',
+                'library.view', 'notice.view', 'chat.use',
+                'scholarship.apply', 'achievement.view', 'event.view',
+                'canteen.view', 'liveclass.view', 'ai.use'],
 
-            'parent'      => ['attendance.view', 'marks.view', 'fee.view',
-                              'notice.view', 'chat.use',
-                              'transport.tracking.view', 'medical.view',
-                              'achievement.view', 'daily_report.view',
-                              'donation.view', 'event.view', 'ppdb.view'],
+            'parent' => ['attendance.view', 'marks.view', 'fee.view',
+                'notice.view', 'chat.use',
+                'transport.tracking.view', 'medical.view',
+                'achievement.view', 'daily_report.view',
+                'donation.view', 'event.view', 'ppdb.view', 'canteen.view'],
 
-            'accountant'  => ['fee.manage', 'fee.view', 'fee.payment', 'payroll.manage',
-                              'payroll.view', 'report.view',
-                              'donation.manage', 'scholarship.view', 'scholarship.manage',
-                              'payment.providers.manage', 'analytics.view'],
+            'accountant' => ['fee.manage', 'fee.view', 'fee.payment', 'payroll.manage',
+                'payroll.view', 'report.view',
+                'donation.manage', 'scholarship.view', 'scholarship.manage',
+                'payment.providers.manage', 'analytics.view'],
 
-            'librarian'   => ['library.manage', 'library.view', 'student.view'],
+            'librarian' => ['library.manage', 'library.view', 'student.view'],
 
             'receptionist' => ['admission.manage', 'admission.view', 'student.view',
-                               'notice.view', 'chat.use',
-                               'visitor.view', 'visitor.manage',
-                               'ppdb.view', 'ppdb.manage'],
+                'notice.view', 'chat.use',
+                'visitor.view', 'visitor.manage',
+                'ppdb.view', 'ppdb.manage'],
 
             // ===== New roles for Phase 8-11 =====
-            'nurse'       => ['medical.view', 'medical.manage', 'student.view'],
-            'counselor'   => ['counseling.view', 'counseling.manage', 'discipline.view',
-                              'discipline.manage', 'student.view', 'analytics.view'],
+            'nurse' => ['medical.view', 'medical.manage', 'student.view'],
+            'counselor' => ['counseling.view', 'counseling.manage', 'discipline.view',
+                'discipline.manage', 'student.view', 'analytics.view'],
             'foundation_admin' => ['foundation.view'],
 
             // ===== Enterprise roles (Role expansion) =====
-            'principal'     => ['school.manage', 'student.view', 'staff.view', 'attendance.view',
-                                'marks.view', 'fee.view', 'report.view', 'analytics.view',
-                                'notice.view', 'notice.manage', 'chat.use', 'curriculum.view',
-                                'lesson_plan.view', 'lesson_plan.approve', 'medical.view'],
-            'hr'            => ['staff.view', 'staff.manage', 'payroll.view', 'payroll.manage', 'report.view'],
+            'principal' => ['school.manage', 'student.view', 'staff.view', 'attendance.view',
+                'marks.view', 'fee.view', 'report.view', 'analytics.view',
+                'notice.view', 'notice.manage', 'chat.use', 'curriculum.view',
+                'lesson_plan.view', 'lesson_plan.approve', 'medical.view'],
+            'hr' => ['staff.view', 'staff.manage', 'payroll.view', 'payroll.manage', 'report.view'],
             'transport_admin' => ['transport.view', 'transport.manage', 'transport.tracking.view', 'gate.manage', 'gate.scan'],
-            'hostel_admin'  => ['hostel.view', 'hostel.manage', 'student.view'],
+            'hostel_admin' => ['hostel.view', 'hostel.manage', 'student.view'],
             'procurement_admin' => ['inventory.view', 'inventory.manage', 'report.view'],
             'homeroom_teacher' => ['attendance.view', 'attendance.manage', 'student.view', 'marks.view',
-                                   'marks.manage', 'notice.view', 'chat.use', 'classroom.view', 'report.view'],
-            'driver'        => ['gate.scan', 'transport.tracking.view'],
+                'marks.manage', 'notice.view', 'chat.use', 'classroom.view', 'report.view'],
+            'driver' => ['gate.scan', 'transport.tracking.view'],
+            'security' => ['visitor.view', 'visitor.manage', 'gate.scan'],
+            'visitor_operator' => ['visitor.view', 'visitor.manage'],
+            'school_admin' => ['school.manage', 'visitor.view', 'visitor.manage', 'canteen.view', 'canteen.manage', 'dapodik.sync'],
         ];
 
         foreach ($roles as $roleName => $rolePerms) {

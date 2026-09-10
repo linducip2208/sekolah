@@ -4,15 +4,14 @@ namespace App\Http\Controllers\Web\Admin\Phase11;
 
 use App\Http\Controllers\Controller;
 use App\Models\Analytics\StudentRiskScore;
-use App\Models\Dapodik\DapodikConfig;
 use App\Models\Inventory\Asset;
 use App\Models\Inventory\AssetCategory;
 use App\Models\Inventory\AssetLoan;
 use App\Models\Visitor\VisitorBlacklist;
 use App\Models\Visitor\VisitorLog;
+use App\Services\Dapodik\DapodikService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\View\View;
 
 class Phase11CrudController extends Controller
@@ -210,29 +209,33 @@ class Phase11CrudController extends Controller
 
     public function dapodikConfig(): View
     {
-        $config = DapodikConfig::firstOrCreate(
-            ['school_id' => $this->schoolId()],
-            ['npsn' => '']
-        );
+        $config = app(DapodikService::class)->getOrCreateConnection($this->schoolId());
         return view('school-admin.dapodik.config', ['config' => $config]);
     }
 
     public function updateDapodikConfig(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'npsn'         => 'required|string|max:15',
-            'endpoint_url' => 'nullable|url|max:500',
-            'username'     => 'nullable|string|max:200',
-            'password'     => 'nullable|string|max:200',
+            'npsn' => 'required|string|max:15',
+            'host' => 'nullable|url|max:500',
+            'connection_type' => 'nullable|string|max:30',
+            'username' => 'nullable|string|max:200',
+            'password' => 'nullable|string|max:200',
+            'token' => 'nullable|string|max:500',
+            'timeout' => 'nullable|integer|min:1|max:300',
+            'verify_ssl' => 'nullable|boolean',
         ]);
-        $config = DapodikConfig::firstOrCreate(['school_id' => $this->schoolId()], ['npsn' => $data['npsn']]);
-        $config->npsn = $data['npsn'];
-        $config->endpoint_url = $data['endpoint_url'] ?? null;
-        if (!empty($data['username'])) {
-            $config->username_encrypted = Crypt::encryptString($data['username']);
-        }
-        if (!empty($data['password'])) {
-            $config->password_encrypted = Crypt::encryptString($data['password']);
+        $config = app(DapodikService::class)->getOrCreateConnection($this->schoolId());
+        $config->fill([
+            'npsn' => $data['npsn'],
+            'host' => $data['host'] ?? null,
+            'connection_type' => $data['connection_type'] ?? $config->connection_type,
+            'timeout' => $data['timeout'] ?? $config->timeout,
+            'verify_ssl' => $data['verify_ssl'] ?? $config->verify_ssl,
+            'status' => filled($data['host'] ?? null) ? 'configured' : 'unconfigured',
+        ]);
+        foreach (['username', 'password', 'token'] as $secret) {
+            if (!empty($data[$secret])) $config->setSecret($secret, $data[$secret]);
         }
         $config->save();
 

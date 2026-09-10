@@ -59,23 +59,9 @@ class PayrollService
             $totalDeductions += $pph21;
         }
 
-        // TODO: Attendance-based deduction integration
-        // When attendance module data is available (App\Models\Academic\Attendance),
-        // calculate unpaid absences for the month and add as deduction:
-        //
-        // $absences = Attendance::where('school_id', $schoolId)
-        //     ->where('staff_id', $staffId)
-        //     ->whereMonth('date', Carbon::parse($month)->month)
-        //     ->whereYear('date', Carbon::parse($month)->year)
-        //     ->where('status', 'absent')
-        //     ->count();
-        //
-        // $dailyRate = $basicSalary / 22; // assume 22 working days
-        // $absenceDeduction = (int) ($dailyRate * $absences);
-        // if ($absenceDeduction > 0) {
-        //     $deductions[] = ['name' => 'Potongan Absensi', 'amount' => $absenceDeduction];
-        //     $totalDeductions += $absenceDeduction;
-        // }
+        // The academic attendance table is student-scoped. Do not infer
+        // payroll deductions from it; staff attendance must be recorded in
+        // the HR attendance source before a school enables that policy.
 
         return SalarySlip::updateOrCreate(
             ['staff_id' => $staffId, 'month' => $month],

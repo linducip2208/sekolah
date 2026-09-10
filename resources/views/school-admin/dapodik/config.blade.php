@@ -16,17 +16,22 @@
 <input name="npsn" required maxlength="15" value="{{ old('npsn', $config->npsn) }}" class="w-full border-2 border-rule px-3 py-2 font-mono text-sm">
 </div>
 <div>
-<label class="elite-kicker text-[.6rem] block mb-1">Endpoint URL</label>
-<input type="url" name="endpoint_url" value="{{ old('endpoint_url', $config->endpoint_url) }}" maxlength="500" class="w-full border-2 border-rule px-3 py-2 font-mono text-sm" placeholder="https://api.dapodik.kemdikbud.go.id">
+<label class="elite-kicker text-[.6rem] block mb-1">Host / Base URL</label>
+<input type="url" name="host" value="{{ old('host', $config->host) }}" maxlength="500" class="w-full border-2 border-rule px-3 py-2 font-mono text-sm" placeholder="Masukkan endpoint resmi sekolah">
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="elite-kicker text-[.6rem] block mb-1">Tipe koneksi</label><input name="connection_type" value="{{ old('connection_type', $config->connection_type ?? 'rest') }}" class="w-full border-2 border-rule px-3 py-2 font-mono text-xs"></div>
+<div><label class="elite-kicker text-[.6rem] block mb-1">Timeout (detik)</label><input type="number" min="1" max="300" name="timeout" value="{{ old('timeout', $config->timeout ?? 30) }}" class="w-full border-2 border-rule px-3 py-2 font-mono text-xs"></div>
 </div>
 <div class="pt-3 border-t border-rule">
 <p class="font-serif text-xs text-gray-500 italic mb-3">Kosongkan kalau tidak ingin mengubah kredensial yang tersimpan.</p>
 <div class="grid grid-cols-2 gap-3">
-<div><label class="elite-kicker text-[.6rem] block mb-1">Username @if($config->username_encrypted)<span class="text-green-700">(tersimpan)</span>@endif</label>
+<div><label class="elite-kicker text-[.6rem] block mb-1">Username @if($config->hasSecret('username'))<span class="text-green-700">(tersimpan)</span>@endif</label>
 <input type="text" name="username" maxlength="200" autocomplete="off" class="w-full border-2 border-rule px-3 py-2 font-mono text-xs"></div>
-<div><label class="elite-kicker text-[.6rem] block mb-1">Password @if($config->password_encrypted)<span class="text-green-700">(tersimpan)</span>@endif</label>
+<div><label class="elite-kicker text-[.6rem] block mb-1">Password @if($config->hasSecret('password'))<span class="text-green-700">(tersimpan)</span>@endif</label>
 <input type="password" name="password" maxlength="200" autocomplete="off" class="w-full border-2 border-rule px-3 py-2 font-mono text-xs"></div>
 </div></div>
+<div><label class="elite-kicker text-[.6rem] block mb-1">Token (opsional)</label><input type="password" name="token" maxlength="500" autocomplete="off" class="w-full border-2 border-rule px-3 py-2 font-mono text-xs"></div>
 <div class="pt-3"><button class="btn-elite">Simpan Konfigurasi</button></div>
 </form>
 </div>

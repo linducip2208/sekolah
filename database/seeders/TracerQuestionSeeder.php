@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Alumni\TracerQuestion;
+use App\Models\School;
 use Illuminate\Database\Seeder;
 
 class TracerQuestionSeeder extends Seeder
@@ -20,13 +21,13 @@ class TracerQuestionSeeder extends Seeder
             ['question_text' => 'Saran dan masukan untuk pengembangan sekolah', 'question_type' => 'textarea', 'sort_order' => 8],
         ];
 
-        // We don't bind to school_id here; let admin customize per school.
-        // These serve as defaults for copy purposes.
-        foreach ($questions as $q) {
-            TracerQuestion::create(array_merge($q, [
-                'school_id'  => 1,
-                'is_active'  => true,
-            ]));
+        foreach (School::query()->pluck('id') as $schoolId) {
+            foreach ($questions as $q) {
+                TracerQuestion::updateOrCreate(
+                    ['school_id' => $schoolId, 'sort_order' => $q['sort_order']],
+                    array_merge($q, ['school_id' => $schoolId, 'is_active' => true]),
+                );
+            }
         }
     }
 }

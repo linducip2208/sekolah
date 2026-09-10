@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Analytics\AiDropoutPrediction;
 use App\Models\Analytics\StudentRiskScore;
 use App\Models\Academic\Student;
-use App\Models\Dapodik\DapodikConfig;
-use App\Models\Dapodik\DapodikSyncLog;
+use App\Models\Dapodik\DapodikSyncRun;
+use App\Services\Dapodik\DapodikService;
 use App\Models\Inventory\Asset;
 use App\Models\Inventory\AssetLoan;
 use App\Models\Inventory\MaintenanceRequest;
@@ -20,11 +20,8 @@ class Phase11WebController extends Controller
     {
         $schoolId = auth()->user()->school_id;
         return view('school-admin.dapodik.dashboard', [
-            'config' => DapodikConfig::firstOrCreate(
-                ['school_id' => $schoolId],
-                ['npsn' => '']
-            ),
-            'recentSyncs' => DapodikSyncLog::where('school_id', $schoolId)
+            'config' => app(DapodikService::class)->getOrCreateConnection($schoolId),
+            'recentRuns' => DapodikSyncRun::withoutGlobalScopes()->where('school_id', $schoolId)
                 ->orderByDesc('created_at')->limit(20)->get(),
         ]);
     }

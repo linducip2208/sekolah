@@ -406,13 +406,19 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     Route::get('/lesson-plans/coverage/{semesterId}',  [LessonPlanController::class, 'coverage']);
 
     // Module 27 — Cafeteria
-    Route::get('/canteen/menu',                        [CanteenController::class, 'menu']);
-    Route::get('/canteen/wallet/{studentId}',          [CanteenController::class, 'wallet']);
-    Route::post('/canteen/wallet/{studentId}/topup',   [CanteenController::class, 'topup']);
-    Route::post('/canteen/orders',                     [CanteenController::class, 'placeOrder']);
-    Route::get('/canteen/orders/today',                [CanteenController::class, 'ordersToday']);
-    Route::put('/canteen/orders/{id}/status',          [CanteenController::class, 'updateStatus']);
-    Route::put('/canteen/wallet/{walletId}/lock',      [CanteenController::class, 'lockWallet']);
+    Route::middleware('role_or_permission:admin|canteen.view')->group(function () {
+        Route::get('/canteen/menu',                        [CanteenController::class, 'menu']);
+        Route::get('/canteen/wallet/{studentId}',          [CanteenController::class, 'wallet']);
+        Route::post('/canteen/wallet/{studentId}/topup',   [CanteenController::class, 'topup']);
+        Route::post('/canteen/orders',                     [CanteenController::class, 'placeOrder']);
+        Route::get('/canteen/wallet/{studentId}/transactions', [CanteenController::class, 'transactions']);
+    });
+    Route::middleware('role_or_permission:admin|canteen.manage')->group(function () {
+        Route::get('/canteen/orders/today',                [CanteenController::class, 'ordersToday']);
+        Route::put('/canteen/orders/{id}/status',          [CanteenController::class, 'updateStatus']);
+        Route::put('/canteen/wallet/{walletId}/lock',      [CanteenController::class, 'lockWallet']);
+        Route::post('/canteen/orders/{id}/refund',         [CanteenController::class, 'refund']);
+    });
 
     // Module 28 — Religious / Pesantren Mode
     Route::get('/religious/config',                    [ReligiousController::class, 'config']);
@@ -535,17 +541,28 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     // ============================================================
 
     // Module 32 — Dapodik
-    Route::middleware('role:admin')->group(function () {
+    Route::middleware('role_or_permission:admin|dapodik.sync')->group(function () {
         Route::get('/admin/dapodik/config',                 [DapodikController::class, 'config']);
         Route::put('/admin/dapodik/config',                 [DapodikController::class, 'updateConfig']);
+        Route::post('/admin/dapodik/test-connection',      [DapodikController::class, 'testConnection']);
+        Route::post('/admin/dapodik/preview',              [DapodikController::class, 'preview']);
+        Route::get('/admin/dapodik/runs',                  [DapodikController::class, 'runs']);
+        Route::get('/admin/dapodik/conflicts',             [DapodikController::class, 'conflicts']);
+        Route::post('/admin/dapodik/conflicts/{id}/resolve', [DapodikController::class, 'resolveConflict']);
+        Route::post('/admin/dapodik/runs/{runId}/confirm',  [DapodikController::class, 'confirm']);
         Route::post('/admin/dapodik/import-students',       [DapodikController::class, 'importStudents']);
         Route::get('/admin/dapodik/export-students',        [DapodikController::class, 'exportStudents']);
     });
 
     // Module 33 — Visitor
-    Route::middleware('role:admin|receptionist')->group(function () {
+    Route::middleware('role_or_permission:admin|visitor.view')->group(function () {
         Route::get('/visitors',                             [VisitorController::class, 'index']);
+        Route::get('/visitors/active',                     [VisitorController::class, 'active']);
+    });
+    Route::middleware('role_or_permission:admin|visitor.manage')->group(function () {
         Route::post('/visitors/check-in',                   [VisitorController::class, 'checkIn']);
+        Route::post('/visitors/pre-register',               [VisitorController::class, 'preRegister']);
+        Route::post('/visitors/{id}/approve',               [VisitorController::class, 'approve']);
         Route::post('/visitors/{id}/check-out',             [VisitorController::class, 'checkOut']);
     });
 

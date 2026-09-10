@@ -19,7 +19,7 @@ class Student extends SchoolModel
 
     protected $fillable = [
         'user_id', 'school_id', 'class_section_id', 'status',
-        'admission_no', 'admission_date', 'enrolled_at', 'graduated_at', 'transferred_at',
+        'admission_no', 'dapodik_id', 'admission_date', 'enrolled_at', 'graduated_at', 'transferred_at',
         'date_of_birth', 'gender', 'blood_group',
         'address', 'guardian_name', 'guardian_phone', 'whatsapp_phone',
         'has_hostel', 'has_transport',

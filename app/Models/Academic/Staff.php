@@ -14,7 +14,7 @@ class Staff extends SchoolModel
     protected $table = 'staffs';
 
     protected $fillable = [
-        'user_id', 'school_id', 'employee_id', 'department', 'designation', 'joining_date', 'basic_salary', 'whatsapp_phone',
+        'user_id', 'school_id', 'employee_id', 'dapodik_id', 'department', 'designation', 'joining_date', 'basic_salary', 'whatsapp_phone',
     ];
 
     protected $casts = [

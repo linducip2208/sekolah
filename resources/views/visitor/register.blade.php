@@ -21,7 +21,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('visitor.register.submit') }}" class="space-y-5">
+        <form method="POST" action="{{ route('visitor.register.submit', request()->query()) }}" class="space-y-5">
             @csrf
             <div>
                 <label class="block text-sm font-semibold text-stone-700 mb-1.5">Nama Lengkap *</label>

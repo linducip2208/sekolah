@@ -13,7 +13,7 @@ class VisitorQrSession extends SchoolModel
     ];
 
     protected $casts = [
-        'issued_at'  => 'datetime',
+        'issued_at' => 'datetime',
         'expires_at' => 'datetime',
         'scanned_at' => 'datetime',
     ];

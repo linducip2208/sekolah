@@ -38,8 +38,9 @@ class MissingModulesDemoSeeder extends Seeder
     public function run(): void
     {
         $school = School::where('subdomain', 'sman1demo')->first();
-        if (!$school) {
+        if (! $school) {
             $this->command->warn('Demo school sman1demo not found — run DemoSchoolSeeder first.');
+
             return;
         }
 
@@ -47,10 +48,10 @@ class MissingModulesDemoSeeder extends Seeder
             ->whereHas('roles', fn ($q) => $q->where('name', 'admin'))
             ->first();
 
-        $subjects   = $this->seedSubjects($school);
-        $framework  = $this->seedCurriculum($school, $subjects);
+        $subjects = $this->seedSubjects($school);
+        $framework = $this->seedCurriculum($school, $subjects);
         $categories = $this->seedQuestionBank($school, $subjects, $admin, $framework);
-        $lessons    = $this->seedLessons($school, $subjects);
+        $lessons = $this->seedLessons($school, $subjects);
         $this->seedAssignments($school, $lessons);
         $this->seedExtracurriculars($school, $admin);
         $this->seedDailyReports($school);
@@ -62,7 +63,9 @@ class MissingModulesDemoSeeder extends Seeder
     private function seedSubjects(School $school): array
     {
         $medium = DB::table('mediums')->where('school_id', $school->id)->first();
-        if (!$medium) return [];
+        if (! $medium) {
+            return [];
+        }
 
         $defs = [
             ['Matematika', 'MTK', 'theory', 4],
@@ -85,13 +88,16 @@ class MissingModulesDemoSeeder extends Seeder
             );
             $ids[$code] = $s->id;
         }
-        $this->command->info('  → seeded ' . count($ids) . ' subjects');
+        $this->command->info('  → seeded '.count($ids).' subjects');
+
         return $ids;
     }
 
     private function seedCurriculum(School $school, array $subjects): ?CurriculumFramework
     {
-        if (empty($subjects)) return null;
+        if (empty($subjects)) {
+            return null;
+        }
 
         $framework = CurriculumFramework::firstOrCreate(
             ['school_id' => $school->id, 'name' => 'Kurikulum Merdeka'],
@@ -99,44 +105,51 @@ class MissingModulesDemoSeeder extends Seeder
         );
 
         $classRooms = ClassRoom::where('school_id', $school->id)->pluck('id')->all();
-        if (empty($classRooms)) return $framework;
+        if (empty($classRooms)) {
+            return $framework;
+        }
 
         $cpData = [
-            'MTK'  => ['Bilangan & Aljabar', 'Geometri & Pengukuran', 'Analisis Data & Peluang', 'Kalkulus'],
-            'BIN'  => ['Menyimak', 'Berbicara', 'Membaca', 'Menulis'],
+            'MTK' => ['Bilangan & Aljabar', 'Geometri & Pengukuran', 'Analisis Data & Peluang', 'Kalkulus'],
+            'BIN' => ['Menyimak', 'Berbicara', 'Membaca', 'Menulis'],
             'BING' => ['Listening', 'Speaking', 'Reading', 'Writing'],
-            'FIS'  => ['Kinematika', 'Dinamika', 'Termodinamika', 'Listrik & Magnet'],
-            'BIO'  => ['Keanekaragaman Hayati', 'Genetika', 'Ekologi', 'Bioteknologi'],
+            'FIS' => ['Kinematika', 'Dinamika', 'Termodinamika', 'Listrik & Magnet'],
+            'BIO' => ['Keanekaragaman Hayati', 'Genetika', 'Ekologi', 'Bioteknologi'],
         ];
 
         $count = 0;
         foreach ($cpData as $code => $cps) {
-            if (!isset($subjects[$code])) continue;
+            if (! isset($subjects[$code])) {
+                continue;
+            }
             foreach ($cps as $i => $cp) {
                 CurriculumCompetency::firstOrCreate(
                     [
-                        'school_id'                => $school->id,
-                        'curriculum_framework_id'  => $framework->id,
-                        'subject_id'               => $subjects[$code],
-                        'class_room_id'            => $classRooms[0],
-                        'code'                     => "CP-{$code}-" . ($i + 1),
+                        'school_id' => $school->id,
+                        'curriculum_framework_id' => $framework->id,
+                        'subject_id' => $subjects[$code],
+                        'class_room_id' => $classRooms[0],
+                        'code' => "CP-{$code}-".($i + 1),
                     ],
                     [
                         'description' => "Peserta didik mampu menguasai konsep {$cp} dengan pendekatan kontekstual.",
-                        'level_type'  => 'cp',
-                        'indicators'  => ["Memahami konsep dasar {$cp}", "Menerapkan {$cp} dalam pemecahan masalah", "Mengevaluasi solusi terkait {$cp}"],
+                        'level_type' => 'cp',
+                        'indicators' => ["Memahami konsep dasar {$cp}", "Menerapkan {$cp} dalam pemecahan masalah", "Mengevaluasi solusi terkait {$cp}"],
                     ],
                 );
                 $count++;
             }
         }
         $this->command->info("  → seeded curriculum: 1 framework + {$count} competencies");
+
         return $framework;
     }
 
     private function seedQuestionBank(School $school, array $subjects, ?User $admin, ?CurriculumFramework $framework): array
     {
-        if (empty($subjects) || !$admin) return [];
+        if (empty($subjects) || ! $admin) {
+            return [];
+        }
 
         $catNames = ['Pilihan Ganda Dasar', 'Pilihan Ganda HOTS', 'Essay', 'True/False'];
         $categoryIds = [];
@@ -151,11 +164,11 @@ class MissingModulesDemoSeeder extends Seeder
         }
 
         $sampleQuestions = [
-            'MTK'  => ['Hasil dari 12 × 8 adalah ...', 'Jika 2x + 5 = 17, maka nilai x adalah ...', 'Luas lingkaran dengan jari-jari 7 cm adalah ...'],
-            'BIN'  => ['Apa makna kata "introspeksi"?', 'Tentukan ide pokok paragraf berikut ...', 'Buatlah kalimat efektif dari kalimat berikut ...'],
+            'MTK' => ['Hasil dari 12 × 8 adalah ...', 'Jika 2x + 5 = 17, maka nilai x adalah ...', 'Luas lingkaran dengan jari-jari 7 cm adalah ...'],
+            'BIN' => ['Apa makna kata "introspeksi"?', 'Tentukan ide pokok paragraf berikut ...', 'Buatlah kalimat efektif dari kalimat berikut ...'],
             'BING' => ['Choose the correct form: "She ___ to school every day."', 'What is the past tense of "go"?', 'Translate: "Saya sedang belajar."'],
-            'FIS'  => ['Sebuah benda jatuh bebas dari ketinggian 80 m. Berapa waktu tempuhnya? (g=10 m/s²)', 'Rumus energi kinetik adalah ...', 'Hukum Newton II menyatakan bahwa ...'],
-            'BIO'  => ['Proses fotosintesis menghasilkan ...', 'Organel sel yang berperan dalam respirasi seluler adalah ...', 'Apa fungsi DNA?'],
+            'FIS' => ['Sebuah benda jatuh bebas dari ketinggian 80 m. Berapa waktu tempuhnya? (g=10 m/s²)', 'Rumus energi kinetik adalah ...', 'Hukum Newton II menyatakan bahwa ...'],
+            'BIO' => ['Proses fotosintesis menghasilkan ...', 'Organel sel yang berperan dalam respirasi seluler adalah ...', 'Apa fungsi DNA?'],
         ];
 
         $count = 0;
@@ -164,51 +177,56 @@ class MissingModulesDemoSeeder extends Seeder
             $subjectCats = QuestionBankCategory::where('subject_id', $sid)->pluck('id')->all();
 
             foreach ($questions as $i => $q) {
-                $type = ['mcq','mcq','essay','true_false'][$i % 4];
-                $diff = ['easy','medium','hard'][$i % 3];
-                $bloom = ['C1','C2','C3','C4','C5','C6'][$i % 6];
+                $type = ['mcq', 'mcq', 'essay', 'true_false'][$i % 4];
+                $diff = ['easy', 'medium', 'hard'][$i % 3];
+                $bloom = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'][$i % 6];
 
                 $opts = null;
                 $key = ['A'];
                 if ($type === 'mcq') {
                     $opts = ['A. 96', 'B. 100', 'C. 88', 'D. 72'];
-                    $key  = ['A'];
+                    $key = ['A'];
                 } elseif ($type === 'true_false') {
                     $opts = ['True', 'False'];
-                    $key  = ['True'];
+                    $key = ['True'];
                 } elseif ($type === 'essay') {
                     $opts = null;
-                    $key  = ['Jawaban sesuai dengan konsep yang diajarkan.'];
+                    $key = ['Jawaban sesuai dengan konsep yang diajarkan.'];
                 }
 
                 QuestionBankItem::create([
-                    'school_id'                 => $school->id,
-                    'subject_id'                => $sid,
+                    'school_id' => $school->id,
+                    'subject_id' => $sid,
                     'question_bank_category_id' => $subjectCats[$i % count($subjectCats)] ?? null,
-                    'author_id'                 => $admin->id,
-                    'question_html'             => "<p>{$q}</p>",
-                    'type'                      => $type,
-                    'options'                   => $opts,
-                    'answer_key'                => $key,
-                    'explanation_html'          => "<p>Pembahasan akan ditambahkan oleh guru.</p>",
-                    'difficulty'                => $diff,
-                    'cognitive_level'           => $bloom,
-                    'tags'                      => [$code, $diff, $bloom],
-                    'is_published'              => true,
+                    'author_id' => $admin->id,
+                    'question_html' => "<p>{$q}</p>",
+                    'type' => $type,
+                    'options' => $opts,
+                    'answer_key' => $key,
+                    'explanation_html' => '<p>Pembahasan akan ditambahkan oleh guru.</p>',
+                    'difficulty' => $diff,
+                    'cognitive_level' => $bloom,
+                    'tags' => [$code, $diff, $bloom],
+                    'is_published' => true,
                 ]);
                 $count++;
             }
         }
-        $this->command->info("  → seeded question bank: " . count($categoryIds) . " categories, {$count} items");
+        $this->command->info('  → seeded question bank: '.count($categoryIds)." categories, {$count} items");
+
         return $categoryIds;
     }
 
     private function seedLessons(School $school, array $subjects): array
     {
-        if (empty($subjects)) return [];
+        if (empty($subjects)) {
+            return [];
+        }
 
         $sections = ClassSection::where('school_id', $school->id)->limit(5)->get();
-        if ($sections->isEmpty()) return [];
+        if ($sections->isEmpty()) {
+            return [];
+        }
 
         $teachers = User::where('school_id', $school->id)
             ->whereHas('roles', fn ($q) => $q->where('name', 'teacher'))
@@ -219,43 +237,50 @@ class MissingModulesDemoSeeder extends Seeder
                 ->whereHas('roles', fn ($q) => $q->where('name', 'admin'))->first();
             $teachers = $admin ? [$admin->id] : [];
         }
-        if (empty($teachers)) return [];
+        if (empty($teachers)) {
+            return [];
+        }
 
         $ids = [];
         foreach ($sections as $section) {
             foreach ($subjects as $code => $sid) {
                 $lesson = Lesson::create([
-                    'school_id'        => $school->id,
+                    'school_id' => $school->id,
                     'class_section_id' => $section->id,
-                    'subject_id'       => $sid,
-                    'teacher_id'       => $teachers[array_rand($teachers)],
-                    'title'            => "Pelajaran {$code} — Bab Pengantar",
-                    'description'      => "Materi pengantar mata pelajaran {$code} untuk semester ini.",
+                    'subject_id' => $sid,
+                    'teacher_id' => $teachers[array_rand($teachers)],
+                    'title' => "Pelajaran {$code} — Bab Pengantar",
+                    'description' => "Materi pengantar mata pelajaran {$code} untuk semester ini.",
                 ]);
                 $ids[] = $lesson->id;
             }
         }
-        $this->command->info('  → seeded ' . count($ids) . ' lessons');
+        $this->command->info('  → seeded '.count($ids).' lessons');
+
         return $ids;
     }
 
     private function seedAssignments(School $school, array $lessons): void
     {
-        if (empty($lessons)) return;
+        if (empty($lessons)) {
+            return;
+        }
 
         $students = Student::where('school_id', $school->id)->limit(50)->pluck('id')->all();
-        if (empty($students)) return;
+        if (empty($students)) {
+            return;
+        }
 
         $count = 0;
         $subCount = 0;
         foreach (array_slice($lessons, 0, 20) as $lessonId) {
             $assignment = Assignment::create([
-                'school_id'    => $school->id,
-                'lesson_id'    => $lessonId,
-                'title'        => 'Tugas ' . fake()->numberBetween(1, 5) . ': ' . fake()->sentence(3),
+                'school_id' => $school->id,
+                'lesson_id' => $lessonId,
+                'title' => 'Tugas '.fake()->numberBetween(1, 5).': '.fake()->sentence(3),
                 'instructions' => "Kerjakan soal-soal berikut dengan rapi.\n\n1. Baca petunjuk dengan teliti.\n2. Tulis jawaban di lembar terpisah.\n3. Kumpulkan sebelum batas waktu.",
-                'due_date'     => now()->addDays(rand(3, 14)),
-                'total_marks'  => 100,
+                'due_date' => now()->addDays(rand(3, 14)),
+                'total_marks' => 100,
             ]);
             $count++;
 
@@ -263,12 +288,12 @@ class MissingModulesDemoSeeder extends Seeder
             foreach ($sampleStudents as $studentId) {
                 AssignmentSubmission::create([
                     'assignment_id' => $assignment->id,
-                    'student_id'    => $studentId,
-                    'answer'        => 'Jawaban siswa: ' . fake()->paragraph(2),
-                    'file'          => null,
-                    'is_late'       => rand(0, 9) < 2,
-                    'marks'         => rand(60, 95),
-                    'feedback'      => rand(0, 2) === 0 ? 'Bagus, pertahankan.' : null,
+                    'student_id' => $studentId,
+                    'answer' => 'Jawaban siswa: '.fake()->paragraph(2),
+                    'file' => null,
+                    'is_late' => rand(0, 9) < 2,
+                    'marks' => rand(60, 95),
+                    'feedback' => rand(0, 2) === 0 ? 'Bagus, pertahankan.' : null,
                 ]);
                 $subCount++;
             }
@@ -285,9 +310,9 @@ class MissingModulesDemoSeeder extends Seeder
             ['Robotik',       '🤖', 'Kamis 15:00–17:00', 25, 150000],
             ['Basket',        '🏀', 'Jumat 15:30–17:30', 30, 25000],
             ['Futsal',        '⚽', 'Sabtu 08:00–10:00', 30, 25000],
-            ['Tari Tradisional','💃','Senin 16:00–17:30',25, 75000],
+            ['Tari Tradisional', '💃', 'Senin 16:00–17:30', 25, 75000],
             ['Musik',         '🎸', 'Rabu 16:00–18:00',  20, 100000],
-            ['Karya Ilmiah Remaja','🔬','Kamis 14:00–16:00',30, 0],
+            ['Karya Ilmiah Remaja', '🔬', 'Kamis 14:00–16:00', 30, 0],
             ['Tahfidz',       '🕌', 'Setiap hari 16:00–17:00', 60, 0],
         ];
 
@@ -296,13 +321,13 @@ class MissingModulesDemoSeeder extends Seeder
             $e = Extracurricular::firstOrCreate(
                 ['school_id' => $school->id, 'name' => $name],
                 [
-                    'icon'          => $icon,
-                    'description'   => "Ekstrakurikuler {$name} terbuka untuk semua siswa.",
-                    'coach_id'      => $admin?->id,
-                    'schedule'      => ['days' => [explode(' ', $schedule)[0]], 'time' => substr($schedule, strpos($schedule, ' ') + 1)],
-                    'capacity'      => $cap,
+                    'icon' => $icon,
+                    'description' => "Ekstrakurikuler {$name} terbuka untuk semua siswa.",
+                    'coach_id' => $admin?->id,
+                    'schedule' => ['days' => [explode(' ', $schedule)[0]], 'time' => substr($schedule, strpos($schedule, ' ') + 1)],
+                    'capacity' => $cap,
                     'fee_per_month' => $fee,
-                    'is_active'     => true,
+                    'is_active' => true,
                 ],
             );
             $extras[] = $e->id;
@@ -310,7 +335,8 @@ class MissingModulesDemoSeeder extends Seeder
 
         $students = Student::where('school_id', $school->id)->limit(200)->pluck('id')->all();
         if (empty($students)) {
-            $this->command->info('  → seeded ' . count($extras) . ' extracurriculars (no students for memberships)');
+            $this->command->info('  → seeded '.count($extras).' extracurriculars (no students for memberships)');
+
             return;
         }
 
@@ -321,45 +347,52 @@ class MissingModulesDemoSeeder extends Seeder
             foreach ($picks as $sId) {
                 $exists = DB::table('student_extracurriculars')
                     ->where('extracurricular_id', $eId)->where('student_id', $sId)->exists();
-                if ($exists) continue;
+                if ($exists) {
+                    continue;
+                }
 
                 DB::table('student_extracurriculars')->insert([
-                    'school_id'          => $school->id,
+                    'school_id' => $school->id,
                     'extracurricular_id' => $eId,
-                    'student_id'         => $sId,
-                    'joined_at'          => now()->subMonths(rand(1, 6)),
-                    'level'              => ['beginner','intermediate','advanced'][rand(0,2)],
-                    'is_active'          => true,
-                    'created_at'         => now(),
-                    'updated_at'         => now(),
+                    'student_id' => $sId,
+                    'joined_at' => now()->subMonths(rand(1, 6)),
+                    'level' => ['beginner', 'intermediate', 'advanced'][rand(0, 2)],
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
                 $memberCount++;
             }
 
             $sessionDays = [now()->subDays(7), now()->subDays(14), now()->subDays(21)];
+            if (! $admin) {
+                continue;
+            }
             foreach ($sessionDays as $day) {
                 foreach (array_slice($picks, 0, 10) as $sId) {
                     DB::table('extracurricular_attendances')->insert([
-                        'school_id'          => $school->id,
+                        'school_id' => $school->id,
                         'extracurricular_id' => $eId,
-                        'student_id'         => $sId,
-                        'session_date'       => $day->toDateString(),
-                        'status'             => ['present','present','present','late','absent'][rand(0,4)],
-                        'marked_by'          => $admin?->id ?? 1,
-                        'created_at'         => now(),
-                        'updated_at'         => now(),
+                        'student_id' => $sId,
+                        'session_date' => $day->toDateString(),
+                        'status' => ['present', 'present', 'present', 'late', 'absent'][rand(0, 4)],
+                        'marked_by' => $admin->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ]);
                     $attCount++;
                 }
             }
         }
-        $this->command->info('  → seeded ' . count($extras) . " extracurriculars, {$memberCount} memberships, {$attCount} attendances");
+        $this->command->info('  → seeded '.count($extras)." extracurriculars, {$memberCount} memberships, {$attCount} attendances");
     }
 
     private function seedDailyReports(School $school): void
     {
         $students = Student::where('school_id', $school->id)->limit(100)->pluck('id')->all();
-        if (empty($students)) return;
+        if (empty($students)) {
+            return;
+        }
 
         $count = 0;
         $today = Carbon::today();
@@ -368,23 +401,23 @@ class MissingModulesDemoSeeder extends Seeder
                 $date = $today->copy()->subDays($d);
                 DailyReport::firstOrCreate(
                     [
-                        'school_id'   => $school->id,
-                        'student_id'  => $studentId,
+                        'school_id' => $school->id,
+                        'student_id' => $studentId,
                         'report_date' => $date,
                     ],
                     [
-                        'attendance'      => ['status' => 'present', 'time_in' => '06:55'],
-                        'subjects_today'  => [
+                        'attendance' => ['status' => 'present', 'time_in' => '06:55'],
+                        'subjects_today' => [
                             ['name' => 'Matematika', 'topic' => 'Persamaan Kuadrat'],
                             ['name' => 'Bahasa Indonesia', 'topic' => 'Teks Argumentasi'],
                         ],
-                        'homework_due'    => [['subject' => 'Matematika', 'due' => $date->copy()->addDays(2)->toDateString()]],
+                        'homework_due' => [['subject' => 'Matematika', 'due' => $date->copy()->addDays(2)->toDateString()]],
                         'canteen_summary' => ['spent' => rand(10000, 25000), 'items' => rand(1, 3)],
-                        'clinic_visit'    => null,
+                        'clinic_visit' => null,
                         'discipline_events' => [],
-                        'wellness_checkin'  => ['mood' => ['happy','neutral','tired'][rand(0,2)]],
-                        'teacher_notes'     => ['note' => rand(0,1) ? 'Aktif di kelas hari ini.' : 'Perlu lebih konsentrasi.'],
-                        'sent_at'           => $date->copy()->setTime(16, 30),
+                        'wellness_checkin' => ['mood' => ['happy', 'neutral', 'tired'][rand(0, 2)]],
+                        'teacher_notes' => ['note' => rand(0, 1) ? 'Aktif di kelas hari ini.' : 'Perlu lebih konsentrasi.'],
+                        'sent_at' => $date->copy()->setTime(16, 30),
                     ],
                 );
                 $count++;
@@ -396,29 +429,33 @@ class MissingModulesDemoSeeder extends Seeder
     private function seedCareerAssessments(School $school): void
     {
         $students = Student::where('school_id', $school->id)->limit(50)->pluck('id')->all();
-        if (empty($students)) return;
+        if (empty($students)) {
+            return;
+        }
 
         $tests = [
-            'riasec' => ['Realistic','Investigative','Artistic','Social','Enterprising','Conventional'],
-            'mbti'   => ['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ISTJ','ISFJ'],
-            'minat'  => ['Sains','Sosial','Bahasa','Seni','Teknik','Bisnis'],
+            'riasec' => ['Realistic', 'Investigative', 'Artistic', 'Social', 'Enterprising', 'Conventional'],
+            'mbti' => ['INTJ', 'INTP', 'ENTJ', 'ENTP', 'INFJ', 'INFP', 'ISTJ', 'ISFJ'],
+            'minat' => ['Sains', 'Sosial', 'Bahasa', 'Seni', 'Teknik', 'Bisnis'],
         ];
 
         $count = 0;
         foreach ($students as $studentId) {
             foreach (array_keys($tests) as $type) {
-                if (rand(0, 1) === 0) continue;
+                if (rand(0, 1) === 0) {
+                    continue;
+                }
                 CareerAssessment::create([
-                    'school_id'  => $school->id,
+                    'school_id' => $school->id,
                     'student_id' => $studentId,
-                    'test_type'  => $type,
-                    'responses'  => array_map(fn () => rand(1, 5), range(1, 20)),
-                    'result'     => [
+                    'test_type' => $type,
+                    'responses' => array_map(fn () => rand(1, 5), range(1, 20)),
+                    'result' => [
                         'top_category' => $tests[$type][array_rand($tests[$type])],
-                        'score'        => rand(70, 95),
-                        'recommendations' => ['Lanjut ke ' . $tests[$type][array_rand($tests[$type])] . ' di perguruan tinggi'],
+                        'score' => rand(70, 95),
+                        'recommendations' => ['Lanjut ke '.$tests[$type][array_rand($tests[$type])].' di perguruan tinggi'],
                     ],
-                    'taken_at'   => now()->subDays(rand(1, 60)),
+                    'taken_at' => now()->subDays(rand(1, 60)),
                 ]);
                 $count++;
             }

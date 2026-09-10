@@ -16,8 +16,8 @@ class AccountingService
         ['code' => '1200', 'name' => 'Piutang Usaha',          'type' => 'asset',    'normal_balance' => 'debit'],
         ['code' => '1300', 'name' => 'Persediaan',             'type' => 'asset',    'normal_balance' => 'debit'],
         ['code' => '1500', 'name' => 'Aset Tetap',             'type' => 'asset',    'normal_balance' => 'debit'],
-        ['code' => '2000', 'name' => 'Hutang Usaha',           'type' => 'liability','normal_balance' => 'credit'],
-        ['code' => '2100', 'name' => 'Hutang Lainnya',         'type' => 'liability','normal_balance' => 'credit'],
+        ['code' => '2000', 'name' => 'Hutang Usaha',           'type' => 'liability', 'normal_balance' => 'credit'],
+        ['code' => '2100', 'name' => 'Hutang Lainnya',         'type' => 'liability', 'normal_balance' => 'credit'],
         ['code' => '3000', 'name' => 'Modal',                  'type' => 'equity',   'normal_balance' => 'credit'],
         ['code' => '3100', 'name' => 'Laba Ditahan',           'type' => 'equity',   'normal_balance' => 'credit'],
         ['code' => '4000', 'name' => 'Pendapatan SPP',         'type' => 'revenue',  'normal_balance' => 'credit'],
@@ -46,7 +46,7 @@ class AccountingService
 
     public function isBalanced(array $lines): bool
     {
-        $debit  = (int) collect($lines)->sum('debit');
+        $debit = (int) collect($lines)->sum('debit');
         $credit = (int) collect($lines)->sum('credit');
 
         return $debit > 0 && $debit === $credit;
@@ -56,8 +56,8 @@ class AccountingService
     {
         return DB::transaction(function () use ($schoolId, $header, $lines) {
             $entry = JournalEntry::create(array_merge($header, [
-                'school_id'  => $schoolId,
-                'status'     => 'draft',
+                'school_id' => $schoolId,
+                'status' => 'draft',
                 'created_by' => auth()->id(),
             ]));
 
@@ -66,12 +66,12 @@ class AccountingService
                     continue;
                 }
                 JournalEntryLine::create([
-                    'school_id'           => $schoolId,
-                    'journal_entry_id'    => $entry->id,
+                    'school_id' => $schoolId,
+                    'journal_entry_id' => $entry->id,
                     'chart_of_account_id' => $line['chart_of_account_id'],
-                    'debit'               => (int) ($line['debit'] ?? 0),
-                    'credit'              => (int) ($line['credit'] ?? 0),
-                    'description'         => $line['description'] ?? null,
+                    'debit' => (int) ($line['debit'] ?? 0),
+                    'credit' => (int) ($line['credit'] ?? 0),
+                    'description' => $line['description'] ?? null,
                 ]);
             }
 
@@ -83,13 +83,13 @@ class AccountingService
     {
         abort_if($entry->status === 'posted', 422, 'Jurnal sudah diposting.');
 
-        $debit  = (int) $entry->lines()->sum('debit');
+        $debit = (int) $entry->lines()->sum('debit');
         $credit = (int) $entry->lines()->sum('credit');
 
         abort_if($debit === 0 || $debit !== $credit, 422, 'Jurnal tidak seimbang (debit ≠ kredit).');
 
         $entry->update([
-            'status'    => 'posted',
+            'status' => 'posted',
             'posted_by' => auth()->id(),
             'posted_at' => now(),
         ]);
@@ -102,7 +102,7 @@ class AccountingService
             ->map(function ($group) {
                 $account = $group->first()->account;
 
-                $debit  = (int) $group->sum('debit');
+                $debit = (int) $group->sum('debit');
                 $credit = (int) $group->sum('credit');
 
                 $balance = $account->normal_balance === 'debit'
@@ -110,13 +110,13 @@ class AccountingService
                     : $credit - $debit;
 
                 return (object) [
-                    'code'         => $account->code,
-                    'name'         => $account->name,
-                    'type'         => $account->type,
+                    'code' => $account->code,
+                    'name' => $account->name,
+                    'type' => $account->type,
                     'normal_balance' => $account->normal_balance,
-                    'debit'        => $debit,
-                    'credit'       => $credit,
-                    'balance'      => $balance,
+                    'debit' => $debit,
+                    'credit' => $credit,
+                    'balance' => $balance,
                 ];
             })
             ->sortBy('code')
@@ -133,9 +133,9 @@ class AccountingService
         $expense = $tb->whereIn('type', ['expense'])->sum('balance');
 
         return [
-            'revenue'   => $revenue,
-            'expense'   => $expense,
-            'net_income'=> $revenue - $expense,
+            'revenue' => $revenue,
+            'expense' => $expense,
+            'net_income' => $revenue - $expense,
             'revenue_accounts' => $tb->whereIn('type', ['revenue'])->values(),
             'expense_accounts' => $tb->whereIn('type', ['expense'])->values(),
         ];
@@ -145,24 +145,24 @@ class AccountingService
     {
         $tb = $this->trialBalance($schoolId, null, $asOf);
 
-        $assets     = $tb->whereIn('type', ['asset'])->sum('balance');
-        $liabilities= $tb->whereIn('type', ['liability'])->sum('balance');
-        $equity     = $tb->whereIn('type', ['equity'])->sum('balance');
+        $assets = $tb->whereIn('type', ['asset'])->sum('balance');
+        $liabilities = $tb->whereIn('type', ['liability'])->sum('balance');
+        $equity = $tb->whereIn('type', ['equity'])->sum('balance');
 
-        $netIncome  = $this->profitLoss($schoolId, null, $asOf)['net_income'];
+        $netIncome = $this->profitLoss($schoolId, null, $asOf)['net_income'];
 
         $totalEquity = $equity + $netIncome;
 
         return [
-            'assets'         => $assets,
-            'liabilities'    => $liabilities,
-            'equity'         => $equity,
-            'net_income'     => $netIncome,
-            'total_equity'   => $totalEquity,
+            'assets' => $assets,
+            'liabilities' => $liabilities,
+            'equity' => $equity,
+            'net_income' => $netIncome,
+            'total_equity' => $totalEquity,
             'liabilities_plus_equity' => $liabilities + $totalEquity,
-            'asset_accounts'      => $tb->whereIn('type', ['asset'])->values(),
-            'liability_accounts'  => $tb->whereIn('type', ['liability'])->values(),
-            'equity_accounts'     => $tb->whereIn('type', ['equity'])->values(),
+            'asset_accounts' => $tb->whereIn('type', ['asset'])->values(),
+            'liability_accounts' => $tb->whereIn('type', ['liability'])->values(),
+            'equity_accounts' => $tb->whereIn('type', ['equity'])->values(),
         ];
     }
 
@@ -174,17 +174,17 @@ class AccountingService
         }
 
         $assetCode = in_array($method, ['bank_transfer', 'va', 'qris', 'ewallet'], true) ? '1100' : '1000';
-        $asset   = ChartOfAccount::where('school_id', $schoolId)->where('code', $assetCode)->first();
+        $asset = ChartOfAccount::where('school_id', $schoolId)->where('code', $assetCode)->first();
         $revenue = ChartOfAccount::where('school_id', $schoolId)->where('code', '4000')->first();
 
-        if (!$asset || !$revenue) {
+        if (! $asset || ! $revenue) {
             return;
         }
 
         $entry = $this->createEntry($schoolId, [
-            'entry_date'   => $date ?? now()->toDateString(),
+            'entry_date' => $date ?? now()->toDateString(),
             'reference_no' => $reference,
-            'description'  => 'Pembayaran SPP (otomatis)',
+            'description' => 'Pembayaran SPP (otomatis)',
         ], [
             ['chart_of_account_id' => $asset->id,   'debit' => $amountCents, 'credit' => 0],
             ['chart_of_account_id' => $revenue->id, 'debit' => 0,            'credit' => $amountCents],
@@ -200,22 +200,97 @@ class AccountingService
             return;
         }
 
-        $asset   = ChartOfAccount::where('school_id', $schoolId)->where('code', '1000')->first();
+        $asset = ChartOfAccount::where('school_id', $schoolId)->where('code', '1000')->first();
         $revenue = ChartOfAccount::where('school_id', $schoolId)->where('code', '4000')->first();
 
-        if (!$asset || !$revenue) {
+        if (! $asset || ! $revenue) {
             return;
         }
 
         $entry = $this->createEntry($schoolId, [
-            'entry_date'   => now()->toDateString(),
+            'entry_date' => now()->toDateString(),
             'reference_no' => $reference,
-            'description'  => 'Refund SPP (otomatis)',
+            'description' => 'Refund SPP (otomatis)',
         ], [
             ['chart_of_account_id' => $revenue->id, 'debit' => $amountCents, 'credit' => 0],
             ['chart_of_account_id' => $asset->id,   'debit' => 0,            'credit' => $amountCents],
         ]);
 
+        $this->post($entry);
+    }
+
+    /**
+     * Post wallet top-ups as cash/bank received against the stored-value
+     * liability account. Missing COA accounts are intentionally a no-op so a
+     * school can enable the wallet before finishing its accounting setup.
+     */
+    public function postCanteenTopUp(int $schoolId, int $amountCents, string $reference): void
+    {
+        if ($amountCents <= 0 || JournalEntry::where('school_id', $schoolId)->where('reference_no', $reference)->exists()) {
+            return;
+        }
+
+        $asset = ChartOfAccount::where('school_id', $schoolId)->where('code', '1000')->first();
+        $liability = ChartOfAccount::where('school_id', $schoolId)->where('code', '2100')->first();
+        if (! $asset || ! $liability) {
+            return;
+        }
+
+        $entry = $this->createEntry($schoolId, [
+            'entry_date' => now()->toDateString(),
+            'reference_no' => $reference,
+            'description' => 'Top up wallet kantin (otomatis)',
+        ], [
+            ['chart_of_account_id' => $asset->id, 'debit' => $amountCents, 'credit' => 0],
+            ['chart_of_account_id' => $liability->id, 'debit' => 0, 'credit' => $amountCents],
+        ]);
+        $this->post($entry);
+    }
+
+    /** Post a canteen purchase against the stored-value liability. */
+    public function postCanteenSale(int $schoolId, int $amountCents, string $reference): void
+    {
+        if ($amountCents <= 0 || JournalEntry::where('school_id', $schoolId)->where('reference_no', $reference)->exists()) {
+            return;
+        }
+
+        $liability = ChartOfAccount::where('school_id', $schoolId)->where('code', '2100')->first();
+        $revenue = ChartOfAccount::where('school_id', $schoolId)->where('code', '4100')->first();
+        if (! $liability || ! $revenue) {
+            return;
+        }
+
+        $entry = $this->createEntry($schoolId, [
+            'entry_date' => now()->toDateString(),
+            'reference_no' => $reference,
+            'description' => 'Penjualan kantin cashless (otomatis)',
+        ], [
+            ['chart_of_account_id' => $liability->id, 'debit' => $amountCents, 'credit' => 0],
+            ['chart_of_account_id' => $revenue->id, 'debit' => 0, 'credit' => $amountCents],
+        ]);
+        $this->post($entry);
+    }
+
+    public function postCanteenRefund(int $schoolId, int $amountCents, string $reference): void
+    {
+        if ($amountCents <= 0 || JournalEntry::where('school_id', $schoolId)->where('reference_no', $reference)->exists()) {
+            return;
+        }
+
+        $revenue = ChartOfAccount::where('school_id', $schoolId)->where('code', '4100')->first();
+        $asset = ChartOfAccount::where('school_id', $schoolId)->where('code', '1000')->first();
+        if (! $revenue || ! $asset) {
+            return;
+        }
+
+        $entry = $this->createEntry($schoolId, [
+            'entry_date' => now()->toDateString(),
+            'reference_no' => $reference,
+            'description' => 'Refund transaksi kantin cashless (otomatis)',
+        ], [
+            ['chart_of_account_id' => $revenue->id, 'debit' => $amountCents, 'credit' => 0],
+            ['chart_of_account_id' => $asset->id, 'debit' => 0, 'credit' => $amountCents],
+        ]);
         $this->post($entry);
     }
 

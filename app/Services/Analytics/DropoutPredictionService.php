@@ -50,7 +50,10 @@ class DropoutPredictionService
 
         $adapter = $this->factory->for($provider, $model);
         $messages = $this->buildPrompt($factors);
-        $systemUserId = DB::table('users')->where('school_id', $schoolId)->value('id') ?? 1;
+        $systemUserId = DB::table('users')->where('school_id', $schoolId)->value('id');
+        if (!$systemUserId) {
+            throw new \RuntimeException('Tidak ada user sekolah untuk mencatat penggunaan AI.');
+        }
 
         $start  = microtime(true);
         $result = null;

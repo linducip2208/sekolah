@@ -1,49 +1,32 @@
-# Module 32 — Dapodik Sync (Indonesia Compliance)
+# Module 32 — Dapodik Sync
 
-## Depends On
-Module 04 (Academic Structure), Module 02 (Auth)
+## Status
 
-## What to Build
-Sinkronisasi data sekolah ke Dapodik Kemdikbud (NPSN, NISN siswa, NIK guru, mata pelajaran, rombel). Bidirectional: import dari Dapodik untuk verifikasi, export ke Dapodik.
+REQUIRES EXTERNAL CONFIGURATION — architecture, preview/confirm flow, queue, mapping, conflicts, CSV, dan fake adapter tersedia; live Dapodik endpoint serta credential sekolah belum dapat diverifikasi tanpa akses eksternal.
 
-## Database Schema
+## Flow
 
-```php
-Schema::create('dapodik_config', function (Blueprint $t) {
-    $t->id();
-    $t->foreignId('school_id')->unique()->constrained()->cascadeOnDelete();
-    $t->string('npsn', 15);                          // Nomor Pokok Sekolah Nasional
-    $t->string('username_encrypted')->nullable();
-    $t->string('password_encrypted')->nullable();
-    $t->string('endpoint_url', 500)->nullable();
-    $t->json('field_mappings')->nullable();
-    $t->timestamp('last_sync_at')->nullable();
-    $t->timestamps();
-});
+`Configure connection → test connection → fetch/CSV → normalize → preview → user confirms → queued sync → external-id mapping → import/update → conflict/error summary`.
 
-Schema::create('dapodik_sync_logs', function (Blueprint $t) {
-    $t->id();
-    $t->foreignId('school_id')->constrained()->cascadeOnDelete();
-    $t->enum('direction', ['import', 'export']);
-    $t->string('entity', 30);                        // students, teachers, classes, subjects
-    $t->unsignedInteger('records_total')->default(0);
-    $t->unsignedInteger('records_success')->default(0);
-    $t->unsignedInteger('records_failed')->default(0);
-    $t->json('errors')->nullable();
-    $t->enum('status', ['running','completed','failed'])->default('running');
-    $t->foreignId('triggered_by')->constrained('users');
-    $t->timestamps();
-});
-```
+Default direction adalah Dapodik → SIKAD. Tidak ada destructive sync otomatis. Matching memakai `dapodik_id` atau mapping table, bukan nama.
 
-## Notes
-- API Dapodik di-handle via generic adapter — admin input endpoint sendiri (no hardcode URL)
-- Mapping field configurable (NPSN, NISN, NIK, kode mapel)
-- Validation rules sesuai juknis terbaru
-- CSV export juga didukung untuk submit manual
+## Data model
 
-## Acceptance Criteria
-- [ ] Dapat import siswa dari file Dapodik (CSV)
-- [ ] Dapat export ke format Dapodik
-- [ ] Validation NIK 16 digit, NISN 10 digit
-- [ ] Conflict resolution UI saat ada data berbeda
+Legacy `dapodik_config` dan `dapodik_sync_logs` dipertahankan. Struktur enterprise menambahkan `dapodik_connections`, `dapodik_sync_runs`, `dapodik_sync_items`, `dapodik_entity_mappings`, dan `dapodik_conflicts`. Credential disimpan encrypted dan tidak dikembalikan raw oleh API.
+
+## Supported entities
+
+Preview API menerima `students`, `staff`, `class_sections`, dan `subjects`. Student sync end-to-end tersedia. Entitas lain ditolak saat sync sampai normalizer/domain mapping masing-masing disediakan, sehingga tidak ada klaim import palsu.
+
+## API
+
+- `GET/PUT /api/v1/admin/dapodik/config`
+- `POST /api/v1/admin/dapodik/test-connection`
+- `POST /api/v1/admin/dapodik/preview`
+- `GET /api/v1/admin/dapodik/runs`
+- `POST /api/v1/admin/dapodik/runs/{runId}/confirm`
+- `GET /api/v1/admin/dapodik/conflicts`
+- `POST /api/v1/admin/dapodik/conflicts/{id}/resolve`
+- CSV import/export legacy path.
+
+Endpoint paths dikonfigurasi oleh sekolah di field mapping `_endpoints`; adapter tidak menebak URL vendor. Job memiliki retry dan timeout.
