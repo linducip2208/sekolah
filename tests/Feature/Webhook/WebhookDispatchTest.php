@@ -13,11 +13,11 @@ test('webhook dispatcher fires for matching events', function () {
     $school = School::factory()->create();
 
     Webhook::create([
-        'school_id'   => $school->id,
-        'name'        => 'Slack',
-        'url'         => 'https://example.com/hook',
-        'events'      => ['student.created', 'invoice.paid'],
-        'is_active'   => true,
+        'school_id' => $school->id,
+        'name' => 'Slack',
+        'url' => 'https://example.com/hook',
+        'events' => ['student.created', 'invoice.paid'],
+        'is_active' => true,
         'max_retries' => 3,
     ]);
 
@@ -33,11 +33,11 @@ test('webhook dispatcher skips non-matching events', function () {
     $school = School::factory()->create();
 
     Webhook::create([
-        'school_id'   => $school->id,
-        'name'        => 'Only Paid',
-        'url'         => 'https://example.com/hook',
-        'events'      => ['invoice.paid'],
-        'is_active'   => true,
+        'school_id' => $school->id,
+        'name' => 'Only Paid',
+        'url' => 'https://example.com/hook',
+        'events' => ['invoice.paid'],
+        'is_active' => true,
         'max_retries' => 3,
     ]);
 
@@ -49,21 +49,21 @@ test('webhook dispatcher skips non-matching events', function () {
 test('webhook delivery job marks success on 2xx', function () {
     $school = School::factory()->create();
     $webhook = Webhook::create([
-        'school_id'   => $school->id,
-        'name'        => 'OK',
-        'url'         => 'https://api.example.com/in',
-        'events'      => ['ping'],
-        'is_active'   => true,
+        'school_id' => $school->id,
+        'name' => 'OK',
+        'url' => 'https://api.example.com/in',
+        'events' => ['ping'],
+        'is_active' => true,
         'max_retries' => 3,
     ]);
 
     $delivery = WebhookDelivery::create([
         'webhook_id' => $webhook->id,
-        'school_id'  => $school->id,
-        'event'      => 'ping',
-        'payload'    => '{"ok":true}',
-        'status'     => 'pending',
-        'attempts'   => 0,
+        'school_id' => $school->id,
+        'event' => 'ping',
+        'payload' => '{"ok":true}',
+        'status' => 'pending',
+        'attempts' => 0,
     ]);
 
     Http::fake(['api.example.com/*' => Http::response('ok', 200)]);
@@ -79,21 +79,21 @@ test('webhook delivery schedules retry on failure', function () {
     Bus::fake();
     $school = School::factory()->create();
     $webhook = Webhook::create([
-        'school_id'   => $school->id,
-        'name'        => 'Fail',
-        'url'         => 'https://api.example.com/in',
-        'events'      => ['ping'],
-        'is_active'   => true,
+        'school_id' => $school->id,
+        'name' => 'Fail',
+        'url' => 'https://api.example.com/in',
+        'events' => ['ping'],
+        'is_active' => true,
         'max_retries' => 3,
     ]);
 
     $delivery = WebhookDelivery::create([
         'webhook_id' => $webhook->id,
-        'school_id'  => $school->id,
-        'event'      => 'ping',
-        'payload'    => '{"ok":true}',
-        'status'     => 'pending',
-        'attempts'   => 0,
+        'school_id' => $school->id,
+        'event' => 'ping',
+        'payload' => '{"ok":true}',
+        'status' => 'pending',
+        'attempts' => 0,
     ]);
 
     Http::fake(['api.example.com/*' => Http::response('boom', 500)]);
@@ -104,4 +104,46 @@ test('webhook delivery schedules retry on failure', function () {
     expect($delivery->status)->toBe('retrying');
     expect($delivery->attempts)->toBe(1);
     Bus::assertDispatched(DeliverWebhookJob::class);
+});
+
+test('webhook delivery includes a timestamped HMAC signature', function () {
+    $school = School::factory()->create();
+    $webhook = Webhook::create([
+        'school_id' => $school->id,
+        'name' => 'Signed',
+        'url' => 'https://api.example.com/in',
+        'events' => ['ping'],
+        'is_active' => true,
+        'max_retries' => 3,
+    ]);
+    $webhook->secret = 'delivery-secret';
+    $webhook->save();
+
+    $delivery = WebhookDelivery::create([
+        'webhook_id' => $webhook->id,
+        'school_id' => $school->id,
+        'event' => 'ping',
+        'event_id' => 'evt-1',
+        'payload' => '{"ok":true}',
+        'status' => 'pending',
+        'attempts' => 0,
+    ]);
+
+    Http::fake(['api.example.com/*' => Http::response('ok', 200)]);
+
+    (new DeliverWebhookJob($delivery->id))->handle();
+
+    Http::assertSent(function ($request) {
+        $headers = $request->headers();
+        $timestamp = $headers['X-Webhook-Timestamp'][0] ?? null;
+        $signature = $headers['X-Webhook-Signature'][0] ?? null;
+
+        return is_string($timestamp)
+            && ctype_digit($timestamp)
+            && ($headers['X-Webhook-Id'][0] ?? null) === 'evt-1'
+            && hash_equals(
+                'sha256='.hash_hmac('sha256', $timestamp.'.'.$request->body(), 'delivery-secret'),
+                (string) $signature,
+            );
+    });
 });

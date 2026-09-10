@@ -14,7 +14,7 @@ Status penting yang terverifikasi:
 - ✅ Build frontend berhasil dengan `npm.cmd run build`.
 - ✅ Pint dan PHP syntax check berhasil pada file yang diubah.
 - ✅ Flow Visitor, immutable Wallet Ledger, idempotency, cross-school rejection, dan Dapodik fake sync diuji.
-- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 240 tests / 1.448 assertions.
+- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 242 tests / 1.455 assertions.
 - ⚠️ Dapodik live integration memerlukan endpoint dan credential sekolah; adapter tidak mengarang endpoint vendor.
 - ✅ Playwright desktop capture 26/26 halaman dan mobile capture 5/5 halaman berhasil pada server lokal port 8765.
 - ✅ Portal capture 4/4 (student dan parent, desktop/mobile) serta dark-mode capture 5/5 berhasil.
@@ -24,7 +24,7 @@ Status penting yang terverifikasi:
 
 ## 2. Audit repository
 
-Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.562 route pada audit terakhir. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
+Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.559 route pada audit terakhir. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
 
 Temuan yang diperbaiki:
 
@@ -38,6 +38,8 @@ Temuan yang diperbaiki:
 - PPDB batch enrollment tidak membatasi application dan class section ke sekolah aktif;
 - endpoint Counseling/Career menerima referensi student/counselor/assignee tanpa verifikasi lintas sekolah;
 - Lesson Plan API dan admin flow menerima referensi akademik lintas sekolah tanpa verifikasi konsisten;
+- payment webhook belum memiliki payload fingerprint/replay record dan HMAC timestamp untuk outbound delivery;
+- backup UI membuat file sintetis ketika `mysqldump` gagal;
 - test baru menguji flow enterprise dan cross-school access.
 
 ## 3. Feature matrix aktual
@@ -150,6 +152,8 @@ New default roles include `security`, `visitor_operator`, and `school_admin`. AP
 
 Migration `2026_09_10_000001_add_enterprise_visitor_wallet_dapodik_tables.php` adds all Visitor/Wallet/Dapodik structures and `dapodik_id` identifiers to students/staff. It is guarded for existing columns/tables and was made retry-safe after a MySQL 64-character index-name failure.
 
+Migration `2026_09_10_000002_add_payment_webhook_replay_fingerprint.php` adds a provider-scoped SHA-256 payload fingerprint for replay detection without exposing webhook secrets.
+
 Migration `2026_08_23_000002_schema_audit_fixes.php` was repaired with the missing `DB` import and executed successfully.
 
 Production local database result: `php artisan migrate:status` reports all migrations as `Ran`.
@@ -174,8 +178,9 @@ Passed:
 - Laravel Pint on changed implementation files;
 - `npm.cmd run build`;
 - enterprise test suite after test DB bootstrap: 5 tests / 13 assertions passed before assertion correction, then corrected wallet test passed independently (1 test / 4 assertions);
-- full PHPUnit/Pest suite: 240 tests / 1.448 assertions passed;
+- full PHPUnit/Pest suite: 242 tests / 1.455 assertions passed;
 - PPDB enrollment regression: 4 tests / 12 assertions passed, including cross-school rejection;
+- webhook regression: timestamped outbound HMAC and duplicate signed payment callback tests passed;
 - migration execution against local MySQL database;
 - route list generation.
 
@@ -198,6 +203,9 @@ Implemented/hardened:
 - PPDB enrollment validates both applicant and destination class section against the active school;
 - Counseling and Career student/counselor/assignee references are validated against the active school;
 - Lesson Plan API/admin writes validate class section, subject, semester, and teacher against the active school;
+- payment callbacks record payload fingerprints, reject already-processed replays, and serialize status application with a row lock;
+- outbound webhooks sign `timestamp.payload` and expose timestamp/attempt headers for receiver replay windows;
+- backup UI refuses to report a backup when `mysqldump` fails instead of writing a synthetic SQL file;
 - audit log for canonical Visitor flow.
 
 Remaining security work: complete IDOR/policy sweep over every legacy API/controller, verify upload MIME/path restrictions across all modules, and add automated webhook replay/signature coverage to the full suite.
@@ -212,7 +220,7 @@ Existing design system and mobile-responsive layouts were preserved. The current
 
 ## 16. Documentation
 
-Existing `/docs`, `docs/ROADMAP.md`, module documentation, API documentation, deployment documentation, and SEO docs were preserved. This file records the code-backed status and corrects over-optimistic roadmap language for the newly audited domains.
+Existing `/docs`, `docs/ROADMAP.md`, module documentation, API documentation, deployment documentation, and SEO docs were preserved. `docs/FEATURE-MATURITY-AUDIT.md` now records level-based before/after maturity for the main existing domains. This file records the code-backed status and corrects over-optimistic roadmap language for the newly audited domains.
 
 ## 17. Known external dependencies
 

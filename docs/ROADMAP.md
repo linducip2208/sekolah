@@ -124,7 +124,12 @@
 
 ## 5. Remaining TODO
 
-- ✅ **Semua fase roadmap utama sudah diimplementasikan.** Tidak ada lagi item mayor yang tersisa.
+Roadmap domain utama tersedia, tetapi feature-depth audit tetap berjalan. Menu/route presence tidak dianggap selesai tanpa workflow, permission, tenant isolation, notification, audit, reporting, mobile UX, dan regression test yang sesuai.
+
+- Lengkapi policy/IDOR sweep seluruh legacy API dan direct URL actions.
+- Tambahkan regression workflow untuk attendance correction/lock, grade reopen/publish, report approval, payroll finalization, procurement receiving, dan accounting close/reopen.
+- Perluas drill-down report tests, import preview/error handling, dan query profiling pada dataset multi-sekolah.
+- Verifikasi queue worker, scheduler, backup target, object storage, dan provider credentials pada environment production-like.
 
 ---
 
