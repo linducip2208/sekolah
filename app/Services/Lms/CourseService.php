@@ -2,21 +2,28 @@
 
 namespace App\Services\Lms;
 
+use App\Models\Academic\Student;
 use App\Models\Lms\Course;
 use App\Models\Lms\CourseCertificate;
 use App\Models\Lms\CourseEnrollment;
 use App\Models\Lms\CourseLesson;
 use App\Models\Lms\CourseLessonCompletion;
-use App\Models\Academic\Student;
+use App\Models\User;
 use Illuminate\Support\Str;
 
 class CourseService
 {
     public function enroll(int $schoolId, int $courseId, int $studentId): CourseEnrollment
     {
-        $course = Course::findOrFail($courseId);
+        $course = Course::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->findOrFail($courseId);
+        $this->studentForSchool($schoolId, $studentId);
 
         if ($course->prerequisite_course_id) {
+            Course::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->findOrFail($course->prerequisite_course_id);
             $prereqDone = CourseEnrollment::where('school_id', $schoolId)
                 ->where('course_id', $course->prerequisite_course_id)
                 ->where('student_id', $studentId)
@@ -39,21 +46,33 @@ class CourseService
             $this->enroll($schoolId, $courseId, $studentId);
             $count++;
         }
+
         return $count;
     }
 
     public function completeLesson(CourseEnrollment $enrollment, int $lessonId, int $studentId): CourseEnrollment
     {
-        $lesson = CourseLesson::where('school_id', $enrollment->school_id)
+        CourseEnrollment::withoutGlobalScopes()
+            ->where('school_id', $enrollment->school_id)
+            ->whereKey($enrollment->id)
+            ->firstOrFail();
+        abort_unless((int) $enrollment->student_id === $studentId, 404);
+        $this->studentForSchool($enrollment->school_id, $studentId);
+
+        $lesson = CourseLesson::withoutGlobalScopes()
+            ->where('school_id', $enrollment->school_id)
+            ->whereHas('module', fn ($query) => $query
+                ->where('school_id', $enrollment->school_id)
+                ->where('course_id', $enrollment->course_id))
             ->where('id', $lessonId)
             ->firstOrFail();
 
         CourseLessonCompletion::firstOrCreate(
             [
-                'school_id'        => $enrollment->school_id,
-                'enrollment_id'    => $enrollment->id,
+                'school_id' => $enrollment->school_id,
+                'enrollment_id' => $enrollment->id,
                 'course_lesson_id' => $lessonId,
-                'student_id'       => $studentId,
+                'student_id' => $studentId,
             ],
             ['completed_at' => now()]
         );
@@ -75,7 +94,7 @@ class CourseService
 
         $enrollment->update([
             'progress_pct' => $pct,
-            'status'       => $status,
+            'status' => $status,
             'completed_at' => $status === 'completed' ? ($enrollment->completed_at ?? now()) : null,
         ]);
 
@@ -84,15 +103,17 @@ class CourseService
 
     public function progressForStudent(int $schoolId, int $studentId): array
     {
+        $this->studentForSchool($schoolId, $studentId);
+
         return CourseEnrollment::where('school_id', $schoolId)
             ->where('student_id', $studentId)
             ->with('course')
             ->get()
             ->map(fn ($e) => [
-                'course_id'    => $e->course_id,
-                'title'        => $e->course?->title,
+                'course_id' => $e->course_id,
+                'title' => $e->course?->title,
                 'progress_pct' => $e->progress_pct,
-                'status'       => $e->status,
+                'status' => $e->status,
             ])
             ->all();
     }
@@ -100,19 +121,24 @@ class CourseService
     /** Issue a completion certificate for an enrollment. Requires 100% progress. */
     public function issueCertificate(CourseEnrollment $enrollment, int $userId): CourseCertificate
     {
+        CourseEnrollment::withoutGlobalScopes()
+            ->where('school_id', $enrollment->school_id)
+            ->whereKey($enrollment->id)
+            ->firstOrFail();
+        User::withoutGlobalScopes()->where('school_id', $enrollment->school_id)->findOrFail($userId);
         $this->refreshProgress($enrollment);
 
         abort_unless($enrollment->status === 'completed', 422, 'Kursus belum selesai (progres belum 100%).');
 
         return CourseCertificate::firstOrCreate(
             [
-                'school_id'            => $enrollment->school_id,
+                'school_id' => $enrollment->school_id,
                 'course_enrollment_id' => $enrollment->id,
             ],
             [
-                'certificate_no' => 'CRT-' . strtoupper(Str::random(12)),
-                'issued_at'      => now()->toDateString(),
-                'issued_by'      => $userId,
+                'certificate_no' => 'CRT-'.strtoupper(Str::random(12)),
+                'issued_at' => now()->toDateString(),
+                'issued_by' => $userId,
             ]
         );
     }
@@ -122,5 +148,12 @@ class CourseService
         return CourseCertificate::where('school_id', $enrollment->school_id)
             ->where('course_enrollment_id', $enrollment->id)
             ->first();
+    }
+
+    private function studentForSchool(int $schoolId, int $studentId): Student
+    {
+        return Student::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->findOrFail($studentId);
     }
 }

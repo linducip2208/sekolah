@@ -11,8 +11,12 @@ class ExamService
 {
     public function startExam(int $examId): ExamResult
     {
-        $exam = Exam::findOrFail($examId);
-        $student = Student::where('user_id', auth()->id())->firstOrFail();
+        $schoolId = (int) auth()->user()->school_id;
+        $exam = Exam::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($examId);
+        $student = Student::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
 
         if ($exam->start_at && now()->isBefore($exam->start_at)) {
             abort(422, 'Ujian belum dimulai.');
@@ -41,9 +45,16 @@ class ExamService
 
     public function submitExam(int $examId, array $answers): ExamResult
     {
-        $exam = Exam::with('questions')->findOrFail($examId);
-        $student = Student::where('user_id', auth()->id())->firstOrFail();
-        $result = ExamResult::where('exam_id', $examId)
+        $schoolId = (int) auth()->user()->school_id;
+        $exam = Exam::withoutGlobalScopes()->with('questions')
+            ->where('school_id', $schoolId)
+            ->findOrFail($examId);
+        $student = Student::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+        $result = ExamResult::withoutGlobalScopes()->where('school_id', $schoolId)
+            ->where('exam_id', $examId)
             ->where('student_id', $student->id)
             ->firstOrFail();
 
@@ -59,6 +70,12 @@ class ExamService
 
     public function autoGrade(ExamResult $result, Exam $exam): void
     {
+        abort_unless((int) $result->exam_id === (int) $exam->id, 404);
+        abort_unless((int) $result->school_id === (int) $exam->school_id, 404);
+        Student::withoutGlobalScopes()
+            ->where('school_id', $exam->school_id)
+            ->findOrFail($result->student_id);
+
         $answers = $result->answers ?? [];
         $totalMarks = 0;
 

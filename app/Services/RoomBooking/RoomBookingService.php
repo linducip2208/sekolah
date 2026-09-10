@@ -5,6 +5,7 @@ namespace App\Services\RoomBooking;
 use App\Models\RoomBooking\BookableRoom;
 use App\Models\RoomBooking\RoomBooking;
 use App\Models\RoomBooking\RoomBookingRule;
+use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
@@ -21,13 +22,14 @@ class RoomBookingService
 
     public function checkAvailability(int $roomId, string $date, string $startTime, string $endTime, ?int $excludeBookingId = null): bool
     {
+        $this->roomForSchool($roomId);
         $query = RoomBooking::where('bookable_room_id', $roomId)
             ->where('date', $date)
             ->whereIn('status', ['pending', 'approved'])
             ->where(function ($q) use ($startTime, $endTime) {
                 $q->where(function ($inner) use ($startTime, $endTime) {
                     $inner->where('start_time', '<', $endTime)
-                          ->where('end_time', '>', $startTime);
+                        ->where('end_time', '>', $startTime);
                 });
             });
 
@@ -35,11 +37,12 @@ class RoomBookingService
             $query->where('id', '!=', $excludeBookingId);
         }
 
-        return !$query->exists();
+        return ! $query->exists();
     }
 
     public function detectConflicts(int $roomId, string $date, string $startTime, string $endTime, ?int $excludeBookingId = null): array
     {
+        $this->roomForSchool($roomId);
         $query = RoomBooking::with('user')
             ->where('bookable_room_id', $roomId)
             ->where('date', $date)
@@ -47,7 +50,7 @@ class RoomBookingService
             ->where(function ($q) use ($startTime, $endTime) {
                 $q->where(function ($inner) use ($startTime, $endTime) {
                     $inner->where('start_time', '<', $endTime)
-                          ->where('end_time', '>', $startTime);
+                        ->where('end_time', '>', $startTime);
                 });
             });
 
@@ -60,6 +63,9 @@ class RoomBookingService
 
     public function createBooking(array $data): RoomBooking
     {
+        $schoolId = $this->schoolId();
+        $room = $this->roomForSchool($data['bookable_room_id']);
+        User::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($data['user_id']);
         $available = $this->checkAvailability(
             $data['bookable_room_id'],
             $data['date'],
@@ -67,11 +73,12 @@ class RoomBookingService
             $data['end_time']
         );
 
-        if (!$available) {
+        if (! $available) {
             throw new \RuntimeException('Ruangan tidak tersedia pada waktu yang dipilih.');
         }
 
-        $data['status'] = $this->shouldAutoApprove($data['bookable_room_id'], $data['user_id'])
+        $data['school_id'] = $schoolId;
+        $data['status'] = $this->shouldAutoApprove($room->id, $data['user_id'])
             ? 'approved'
             : 'pending';
 
@@ -86,13 +93,14 @@ class RoomBookingService
 
     public function approve(int $bookingId, int $approvedBy): RoomBooking
     {
-        $booking = RoomBooking::findOrFail($bookingId);
+        $booking = RoomBooking::where('school_id', $this->schoolId())->findOrFail($bookingId);
+        User::withoutGlobalScopes()->where('school_id', $booking->school_id)->findOrFail($approvedBy);
 
         if ($booking->status !== 'pending') {
             throw new \RuntimeException('Hanya booking dengan status pending yang dapat disetujui.');
         }
 
-        if (!$this->checkAvailability(
+        if (! $this->checkAvailability(
             $booking->bookable_room_id,
             $booking->date->format('Y-m-d'),
             $booking->start_time,
@@ -114,7 +122,7 @@ class RoomBookingService
 
     public function reject(int $bookingId, string $reason): RoomBooking
     {
-        $booking = RoomBooking::findOrFail($bookingId);
+        $booking = RoomBooking::where('school_id', $this->schoolId())->findOrFail($bookingId);
 
         if ($booking->status !== 'pending') {
             throw new \RuntimeException('Hanya booking dengan status pending yang dapat ditolak.');
@@ -130,13 +138,13 @@ class RoomBookingService
 
     public function cancel(int $bookingId, int $userId): RoomBooking
     {
-        $booking = RoomBooking::findOrFail($bookingId);
+        $booking = RoomBooking::where('school_id', $this->schoolId())->findOrFail($bookingId);
 
-        if ($booking->user_id !== $userId && !auth()->user()->hasAnyRole(['admin'])) {
+        if ($booking->user_id !== $userId && ! auth()->user()->hasAnyRole(['admin'])) {
             throw new \RuntimeException('Anda hanya dapat membatalkan booking Anda sendiri.');
         }
 
-        if (!in_array($booking->status, ['pending', 'approved'])) {
+        if (! in_array($booking->status, ['pending', 'approved'])) {
             throw new \RuntimeException('Booking ini tidak dapat dibatalkan.');
         }
 
@@ -166,7 +174,9 @@ class RoomBookingService
         $period = CarbonPeriod::create($startDate, $interval, $endDate);
 
         foreach ($period as $date) {
-            if ($date->equalTo($startDate)) continue;
+            if ($date->equalTo($startDate)) {
+                continue;
+            }
 
             $data = array_merge($baseData, [
                 'date' => $date->format('Y-m-d'),
@@ -179,6 +189,7 @@ class RoomBookingService
                 $data['status'] = $this->shouldAutoApprove($data['bookable_room_id'], $data['user_id'])
                     ? 'approved'
                     : 'pending';
+                $data['school_id'] = $this->schoolId();
                 $booking = RoomBooking::create($data);
                 if ($booking->status === 'approved') {
                     $this->syncToCalendar($booking);
@@ -192,16 +203,21 @@ class RoomBookingService
 
     public function getRoomRules(int $roomId): array
     {
-        return RoomBookingRule::where('bookable_room_id', $roomId)->get()->toArray();
+        $this->roomForSchool($roomId);
+
+        return RoomBookingRule::where('school_id', $this->schoolId())
+            ->where('bookable_room_id', $roomId)->get()->toArray();
     }
 
     public function saveRoomRules(int $roomId, array $rules): void
     {
-        RoomBookingRule::where('bookable_room_id', $roomId)->delete();
+        $this->roomForSchool($roomId);
+        $schoolId = $this->schoolId();
+        RoomBookingRule::where('school_id', $schoolId)->where('bookable_room_id', $roomId)->delete();
 
         foreach ($rules as $rule) {
             RoomBookingRule::create([
-                'school_id' => auth()->user()->school_id,
+                'school_id' => $schoolId,
                 'bookable_room_id' => $roomId,
                 'rule_type' => $rule['rule_type'],
                 'rule_value' => $rule['rule_value'],
@@ -233,6 +249,7 @@ class RoomBookingService
     public function getMyBookings(int $userId): array
     {
         return RoomBooking::with('room')
+            ->where('school_id', $this->schoolId())
             ->where('user_id', $userId)
             ->orderBy('date', 'desc')
             ->orderBy('start_time')
@@ -242,13 +259,16 @@ class RoomBookingService
 
     protected function shouldAutoApprove(int $roomId, int $userId): bool
     {
-        $rules = RoomBookingRule::where('bookable_room_id', $roomId)->get();
+        $schoolId = $this->schoolId();
+        $rules = RoomBookingRule::where('school_id', $schoolId)
+            ->where('bookable_room_id', $roomId)->get();
 
         foreach ($rules as $rule) {
             if ($rule->rule_type === 'allowed_roles') {
-                $user = \App\Models\User::find($userId);
+                $user = User::withoutGlobalScopes()
+                    ->where('school_id', $schoolId)->find($userId);
                 $allowedRoles = explode(',', $rule->rule_value);
-                if (!$user || !$user->hasAnyRole($allowedRoles)) {
+                if (! $user || ! $user->hasAnyRole($allowedRoles)) {
                     return false;
                 }
             }
@@ -265,15 +285,27 @@ class RoomBookingService
 
         $eventId = DB::table('academic_events')->insertGetId([
             'school_id' => $booking->school_id,
-            'title' => 'Room: ' . $booking->title,
-            'description' => $booking->purpose ?? 'Booking ruangan ' . $booking->room?->name,
-            'start_date' => $booking->date->format('Y-m-d') . ' ' . $booking->start_time,
-            'end_date' => $booking->date->format('Y-m-d') . ' ' . $booking->end_time,
+            'title' => 'Room: '.$booking->title,
+            'description' => $booking->purpose ?? 'Booking ruangan '.$booking->room?->name,
+            'start_date' => $booking->date->format('Y-m-d').' '.$booking->start_time,
+            'end_date' => $booking->date->format('Y-m-d').' '.$booking->end_time,
             'event_type' => 'room_booking',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         $booking->updateQuietly(['calendar_event_id' => $eventId]);
+    }
+
+    private function schoolId(): int
+    {
+        return (int) auth()->user()->school_id;
+    }
+
+    private function roomForSchool(int $roomId): BookableRoom
+    {
+        return BookableRoom::withoutGlobalScopes()
+            ->where('school_id', $this->schoolId())
+            ->findOrFail($roomId);
     }
 }

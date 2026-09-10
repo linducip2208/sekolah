@@ -8,6 +8,8 @@ use App\Models\Lms\CourseModule;
 use App\Models\School;
 use App\Models\User;
 use App\Services\Lms\CourseService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 beforeEach(function () {
     $this->service = app(CourseService::class);
@@ -77,7 +79,7 @@ it('issues a certificate only when course is completed', function () {
     $enrollment = $this->service->enroll($this->school->id, $this->course->id, $this->student->id);
     $this->service->completeLesson($enrollment, $this->lessonA->id, $this->student->id);
 
-    $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+    $this->expectException(HttpException::class);
     $this->service->issueCertificate($enrollment->fresh(), $this->student->user_id);
 });
 
@@ -105,6 +107,31 @@ it('blocks enrollment until the prerequisite course is completed', function () {
     ]);
 
     // Not completed prerequisite → blocked
-    $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+    $this->expectException(HttpException::class);
     $this->service->enroll($this->school->id, $advanced->id, $this->student->id);
+});
+
+it('rejects a course from another school at the service boundary', function () {
+    $foreignSchool = School::factory()->create();
+    $foreignCourse = Course::create([
+        'school_id' => $foreignSchool->id,
+        'title' => 'Kursus lintas sekolah',
+        'is_published' => true,
+    ]);
+
+    $this->expectException(ModelNotFoundException::class);
+    $this->service->enroll($this->school->id, $foreignCourse->id, $this->student->id);
+});
+
+it('rejects completing a lesson for a different student', function () {
+    $enrollment = $this->service->enroll($this->school->id, $this->course->id, $this->student->id);
+    $foreignUser = User::factory()->create(['school_id' => $this->school->id]);
+    $foreignStudent = Student::create([
+        'user_id' => $foreignUser->id,
+        'school_id' => $this->school->id,
+        'admission_no' => 'NIS-2',
+    ]);
+
+    $this->expectException(HttpException::class);
+    $this->service->completeLesson($enrollment, $this->lessonA->id, $foreignStudent->id);
 });

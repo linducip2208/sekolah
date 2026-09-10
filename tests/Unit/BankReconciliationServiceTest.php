@@ -8,6 +8,8 @@ use App\Models\Finance\FeeStructure;
 use App\Models\School;
 use App\Models\User;
 use App\Services\Finance\BankReconciliationService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 beforeEach(function () {
     $this->service = app(BankReconciliationService::class);
@@ -69,7 +71,7 @@ it('rejects a match when amounts differ', function () {
         'amount' => 99999, 'status' => 'unmatched',
     ]);
 
-    $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+    $this->expectException(HttpException::class);
     $this->service->match($statement, $this->payment->id);
 });
 
@@ -88,4 +90,19 @@ it('computes reconciliation summary', function () {
     expect($summary['unmatched_count'])->toBe(1);
     expect($summary['matched_count'])->toBe(1);
     expect($summary['unmatched_credit'])->toBe(100000);
+});
+
+it('does not match a statement from another school', function () {
+    $this->actingAs($this->user);
+    $foreignSchool = School::factory()->create();
+    $foreignStatement = BankStatement::create([
+        'school_id' => $foreignSchool->id,
+        'bank_account' => 'BANK-FOREIGN',
+        'transaction_date' => '2026-01-10',
+        'amount' => 150000,
+        'status' => 'unmatched',
+    ]);
+
+    $this->expectException(ModelNotFoundException::class);
+    $this->service->match($foreignStatement, $this->payment->id);
 });
