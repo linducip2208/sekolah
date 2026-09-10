@@ -24,7 +24,7 @@ Status penting yang terverifikasi:
 
 ## 2. Audit repository
 
-Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.569 route setelah pass PPDB/kesiswaan/operasional/workflow. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
+Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.571 route setelah pass PPDB/kesiswaan/operasional/workflow/import-preview. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
 
 Temuan yang diperbaiki:
 
@@ -45,6 +45,7 @@ Temuan yang diperbaiki:
 - classroom, timetable, dan religious service boundary pass menambahkan validasi referensi lintas sekolah, room/time conflict detection, atomic bulk timetable replacement, dan student ownership checks pada assignment/religious progress;
 - LMS, CBT, room booking, dan bank reconciliation boundary pass menambahkan validasi course/exam/student/room/payment sekolah, approval ownership, serta summary reconciliation berbasis aggregate query;
 - academic year dan student import boundary pass menambahkan validasi school ownership untuk aktivasi semester/tahun dan class section tujuan import;
+- web CSV import sekarang melewati encrypted preview, validation/duplicate gate, explicit confirmation, batch cap, dan re-check saat commit; password tidak dikirim ke browser;
 - inventory dan procurement maturity pass menambahkan row locking, non-negative stock invariant, transfer movement types, scoped supplier/budget validation, serta bounded partial receiving;
 - accounting maturity pass menambahkan tenant-safe COA lines, double-entry line validation, row-locked posting, automatic reference idempotency, dan audit logging;
 - payroll maturity pass menambahkan tenant-safe staff lookup, finalization row lock, paid-slip replay protection, audit logging, dan idempotent payroll journal;

@@ -1021,6 +1021,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/import/template/staff',             [BulkImportController::class, 'templateStaff'])->name('import.template.staff');
         Route::post('/import/students',                  [BulkImportController::class, 'importStudents'])->name('import.students');
         Route::post('/import/staff',                     [BulkImportController::class, 'importStaff'])->name('import.staff');
+        Route::post('/import/students/confirm',           [BulkImportController::class, 'confirmStudents'])->name('import.students.confirm');
+        Route::post('/import/staff/confirm',              [BulkImportController::class, 'confirmStaff'])->name('import.staff.confirm');
 
         // ============== MISC SUB-FEATURES (P1) ==============
         Route::get('/misc/maintenance',                  [MiscCrudController::class, 'maintenance'])->name('misc.maintenance.index');

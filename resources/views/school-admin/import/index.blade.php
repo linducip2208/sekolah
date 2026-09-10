@@ -31,7 +31,7 @@
 <label class="elite-kicker text-[.6rem] block mb-1">File CSV</label>
 <input type="file" name="file" required accept=".csv,text/csv" class="w-full border-2 border-rule px-3 py-2 text-sm">
 </div>
-<button class="btn-elite">Upload & Import</button>
+<button class="btn-elite">Upload & Preview</button>
 </form>
 </div>
 
@@ -48,7 +48,7 @@
 <label class="elite-kicker text-[.6rem] block mb-1">File CSV</label>
 <input type="file" name="file" required accept=".csv,text/csv" class="w-full border-2 border-rule px-3 py-2 text-sm">
 </div>
-<button class="btn-elite">Upload & Import</button>
+<button class="btn-elite">Upload & Preview</button>
 </form>
 </div>
 

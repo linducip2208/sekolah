@@ -7,6 +7,7 @@ use App\Models\Academic\ClassSection;
 use App\Models\Academic\Staff;
 use App\Models\Academic\Student;
 use App\Models\User;
+use App\Services\Import\CsvImportPreviewService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class BulkImportController extends Controller
 {
-    private function schoolId(): int { return auth()->user()->school_id; }
+    private function schoolId(): int
+    {
+        return (int) auth()->user()->school_id;
+    }
 
     public function index(): View
     {
@@ -48,108 +52,151 @@ class BulkImportController extends Controller
         }, 'template-staff.csv', ['Content-Type' => 'text/csv']);
     }
 
-    public function importStudents(Request $request): RedirectResponse
+    public function importStudents(Request $request, CsvImportPreviewService $previewer): View|RedirectResponse
     {
         $request->validate([
             'file' => 'required|file|mimes:csv,txt|max:5120',
             'class_section_id' => 'nullable|exists:class_sections,id',
         ]);
 
-        $handle = fopen($request->file('file')->getPathname(), 'r');
-        $headers = fgetcsv($handle);
-        $required = ['admission_no', 'name', 'email', 'gender', 'password'];
-        if (count(array_diff($required, $headers)) > 0) {
-            fclose($handle);
-            return back()->withErrors('CSV harus punya header: '.implode(', ', $required));
+        $classSectionId = $request->integer('class_section_id') ?: null;
+        if ($classSectionId !== null) {
+            ClassSection::withoutGlobalScopes()->where('school_id', $this->schoolId())->findOrFail($classSectionId);
         }
 
-        $created = 0; $skipped = 0; $errors = [];
-        DB::transaction(function () use ($handle, $headers, $request, &$created, &$skipped, &$errors) {
-            while (($row = fgetcsv($handle)) !== false) {
-                $row = array_combine($headers, $row);
-                if (empty($row['email']) || empty($row['name'])) { $skipped++; continue; }
+        try {
+            $payload = $previewer->preview($request->file('file'), $this->schoolId(), 'students');
+        } catch (\InvalidArgumentException $e) {
+            return back()->withInput()->withErrors($e->getMessage());
+        }
 
-                if (User::where('email', $row['email'])->exists()) {
-                    $errors[] = "Skip {$row['email']} — email sudah ada";
-                    $skipped++; continue;
-                }
+        $payload['class_section_id'] = $classSectionId;
+        $token = $previewer->store($payload, auth()->id());
 
-                $user = User::create([
-                    'name'      => $row['name'],
-                    'email'     => $row['email'],
-                    'phone'     => $row['phone'] ?? null,
-                    'password'  => Hash::make($row['password'] ?? 'Siswa123!'),
-                    'school_id' => $this->schoolId(),
-                    'is_active' => true,
-                ]);
-                $user->assignRole('student');
-
-                Student::create([
-                    'user_id'          => $user->id,
-                    'school_id'        => $this->schoolId(),
-                    'class_section_id' => $request->class_section_id,
-                    'admission_no'     => $row['admission_no'] ?? 'ADM-'.$user->id,
-                    'gender'           => $row['gender'] ?? 'male',
-                    'date_of_birth'    => $row['date_of_birth'] ?? null,
-                    'address'          => $row['address'] ?? null,
-                    'guardian_name'    => $row['guardian_name'] ?? null,
-                    'guardian_phone'   => $row['guardian_phone'] ?? null,
-                ]);
-                $created++;
-            }
-        });
-        fclose($handle);
-
-        $msg = "$created siswa di-import. $skipped skip.";
-        if (!empty($errors)) $msg .= ' ' . implode(' · ', array_slice($errors, 0, 3));
-        return back()->with('success', $msg);
+        return view('school-admin.import.preview', [
+            'token' => $token,
+            'kind' => 'students',
+            'title' => 'Preview Import Siswa',
+            'payload' => $previewer->forDisplay($payload),
+        ]);
     }
 
-    public function importStaff(Request $request): RedirectResponse
+    public function confirmStudents(Request $request, CsvImportPreviewService $previewer): RedirectResponse
+    {
+        $request->validate(['token' => 'required|string|size:64']);
+
+        return $this->confirmImport($request->string('token')->toString(), 'students', $previewer);
+    }
+
+    public function importStaff(Request $request, CsvImportPreviewService $previewer): View|RedirectResponse
     {
         $request->validate(['file' => 'required|file|mimes:csv,txt|max:5120']);
 
-        $handle = fopen($request->file('file')->getPathname(), 'r');
-        $headers = fgetcsv($handle);
-        $required = ['name', 'email', 'role', 'password'];
-        if (count(array_diff($required, $headers)) > 0) {
-            fclose($handle);
-            return back()->withErrors('CSV harus punya header: '.implode(', ', $required));
+        try {
+            $payload = $previewer->preview($request->file('file'), $this->schoolId(), 'staff');
+        } catch (\InvalidArgumentException $e) {
+            return back()->withInput()->withErrors($e->getMessage());
         }
 
-        $created = 0; $skipped = 0;
-        DB::transaction(function () use ($handle, $headers, &$created, &$skipped) {
-            $allowedRoles = ['teacher', 'admin', 'accountant', 'librarian', 'counselor', 'nurse', 'receptionist'];
-            while (($row = fgetcsv($handle)) !== false) {
-                $row = array_combine($headers, $row);
-                if (empty($row['email']) || empty($row['name'])) { $skipped++; continue; }
-                if (User::where('email', $row['email'])->exists()) { $skipped++; continue; }
-                if (!in_array($row['role'] ?? '', $allowedRoles)) { $skipped++; continue; }
+        $token = $previewer->store($payload, auth()->id());
+
+        return view('school-admin.import.preview', [
+            'token' => $token,
+            'kind' => 'staff',
+            'title' => 'Preview Import Staff',
+            'payload' => $previewer->forDisplay($payload),
+        ]);
+    }
+
+    public function confirmStaff(Request $request, CsvImportPreviewService $previewer): RedirectResponse
+    {
+        $request->validate(['token' => 'required|string|size:64']);
+
+        return $this->confirmImport($request->string('token')->toString(), 'staff', $previewer);
+    }
+
+    private function confirmImport(string $token, string $kind, CsvImportPreviewService $previewer): RedirectResponse
+    {
+        $payload = $previewer->retrieve($token, $this->schoolId(), auth()->id());
+        if ($payload === null || ($payload['kind'] ?? null) !== $kind) {
+            return redirect()->route('admin.import.index')->withErrors('Preview import sudah kedaluwarsa atau tidak valid.');
+        }
+
+        $created = 0;
+        $skipped = 0;
+        $errors = [];
+        $schoolId = $this->schoolId();
+
+        DB::transaction(function () use ($payload, $kind, $schoolId, &$created, &$skipped, &$errors) {
+            foreach ($payload['rows'] as $previewRow) {
+                if (! $previewRow['valid']) {
+                    $skipped++;
+
+                    continue;
+                }
+
+                $row = $previewRow['data'];
+                $email = strtolower(trim((string) ($row['email'] ?? '')));
+                if (User::withoutGlobalScopes()->where('email', $email)->exists()) {
+                    $errors[] = "Baris {$previewRow['line']}: email sudah digunakan saat konfirmasi.";
+                    $skipped++;
+
+                    continue;
+                }
+                if ($kind === 'students' && Student::withoutGlobalScopes()
+                    ->where('school_id', $schoolId)
+                    ->where('admission_no', $row['admission_no'])
+                    ->exists()) {
+                    $errors[] = "Baris {$previewRow['line']}: nomor pendaftaran sudah digunakan saat konfirmasi.";
+                    $skipped++;
+
+                    continue;
+                }
 
                 $user = User::create([
-                    'name'      => $row['name'],
-                    'email'     => $row['email'],
-                    'phone'     => $row['phone'] ?? null,
-                    'password'  => Hash::make($row['password'] ?? 'Staff123!'),
-                    'school_id' => $this->schoolId(),
+                    'name' => trim($row['name']),
+                    'email' => $email,
+                    'phone' => $row['phone'] ?? null,
+                    'password' => Hash::make($row['password']),
+                    'school_id' => $schoolId,
                     'is_active' => true,
                 ]);
-                $user->assignRole($row['role']);
+                $user->assignRole($kind === 'students' ? 'student' : $row['role']);
 
-                Staff::create([
-                    'user_id'      => $user->id,
-                    'school_id'    => $this->schoolId(),
-                    'employee_id'  => $row['employee_id'] ?? null,
-                    'department'   => $row['department'] ?? null,
-                    'designation'  => $row['designation'] ?? null,
-                    'joining_date' => $row['joining_date'] ?? null,
-                    'basic_salary' => !empty($row['basic_salary_rupiah']) ? (int)((float)$row['basic_salary_rupiah'] * 100) : null,
-                ]);
+                if ($kind === 'students') {
+                    Student::create([
+                        'user_id' => $user->id,
+                        'school_id' => $schoolId,
+                        'class_section_id' => $payload['class_section_id'] ?? null,
+                        'admission_no' => $row['admission_no'],
+                        'gender' => $row['gender'] ?? 'male',
+                        'date_of_birth' => $row['date_of_birth'] ?? null,
+                        'address' => $row['address'] ?? null,
+                        'guardian_name' => $row['guardian_name'] ?? null,
+                        'guardian_phone' => $row['guardian_phone'] ?? null,
+                    ]);
+                } else {
+                    Staff::create([
+                        'user_id' => $user->id,
+                        'school_id' => $schoolId,
+                        'employee_id' => $row['employee_id'] ?? null,
+                        'department' => $row['department'] ?? null,
+                        'designation' => $row['designation'] ?? null,
+                        'joining_date' => $row['joining_date'] ?? null,
+                        'basic_salary' => ! empty($row['basic_salary_rupiah']) ? (int) ((float) $row['basic_salary_rupiah'] * 100) : null,
+                    ]);
+                }
+
                 $created++;
             }
         });
-        fclose($handle);
 
-        return back()->with('success', "$created staff di-import. $skipped skip.");
+        $previewer->forget($token);
+        $message = "$created ".($kind === 'students' ? 'siswa' : 'staff')." di-import. $skipped baris dilewati.";
+        if ($errors !== []) {
+            $message .= ' '.implode(' ', array_slice($errors, 0, 3));
+        }
+
+        return redirect()->route('admin.import.index')->with('success', $message);
     }
 }

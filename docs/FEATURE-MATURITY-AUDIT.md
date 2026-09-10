@@ -50,7 +50,7 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 | AI | 2 | 3 | Dynamic provider adapters, usage logging and human-review paths exist | Teacher, analytics, risk | Provider-dependent; no vendor hardcoding | 3/5 |
 | Analytics/Dashboards | 3 | 3 | Role dashboards and real DB metrics exist | All operational domains | UI smoke and query profiling | 3/5 |
 | API/RBAC | 2 | 3 | Sanctum, permission middleware, tenant filters and recent IDOR hardening | All API domains | Tenant/RBAC tests; legacy endpoint sweep ongoing | 3/5 |
-| Reporting/Export | 2 | 3 | Existing reports, CSV/PDF/export paths and filters exist | Finance, academic, operational data | Report-specific coverage needs expansion | 3/5 |
+| Reporting/Export | 2 | 3 | Existing reports, CSV/PDF/export paths and filters exist; sensitive student/staff CSV imports now use encrypted preview, validation, duplicate detection, and explicit confirmation | Finance, academic, operational data | Import preview/confirm 2 tests / 13 assertions; report-specific coverage needs expansion | 3/5 |
 | Backup/System Health | 2 | 3 | Health checks and scheduled backup command exist; UI no longer fabricates successful backups | Operations and deployment | Command/infrastructure-dependent | 3/5 |
 
 ## Prioritas peningkatan berikutnya
@@ -60,6 +60,6 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 3. Add drill-down report tests and query profiling using the seeded multi-school dataset.
 4. Verify queue workers, scheduler, storage backup target, and provider credentials in a production-like environment.
 
-Latest verification snapshot: 285 tests / 1,535 assertions passed; route registry: 1,569 routes; frontend production build passed.
+Latest full-suite snapshot before the import preview change: 285 tests / 1,535 assertions passed; current route registry: 1,571 routes; frontend production build passed.
 
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.
