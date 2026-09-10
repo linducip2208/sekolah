@@ -20,28 +20,28 @@ class LandingController extends Controller
         // Apply platform-level color/typography overrides on top of the template.
         $p = $this->platform->all();
         foreach ([
-            '--lp-primary'     => 'landing_primary',
-            '--lp-accent'      => 'landing_accent',
-            '--lp-background'  => 'landing_background',
-            '--lp-ink'         => 'landing_text',
-            '--lp-muted'       => 'landing_text_muted',
+            '--lp-primary' => 'landing_primary',
+            '--lp-accent' => 'landing_accent',
+            '--lp-background' => 'landing_background',
+            '--lp-ink' => 'landing_text',
+            '--lp-muted' => 'landing_text_muted',
         ] as $var => $setting) {
-            if (!empty($p[$setting])) {
+            if (! empty($p[$setting])) {
                 $theme['vars'][$var] = $p[$setting];
             }
         }
 
-        if (!empty($p['landing_font']) && ($font = FontRegistry::get($p['landing_font']))) {
-            $theme['fonts']['body']    = $font['family'];
+        if (! empty($p['landing_font']) && ($font = FontRegistry::get($p['landing_font']))) {
+            $theme['fonts']['body'] = $font['family'];
             $theme['fonts']['display'] = $font['family'];
-            $theme['fonts']['url']     = $font['url'];
+            $theme['fonts']['url'] = $font['url'];
         }
 
         $radiusMap = ['small' => ['8px', '10px', '14px'], 'large' => ['12px', '16px', '22px'], 'medium' => ['10px', '12px', '16px']];
         $radii = $radiusMap[$p['landing_radius_scale'] ?? 'medium'] ?? $radiusMap['medium'];
-        $theme['vars']['--lp-radius-sm']  = $radii[0];
-        $theme['vars']['--lp-radius-md']  = $radii[1];
-        $theme['vars']['--lp-radius-lg']  = $radii[2];
+        $theme['vars']['--lp-radius-sm'] = $radii[0];
+        $theme['vars']['--lp-radius-md'] = $radii[1];
+        $theme['vars']['--lp-radius-lg'] = $radii[2];
         $theme['vars']['--lp-radius-btn'] = $radii[1];
 
         $screens = static fn (string $file) => asset("marketing/screens/{$file}");
@@ -104,11 +104,6 @@ class LandingController extends Controller
                 ['title' => 'Audit log', 'desc' => 'Jejak aktivitas pengguna tercatat lengkap.'],
                 ['title' => 'Backup otomatis', 'desc' => 'Jadwal backup database harian untuk pemulihan cepat.'],
             ],
-            'testimonials' => [
-                ['quote' => 'Ini adalah ruang testimoni pelanggan. Ganti dengan kutipan asli dari sekolah yang menggunakan platform.', 'name' => 'Nama Kepala Sekolah', 'role' => 'SMA Negeri Contoh', 'placeholder' => true],
-                ['quote' => 'Tampilkan kisah sukses nyata — misalnya penghematan waktu administrasi atau transisi dari Excel ke sistem terpadu.', 'name' => 'Nama Administrator', 'role' => 'Yayasan Pendidikan Contoh', 'placeholder' => true],
-                ['quote' => 'Gunakan testimoni yang spesifik dan jujur. Hindari klaim angka yang tidak dapat dibuktikan.', 'name' => 'Nama Bendahara', 'role' => 'Sekolah Swasta Contoh', 'placeholder' => true],
-            ],
             'faqs' => [
                 ['q' => 'Apa itu Sikad Pro?', 'a' => 'Platform manajemen sekolah multi-tenant berbasis cloud yang mencakup akademik, keuangan, PPDB, perpustakaan, transportasi, kantin cashless, hingga AI assistant — dalam satu sistem terintegrasi.'],
                 ['q' => 'Siapa yang bisa menggunakannya?', 'a' => 'Sekolah, yayasan, dan pesantren. Tersedia portal untuk administrator, kepala sekolah, guru, keuangan, orang tua, dan siswa.'],
@@ -127,10 +122,10 @@ class LandingController extends Controller
             ],
         ];
 
-        return view('landing.themes.' . $theme['key'], [
-            'theme'   => $theme,
+        return view('landing.themes.'.$theme['key'], [
+            'theme' => $theme,
             'landing' => $landing,
-            'plans'   => Plan::where('is_active', true)->orderBy('price')->get(),
+            'plans' => Plan::where('is_active', true)->orderBy('price')->get(),
         ]);
     }
 }

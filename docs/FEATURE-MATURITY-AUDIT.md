@@ -60,6 +60,6 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 3. Add drill-down report tests and query profiling using the seeded multi-school dataset.
 4. Verify queue workers, scheduler, storage backup target, and provider credentials in a production-like environment.
 
-Latest verification snapshot: 265 tests / 1,509 assertions passed; route registry: 1,566 routes; frontend production build passed.
+Latest verification snapshot: 267 tests / 1,512 assertions passed; route registry: 1,566 routes; frontend production build passed.
 
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.
