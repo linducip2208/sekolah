@@ -25,4 +25,4 @@ Legacy `visitor_logs`, `visitor_blacklist`, dan QR session tetap dipertahankan. 
 - `POST /api/v1/visitors/{id}/check-out`;
 - `POST /api/v1/visitor/scan` QR scan compatibility path.
 
-Actions use Sanctum plus `visitor.view`/`visitor.manage`. Every canonical mutation records actor, school, event, IP, user agent, dan metadata. Camera upload, notification provider, dan physical badge printer remain deployment integrations.
+Actions use Sanctum plus `visitor.view`/`visitor.manage`. Every canonical mutation records actor, school, event, IP, user agent, dan metadata. Check-in dispatches a queued host notification through the centralized notification dispatcher and records the in-app notification even when no external provider is configured. Camera upload, notification provider, dan physical badge printer remain deployment integrations.

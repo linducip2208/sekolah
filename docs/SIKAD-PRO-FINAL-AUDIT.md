@@ -189,6 +189,7 @@ Implemented/hardened:
 - immutable wallet ledger;
 - database row locks for wallet mutation;
 - idempotency keys for wallet top-up, purchase, refund and accounting posting;
+- canonical Visitor check-in queues a tenant-scoped host notification through `NotificationDispatcher`;
 - audit log for canonical Visitor flow.
 
 Remaining security work: complete IDOR/policy sweep over every legacy API/controller, verify upload MIME/path restrictions across all modules, and add automated webhook replay/signature coverage to the full suite.

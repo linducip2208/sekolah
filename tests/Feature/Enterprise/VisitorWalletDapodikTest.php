@@ -74,6 +74,11 @@ class VisitorWalletDapodikTest extends TestCase
         $visit = app(VisitorService::class)->checkIn($school->id, $visit->id, $admin->id);
         $this->assertSame('checked_in', $visit->status);
         $this->assertNotNull($visit->badge_number);
+        $this->assertDatabaseHas('notifications_log', [
+            'school_id' => $school->id,
+            'user_id' => $admin->id,
+            'type' => 'visitor_arrived',
+        ]);
         $visit = app(VisitorService::class)->checkOut($school->id, $visit->id, $admin->id);
         $this->assertSame('checked_out', $visit->status);
         $this->assertNotNull($visit->check_out_at);

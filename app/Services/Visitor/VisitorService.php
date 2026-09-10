@@ -2,6 +2,7 @@
 
 namespace App\Services\Visitor;
 
+use App\Jobs\NotifyCanonicalVisitorHostJob;
 use App\Models\User;
 use App\Models\Visitor\Visitor;
 use App\Models\Visitor\VisitorAuditLog;
@@ -47,6 +48,9 @@ class VisitorService
                 $this->issueBadge($visit, $actorUserId);
             }
             $this->audit($visit, $actorUserId, $preRegistered ? 'registered' : 'checked_in', $data);
+            if (! $preRegistered && $visit->host_user_id) {
+                NotifyCanonicalVisitorHostJob::dispatch($visit->id)->afterCommit();
+            }
 
             return $visit->load(['visitor', 'host', 'badges']);
         });
@@ -67,6 +71,9 @@ class VisitorService
             $visit->update(['status' => 'checked_in', 'check_in_at' => now()]);
             $this->issueBadge($visit, $actorUserId);
             $this->audit($visit, $actorUserId, 'checked_in');
+            if ($visit->host_user_id) {
+                NotifyCanonicalVisitorHostJob::dispatch($visit->id)->afterCommit();
+            }
 
             return $visit->fresh(['visitor', 'host', 'badges']);
         });
