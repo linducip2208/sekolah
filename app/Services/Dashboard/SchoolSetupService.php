@@ -23,13 +23,13 @@ class SchoolSetupService
             $safe = fn (callable $fn, $default = false) => rescue($fn, $default, false);
 
             $steps = [
-                ['key' => 'profile', 'label' => 'Profil Sekolah', 'href' => rescue(fn () => route('admin.branding.show'), '#', false)],
-                ['key' => 'year', 'label' => 'Tahun Ajaran Aktif', 'href' => rescue(fn () => route('admin.academic.years.index'), '#', false)],
-                ['key' => 'subjects', 'label' => 'Mata Pelajaran', 'href' => rescue(fn () => route('admin.academic.subjects.index'), '#', false)],
-                ['key' => 'classes', 'label' => 'Kelas & Rombel', 'href' => rescue(fn () => route('admin.academic.classes.index'), '#', false)],
-                ['key' => 'staff', 'label' => 'Guru & Staf', 'href' => rescue(fn () => route('admin.staff.index'), '#', false)],
-                ['key' => 'students', 'label' => 'Data Siswa', 'href' => rescue(fn () => route('admin.students.index'), '#', false)],
-                ['key' => 'fees', 'label' => 'Struktur SPP', 'href' => rescue(fn () => route('admin.fee.structures.index'), '#', false)],
+                ['key' => 'profile', 'label' => 'Profil Sekolah', 'href' => rescue(fn () => route('admin.branding.show'), route('admin.dashboard'), false)],
+                ['key' => 'year', 'label' => 'Tahun Ajaran Aktif', 'href' => rescue(fn () => route('admin.academic.years.index'), route('admin.dashboard'), false)],
+                ['key' => 'subjects', 'label' => 'Mata Pelajaran', 'href' => rescue(fn () => route('admin.academic.subjects.index'), route('admin.dashboard'), false)],
+                ['key' => 'classes', 'label' => 'Kelas & Rombel', 'href' => rescue(fn () => route('admin.academic.classes.index'), route('admin.dashboard'), false)],
+                ['key' => 'staff', 'label' => 'Guru & Staf', 'href' => rescue(fn () => route('admin.staff.index'), route('admin.dashboard'), false)],
+                ['key' => 'students', 'label' => 'Data Siswa', 'href' => rescue(fn () => route('admin.students.index'), route('admin.dashboard'), false)],
+                ['key' => 'fees', 'label' => 'Struktur SPP', 'href' => rescue(fn () => route('admin.fee.structures.index'), route('admin.dashboard'), false)],
             ];
 
             foreach ($steps as &$step) {

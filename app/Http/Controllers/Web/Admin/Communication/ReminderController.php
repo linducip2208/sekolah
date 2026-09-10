@@ -25,22 +25,22 @@ class ReminderController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'                => 'required|string|max:200',
-            'recipient_type'      => 'required|in:parent,student,staff',
-            'trigger_days_before'  => 'required|array',
+            'name' => 'required|string|max:200',
+            'recipient_type' => 'required|in:parent,student,staff',
+            'trigger_days_before' => 'required|array',
             'trigger_days_before.*' => 'integer|min:0|max:365',
-            'reminder_type'       => 'required|in:wa,email,sms',
-            'message_template'    => 'required|string',
+            'reminder_type' => 'required|in:wa,email,sms',
+            'message_template' => 'required|string',
         ]);
 
         ReminderSchedule::create([
-            'school_id'           => auth()->user()->school_id,
-            'name'                => $validated['name'],
-            'recipient_type'      => $validated['recipient_type'],
-            'trigger_days_before'  => $validated['trigger_days_before'],
-            'reminder_type'       => $validated['reminder_type'],
-            'message_template'    => $validated['message_template'],
-            'is_active'           => true,
+            'school_id' => auth()->user()->school_id,
+            'name' => $validated['name'],
+            'recipient_type' => $validated['recipient_type'],
+            'trigger_days_before' => $validated['trigger_days_before'],
+            'reminder_type' => $validated['reminder_type'],
+            'message_template' => $validated['message_template'],
+            'is_active' => true,
         ]);
 
         return redirect()->route('admin.reminders.index')
@@ -50,12 +50,12 @@ class ReminderController extends Controller
     public function update(Request $request, ReminderSchedule $schedule): RedirectResponse
     {
         $validated = $request->validate([
-            'name'                => 'required|string|max:200',
-            'recipient_type'      => 'required|in:parent,student,staff',
-            'trigger_days_before'  => 'required|array',
+            'name' => 'required|string|max:200',
+            'recipient_type' => 'required|in:parent,student,staff',
+            'trigger_days_before' => 'required|array',
             'trigger_days_before.*' => 'integer|min:0|max:365',
-            'reminder_type'       => 'required|in:wa,email,sms',
-            'message_template'    => 'required|string',
+            'reminder_type' => 'required|in:wa,email,sms',
+            'message_template' => 'required|string',
         ]);
 
         $schedule->update($validated);
@@ -66,15 +66,17 @@ class ReminderController extends Controller
 
     public function toggle(ReminderSchedule $schedule): RedirectResponse
     {
-        $schedule->update(['is_active' => !$schedule->is_active]);
+        $schedule->update(['is_active' => ! $schedule->is_active]);
 
         $status = $schedule->is_active ? 'dilanjutkan' : 'dijeda';
+
         return back()->with('success', "Pengingat '{$schedule->name}' {$status}.");
     }
 
     public function destroy(ReminderSchedule $schedule): RedirectResponse
     {
         $schedule->delete();
+
         return back()->with('success', 'Jadwal pengingat berhasil dihapus.');
     }
 
@@ -84,8 +86,8 @@ class ReminderController extends Controller
 
         $logs = ReminderLog::with('schedule:id,name')
             ->where('school_id', $schoolId)
-            ->when($request->schedule_id, fn($q) => $q->where('reminder_schedule_id', $request->schedule_id))
-            ->when($request->status, fn($q) => $q->where('status', $request->status))
+            ->when($request->schedule_id, fn ($q) => $q->where('reminder_schedule_id', $request->schedule_id))
+            ->when($request->status, fn ($q) => $q->where('status', $request->status))
             ->orderByDesc('sent_at')
             ->paginate(50);
 
@@ -101,14 +103,14 @@ class ReminderController extends Controller
         ]);
 
         $variables = [
-            'nama'        => 'Orang Tua (Test)',
-            'target_id'   => 0,
-            'jumlah'      => 'Rp 500.000',
-            'jatuh_tempo'  => now()->addDays(7)->format('d M Y'),
-            'link_bayar'   => '#',
-            'sekolah'     => config('app.name', 'Sekolah'),
-            'kelas'       => '7A',
-            'nis'         => '12345',
+            'nama' => 'Orang Tua (Test)',
+            'target_id' => 0,
+            'jumlah' => 'Rp 500.000',
+            'jatuh_tempo' => now()->addDays(7)->format('d M Y'),
+            'link_bayar' => 'Hubungi admin sekolah',
+            'sekolah' => config('app.name', 'Sekolah'),
+            'kelas' => '7A',
+            'nis' => '12345',
         ];
 
         $result = $service->sendReminder($schedule, $variables, $request->test_phone);

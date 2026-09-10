@@ -40,6 +40,7 @@ Temuan yang diperbaiki:
 - Lesson Plan API dan admin flow menerima referensi akademik lintas sekolah tanpa verifikasi konsisten;
 - payment webhook belum memiliki payload fingerprint/replay record dan HMAC timestamp untuk outbound delivery;
 - backup UI membuat file sintetis ketika `mysqldump` gagal;
+- dashboard, parent portal, reminder, email subscription, tabs, dan command palette tidak lagi memiliki fallback actionable ke `#`; fallback navigasi kini menuju route yang valid atau tidak merender CTA;
 - attendance dan marks maturity pass menambahkan lifecycle lock/reopen/correction, tenant-safe references, dan protection untuk rapor terkunci;
 - inventory dan procurement maturity pass menambahkan row locking, non-negative stock invariant, transfer movement types, scoped supplier/budget validation, serta bounded partial receiving;
 - accounting maturity pass menambahkan tenant-safe COA lines, double-entry line validation, row-locked posting, automatic reference idempotency, dan audit logging;

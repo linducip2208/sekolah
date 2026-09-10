@@ -3,7 +3,7 @@
     'description' => null,
     'tone' => 'warning',   // danger | warning | info | success
     'ctaLabel' => null,
-    'ctaHref' => '#',
+    'ctaHref' => null,
     'count' => null,
 ])
 <div {{ $attributes->merge(['class' => 'flex items-center gap-3 px-4 py-3.5 rounded-xl border transition']) }}
@@ -19,7 +19,7 @@
         </p>
         @if($description)<p class="text-xs mt-0.5" style="color: var(--color-text-secondary);">{{ $description }}</p>@endif
     </div>
-    @if($ctaLabel && $slot->isEmpty())
+    @if($ctaLabel && $ctaHref && $slot->isEmpty())
         <a href="{{ $ctaHref }}" class="btn btn-sm flex-shrink-0 whitespace-nowrap" style="background: var(--color-{{ $tone }});">{{ $ctaLabel }}</a>
     @endif
     @if($slot->isNotEmpty()){{ $slot }}@endif
