@@ -4,9 +4,11 @@
 @section('content')
 
 @php
-    $statusTone = fn ($st) => match ($st) { 'approved' => 'success', 'rejected' => 'danger', 'under_review' => 'info', 'submitted' => 'warning', default => 'default' };
+    $statusTone = fn ($st) => match ($st) { 'approved' => 'success', 'rejected', 'cancelled' => 'danger', 'returned' => 'info', 'under_review' => 'info', 'submitted' => 'warning', default => 'default' };
     $statusLabel = \App\Models\Workflow\WorkflowRequest::STATUSES[$item->status] ?? $item->status;
     $isOpen = in_array($item->status, ['submitted', 'under_review'], true);
+    $canResubmit = $item->status === 'returned' && (int) $item->requester_id === (int) auth()->id();
+    $canCancel = in_array($item->status, ['draft', 'submitted', 'returned'], true) && ((int) $item->requester_id === (int) auth()->id() || auth()->user()->hasRole('admin') || auth()->user()->can('workflow.manage'));
 @endphp
 
 <div class="max-w-3xl space-y-6">
@@ -77,6 +79,25 @@
                     <x-ui.button type="submit" variant="danger" class="w-full">Tolak</x-ui.button>
                 </form>
             </div>
+            <div class="card card-pad">
+                <h3 class="font-semibold mb-3" style="color: var(--color-info);">Kembalikan untuk revisi</h3>
+                <form method="POST" action="{{ route('admin.workflow.return', $item) }}" class="space-y-3">
+                    @csrf
+                    <x-ui.textarea name="note" label="Catatan revisi" :required="true" rows="2" />
+                    <x-ui.button type="submit" variant="secondary" class="w-full">Minta Revisi</x-ui.button>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    @if($canResubmit || $canCancel)
+        <div class="flex flex-wrap gap-2">
+            @if($canResubmit)
+                <form method="POST" action="{{ route('admin.workflow.resubmit', $item) }}">@csrf <x-ui.button type="submit">Ajukan Ulang Revisi</x-ui.button></form>
+            @endif
+            @if($canCancel)
+                <form method="POST" action="{{ route('admin.workflow.cancel', $item) }}" onsubmit="return confirm('Batalkan permintaan ini?')">@csrf <x-ui.button type="submit" variant="ghost">Batalkan</x-ui.button></form>
+            @endif
         </div>
     @endif
 </div>

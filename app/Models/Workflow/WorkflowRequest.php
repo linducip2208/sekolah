@@ -39,8 +39,10 @@ class WorkflowRequest extends SchoolModel
         'draft' => 'Draft',
         'submitted' => 'Diajukan',
         'under_review' => 'Dalam Review',
+        'returned' => 'Perlu Revisi',
         'approved' => 'Disetujui',
         'rejected' => 'Ditolak',
+        'cancelled' => 'Dibatalkan',
     ];
 
     public function requester(): BelongsTo

@@ -67,4 +67,45 @@ class WorkflowNotificationSafetyTest extends TestCase
             'user_id' => $foreignUser->id,
         ]);
     }
+
+    public function test_workflow_can_be_returned_resubmitted_and_cancelled(): void
+    {
+        $school = School::factory()->create();
+        $requester = User::factory()->create(['school_id' => $school->id]);
+        $approver = User::factory()->create(['school_id' => $school->id]);
+        $approver->assignRole('admin');
+        $service = app(WorkflowService::class);
+        $workflow = $service->create($school->id, $requester->id, [
+            'type' => 'other',
+            'title' => 'Butuh revisi',
+        ]);
+
+        $this->actingAs($approver, 'sanctum');
+        $service->returnForRevision($workflow, 'Lengkapi lampiran.');
+        $this->assertDatabaseHas('workflow_requests', ['id' => $workflow->id, 'status' => 'returned']);
+
+        $this->actingAs($requester, 'sanctum');
+        $service->resubmit($workflow->fresh());
+        $this->assertDatabaseHas('workflow_requests', ['id' => $workflow->id, 'status' => 'submitted']);
+
+        $service->cancel($workflow->fresh(), 'Tidak jadi diajukan.');
+        $this->assertDatabaseHas('workflow_requests', ['id' => $workflow->id, 'status' => 'cancelled']);
+    }
+
+    public function test_workflow_resubmission_requires_requester_ownership(): void
+    {
+        $school = School::factory()->create();
+        $requester = User::factory()->create(['school_id' => $school->id]);
+        $otherUser = User::factory()->create(['school_id' => $school->id]);
+        $service = app(WorkflowService::class);
+        $workflow = $service->create($school->id, $requester->id, [
+            'type' => 'other',
+            'title' => 'Revisi harus aman',
+        ]);
+
+        $workflow->update(['status' => 'returned']);
+        $this->actingAs($otherUser, 'sanctum');
+        $this->expectException(HttpException::class);
+        $service->resubmit($workflow->fresh());
+    }
 }

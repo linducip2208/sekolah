@@ -10,11 +10,11 @@ Repository latest berhasil diaudit dan dipertahankan sebagai source of truth. Pe
 
 Status penting yang terverifikasi:
 
-- ✅ Migration production `2026_08_23_000002_schema_audit_fixes` dan `2026_09_10_000001_add_enterprise_visitor_wallet_dapodik_tables` berhasil dijalankan.
+- ✅ Migration production `2026_08_23_000002_schema_audit_fixes`, `2026_09_10_000001_add_enterprise_visitor_wallet_dapodik_tables`, dan lifecycle workflow `2026_09_10_000005_expand_workflow_lifecycle_statuses` berhasil dijalankan.
 - ✅ Build frontend berhasil dengan `npm.cmd run build`.
 - ✅ Pint dan PHP syntax check berhasil pada file yang diubah.
 - ✅ Flow Visitor, immutable Wallet Ledger, idempotency, cross-school rejection, dan Dapodik fake sync diuji.
-- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 267 tests / 1.512 assertions.
+- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 269 tests / 1.516 assertions.
 - ⚠️ Dapodik live integration memerlukan endpoint dan credential sekolah; adapter tidak mengarang endpoint vendor.
 - ✅ Playwright desktop capture 26/26 halaman dan mobile capture 5/5 halaman berhasil pada server lokal port 8765.
 - ✅ Portal capture 4/4 (student dan parent, desktop/mobile) serta dark-mode capture 5/5 berhasil.
@@ -47,7 +47,7 @@ Temuan yang diperbaiki:
 - PPDB maturity pass menambahkan open/close window, jalur/quota validation, duplicate NISN detection, guarded lifecycle, configurable scoring, row-locked selection/waitlist, and audit logging;
 - BK/Discipline/UKS maturity pass menambahkan permission gates, tenant-safe student/staff references, guarded counseling lifecycle, conflict detection, configurable sanction thresholds, and audit logging;
 - library/hostel/transport maturity pass menambahkan tenant-safe member/room/route validation, row-locked inventory/occupancy updates, transactional transport assignment, and audit logging;
-- workflow/notification maturity pass menambahkan tenant-bound requester/approver decisions, terminal-state protection, rejection reason enforcement, and recipient filtering before notification logging/sending;
+- workflow/notification maturity pass menambahkan tenant-bound requester/approver decisions, approve/reject/return/resubmit/cancel transitions, terminal-state protection, rejection/revision reason enforcement, and recipient filtering before notification logging/sending;
 - test baru menguji flow enterprise dan cross-school access.
 
 ## 3. Feature matrix aktual
@@ -86,7 +86,7 @@ Legenda: `✅ COMPLETE` berarti flow penting yang diaudit tersedia dan diuji; `R
 | Parent portal | ✅ COMPLETE | Existing portal and ownership checks; needs full Playwright regression. |
 | Student portal | ✅ COMPLETE | Existing portal and student ownership flows. |
 | Teacher portal | ✅ COMPLETE | Existing role dashboard and teacher workflows. |
-| Workflow / approvals | ✅ COMPLETE | Existing generic workflow service/table plus new sensitive-flow integration points. |
+| Workflow / approvals | ✅ COMPLETE | Generic workflow service now supports guarded approve/reject/return-for-revision/resubmit/cancel transitions with tenant validation, locking, audit logging, and sensitive-flow integration points. |
 | Documents / signatures | ✅ COMPLETE | Existing document, letter, signature and QR verification flows. |
 | Alumni / BKK | ✅ COMPLETE | Existing alumni, tracer, jobs and placement domains. |
 | Compliance | ✅ COMPLETE | Existing accreditation/audit/action plan domain. |
@@ -192,10 +192,10 @@ Passed:
 - Laravel Pint on changed implementation files;
 - `npm.cmd run build`;
 - enterprise test suite after test DB bootstrap: 5 tests / 13 assertions passed before assertion correction, then corrected wallet test passed independently (1 test / 4 assertions);
-- full PHPUnit/Pest suite: 267 tests / 1.512 assertions passed;
+- full PHPUnit/Pest suite: 269 tests / 1.516 assertions passed;
 - PPDB regression: 6 enrollment/lifecycle/selection tests plus 2 public-registration tests passed, including cross-school, deadline, duplicate-NISN, quota, and waitlist checks;
 - BK/Discipline/UKS regression: 6 service-boundary/lifecycle/threshold tests passed;
-- workflow/notification regression: 3 tenant-boundary/replay/recipient-filter tests passed;
+- workflow/notification regression: 5 tenant-boundary/replay/recipient-filter/revision tests passed;
 - library/transport regression: 8 issue/return/assignment tests passed;
 - webhook regression: timestamped outbound HMAC and duplicate signed payment callback tests passed;
 - migration execution against local MySQL database;

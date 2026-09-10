@@ -1229,6 +1229,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/workflow/{workflowRequest}',          [WorkflowController::class, 'show'])->name('workflow.show');
         Route::post('/workflow/{workflowRequest}/approve', [WorkflowController::class, 'approve'])->name('workflow.approve');
         Route::post('/workflow/{workflowRequest}/reject',  [WorkflowController::class, 'reject'])->name('workflow.reject');
+        Route::post('/workflow/{workflowRequest}/return',  [WorkflowController::class, 'returnForRevision'])->name('workflow.return');
+        Route::post('/workflow/{workflowRequest}/resubmit', [WorkflowController::class, 'resubmit'])->name('workflow.resubmit');
+        Route::post('/workflow/{workflowRequest}/cancel',  [WorkflowController::class, 'cancel'])->name('workflow.cancel');
 
         // ============== BLOG ==============
         Route::get('/blog',                              [\App\Http\Controllers\Web\Admin\BlogController::class, 'index'])->name('blog.index');

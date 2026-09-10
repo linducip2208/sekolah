@@ -27,9 +27,9 @@ class WorkflowController extends Controller
             ->latest()->paginate(20)->withQueryString();
 
         return view('school-admin.workflow.index', [
-            'items'        => $items,
-            'types'        => WorkflowRequest::TYPES,
-            'statuses'     => WorkflowRequest::STATUSES,
+            'items' => $items,
+            'types' => WorkflowRequest::TYPES,
+            'statuses' => WorkflowRequest::STATUSES,
             'pendingCount' => $this->workflow->pendingCount($this->schoolId()),
         ]);
     }
@@ -42,8 +42,8 @@ class WorkflowController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'type'        => 'required|in:'.implode(',', array_keys(WorkflowRequest::TYPES)),
-            'title'       => 'required|string|max:255',
+            'type' => 'required|in:'.implode(',', array_keys(WorkflowRequest::TYPES)),
+            'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:5000',
         ]);
 
@@ -57,7 +57,7 @@ class WorkflowController extends Controller
         abort_unless($workflowRequest->school_id === $this->schoolId(), 403);
 
         return view('school-admin.workflow.show', [
-            'item'  => $workflowRequest->load(['requester:id,name', 'approver:id,name']),
+            'item' => $workflowRequest->load(['requester:id,name', 'approver:id,name']),
             'types' => WorkflowRequest::TYPES,
         ]);
     }
@@ -82,5 +82,32 @@ class WorkflowController extends Controller
         $this->workflow->reject($workflowRequest, $data['note']);
 
         return back()->with('success', 'Permintaan ditolak.');
+    }
+
+    public function returnForRevision(WorkflowRequest $workflowRequest, Request $request): RedirectResponse
+    {
+        abort_unless($workflowRequest->school_id === $this->schoolId(), 403);
+        $data = $request->validate(['note' => 'required|string|max:2000']);
+
+        $this->workflow->returnForRevision($workflowRequest, $data['note']);
+
+        return back()->with('success', 'Permintaan dikembalikan untuk revisi.');
+    }
+
+    public function resubmit(WorkflowRequest $workflowRequest): RedirectResponse
+    {
+        abort_unless($workflowRequest->school_id === $this->schoolId(), 403);
+        $this->workflow->resubmit($workflowRequest);
+
+        return back()->with('success', 'Revisi berhasil diajukan kembali.');
+    }
+
+    public function cancel(WorkflowRequest $workflowRequest, Request $request): RedirectResponse
+    {
+        abort_unless($workflowRequest->school_id === $this->schoolId(), 403);
+
+        $this->workflow->cancel($workflowRequest, $request->input('note'));
+
+        return back()->with('success', 'Permintaan dibatalkan.');
     }
 }

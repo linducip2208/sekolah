@@ -79,6 +79,78 @@ class WorkflowService
         return $request->fresh();
     }
 
+    public function returnForRevision(WorkflowRequest $request, string $note): WorkflowRequest
+    {
+        abort_if(blank($note), 422, 'Catatan revisi wajib diisi.');
+
+        DB::transaction(function () use ($request, $note) {
+            $locked = $this->lock($request);
+            $this->assertApprover($locked);
+            abort_unless(in_array($locked->status, ['submitted', 'under_review'], true), 409, 'Workflow tidak dapat dikembalikan untuk revisi.');
+
+            $locked->update([
+                'status' => 'returned',
+                'approver_id' => auth()->id(),
+                'decided_at' => now(),
+                'decision_note' => $note,
+            ]);
+        });
+
+        return $request->fresh();
+    }
+
+    public function resubmit(WorkflowRequest $request): WorkflowRequest
+    {
+        DB::transaction(function () use ($request) {
+            $locked = $this->lock($request);
+            abort_unless(auth()->id() === $locked->requester_id, 403, 'Hanya pengaju yang dapat mengirim ulang revisi.');
+            abort_unless($locked->status === 'returned', 409, 'Workflow belum berstatus perlu revisi.');
+
+            $locked->update([
+                'status' => 'submitted',
+                'approver_id' => null,
+                'submitted_at' => now(),
+                'decided_at' => null,
+                'decision_note' => null,
+            ]);
+        });
+
+        return $request->fresh();
+    }
+
+    public function cancel(WorkflowRequest $request, ?string $note = null): WorkflowRequest
+    {
+        DB::transaction(function () use ($request, $note) {
+            $locked = $this->lock($request);
+            $actor = auth()->user();
+            abort_unless($actor && ((int) $actor->id === (int) $locked->requester_id || $actor->hasRole('admin') || $actor->can('workflow.manage')), 403, 'Tidak berhak membatalkan workflow ini.');
+            abort_unless(in_array($locked->status, ['draft', 'submitted', 'returned'], true), 409, 'Workflow tidak dapat dibatalkan pada status ini.');
+
+            $locked->update([
+                'status' => 'cancelled',
+                'approver_id' => $actor->id,
+                'decided_at' => now(),
+                'decision_note' => $note,
+            ]);
+        });
+
+        return $request->fresh();
+    }
+
+    private function lock(WorkflowRequest $request): WorkflowRequest
+    {
+        return WorkflowRequest::withoutGlobalScopes()
+            ->whereKey($request->id)
+            ->lockForUpdate()
+            ->firstOrFail();
+    }
+
+    private function assertApprover(WorkflowRequest $request): void
+    {
+        $approver = auth()->user();
+        abort_unless($approver && (int) $approver->school_id === (int) $request->school_id, 403, 'Approver bukan bagian dari sekolah ini.');
+    }
+
     public function pendingCount(int $schoolId): int
     {
         return WorkflowRequest::where('school_id', $schoolId)

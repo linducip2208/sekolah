@@ -4,7 +4,7 @@
 @section('content')
 
 @php
-    $statusTone = fn ($st) => match ($st) { 'approved' => 'success', 'rejected' => 'danger', 'under_review' => 'info', 'submitted' => 'warning', default => 'default' };
+    $statusTone = fn ($st) => match ($st) { 'approved' => 'success', 'rejected', 'cancelled' => 'danger', 'returned' => 'info', 'under_review' => 'info', 'submitted' => 'warning', default => 'default' };
     $currentStatus = request('status');
 @endphp
 
@@ -23,7 +23,7 @@
 
     {{-- Filters --}}
     <form method="GET" class="flex flex-wrap items-center gap-2">
-        @foreach(['' => 'Semua', 'submitted' => 'Diajukan', 'under_review' => 'Dalam Review', 'approved' => 'Disetujui', 'rejected' => 'Ditolak'] as $val => $label)
+        @foreach(['' => 'Semua', 'submitted' => 'Diajukan', 'under_review' => 'Dalam Review', 'returned' => 'Perlu Revisi', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'cancelled' => 'Dibatalkan'] as $val => $label)
             <a href="{{ route('admin.workflow.index', ['status' => $val, 'type' => request('type')]) }}"
                class="px-3 py-1.5 text-sm rounded-full border transition {{ $currentStatus === $val ? 'text-white' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text)]' }}"
                style="{{ $currentStatus === $val ? 'background: var(--color-primary); border-color: var(--color-primary);' : 'border-color: var(--color-border);' }}">

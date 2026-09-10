@@ -46,7 +46,7 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 | Dapodik | 1 | 4 | Configurable adapter, preview, mapping, conflicts, queue and fake client | Dapodik → Master Data | Fake sync/idempotency tests | 4/5 |
 | Communication | 3 | 4 | Central dispatcher now filters recipients by school before logging/sending, with preferences, broadcast and provider adapters | Events → notifications → portals | Notification tenant-safety and provider tests | 4/5 |
 | Documents/Letters | 3 | 3 | Draft/review/sign/archive/QR verification paths exist | Workflow, audit, public verification | Existing document tests | 3/5 |
-| Workflow/Approval | 2 | 4 | Generic request and approval service now validates requester/approver tenant, locks decisions, guards terminal transitions, and requires rejection reasons | Finance, procurement, leave, attendance, documents | Approval replay/cross-school regressions | 4/5 |
+| Workflow/Approval | 2 | 4 | Generic request and approval service now validates requester/approver tenant, locks decisions, supports approve/reject/return/resubmit/cancel transitions, guards terminal states, and requires decision reasons | Finance, procurement, leave, attendance, documents | Approval replay/cross-school plus revision/cancellation regressions | 4/5 |
 | AI | 2 | 3 | Dynamic provider adapters, usage logging and human-review paths exist | Teacher, analytics, risk | Provider-dependent; no vendor hardcoding | 3/5 |
 | Analytics/Dashboards | 3 | 3 | Role dashboards and real DB metrics exist | All operational domains | UI smoke and query profiling | 3/5 |
 | API/RBAC | 2 | 3 | Sanctum, permission middleware, tenant filters and recent IDOR hardening | All API domains | Tenant/RBAC tests; legacy endpoint sweep ongoing | 3/5 |
@@ -60,6 +60,6 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 3. Add drill-down report tests and query profiling using the seeded multi-school dataset.
 4. Verify queue workers, scheduler, storage backup target, and provider credentials in a production-like environment.
 
-Latest verification snapshot: 267 tests / 1,512 assertions passed; route registry: 1,566 routes; frontend production build passed.
+Latest verification snapshot: 269 tests / 1,516 assertions passed; route registry: 1,569 routes; frontend production build passed.
 
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.
