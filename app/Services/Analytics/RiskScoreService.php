@@ -18,15 +18,20 @@ class RiskScoreService
                 $count++;
             }
         });
+
         return $count;
     }
 
     public function computeForStudent(int $schoolId, int $studentId): StudentRiskScore
     {
+        Student::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->findOrFail($studentId);
+
         $sinceDate = now()->subDays(30);
 
         // Attendance score (0-100, higher better)
-        $totalAttendance   = Attendance::where('school_id', $schoolId)
+        $totalAttendance = Attendance::where('school_id', $schoolId)
             ->where('student_id', $studentId)->where('date', '>=', $sinceDate)->count();
         $presentCount = Attendance::where('school_id', $schoolId)
             ->where('student_id', $studentId)
@@ -35,13 +40,15 @@ class RiskScoreService
             ->count();
         $attendanceScore = $totalAttendance > 0 ? round(($presentCount / $totalAttendance) * 100, 2) : 100;
 
-        // Academic score: weighted recent marks (placeholder average)
-        $academicAvg = (float) \DB::table('marks')
+        // Academic score: weighted recent marks. Missing marks are reported as insufficient data.
+        $academicValue = \DB::table('marks')
             ->where('school_id', $schoolId)
             ->where('student_id', $studentId)
             ->where('created_at', '>=', $sinceDate)
             ->selectRaw('AVG((obtained_marks / NULLIF(total_marks, 0)) * 100) as avg_pct')
-            ->value('avg_pct') ?? 75;
+            ->value('avg_pct');
+        $hasAcademicData = $academicValue !== null;
+        $academicAvg = $hasAcademicData ? (float) $academicValue : 0.0;
 
         // Behavior score: 100 - (negative discipline points * factor)
         $negativePoints = abs((int) DisciplineRecord::where('school_id', $schoolId)
@@ -61,26 +68,35 @@ class RiskScoreService
             $overallRisk >= 70 => 'critical',
             $overallRisk >= 50 => 'high',
             $overallRisk >= 30 => 'medium',
-            default            => 'low',
+            default => 'low',
         };
 
         $factors = [];
-        if ($attendanceScore < 80) $factors[] = 'low_attendance';
-        if ($academicAvg < 60)     $factors[] = 'low_academic';
-        if ($negativePoints > 10)  $factors[] = 'discipline_issues';
+        if ($attendanceScore < 80) {
+            $factors[] = 'low_attendance';
+        }
+        if ($academicAvg < 60) {
+            $factors[] = 'low_academic';
+        }
+        if (! $hasAcademicData) {
+            $factors[] = 'insufficient_academic_data';
+        }
+        if ($negativePoints > 10) {
+            $factors[] = 'discipline_issues';
+        }
 
         return StudentRiskScore::updateOrCreate(
             ['student_id' => $studentId, 'snapshot_date' => today()],
             [
-                'school_id'         => $schoolId,
-                'attendance_score'  => $attendanceScore,
-                'academic_score'    => round($academicAvg, 2),
-                'behavior_score'    => $behaviorScore,
-                'engagement_score'  => $engagementScore,
-                'overall_risk'      => $overallRisk,
-                'risk_level'        => $level,
-                'top_risk_factors'  => $factors,
-                'recommendations'   => $this->buildRecommendations($factors),
+                'school_id' => $schoolId,
+                'attendance_score' => $attendanceScore,
+                'academic_score' => round($academicAvg, 2),
+                'behavior_score' => $behaviorScore,
+                'engagement_score' => $engagementScore,
+                'overall_risk' => $overallRisk,
+                'risk_level' => $level,
+                'top_risk_factors' => $factors,
+                'recommendations' => $this->buildRecommendations($factors),
             ],
         );
     }
@@ -104,9 +120,13 @@ class RiskScoreService
         if (in_array('low_academic', $factors, true)) {
             $rec[] = 'Sesi remedial dengan wali kelas / mata pelajaran terkait';
         }
+        if (in_array('insufficient_academic_data', $factors, true)) {
+            $rec[] = 'Lengkapi data penilaian sebelum mengambil keputusan akademik';
+        }
         if (in_array('discipline_issues', $factors, true)) {
             $rec[] = 'Konseling BP/BK dan parent meeting';
         }
+
         return $rec;
     }
 }
