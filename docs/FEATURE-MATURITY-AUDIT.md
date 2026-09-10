@@ -35,8 +35,8 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 | Accounting | 3 | 4 | COA, journal, posting hooks, refund posting and source references | Finance, payroll, procurement, wallet | Accounting and integration tests; closing-period depth remains | 4/5 |
 | RKAS/Budget | 2 | 3 | Budget, allocation and realization paths exist | Finance/reporting | Regression coverage needs expansion | 3/5 |
 | HR & Payroll | 3 | 4 | Payroll inputs, BPJS/PPh21, payslip, KPI and expiry paths | Payroll → Accounting → Notification | Payroll/tax tests | 4/5 |
-| Procurement | 2 | 3 | Request/approval/order/receipt paths exist | Procurement → Inventory/Asset → Accounting | Full partial-receipt workflow needs regression | 3/5 |
-| Inventory | 2 | 3 | Stock operations, transfer, adjustment and opname paths exist | Procurement, asset, reports | Stock isolation tests; ledger depth needs expansion | 3/5 |
+| Procurement | 2 | 4 | Request/approval/order/partial receipt lifecycle, scoped budget/supplier references, row-locked transitions, quantity bounds, and audit logging | Procurement → Inventory/Asset → Accounting | 2 workflow tests / 8 assertions; inventory receiving integration remains configuration-dependent | 4/5 |
+| Inventory | 2 | 4 | Stock operations, transfer, adjustment and opname paths use row locks, non-negative invariants, deterministic transfer locking, movement types, and audit logging | Procurement, asset, reports | Existing 5 inventory tests; parallel/concurrency test remains recommended | 4/5 |
 | Asset | 3 | 3 | Assignment, maintenance, transfer, depreciation and disposal paths exist | Procurement, accounting | Existing asset tests | 3/5 |
 | Library | 3 | 3 | Borrow/return/fine/digital content paths exist | Student profile, notifications | Library overdue tests | 3/5 |
 | Transport | 2 | 3 | Route, assignment, trip and tracking abstraction exist | Parent Portal, attendance, billing | Provider/device remains external | 3/5 |

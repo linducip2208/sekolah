@@ -5,17 +5,18 @@ namespace App\Http\Controllers\Web\Admin\Finance;
 use App\Http\Controllers\Controller;
 use App\Models\Finance\BudgetCategory;
 use App\Models\Finance\ProcurementApproval;
-use App\Models\Finance\ProcurementItem;
 use App\Models\Finance\ProcurementRequest;
 use App\Models\Finance\Supplier;
 use App\Services\ProcurementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class ProcurementController extends Controller
 {
     private int $schoolId;
+
     private ProcurementService $service;
 
     public function __construct()
@@ -37,19 +38,19 @@ class ProcurementController extends Controller
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('request_number', 'like', "%{$search}%");
+                    ->orWhere('request_number', 'like', "%{$search}%");
             });
         }
 
         $requests = $query->orderByDesc('created_at')->paginate(20)->withQueryString();
 
         $statusCounts = [
-            'draft'     => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'draft')->count(),
+            'draft' => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'draft')->count(),
             'submitted' => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'submitted')->count(),
-            'approved'  => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'approved')->count(),
-            'ordered'   => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'ordered')->count(),
-            'received'  => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'received')->count(),
-            'rejected'  => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'rejected')->count(),
+            'approved' => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'approved')->count(),
+            'ordered' => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'ordered')->count(),
+            'received' => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'received')->count(),
+            'rejected' => ProcurementRequest::where('school_id', $this->schoolId)->where('status', 'rejected')->count(),
         ];
 
         return view('school-admin.finance.procurement.index', compact(
@@ -74,20 +75,20 @@ class ProcurementController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'department'        => 'nullable|string|max:100',
-            'title'             => 'required|string|max:255',
-            'description'       => 'nullable|string',
-            'estimated_budget'  => 'required|numeric|min:0',
-            'urgency'           => 'required|in:low,medium,high,urgent',
-            'budget_category_id'=> 'nullable|exists:budget_categories,id',
-            'notes'             => 'nullable|string',
-            'items'             => 'required|array|min:1',
-            'items.*.item_name'           => 'required|string|max:255',
-            'items.*.quantity'            => 'required|numeric|min:0.01',
-            'items.*.unit'                => 'nullable|string|max:50',
-            'items.*.estimated_unit_price'=> 'required|numeric|min:0',
-            'items.*.supplier_id'         => 'nullable|exists:suppliers,id',
-            'items.*.supplier_name'       => 'nullable|string|max:255',
+            'department' => 'nullable|string|max:100',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'estimated_budget' => 'required|numeric|min:0',
+            'urgency' => 'required|in:low,medium,high,urgent',
+            'budget_category_id' => 'nullable|exists:budget_categories,id',
+            'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.item_name' => 'required|string|max:255',
+            'items.*.quantity' => 'required|numeric|min:0.01',
+            'items.*.unit' => 'nullable|string|max:50',
+            'items.*.estimated_unit_price' => 'required|numeric|min:0',
+            'items.*.supplier_id' => 'nullable|exists:suppliers,id',
+            'items.*.supplier_name' => 'nullable|string|max:255',
         ]);
 
         $data['estimated_budget'] = (int) ($data['estimated_budget'] * 100);
@@ -139,20 +140,20 @@ class ProcurementController extends Controller
         abort_unless($request->status === 'draft', 400, 'Hanya draft yang bisa diedit.');
 
         $data = $req->validate([
-            'department'        => 'nullable|string|max:100',
-            'title'             => 'required|string|max:255',
-            'description'       => 'nullable|string',
-            'estimated_budget'  => 'required|numeric|min:0',
-            'urgency'           => 'required|in:low,medium,high,urgent',
-            'budget_category_id'=> 'nullable|exists:budget_categories,id',
-            'notes'             => 'nullable|string',
-            'items'             => 'required|array|min:1',
-            'items.*.item_name'           => 'required|string|max:255',
-            'items.*.quantity'            => 'required|numeric|min:0.01',
-            'items.*.unit'                => 'nullable|string|max:50',
-            'items.*.estimated_unit_price'=> 'required|numeric|min:0',
-            'items.*.supplier_id'         => 'nullable|exists:suppliers,id',
-            'items.*.supplier_name'       => 'nullable|string|max:255',
+            'department' => 'nullable|string|max:100',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'estimated_budget' => 'required|numeric|min:0',
+            'urgency' => 'required|in:low,medium,high,urgent',
+            'budget_category_id' => 'nullable|exists:budget_categories,id',
+            'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.item_name' => 'required|string|max:255',
+            'items.*.quantity' => 'required|numeric|min:0.01',
+            'items.*.unit' => 'nullable|string|max:50',
+            'items.*.estimated_unit_price' => 'required|numeric|min:0',
+            'items.*.supplier_id' => 'nullable|exists:suppliers,id',
+            'items.*.supplier_name' => 'nullable|string|max:255',
         ]);
 
         $data['estimated_budget'] = (int) ($data['estimated_budget'] * 100);
@@ -172,6 +173,7 @@ class ProcurementController extends Controller
         abort_unless($request->school_id === $this->schoolId, 403);
         $num = $request->request_number;
         $request->delete();
+
         return redirect()->route('admin.procurement.index')
             ->with('success', "Permintaan '{$num}' dihapus.");
     }
@@ -211,7 +213,7 @@ class ProcurementController extends Controller
 
         $data = $req->validate([
             'decision' => 'required|in:approved,rejected',
-            'notes'    => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         try {
@@ -225,6 +227,7 @@ class ProcurementController extends Controller
         }
 
         $label = $data['decision'] === 'approved' ? 'disetujui' : 'ditolak';
+
         return back()->with('success', "Permintaan '{$procReq->request_number}' {$label}.");
     }
 
@@ -266,7 +269,7 @@ class ProcurementController extends Controller
         if ($search = $req->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('contact_person', 'like', "%{$search}%");
+                    ->orWhere('contact_person', 'like', "%{$search}%");
             });
         }
 
@@ -282,17 +285,18 @@ class ProcurementController extends Controller
     public function storeSupplier(Request $req): RedirectResponse
     {
         $data = $req->validate([
-            'name'           => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'contact_person' => 'nullable|string|max:255',
-            'phone'          => 'nullable|string|max:30',
-            'email'          => 'nullable|email|max:255',
-            'address'        => 'nullable|string',
-            'category'       => 'required|in:atk,elektronik,furniture,catering,maintenance,other',
-            'is_active'      => 'boolean',
+            'phone' => 'nullable|string|max:30',
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string',
+            'category' => 'required|in:atk,elektronik,furniture,catering,maintenance,other',
+            'is_active' => 'boolean',
         ]);
         $data['school_id'] = $this->schoolId;
 
         Supplier::create($data);
+
         return back()->with('success', 'Supplier ditambahkan.');
     }
 
@@ -301,16 +305,17 @@ class ProcurementController extends Controller
         abort_unless($supplier->school_id === $this->schoolId, 403);
 
         $data = $req->validate([
-            'name'           => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'contact_person' => 'nullable|string|max:255',
-            'phone'          => 'nullable|string|max:30',
-            'email'          => 'nullable|email|max:255',
-            'address'        => 'nullable|string',
-            'category'       => 'required|in:atk,elektronik,furniture,catering,maintenance,other',
-            'is_active'      => 'boolean',
+            'phone' => 'nullable|string|max:30',
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string',
+            'category' => 'required|in:atk,elektronik,furniture,catering,maintenance,other',
+            'is_active' => 'boolean',
         ]);
 
         $supplier->update($data);
+
         return back()->with('success', 'Supplier diperbarui.');
     }
 
@@ -318,6 +323,7 @@ class ProcurementController extends Controller
     {
         abort_unless($supplier->school_id === $this->schoolId, 403);
         $supplier->delete();
+
         return back()->with('success', 'Supplier dihapus.');
     }
 }

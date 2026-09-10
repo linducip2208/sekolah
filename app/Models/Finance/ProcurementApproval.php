@@ -2,6 +2,7 @@
 
 namespace App\Models\Finance;
 
+use App\Models\Traits\AuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProcurementApproval extends Model
 {
-    use SoftDeletes;
+    use AuditableModel, SoftDeletes;
 
     protected $table = 'procurement_approvals';
 

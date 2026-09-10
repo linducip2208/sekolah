@@ -41,6 +41,7 @@ Temuan yang diperbaiki:
 - payment webhook belum memiliki payload fingerprint/replay record dan HMAC timestamp untuk outbound delivery;
 - backup UI membuat file sintetis ketika `mysqldump` gagal;
 - attendance dan marks maturity pass menambahkan lifecycle lock/reopen/correction, tenant-safe references, dan protection untuk rapor terkunci;
+- inventory dan procurement maturity pass menambahkan row locking, non-negative stock invariant, transfer movement types, scoped supplier/budget validation, serta bounded partial receiving;
 - test baru menguji flow enterprise dan cross-school access.
 
 ## 3. Feature matrix aktual
@@ -65,8 +66,8 @@ Legenda: `✅ COMPLETE` berarti flow penting yang diaudit tersedia dan diuji; `R
 | Finance / billing / payment | ✅ COMPLETE | Existing fee, invoice, refund and configurable provider path; live provider requires setup. |
 | Double-entry accounting | ✅ COMPLETE | Existing COA/journal/reporting plus idempotent canteen posting hooks. |
 | HR / payroll | ✅ COMPLETE | Existing payroll, BPJS/PPh21, KPI and HR tables; staff attendance policy remains configuration-dependent. |
-| Procurement | ✅ COMPLETE | Existing request/approval/quotation/order/receipt-oriented domain; full regression suite needed. |
-| Inventory / asset | ✅ COMPLETE | Existing stock and asset lifecycle routes/models. |
+| Procurement | ✅ COMPLETE | Existing request/approval/order/receipt domain now has scoped references, locked state transitions, partial receipt bounds, and workflow regression tests. |
+| Inventory / asset | ✅ COMPLETE | Existing stock and asset lifecycle routes/models; stock mutations use row locks, signed movement ledger entries, and non-negative invariants. |
 | Library | ✅ COMPLETE | Existing catalog, borrowing, fine and digital library flows. |
 | Hostel | ✅ COMPLETE | Existing rooms, beds, warden, attendance, gate pass and mess tables. |
 | Transport | REQUIRES EXTERNAL CONFIGURATION | Existing routes and tracking abstraction; GPS provider/device is external. |
@@ -211,6 +212,7 @@ Implemented/hardened:
 - Attendance bulk/offline/API writes validate class/student/school ownership; locked dates require the generic approval workflow;
 - Marks bulk/offline/CBT writes validate student/subject/semester/exam ownership and reject edits for locked report cards;
 - Grade and attendance mutations use `AuditableModel` so before/after changes are available in the activity log;
+- Inventory item, stock movement, stock opname, procurement request, procurement item, and procurement approval mutations now use activity logging;
 - Counseling and Career student/counselor/assignee references are validated against the active school;
 - Lesson Plan API/admin writes validate class section, subject, semester, and teacher against the active school;
 - payment callbacks record payload fingerprints, reject already-processed replays, and serialize status application with a row lock;

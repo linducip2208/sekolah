@@ -3,12 +3,15 @@
 namespace App\Models\Finance;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProcurementRequest extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'procurement_requests';
 
     protected $fillable = [
@@ -19,7 +22,7 @@ class ProcurementRequest extends SchoolModel
 
     protected $casts = [
         'estimated_budget' => 'integer',
-        'approved_at'      => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function requester(): BelongsTo
@@ -54,7 +57,9 @@ class ProcurementRequest extends SchoolModel
 
     public function totalActual(): ?int
     {
-        if ($this->items->isEmpty()) return null;
+        if ($this->items->isEmpty()) {
+            return null;
+        }
         $total = 0;
         $hasAll = true;
         foreach ($this->items as $item) {
@@ -64,6 +69,7 @@ class ProcurementRequest extends SchoolModel
             }
             $total += $item->actual_unit_price * $item->quantity;
         }
+
         return $hasAll ? (int) $total : null;
     }
 }

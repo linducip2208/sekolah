@@ -3,10 +3,13 @@
 namespace App\Models\Inventory;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InventoryItem extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'inventory_items';
 
     protected $fillable = [
@@ -14,7 +17,7 @@ class InventoryItem extends SchoolModel
     ];
 
     protected $casts = [
-        'quantity'     => 'integer',
+        'quantity' => 'integer',
         'min_quantity' => 'integer',
     ];
 

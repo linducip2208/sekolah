@@ -2,13 +2,14 @@
 
 namespace App\Models\Finance;
 
+use App\Models\Traits\AuditableModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProcurementItem extends Model
 {
-    use SoftDeletes;
+    use AuditableModel, SoftDeletes;
 
     protected $table = 'procurement_items';
 
@@ -19,10 +20,10 @@ class ProcurementItem extends Model
     ];
 
     protected $casts = [
-        'quantity'              => 'decimal:2',
-        'estimated_unit_price'  => 'integer',
-        'actual_unit_price'     => 'integer',
-        'received_qty'          => 'decimal:2',
+        'quantity' => 'decimal:2',
+        'estimated_unit_price' => 'integer',
+        'actual_unit_price' => 'integer',
+        'received_qty' => 'decimal:2',
     ];
 
     public function request(): BelongsTo

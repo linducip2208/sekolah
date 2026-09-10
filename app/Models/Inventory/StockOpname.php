@@ -3,11 +3,14 @@
 namespace App\Models\Inventory;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StockOpname extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'stock_opnames';
 
     protected $fillable = [
@@ -17,9 +20,9 @@ class StockOpname extends SchoolModel
 
     protected $casts = [
         'recorded_qty' => 'integer',
-        'actual_qty'   => 'integer',
-        'difference'   => 'integer',
-        'opname_date'  => 'date',
+        'actual_qty' => 'integer',
+        'difference' => 'integer',
+        'opname_date' => 'date',
     ];
 
     public function item(): BelongsTo

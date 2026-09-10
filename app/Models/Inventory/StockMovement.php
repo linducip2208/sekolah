@@ -3,11 +3,14 @@
 namespace App\Models\Inventory;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StockMovement extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'stock_movements';
 
     protected $fillable = [
@@ -16,7 +19,7 @@ class StockMovement extends SchoolModel
     ];
 
     protected $casts = [
-        'quantity'       => 'integer',
+        'quantity' => 'integer',
         'quantity_after' => 'integer',
     ];
 

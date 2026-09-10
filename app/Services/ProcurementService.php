@@ -7,6 +7,7 @@ use App\Models\Finance\BudgetItem;
 use App\Models\Finance\ProcurementApproval;
 use App\Models\Finance\ProcurementItem;
 use App\Models\Finance\ProcurementRequest;
+use App\Models\Finance\Supplier;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -51,6 +52,7 @@ class ProcurementService
 
             $items = $data['items'] ?? [];
             unset($data['items']);
+            $this->validateReferences($data, $items);
 
             $request = ProcurementRequest::create($data);
 
@@ -66,8 +68,11 @@ class ProcurementService
     public function update(ProcurementRequest $request, array $data): ProcurementRequest
     {
         return DB::transaction(function () use ($request, $data) {
+            abort_unless((int) $request->school_id === $this->schoolId, 404);
+            abort_unless($request->status === 'draft', 409, 'Hanya permintaan draft yang bisa diubah.');
             $items = $data['items'] ?? [];
             unset($data['items']);
+            $this->validateReferences($data, $items);
 
             $request->update($data);
 
@@ -85,6 +90,7 @@ class ProcurementService
 
     public function submitForApproval(ProcurementRequest $request): void
     {
+        abort_unless((int) $request->school_id === $this->schoolId, 404);
         if ($request->status !== 'draft') {
             throw new \RuntimeException('Hanya permintaan draft yang bisa disubmit.');
         }
@@ -95,9 +101,15 @@ class ProcurementService
 
         $this->checkBudget($request);
 
-        $request->update(['status' => 'submitted']);
-
-        $this->createApprovalChain($request);
+        DB::transaction(function () use ($request) {
+            $locked = ProcurementRequest::where('school_id', $this->schoolId)
+                ->whereKey($request->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+            abort_unless($locked->status === 'draft', 409, 'Permintaan sudah diproses.');
+            $locked->update(['status' => 'submitted']);
+            $this->createApprovalChain($locked);
+        });
     }
 
     private function checkBudget(ProcurementRequest $request): void
@@ -131,7 +143,7 @@ class ProcurementService
         $remaining = $budgetItem->planned_amount - $budgetItem->actual_amount;
 
         if ($totalEstimated > $remaining) {
-            $sisaFormatted = 'Rp ' . number_format($remaining / 100, 0, ',', '.');
+            $sisaFormatted = 'Rp '.number_format($remaining / 100, 0, ',', '.');
 
             throw ValidationException::withMessages([
                 'estimated_budget' => "Anggaran tidak mencukupi. Sisa anggaran: {$sisaFormatted}",
@@ -145,19 +157,20 @@ class ProcurementService
 
         if (empty($approverIds)) {
             $request->update([
-                'status'      => 'approved',
+                'status' => 'approved',
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
             ]);
+
             return;
         }
 
         foreach ($approverIds as $step => $approverId) {
             ProcurementApproval::create([
                 'procurement_request_id' => $request->id,
-                'approver_id'            => $approverId,
-                'step_order'             => $step + 1,
-                'status'                 => 'pending',
+                'approver_id' => $approverId,
+                'step_order' => $step + 1,
+                'status' => 'pending',
             ]);
         }
     }
@@ -167,11 +180,11 @@ class ProcurementService
         $approvers = [];
 
         $kepalaSekolah = User::where('school_id', $this->schoolId)
-            ->whereHas('roles', fn($q) => $q->whereIn('name', ['admin']))
+            ->whereHas('roles', fn ($q) => $q->whereIn('name', ['admin']))
             ->first();
 
         $bendahara = User::where('school_id', $this->schoolId)
-            ->whereHas('roles', fn($q) => $q->where('name', 'accountant'))
+            ->whereHas('roles', fn ($q) => $q->where('name', 'accountant'))
             ->first();
 
         if ($bendahara) {
@@ -185,37 +198,31 @@ class ProcurementService
         return $approvers;
     }
 
-    public function approveStep(ProcurementApproval $approval, string $notes = null): void
+    public function approveStep(ProcurementApproval $approval, ?string $notes = null): void
     {
-        if ($approval->status !== 'pending') {
-            throw new \RuntimeException('Tahap persetujuan ini sudah diproses.');
-        }
-
-        $approval->update([
-            'status'     => 'approved',
-            'notes'      => $notes,
-            'decided_at' => now(),
-        ]);
-
-        $this->checkCompletion($approval->request);
+        DB::transaction(function () use ($approval, $notes) {
+            $locked = ProcurementApproval::whereKey($approval->id)->lockForUpdate()->firstOrFail();
+            if ($locked->status !== 'pending') {
+                throw new \RuntimeException('Tahap persetujuan ini sudah diproses.');
+            }
+            $locked->update(['status' => 'approved', 'notes' => $notes, 'decided_at' => now()]);
+            $this->checkCompletion($locked->request()->lockForUpdate()->firstOrFail());
+        });
     }
 
-    public function rejectStep(ProcurementApproval $approval, string $notes = null): void
+    public function rejectStep(ProcurementApproval $approval, ?string $notes = null): void
     {
-        if ($approval->status !== 'pending') {
-            throw new \RuntimeException('Tahap persetujuan ini sudah diproses.');
-        }
-
-        $approval->update([
-            'status'     => 'rejected',
-            'notes'      => $notes,
-            'decided_at' => now(),
-        ]);
-
-        $approval->request->update([
-            'status'          => 'rejected',
-            'rejected_reason' => $notes,
-        ]);
+        DB::transaction(function () use ($approval, $notes) {
+            $locked = ProcurementApproval::whereKey($approval->id)->lockForUpdate()->firstOrFail();
+            if ($locked->status !== 'pending') {
+                throw new \RuntimeException('Tahap persetujuan ini sudah diproses.');
+            }
+            $locked->update(['status' => 'rejected', 'notes' => $notes, 'decided_at' => now()]);
+            $locked->request()->lockForUpdate()->firstOrFail()->update([
+                'status' => 'rejected',
+                'rejected_reason' => $notes,
+            ]);
+        });
     }
 
     private function checkCompletion(ProcurementRequest $request): void
@@ -223,11 +230,13 @@ class ProcurementService
         $pending = $request->approvals()->where('status', 'pending')->count();
         $rejected = $request->approvals()->where('status', 'rejected')->count();
 
-        if ($rejected > 0) return;
+        if ($rejected > 0) {
+            return;
+        }
 
         if ($pending === 0) {
             $request->update([
-                'status'      => 'approved',
+                'status' => 'approved',
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
             ]);
@@ -236,22 +245,32 @@ class ProcurementService
 
     public function markAsOrdered(ProcurementRequest $request): void
     {
-        if (! in_array($request->status, ['approved'])) {
-            throw new \RuntimeException('Hanya permintaan yang sudah disetujui yang bisa di-order.');
-        }
-        $request->update(['status' => 'ordered']);
+        DB::transaction(function () use ($request) {
+            $locked = ProcurementRequest::where('school_id', $this->schoolId)->whereKey($request->id)->lockForUpdate()->firstOrFail();
+            if ($locked->status !== 'approved') {
+                throw new \RuntimeException('Hanya permintaan yang sudah disetujui yang bisa di-order.');
+            }
+            $locked->update(['status' => 'ordered']);
+        });
     }
 
     public function receiveItems(ProcurementRequest $request, array $receivedQtys): void
     {
-        if (! in_array($request->status, ['ordered'])) {
-            throw new \RuntimeException('Hanya permintaan dalam status ordered yang bisa diterima.');
-        }
-
         DB::transaction(function () use ($request, $receivedQtys) {
+            $lockedRequest = ProcurementRequest::where('school_id', $this->schoolId)
+                ->whereKey($request->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+            if ($lockedRequest->status !== 'ordered') {
+                throw new \RuntimeException('Hanya permintaan dalam status ordered yang bisa diterima.');
+            }
+            $lockedRequest->load('items');
             $allReceived = true;
-            foreach ($request->items as $item) {
-                $qty = $receivedQtys[$item->id] ?? 0;
+            foreach ($lockedRequest->items as $item) {
+                $qty = array_key_exists($item->id, $receivedQtys) ? (float) $receivedQtys[$item->id] : (float) $item->received_qty;
+                if ($qty < 0 || $qty > (float) $item->quantity) {
+                    throw new \RuntimeException("Jumlah diterima untuk {$item->item_name} tidak valid.");
+                }
                 $item->update(['received_qty' => $qty]);
                 if ($qty < $item->quantity) {
                     $allReceived = false;
@@ -259,7 +278,7 @@ class ProcurementService
             }
 
             if ($allReceived) {
-                $request->update(['status' => 'received']);
+                $lockedRequest->update(['status' => 'received']);
             }
         });
     }
@@ -269,5 +288,20 @@ class ProcurementService
         return ProcurementRequest::where('school_id', $this->schoolId)
             ->where('status', 'submitted')
             ->count();
+    }
+
+    private function validateReferences(array $data, array $items): void
+    {
+        if (! empty($data['budget_category_id'])) {
+            abort_unless(BudgetCategory::where('school_id', $this->schoolId)->whereKey($data['budget_category_id'])->exists(), 422, 'Kategori anggaran bukan milik sekolah aktif.');
+        }
+
+        foreach ($items as $item) {
+            if (! empty($item['supplier_id'])) {
+                abort_unless(Supplier::where('school_id', $this->schoolId)->whereKey($item['supplier_id'])->exists(), 422, 'Supplier bukan milik sekolah aktif.');
+            }
+            abort_if((float) ($item['quantity'] ?? 0) <= 0, 422, 'Jumlah item harus lebih besar dari nol.');
+            abort_if((int) ($item['estimated_unit_price'] ?? 0) < 0, 422, 'Harga estimasi tidak valid.');
+        }
     }
 }
