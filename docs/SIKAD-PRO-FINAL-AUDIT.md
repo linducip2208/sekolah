@@ -14,7 +14,7 @@ Status penting yang terverifikasi:
 - ✅ Build frontend berhasil dengan `npm.cmd run build`.
 - ✅ Pint dan PHP syntax check berhasil pada file yang diubah.
 - ✅ Flow Visitor, immutable Wallet Ledger, idempotency, cross-school rejection, dan Dapodik fake sync diuji.
-- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 242 tests / 1.455 assertions.
+- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 265 tests / 1.509 assertions.
 - ⚠️ Dapodik live integration memerlukan endpoint dan credential sekolah; adapter tidak mengarang endpoint vendor.
 - ✅ Playwright desktop capture 26/26 halaman dan mobile capture 5/5 halaman berhasil pada server lokal port 8765.
 - ✅ Portal capture 4/4 (student dan parent, desktop/mobile) serta dark-mode capture 5/5 berhasil.
@@ -24,7 +24,7 @@ Status penting yang terverifikasi:
 
 ## 2. Audit repository
 
-Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.559 route pada audit terakhir sebelum pass PPDB/kesiswaan. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
+Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.566 route setelah pass PPDB/kesiswaan/operasional. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
 
 Temuan yang diperbaiki:
 
@@ -192,15 +192,18 @@ Passed:
 - Laravel Pint on changed implementation files;
 - `npm.cmd run build`;
 - enterprise test suite after test DB bootstrap: 5 tests / 13 assertions passed before assertion correction, then corrected wallet test passed independently (1 test / 4 assertions);
-- full PHPUnit/Pest suite: 242 tests / 1.455 assertions passed;
-- PPDB enrollment regression: 4 tests / 12 assertions passed, including cross-school rejection;
+- full PHPUnit/Pest suite: 265 tests / 1.509 assertions passed;
+- PPDB regression: 6 enrollment/lifecycle/selection tests plus 2 public-registration tests passed, including cross-school, deadline, duplicate-NISN, quota, and waitlist checks;
+- BK/Discipline/UKS regression: 6 service-boundary/lifecycle/threshold tests passed;
+- workflow/notification regression: 3 tenant-boundary/replay/recipient-filter tests passed;
+- library/transport regression: 8 issue/return/assignment tests passed;
 - webhook regression: timestamped outbound HMAC and duplicate signed payment callback tests passed;
 - migration execution against local MySQL database;
 - route list generation.
 
 Remaining verification:
 
-- The full suite takes approximately 4 minutes with MySQL and `RefreshDatabase`; keep the test database migration repository initialized in CI.
+- The full suite takes approximately 8 minutes with MySQL and `RefreshDatabase`; keep the test database migration repository initialized in CI.
 
 ## 13. Security
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Facilities;
 use App\Http\Controllers\Controller;
 use App\Models\Facilities\Book;
 use App\Models\Facilities\BookCategory;
-use App\Models\Facilities\BookCategory;
 use App\Models\Facilities\BookIssue;
 use App\Services\Facilities\LibraryService;
 use Illuminate\Http\JsonResponse;

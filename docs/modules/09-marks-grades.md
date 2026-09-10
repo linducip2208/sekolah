@@ -255,3 +255,7 @@ tests/Feature/Marks/
   StudentViewOwnMarksTest.php
   ParentViewChildMarksTest.php
 ```
+
+## Implementation Update (10 September 2026)
+
+Marks sekarang memusatkan validasi score dan tenant pada `MarksService`, terhubung dari CBT melalui service yang sama, menyimpan audit before/after, dan menolak perubahan ketika report card sudah locked. Approval dapat me-reopen rapor dengan alasan dan riwayat. Regression workflow tersedia di `tests/Feature/Marks/MarksTest.php`, `tests/Unit/GradeApprovalServiceTest.php`, dan `tests/Feature/StudentCbtTest.php`.

@@ -251,3 +251,7 @@ tests/Feature/Attendance/
   AbsenceNotificationTest.php   (uses Queue::fake())
   UpsertNoDuplicateTest.php     (MySQL upsert test)
 ```
+
+## Implementation Update (10 September 2026)
+
+Attendance sekarang memakai service tenant-aware untuk bulk/manual/QR writes, validasi siswa-kelas, audit logging, date lock/reopen, serta correction request melalui generic approval workflow. Absensi alfa/sakit/izin memicu queued parent notification melalui dispatcher terpusat. Regression workflow tersedia di `tests/Feature/AttendanceWorkflowTest.php`.
