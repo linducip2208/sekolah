@@ -22,7 +22,8 @@ class MarksController extends Controller
             ->where('school_id', $request->user()->school_id)
             ->findOrFail($studentId);
         $this->assertStudentReadable($request, $student);
-        $marks = Mark::where('student_id', $studentId)
+        $marks = Mark::where('school_id', $request->user()->school_id)
+            ->where('student_id', $studentId)
             ->with('subject', 'semester', 'exam')
             ->get();
 
@@ -63,7 +64,7 @@ class MarksController extends Controller
     {
         $this->requirePermission($request, 'marks.view');
 
-        return response()->json(GradeSystem::with('rules')->get());
+        return response()->json(GradeSystem::where('school_id', $request->user()->school_id)->with('rules')->get());
     }
 
     public function storeGradeSystem(Request $request): JsonResponse

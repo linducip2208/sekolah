@@ -22,17 +22,21 @@ class EmergencyAlertService
         $totalSent = 0;
 
         foreach ($recipients as $phone) {
-            if (empty($phone)) continue;
+            if (empty($phone)) {
+                continue;
+            }
 
             $result = $this->whatsapp->send($phone, $alert->message, $alert->school_id);
-            if ($result['success']) $totalSent++;
+            if ($result['success']) {
+                $totalSent++;
+            }
 
             usleep(20000); // 50/sec throttle
         }
 
         $alert->update([
-            'status'          => 'sent',
-            'sent_at'         => now(),
+            'status' => 'sent',
+            'sent_at' => now(),
             'recipient_count' => $totalSent,
         ]);
     }
@@ -49,18 +53,22 @@ class EmergencyAlertService
                     $students = Student::where('school_id', $schoolId)->with('parents')->get();
                     foreach ($students as $student) {
                         foreach ($student->parents as $parent) {
-                            if ($parent->phone) $phones[] = $parent->phone;
+                            if ($parent->phone) {
+                                $phones[] = $parent->phone;
+                            }
                         }
                     }
                     break;
 
                 case 'all_staff':
                     $staffUsers = User::where('school_id', $schoolId)
-                        ->whereHas('roles', fn($q) => $q->whereIn('name', ['teacher', 'admin', 'accountant', 'nurse']))
+                        ->whereHas('roles', fn ($q) => $q->whereIn('name', ['teacher', 'admin', 'accountant', 'nurse']))
                         ->whereNotNull('phone')
                         ->get();
                     foreach ($staffUsers as $user) {
-                        if ($user->phone) $phones[] = $user->phone;
+                        if ($user->phone) {
+                            $phones[] = $user->phone;
+                        }
                     }
                     break;
 
@@ -72,7 +80,9 @@ class EmergencyAlertService
                             ->get();
                         foreach ($students as $student) {
                             foreach ($student->parents as $parent) {
-                                if ($parent->phone) $phones[] = $parent->phone;
+                                if ($parent->phone) {
+                                    $phones[] = $parent->phone;
+                                }
                             }
                         }
                     }
@@ -80,8 +90,10 @@ class EmergencyAlertService
 
                 case 'individual':
                     if ($def->recipient_id) {
-                        $user = User::find($def->recipient_id);
-                        if ($user && $user->phone) $phones[] = $user->phone;
+                        $user = User::where('school_id', $schoolId)->find($def->recipient_id);
+                        if ($user && $user->phone) {
+                            $phones[] = $user->phone;
+                        }
                     }
                     break;
             }
@@ -92,24 +104,28 @@ class EmergencyAlertService
 
     public function sendPanicAlert(int $userId, float $latitude, float $longitude): EmergencyAlert
     {
-        $user = User::findOrFail($userId);
+        $user = User::withoutGlobalScopes()->findOrFail($userId);
+        abort_unless($user->school_id !== null, 422, 'Pengguna belum terhubung ke sekolah.');
+        if (auth()->check() && (int) auth()->user()->school_id !== (int) $user->school_id && ! auth()->user()->hasRole('super_admin')) {
+            abort(403, 'Akses sekolah tidak valid.');
+        }
         $schoolId = $user->school_id;
 
         $mapLink = "https://maps.google.com/?q={$latitude},{$longitude}";
 
         $alert = EmergencyAlert::create([
-            'school_id'    => $schoolId,
-            'alert_type'   => 'security',
-            'title'        => 'PANIC — Darurat Keamanan',
-            'message'      => "PANIC ALERT! {$user->name} membutuhkan bantuan segera!\nLokasi: {$mapLink}\nKoord: {$latitude}, {$longitude}\nWaktu: " . now()->format('d/m/Y H:i:s'),
+            'school_id' => $schoolId,
+            'alert_type' => 'security',
+            'title' => 'PANIC — Darurat Keamanan',
+            'message' => "PANIC ALERT! {$user->name} membutuhkan bantuan segera!\nLokasi: {$mapLink}\nKoord: {$latitude}, {$longitude}\nWaktu: ".now()->format('d/m/Y H:i:s'),
             'triggered_by' => $userId,
-            'severity'     => 'critical',
-            'status'       => 'draft',
+            'severity' => 'critical',
+            'status' => 'draft',
         ]);
 
         EmergencyRecipient::create([
             'emergency_alert_id' => $alert->id,
-            'recipient_type'     => 'all_staff',
+            'recipient_type' => 'all_staff',
         ]);
 
         $contacts = EmergencyContact::where('school_id', $schoolId)
@@ -124,7 +140,7 @@ class EmergencyAlertService
                 } catch (\Throwable $e) {
                     Log::warning('Panic alert to contact failed', [
                         'contact' => $contact->name,
-                        'error'   => $e->getMessage(),
+                        'error' => $e->getMessage(),
                     ]);
                 }
             }

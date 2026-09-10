@@ -1,6 +1,6 @@
 # SIKAD PRO — Final Enterprise Audit
 
-Tanggal audit: 10 September 2026
+Tanggal audit: 11 September 2026
 Repository: `linducip2208/sekolah`
 Stack: Laravel 13, PHP 8.3, MySQL-compatible database, Blade, Tailwind 4, Vite, Sanctum, Reverb, Spatie Permission, Spatie Activity Log, queues, scheduler, Pest/PHPUnit, Playwright.
 
@@ -14,7 +14,7 @@ Status penting yang terverifikasi:
 - ✅ Build frontend berhasil dengan `npm.cmd run build`.
 - ✅ Pint dan PHP syntax check berhasil pada file yang diubah.
 - ✅ Flow Visitor, immutable Wallet Ledger, idempotency, cross-school rejection, dan Dapodik fake sync diuji.
-- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 287 tests / 1.548 assertions.
+- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 293 tests / 1.562 assertions.
 - ⚠️ Dapodik live integration memerlukan endpoint dan credential sekolah; adapter tidak mengarang endpoint vendor.
 - ✅ Playwright desktop capture 26/26 halaman dan mobile capture 5/5 halaman berhasil pada server lokal port 8765.
 - ✅ Portal capture 4/4 (student dan parent, desktop/mobile) serta dark-mode capture 5/5 berhasil.
@@ -54,6 +54,11 @@ Temuan yang diperbaiki:
 - library/hostel/transport maturity pass menambahkan tenant-safe member/room/route validation, row-locked inventory/occupancy updates, transactional transport assignment, and audit logging;
 - workflow/notification maturity pass menambahkan tenant-bound requester/approver decisions, approve/reject/return/resubmit/cancel transitions, terminal-state protection, rejection/revision reason enforcement, and recipient filtering before notification logging/sending;
 - test baru menguji flow enterprise dan cross-school access.
+- beasiswa kini memvalidasi periode aktif, duplicate application, quota, school-bound student/program/reviewer, student-to-invoice ownership, dan idempotent discount grant dalam transaksi.
+- GPS vehicle endpoint kini memerlukan token device terdaftar, mencocokkan sekolah device dengan payload, memvalidasi vehicle ownership, dan membatasi latest location berdasarkan school.
+- AI model/feature assignment kini tidak dapat mereferensikan provider atau model sekolah lain; parent report memvalidasi user dan hubungan orang tua-siswa.
+- KPI appraisal, score, goal, dan staff summary kini menggunakan school-bound staff/criteria/reviewer references serta transaksi dan lifecycle guards.
+- kartu ID, emergency recipient, marks listing, dan batch report-card PDF menambahkan boundary checks untuk referensi sekolah dan data penerima.
 
 ## 3. Feature matrix aktual
 
@@ -81,7 +86,7 @@ Legenda: `✅ COMPLETE` berarti flow penting yang diaudit tersedia dan diuji; `R
 | Inventory / asset | ✅ COMPLETE | Existing stock and asset lifecycle routes/models; stock mutations use row locks, signed movement ledger entries, and non-negative invariants. |
 | Library | ✅ COMPLETE | Existing catalog, borrowing, fine and digital library flows. |
 | Hostel | ✅ COMPLETE | Existing rooms, beds, warden, attendance, gate pass and mess tables. |
-| Transport | REQUIRES EXTERNAL CONFIGURATION | Existing routes and tracking abstraction; GPS provider/device is external. |
+| Transport | REQUIRES EXTERNAL CONFIGURATION | Existing routes and tracking abstraction now require a registered operational device token and school-bound vehicle; live GPS hardware/provider remains external. |
 | Visitor Management | ✅ COMPLETE | New canonical visitor/visit/blacklist/badge/audit flow with public pre-registration and QR check-in/out. |
 | Cashless canteen + wallet | ✅ COMPLETE | New immutable ledger, atomic row locks, limits, blocked categories, idempotency, refund and accounting hooks. |
 | Dapodik integration | REQUIRES EXTERNAL CONFIGURATION | Preview → confirm → queue → mapping/conflict flow and fake adapter complete; live endpoint/credential required. |
@@ -197,7 +202,7 @@ Passed:
 - Laravel Pint on changed implementation files;
 - `npm.cmd run build`;
 - enterprise test suite after test DB bootstrap: 5 tests / 13 assertions passed before assertion correction, then corrected wallet test passed independently (1 test / 4 assertions);
-- full PHPUnit/Pest suite: 287 tests / 1.548 assertions passed;
+- full PHPUnit/Pest suite: 293 tests / 1.562 assertions passed;
 - post-baseline focused regression: CourseService 9 tests, Exam 7 tests, RoomBooking 3 tests, BankReconciliation 5 tests passed;
 - focused master-data regression: AcademicYearService 2 tests / 3 assertions passed; full suite re-run is required after this checkpoint;
 - focused academic tenant-boundary regressions are included in the full suite: Classroom 9 tests / 15 assertions, Timetable 8 tests / 16 assertions, Religious 2 tests / 2 assertions;
@@ -242,6 +247,11 @@ Implemented/hardened:
 - outbound webhooks sign `timestamp.payload` and expose timestamp/attempt headers for receiver replay windows;
 - backup UI refuses to report a backup when `mysqldump` fails instead of writing a synthetic SQL file;
 - audit log for canonical Visitor flow.
+- GPS ping requires a registered encrypted device token, rejects device/school mismatch, and validates vehicle ownership before inserting a location.
+- Scholarship service locks invoice/application/program rows, validates same-school and same-student references, enforces active period/quota/duplicate rules, and prevents duplicate grants.
+- AI provider/model/feature assignment writes validate same-school references; AI parent report validates the requesting user and parent-child ownership.
+- KPI scores validate criteria against the appraisal template and school, clamp scores to safe bounds, and protect appraisal/goal references by school.
+- ID gate card issuance deactivates only cards belonging to the active school and validates the student before issuing a new card.
 
 Remaining security work: complete IDOR/policy sweep over every legacy API/controller, verify upload MIME/path restrictions across all modules, and add automated webhook replay/signature coverage to the full suite.
 

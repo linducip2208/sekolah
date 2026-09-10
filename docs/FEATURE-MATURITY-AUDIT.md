@@ -1,6 +1,6 @@
 # SIKAD PRO — Feature Maturity Audit
 
-Tanggal audit: 10 September 2026
+Tanggal audit: 11 September 2026
 
 Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemukan di repository, bukan berdasarkan jumlah menu atau route.
 
@@ -34,12 +34,12 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 | Payment | 3 | 4 | Provider abstraction, encrypted secrets, idempotency, signature verification, replay fingerprint, row lock | Payment → Fee Payment → Invoice | Invalid signature + duplicate callback tests | 4/5 |
 | Accounting | 3 | 4 | COA, scoped double-entry lines, row-locked posting, idempotent automatic references, refund posting, source references, and audit logging | Finance, payroll, procurement, wallet | 7 accounting tests / 21 assertions; closing-period depth remains | 4/5 |
 | RKAS/Budget | 2 | 3 | Budget, allocation and realization paths exist | Finance/reporting | Regression coverage needs expansion | 3/5 |
-| HR & Payroll | 3 | 4 | Payroll inputs, BPJS/PPh21, tenant-safe staff lookup, immutable paid finalization, row lock, idempotent payroll journal, payslip, KPI and expiry paths | Payroll → Accounting → Notification | Payroll/tax tests plus payroll journal/replay regression | 4/5 |
+| HR & Payroll | 3 | 4 | Payroll inputs, BPJS/PPh21, tenant-safe staff lookup, immutable paid finalization, row lock, idempotent payroll journal, payslip, and KPI appraisal/goal references | Payroll → Accounting → Notification | Payroll/tax tests plus payroll journal/replay regression | 4/5 |
 | Procurement | 2 | 4 | Request/approval/order/partial receipt lifecycle, scoped budget/supplier references, row-locked transitions, quantity bounds, and audit logging | Procurement → Inventory/Asset → Accounting | 2 workflow tests / 8 assertions; inventory receiving integration remains configuration-dependent | 4/5 |
 | Inventory | 2 | 4 | Stock operations, transfer, adjustment and opname paths use row locks, non-negative invariants, deterministic transfer locking, movement types, and audit logging | Procurement, asset, reports | Existing 5 inventory tests; parallel/concurrency test remains recommended | 4/5 |
 | Asset | 3 | 3 | Assignment, maintenance, transfer, depreciation and disposal paths exist | Procurement, accounting | Existing asset tests | 3/5 |
 | Library | 3 | 4 | Tenant-safe issue/return, row-locked copy counts, member/librarian validation, configurable fine and overdue lifecycle, audit logging | Student profile → reminders → finance/fine | 5 library workflow tests plus regression | 4/5 |
-| Transport | 2 | 4 | Transactional route/stops, tenant-safe student/route/stop assignment, active-route validation, assignment locking, audit logging | Student → route → parent/attendance | Transport CRUD/assignment regression; GPS provider remains external | 4/5 |
+| Transport | 2 | 4 | Transactional route/stops, tenant-safe student/route/stop assignment, active-route validation, assignment locking, audit logging, registered-device GPS authentication, vehicle ownership validation, and school-scoped latest locations | Student → route → parent/attendance | Transport CRUD/assignment regression plus GPS token/cross-school tests | 4/5 |
 | Hostel | 2 | 4 | Tenant-safe room/student/bed allocation, deterministic occupancy updates, row locks, checkout/deallocation history, audit logging | Student → room/bed → parent/security | Existing hostel tests; occupancy regression needs expansion | 4/5 |
 | Visitor Management | 1 | 4 | Canonical registration, blacklist, host approval, QR badge, check-in/out, audit and queued host notification | Security → Host → Notification → Active visitor | 5 enterprise tests / cross-school checks | 4/5 |
 | Canteen/Wallet | 1 | 4 | Immutable ledger, row locks, limits, refund, idempotency and accounting hook | Wallet → Canteen → Parent → Accounting | 5 enterprise tests / atomicity and refund paths | 4/5 |
@@ -47,7 +47,7 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 | Communication | 3 | 4 | Central dispatcher now filters recipients by school before logging/sending, with preferences, broadcast and provider adapters | Events → notifications → portals | Notification tenant-safety and provider tests | 4/5 |
 | Documents/Letters | 3 | 3 | Draft/review/sign/archive/QR verification paths exist | Workflow, audit, public verification | Existing document tests | 3/5 |
 | Workflow/Approval | 2 | 4 | Generic request and approval service now validates requester/approver tenant, locks decisions, supports approve/reject/return/resubmit/cancel transitions, guards terminal states, and requires decision reasons | Finance, procurement, leave, attendance, documents | Approval replay/cross-school plus revision/cancellation regressions | 4/5 |
-| AI | 2 | 3 | Dynamic provider adapters, usage logging and human-review paths exist | Teacher, analytics, risk | Provider-dependent; no vendor hardcoding | 3/5 |
+| AI | 2 | 3 | Dynamic provider adapters, encrypted provider credentials, usage logging, human-review paths, school-scoped provider/model assignment, and parent-report user/student ownership checks | Teacher, analytics, risk | Provider CRUD/encryption plus cross-school provider/model regression | 3/5 |
 | Analytics/Dashboards | 3 | 3 | Role dashboards and real DB metrics exist | All operational domains | UI smoke and query profiling | 3/5 |
 | API/RBAC | 2 | 3 | Sanctum, permission middleware, tenant filters and recent IDOR hardening | All API domains | Tenant/RBAC tests; legacy endpoint sweep ongoing | 3/5 |
 | Reporting/Export | 2 | 3 | Existing reports, CSV/PDF/export paths and filters exist; sensitive student/staff CSV imports now use encrypted preview, validation, duplicate detection, and explicit confirmation | Finance, academic, operational data | Import preview/confirm 2 tests / 13 assertions; report-specific coverage needs expansion | 3/5 |
@@ -60,6 +60,6 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 3. Add drill-down report tests and query profiling using the seeded multi-school dataset.
 4. Verify queue workers, scheduler, storage backup target, and provider credentials in a production-like environment.
 
-Latest verification snapshot: 287 tests / 1,548 assertions passed; route registry: 1,571 routes; frontend production build passed.
+Latest verification snapshot: 293 tests / 1,562 assertions passed; route registry: 1,571 routes; frontend production build passed.
 
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.

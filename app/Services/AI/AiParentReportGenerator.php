@@ -2,15 +2,16 @@
 
 namespace App\Services\AI;
 
+use App\Models\Academic\Attendance;
+use App\Models\Academic\Student;
+use App\Models\Achievement\StudentAchievement;
 use App\Models\AI\AiModel;
 use App\Models\AI\AiProvider;
 use App\Models\AI\AiUsageLog;
-use App\Models\Academic\Student;
-use App\Models\Academic\Attendance;
+use App\Models\Counseling\CounselingSession;
 use App\Models\Discipline\DisciplineRecord;
 use App\Models\Finance\FeeInvoice;
-use App\Models\Achievement\StudentAchievement;
-use App\Models\Counseling\CounselingSession;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class AiParentReportGenerator
@@ -26,16 +27,22 @@ class AiParentReportGenerator
         ?int $providerId = null,
         ?int $modelId = null,
     ): array {
+        $user = User::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->findOrFail($userId);
         $student = Student::where('school_id', $schoolId)
             ->with(['user:id,name', 'classSection.classRoom', 'parents'])
             ->findOrFail($studentId);
+        if ($user->hasRole('parent')) {
+            abort_unless($student->parents->contains('id', $user->id), 403, 'Orang tua tidak memiliki akses ke siswa ini.');
+        }
 
         $model = $this->resolveModel($schoolId, $modelId);
         $provider = $providerId
             ? AiProvider::where('school_id', $schoolId)->where('id', $providerId)->where('is_active', true)->firstOrFail()
             : $model->provider;
 
-        if (!$provider || !$provider->is_active) {
+        if (! $provider || ! $provider->is_active) {
             throw new \RuntimeException('AI provider tidak aktif.');
         }
 
@@ -55,29 +62,29 @@ class AiParentReportGenerator
             $latencyMs = (int) round((microtime(true) - $start) * 1000);
             $cost = $this->estimateCost($model, $result['input_tokens'] ?? 0, $result['output_tokens'] ?? 0);
             AiUsageLog::create([
-                'school_id'      => $schoolId,
-                'user_id'        => $userId,
-                'ai_model_id'    => $model->id,
-                'feature_key'    => 'parent_report',
-                'input_tokens'   => $result['input_tokens'] ?? 0,
-                'output_tokens'  => $result['output_tokens'] ?? 0,
+                'school_id' => $schoolId,
+                'user_id' => $userId,
+                'ai_model_id' => $model->id,
+                'feature_key' => 'parent_report',
+                'input_tokens' => $result['input_tokens'] ?? 0,
+                'output_tokens' => $result['output_tokens'] ?? 0,
                 'estimated_cost' => $cost,
-                'latency_ms'     => $latencyMs,
-                'success'        => $error === null,
-                'error'          => $error,
+                'latency_ms' => $latencyMs,
+                'success' => $error === null,
+                'error' => $error,
             ]);
         }
 
         $parsed = $this->parseResult($result['text'] ?? '');
 
         return [
-            'parsed'             => $parsed,
-            'raw_text'           => $result['text'] ?? '',
-            'student'            => $student,
-            'factors'            => $factors,
-            'ai_provider_id'     => $provider->id,
-            'ai_model_id'        => $model->id,
-            'tokens_used'        => ($result['input_tokens'] ?? 0) + ($result['output_tokens'] ?? 0),
+            'parsed' => $parsed,
+            'raw_text' => $result['text'] ?? '',
+            'student' => $student,
+            'factors' => $factors,
+            'ai_provider_id' => $provider->id,
+            'ai_model_id' => $model->id,
+            'tokens_used' => ($result['input_tokens'] ?? 0) + ($result['output_tokens'] ?? 0),
             'processing_time_ms' => $latencyMs,
         ];
     }
@@ -144,30 +151,30 @@ class AiParentReportGenerator
             ->where('due_date', '<', now())->count();
 
         return [
-            'student_name'       => $studentName,
-            'semester'           => $semester,
+            'student_name' => $studentName,
+            'semester' => $semester,
             'attendance' => [
-                'total_days'    => $totalDays,
-                'present_days'  => $presentDays,
-                'late_days'     => $lateDays,
-                'absent_days'   => $absentDays,
-                'sick_days'     => $sickDays,
-                'excused_days'  => $excusedDays,
-                'percentage'    => $attendancePct,
+                'total_days' => $totalDays,
+                'present_days' => $presentDays,
+                'late_days' => $lateDays,
+                'absent_days' => $absentDays,
+                'sick_days' => $sickDays,
+                'excused_days' => $excusedDays,
+                'percentage' => $attendancePct,
             ],
             'academic' => [
                 'subjects' => $marksData->map(fn ($m) => [
                     'avg_percentage' => round($m->avg_pct ?? 0, 1),
-                    'exam_count'     => $m->exam_count,
+                    'exam_count' => $m->exam_count,
                 ])->toArray(),
             ],
             'discipline' => [
-                'total'     => $disciplineCount,
-                'positive'  => $disciplinePositive,
-                'negative'  => $disciplineNegative,
+                'total' => $disciplineCount,
+                'positive' => $disciplinePositive,
+                'negative' => $disciplineNegative,
             ],
-            'achievements'     => $achievements->pluck('title')->toArray(),
-            'clinic_visits'    => $clinicVisits,
+            'achievements' => $achievements->pluck('title')->toArray(),
+            'clinic_visits' => $clinicVisits,
             'counseling_count' => $counselingCount,
             'overdue_invoices' => $overdueInvoices,
         ];
@@ -223,7 +230,7 @@ Pastikan JSON valid. Ton: positif, konstruktif, dan supportive.
 PROMPT;
 
         $user = "Data Siswa Semester {$semester}:\n{$factorsJson}\n\n"
-            . "Buatkan laporan perkembangan yang komprehensif untuk orang tua/wali.";
+            .'Buatkan laporan perkembangan yang komprehensif untuk orang tua/wali.';
 
         return [
             ['role' => 'system', 'content' => $system],
@@ -236,8 +243,11 @@ PROMPT;
         $trimmed = trim($raw);
         if (preg_match('/\{[\s\S]*\}/', $trimmed, $m)) {
             $decoded = json_decode($m[0], true);
-            if (is_array($decoded)) return $decoded;
+            if (is_array($decoded)) {
+                return $decoded;
+            }
         }
+
         return ['raw' => $raw];
     }
 
@@ -251,6 +261,7 @@ PROMPT;
         if ($modelId) {
             return AiModel::where('school_id', $schoolId)->where('id', $modelId)->where('is_active', true)->firstOrFail();
         }
+
         return AiModel::where('school_id', $schoolId)->where('is_active', true)
             ->whereHas('provider', fn ($q) => $q->where('is_active', true))
             ->orderBy('priority')->firstOrFail();
