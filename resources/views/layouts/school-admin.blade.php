@@ -141,44 +141,47 @@
                     </button>
                     <div class="min-w-0">
                         @php
-                            $routeName = request()->route()?->getName() ?? '';
-                            $crumbGroup = null;
-                            $crumbPrefixes = [
-                                'Academic' => ['admin.academic', 'admin.curriculum', 'admin.timetable', 'admin.classroom', 'admin.assignments', 'admin.exams', 'admin.qbank', 'admin.raport-interaktif', 'admin.lesson-plan', 'admin.live-class'],
-                                'Students' => ['admin.students', 'admin.import', 'admin.attendance', 'admin.discipline', 'admin.counseling', 'admin.clinic', 'admin.achievements', 'admin.portfolios', 'admin.misc.career', 'admin.misc.internships', 'admin.qr-attendance'],
-                                'Admissions' => ['admin.ppdb'],
-                                'People' => ['admin.staff', 'admin.pkg', 'admin.training', 'admin.lesson-study', 'admin.payroll'],
-                                'Finance' => ['admin.fee', 'admin.payment', 'admin.budget', 'admin.cooperative', 'admin.finance', 'admin.currency'],
-                                'Procurement' => ['admin.procurement'],
-                                'Inventory' => ['admin.inventory', 'admin.misc.maintenance'],
-                                'Facilities' => ['admin.hostel', 'admin.transport', 'admin.facilities', 'admin.visitor', 'admin.operations', 'admin.dapodik'],
-                                'Library' => ['admin.library'],
-                                'Student Life' => ['admin.extracurricular', 'admin.events', 'admin.leaderboard', 'admin.osis', 'admin.canteen', 'admin.religious', 'admin.donations', 'admin.scholarship', 'admin.misc.daily-reports'],
-                                'Alumni' => ['admin.alumni', 'admin.tracer', 'admin.jobs', 'admin.bkk'],
-                                'Communication' => ['admin.notices', 'admin.chat', 'admin.wa-bot', 'admin.reminders', 'admin.emergency', 'admin.notif', 'admin.forum', 'admin.conferences', 'admin.committee'],
-                                'AI & Analytics' => ['admin.analytics', 'admin.ai'],
-                                'Reports' => ['admin.reports', 'admin.foundation.benchmark'],
-                                'Automation' => ['admin.webhooks', 'admin.workflow'],
-                                'System' => ['admin.branding', 'admin.blog', 'admin.documents', 'admin.letters', 'admin.surveys', 'admin.exports', 'admin.audit', 'admin.signage', 'admin.dashboard-tv', 'admin.accreditation', 'admin.adiwiyata'],
-                            ];
-                            foreach ($crumbPrefixes as $group => $prefixes) {
-                                foreach ($prefixes as $p) {
-                                    if (str_starts_with($routeName, $p)) { $crumbGroup = $group; break 2; }
-                                }
-                            }
+                            // Breadcrumb group dari NavigationService (satu sumber IA).
+                            $crumbGroup = app(\App\Services\Navigation\NavigationService::class)
+                                ->groupForRoute(request()->route()?->getName());
                             $crumbTitle = trim((string) $__env->yieldContent('title'));
                             $crumbs = [['label' => 'Dashboard', 'url' => route('admin.dashboard')]];
                             if ($crumbGroup) $crumbs[] = ['label' => $crumbGroup];
                             if ($crumbTitle && $crumbTitle !== $crumbGroup && $crumbTitle !== 'Dashboard') $crumbs[] = ['label' => $crumbTitle];
                         @endphp
                         @if(count($crumbs) > 1)
-                            <x-navigation.breadcrumbs :items="$crumbs" />
+                            <x-navigation.breadcrumbs :items="$crumbs" class="hidden sm:block" />
                         @endif
                         <div class="text-sm font-semibold text-[var(--color-text)] truncate">@yield('title', 'Administrator')</div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                    {{-- Quick Create (+ Buat) — role-aware --}}
+                    @php $quickCreateItems = app(\App\Services\Navigation\NavigationService::class)->quickCreateFor(auth()->user()); @endphp
+                    @if(count($quickCreateItems))
+                        <div x-data="{ open: false }" class="relative">
+                            <button type="button" @click="open = !open" class="btn btn-sm hidden sm:inline-flex" :aria-expanded="open ? 'true' : 'false'" aria-haspopup="true">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                Buat
+                            </button>
+                            <button type="button" @click="open = !open" class="btn-icon sm:hidden" aria-label="Buat baru">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            </button>
+                            <div x-show="open" x-cloak @click.outside="open = false"
+                                 x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                                 class="dropdown-panel right-0" role="menu">
+                                <div class="dropdown-label">Buat Baru</div>
+                                @foreach($quickCreateItems as $qc)
+                                    <a href="{{ $qc['url'] }}" class="dropdown-item" role="menuitem" @click="open = false">
+                                        <x-ui.icon :name="$qc['icon']" class="w-4 h-4 text-[var(--color-text-muted)]" />
+                                        {{ $qc['label'] }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Search trigger --}}
                     <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-search'))" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-muted)] hover:border-[var(--color-primary)]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>

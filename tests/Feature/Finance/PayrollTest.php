@@ -55,8 +55,14 @@ test('admin can generate salary slip', function () {
 
     $response->assertStatus(201);
     $data = $response->json();
-    expect($data['net_salary'])->toBe(500000000 - 5000000)
-        ->and($data['status'])->toBe('draft');
+    // Net = basic − struktur potongan − BPJS karyawan − PPh21 (logika TaxBpjsService).
+    $bpjs = app(\App\Services\Finance\TaxBpjsService::class)
+        ->calculateBpjs($this->school->id, $this->staff->id, 500000000);
+    $pph21 = app(\App\Services\Finance\TaxBpjsService::class)
+        ->calculatePph21Monthly($this->school->id, $this->staff->id, 500000000);
+    expect($data['net_salary'])->toBe(500000000 - 5000000 - $bpjs['totalEmployee'] - $pph21)
+        ->and($data['status'])->toBe('draft')
+        ->and($data['total_deductions'])->toBe(5000000 + $bpjs['totalEmployee'] + $pph21);
 });
 
 test('admin can mark salary slip as paid', function () {

@@ -98,9 +98,10 @@ class TaxBpjsService
 
         $tax = 0;
         foreach ($brackets as $b) {
-            $min = (int) $b->min_annual;
-            $max = $b->max_annual !== null ? (int) $b->max_annual : PHP_INT_MAX;
-            $rate = (int) $b->rate_pct;
+            $min = (int) ($b->min_annual ?? $b['min_annual']);
+            $maxRaw = $b->max_annual ?? $b['max_annual'] ?? null;
+            $max = $maxRaw !== null ? (int) $maxRaw : PHP_INT_MAX;
+            $rate = (int) ($b->rate_pct ?? $b['rate_pct']);
 
             if ($pkp <= $min) break;
 

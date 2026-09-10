@@ -3,11 +3,9 @@
 @section('content')
 @include('student-portal._nav')
 
-<div class="mb-7">
-<div class="elite-kicker mb-2">{{ now()->translatedFormat('l, d F Y') }}</div>
-<h1 class="elite-h1 text-3xl ink-primary mb-2">Halo, {{ $student->user?->name }}</h1>
-<div class="elite-rule"></div>
-<p class="font-serif text-sm text-gray-600 mt-3">{{ $student->classSection?->classRoom?->name }} {{ $student->classSection?->section?->name }} · NIS {{ $student->admission_no }}</p>
+<div class="mb-6">
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-1" style="color: var(--color-text);">Halo, {{ Str::before($student->user?->name, ' ') }}</h1>
+    <p class="text-sm" style="color: var(--color-text-secondary);">{{ $student->classSection?->classRoom?->name }} {{ $student->classSection?->section?->name }} · NIS {{ $student->admission_no }}</p>
 </div>
 
 @php
@@ -18,61 +16,72 @@
     $pct = $totalA > 0 ? round($present/$totalA*100, 1) : 0;
 @endphp
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
-<div class="bg-white border-l-4 border-green-600 p-5">
-<div class="elite-kicker text-[.6rem]">% Kehadiran</div>
-<div class="font-display text-2xl ink-primary mt-2">{{ $pct }}%</div>
-<div class="text-xs text-gray-500 mt-1">{{ $present }}/{{ $totalA }} hari</div>
-</div>
-<div class="bg-white border-l-4 border-blue-600 p-5">
-<div class="elite-kicker text-[.6rem]">Mapel Hari Ini</div>
-<div class="font-display text-2xl ink-primary mt-2">{{ $todaySchedule->count() }}</div>
-</div>
-<div class="bg-white border-l-4 border-purple-600 p-5">
-<div class="elite-kicker text-[.6rem]">Nilai Terbaru</div>
-<div class="font-display text-2xl ink-primary mt-2">{{ $recentMarks->count() }}</div>
-</div>
-<div class="bg-white border-l-4 {{ $unpaidInvoices > 0 ? 'border-red-600' : 'border-gray-400' }} p-5">
-<div class="elite-kicker text-[.6rem]">Tagihan Belum Bayar</div>
-<div class="font-display text-2xl ink-primary mt-2">{{ $unpaidInvoices }}</div>
-</div>
-</div>
-
-<div class="grid lg:grid-cols-2 gap-6">
-<div class="bg-white border border-rule p-7">
-<h3 class="elite-h3 text-lg ink-primary mb-4">📅 Jadwal Hari Ini</h3>
-@if($todaySchedule->isEmpty())
-<p class="font-serif text-sm text-gray-500 italic">Tidak ada jadwal hari ini.</p>
-@else
-<div class="space-y-2">
-@foreach($todaySchedule as $sl)
-<div class="flex justify-between items-center p-3 border border-rule">
-<div>
-<div class="font-serif font-semibold ink-primary">{{ $sl->subject?->name }}</div>
-<div class="text-xs text-gray-500">{{ $sl->teacher?->name }} {{ $sl->room ? '· '.$sl->room : '' }}</div>
-</div>
-<div class="font-mono text-sm ink-secondary">{{ \Carbon\Carbon::parse($sl->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sl->end_time)->format('H:i') }}</div>
-</div>
-@endforeach
-</div>
-@endif
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-7">
+    <div class="card card-pad">
+        <div class="text-[12px] font-medium" style="color: var(--color-text-secondary);">% Kehadiran</div>
+        <div class="text-2xl font-extrabold tabular-nums mt-1" style="color: var(--color-success);">{{ $pct }}%</div>
+        <div class="text-[11px] mt-0.5" style="color: var(--color-text-muted);">{{ $present }}/{{ $totalA }} hari</div>
+    </div>
+    <div class="card card-pad">
+        <div class="text-[12px] font-medium" style="color: var(--color-text-secondary);">Pelajaran Hari Ini</div>
+        <div class="text-2xl font-extrabold tabular-nums mt-1" style="color: var(--color-primary);">{{ $todaySchedule->count() }}</div>
+    </div>
+    <div class="card card-pad">
+        <div class="text-[12px] font-medium" style="color: var(--color-text-secondary);">Nilai Terbaru</div>
+        <div class="text-2xl font-extrabold tabular-nums mt-1" style="color: var(--color-info);">{{ $recentMarks->count() }}</div>
+    </div>
+    <div class="card card-pad">
+        <div class="text-[12px] font-medium" style="color: var(--color-text-secondary);">Tagihan Belum Bayar</div>
+        <div class="text-2xl font-extrabold tabular-nums mt-1" style="color: {{ $unpaidInvoices > 0 ? 'var(--color-danger)' : 'var(--color-success)' }};">{{ $unpaidInvoices }}</div>
+    </div>
 </div>
 
-<div class="bg-white border border-rule p-7">
-<h3 class="elite-h3 text-lg ink-primary mb-4">✓ Nilai Terbaru</h3>
-@if($recentMarks->isEmpty())
-<p class="font-serif text-sm text-gray-500 italic">Belum ada nilai.</p>
-@else
-@foreach($recentMarks as $m)
-<div class="flex justify-between items-center p-3 border-b border-rule last:border-0">
-<div class="font-serif">{{ $m->subject?->name }}</div>
-<div class="flex items-baseline gap-3">
-<span class="font-mono text-sm">{{ $m->obtained_marks }}/{{ $m->total_marks }}</span>
-<span class="font-display text-xl ink-primary">{{ $m->grade ?? '—' }}</span>
-</div>
-</div>
-@endforeach
-@endif
-</div>
+<div class="grid lg:grid-cols-2 gap-4">
+    <div class="card">
+        <div class="flex items-center gap-2 px-5 py-4 border-b" style="border-color: var(--color-border);">
+            <x-ui.icon name="calendar" class="w-5 h-5 text-[var(--color-primary)]" />
+            <h3 class="section-title">Jadwal Hari Ini</h3>
+        </div>
+        @if($todaySchedule->isEmpty())
+            <x-feedback.empty-state icon="calendar" title="Tidak ada jadwal" description="Nikmati hari bebas Anda — tidak ada pelajaran terjadwal hari ini." />
+        @else
+            <ul class="divide-y" style="border-color: var(--color-border);">
+                @foreach($todaySchedule as $sl)
+                    <li class="flex justify-between items-center px-5 py-3.5 hover:bg-[var(--color-surface-hover)] transition">
+                        <div class="min-w-0">
+                            <div class="text-sm font-semibold truncate" style="color: var(--color-text);">{{ $sl->subject?->name }}</div>
+                            <div class="text-xs mt-0.5" style="color: var(--color-text-muted);">{{ $sl->teacher?->name }} {{ $sl->room ? '· '.$sl->room : '' }}</div>
+                        </div>
+                        <span class="text-sm font-semibold tabular-nums flex-shrink-0 ms-3" style="color: var(--color-text-secondary);">{{ \Carbon\Carbon::parse($sl->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sl->end_time)->format('H:i') }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+    </div>
+
+    <div class="card">
+        <div class="flex items-center justify-between px-5 py-4 border-b" style="border-color: var(--color-border);">
+            <div class="flex items-center gap-2">
+                <x-ui.icon name="chart" class="w-5 h-5 text-[var(--color-info)]" />
+                <h3 class="section-title">Nilai Terbaru</h3>
+            </div>
+            <a href="{{ route('student.marks') }}" class="text-xs font-semibold" style="color: var(--color-primary);">Semua nilai →</a>
+        </div>
+        @if($recentMarks->isEmpty())
+            <x-feedback.empty-state icon="chart" title="Belum ada nilai" description="Nilai akan muncul di sini setelah guru menilai pekerjaan Anda." />
+        @else
+            <ul class="divide-y" style="border-color: var(--color-border);">
+                @foreach($recentMarks as $m)
+                    <li class="flex justify-between items-center px-5 py-3.5">
+                        <span class="text-sm font-medium truncate" style="color: var(--color-text);">{{ $m->subject?->name }}</span>
+                        <span class="flex items-baseline gap-3 flex-shrink-0 ms-3">
+                            <span class="text-xs tabular-nums" style="color: var(--color-text-muted);">{{ $m->obtained_marks }}/{{ $m->total_marks }}</span>
+                            <span class="text-lg font-extrabold w-8 text-center" style="color: var(--color-primary);">{{ $m->grade ?? '—' }}</span>
+                        </span>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+    </div>
 </div>
 @endsection

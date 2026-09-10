@@ -188,6 +188,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth', 'role:admin|accountant|principal|hr|transport_admin|hostel_admin|procurement_admin|homeroom_teacher', 'subscription.active', '2fa.enforce'])->group(function () {
         Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
         Route::get('/dashboard/role', [RoleDashboardController::class, 'index'])->name('dashboard.role');
+        Route::get('/my-work', [\App\Http\Controllers\Web\Admin\MyWorkController::class, 'index'])->name('my-work');
 
         // ==================== AKADEMIK ====================
         Route::get('/academic/years',                    [AcademicWebController::class, 'years'])->name('academic.years.index');

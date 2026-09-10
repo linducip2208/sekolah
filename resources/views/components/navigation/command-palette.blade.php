@@ -1,43 +1,22 @@
 @php
     $safe = fn (string $name) => rescue(fn () => route($name), '#', false);
-    $role    = auth()->check() ? (auth()->user()->getRoleNames()->first() ?? 'admin') : 'admin';
-    $isAdmin = in_array($role, ['admin', 'super_admin'], true);
+    $user = auth()->user();
 
-    $actions = collect($isAdmin
-        ? [
-            ['title' => 'Tambah Siswa',       'group' => 'Aksi', 'icon' => 'user', 'url' => $safe('admin.students.create')],
-            ['title' => 'Tambah Staff / Guru', 'group' => 'Aksi', 'icon' => 'users', 'url' => $safe('admin.staff.create')],
-            ['title' => 'Buat Pengumuman',    'group' => 'Aksi', 'icon' => 'bell', 'url' => $safe('admin.notices.create')],
-            ['title' => 'Absensi Harian',     'group' => 'Aksi', 'icon' => 'check', 'url' => $safe('admin.attendance.index')],
-            ['title' => 'Kelola Invoice',     'group' => 'Aksi', 'icon' => 'money', 'url' => $safe('admin.fee.invoices.index')],
-            ['title' => 'Dashboard PPDB',     'group' => 'Aksi', 'icon' => 'school', 'url' => $safe('admin.ppdb.dashboard')],
-        ]
-        : [
-            ['title' => 'Kelola Invoice',     'group' => 'Aksi', 'icon' => 'money', 'url' => $safe('admin.fee.invoices.index')],
-            ['title' => 'Slip Gaji',          'group' => 'Aksi', 'icon' => 'users', 'url' => $safe('admin.payroll.slips.index')],
-            ['title' => 'Ringkasan Keuangan', 'group' => 'Aksi', 'icon' => 'chart', 'url' => $safe('admin.finance.reports.summary')],
-            ['title' => 'Buat Laporan',       'group' => 'Aksi', 'icon' => 'chart', 'url' => $safe('admin.reports.builder.index')],
-        ])->filter(fn ($a) => $a['url'] !== '#')->values()->all();
+    // Aksi cepat berbasis role (quick create yang benar-benar ada routenya).
+    $actions = collect(app(\App\Services\Navigation\NavigationService::class)->quickCreateFor($user))
+        ->take(6)
+        ->map(fn ($q) => [
+            'title' => $q['label'],
+            'group' => 'Aksi',
+            'icon'  => in_array($q['icon'], ['students','people']) ? ($q['icon'] === 'students' ? 'user' : 'users') : $q['icon'],
+            'url'   => $q['url'],
+        ])->values()->all();
 
-    $nav = collect($isAdmin
-        ? [
-            ['title' => 'Dashboard',          'group' => 'Navigasi', 'icon' => 'home', 'url' => $safe('admin.dashboard')],
-            ['title' => 'Data Siswa',         'group' => 'Navigasi', 'icon' => 'user', 'url' => $safe('admin.students.index')],
-            ['title' => 'Staff & Guru',       'group' => 'Navigasi', 'icon' => 'users', 'url' => $safe('admin.staff.index')],
-            ['title' => 'Jadwal Pelajaran',   'group' => 'Navigasi', 'icon' => 'calendar', 'url' => $safe('admin.timetable.index')],
-            ['title' => 'Ujian',              'group' => 'Navigasi', 'icon' => 'edit', 'url' => $safe('admin.exams.index')],
-            ['title' => 'Invoice / Tagihan',  'group' => 'Navigasi', 'icon' => 'money', 'url' => $safe('admin.fee.invoices.index')],
-            ['title' => 'Report Builder',     'group' => 'Navigasi', 'icon' => 'chart', 'url' => $safe('admin.reports.builder.index')],
-            ['title' => 'Pengumuman',         'group' => 'Navigasi', 'icon' => 'bell', 'url' => $safe('admin.notices.index')],
-            ['title' => 'Perpustakaan',       'group' => 'Navigasi', 'icon' => 'book', 'url' => $safe('admin.library.books.index')],
-        ]
-        : [
-            ['title' => 'Dashboard',          'group' => 'Navigasi', 'icon' => 'home', 'url' => $safe('admin.dashboard')],
-            ['title' => 'Invoice / Tagihan',  'group' => 'Navigasi', 'icon' => 'money', 'url' => $safe('admin.fee.invoices.index')],
-            ['title' => 'Slip Gaji',          'group' => 'Navigasi', 'icon' => 'users', 'url' => $safe('admin.payroll.slips.index')],
-            ['title' => 'Ringkasan Keuangan', 'group' => 'Navigasi', 'icon' => 'chart', 'url' => $safe('admin.finance.reports.summary')],
-            ['title' => 'Report Builder',     'group' => 'Navigasi', 'icon' => 'chart', 'url' => $safe('admin.reports.builder.index')],
-        ])->filter(fn ($a) => $a['url'] !== '#')->values()->all();
+    // Seluruh navigasi domain yang visible untuk role ini — semua menu
+    // kini bisa dijangkau lewat ⌘K tanpa menelusuri sidebar.
+    $nav = collect(app(\App\Services\Navigation\NavigationService::class)->flatForPalette($user))
+        ->filter(fn ($n) => str_starts_with($n['url'], url('/')))
+        ->values()->all();
 @endphp
 
 <div x-data="commandPalette({{ Js::from(['searchUrl' => $safe('admin.search'), 'actions' => $actions, 'nav' => $nav]) }})"
@@ -50,7 +29,7 @@
         <div class="flex items-center gap-3 px-4 py-3 border-b border-[var(--color-border)]">
             <x-ui.icon name="search" class="w-5 h-5 text-[var(--color-text-muted)]" />
             <input x-ref="input" x-model="query" @input="onInput" @keydown="onKeydown"
-                   placeholder="Cari siswa, guru, invoice, pengumuman… atau ketik aksi"
+                   placeholder="Cari siswa, guru, invoice… atau ketik nama menu"
                    aria-label="Cari global"
                    class="flex-1 outline-none bg-transparent text-base" />
             <span class="command-kbd" aria-hidden="true">ESC</span>
@@ -86,7 +65,7 @@
             </template>
 
             {{-- Empty --}}
-            <template x-if="mode === 'results' && !loading && results.length === 0">
+            <template x-if="(mode === 'results' || mode === 'idle') && !loading && results.length === 0 && filteredActions.length === 0 && filteredNav.length === 0">
                 <div class="px-4 py-6 text-center text-sm text-[var(--color-text-muted)]">
                     Tidak ada hasil untuk "<span x-text="query"></span>".
                 </div>
@@ -117,11 +96,11 @@
                 </div>
             </template>
 
-            {{-- Navigation --}}
+            {{-- Navigation (seluruh menu sesuai role) --}}
             <template x-if="filteredNav.length">
-                <div>
+                <div :class="filteredActions.length || results.length ? 'border-t border-[var(--color-border)] mt-1.5 pt-1' : ''">
                     <div class="dropdown-label px-4 pt-1">Navigasi</div>
-                    <template x-for="(n, idx) in filteredNav" :key="'n' + idx">
+                    <template x-for="(n, idx) in filteredNav" :key="'n' + n.title + n.group">
                         <a :href="n.url" class="command-item" :class="{ active: active === (mode === 'results' ? results.length + filteredActions.length + idx : filteredActions.length + idx) }" @mouseenter="active = (mode === 'results' ? results.length + filteredActions.length + idx : filteredActions.length + idx)" @click.prevent="choose(n)">
                             <svg class="w-5 h-5 text-[var(--color-text-muted)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path :d="iconPaths[n.icon] || iconPaths.school"></path></svg>
                             <span class="flex-1 min-w-0 truncate" x-text="n.title"></span>
@@ -132,9 +111,9 @@
             </template>
 
             {{-- Idle hint --}}
-            <template x-if="mode === 'idle'">
+            <template x-if="mode === 'idle' && !recent.length">
                 <div class="px-4 py-6 text-center text-sm text-[var(--color-text-muted)]">
-                    Ketik minimal 2 karakter untuk mencari, atau pilih aksi cepat di bawah.
+                    Ketik minimal 2 karakter untuk mencari siswa/invoice, atau pilih aksi & navigasi di bawah.
                 </div>
             </template>
         </div>

@@ -8,6 +8,16 @@ Platform manajemen sekolah multi-tenant berbasis cloud. Mencakup akademik, keuan
 
 ## What's New (sesi pengembangan terakhir)
 
+**UI/UX Enterprise Overhaul (terbaru — evidence di [`docs/UI_UX_AUDIT.md`](docs/UI_UX_AUDIT.md))**
+- Dashboard command center: greeting → KPI ≤6 → Perlu Perhatian (semua alert + CTA) → charts → My Work preview.
+- Setup Progress Tracker — % kelengkapan setup sekolah dari data nyata (7 langkah + CTA per langkah).
+- 7 dashboard role baru: Pustakawan, Petugas PPDB, UKS, Transport, Asrama, Pengadaan, Yayasan (total 13 role dashboard).
+- Komponen baru: `x-ui.page-header`, `x-ui.stat`, `x-ui.status` (status system terpusat), `x-ui.timeline`, `x-ui.tabs`, `x-ui.filter-bar` (filter chips + **Saved Views**), `x-ui.alert-card`, `x-ui.drawer`.
+- Portal Orang Tua: nav portal sederhana + **children switcher** + theme toggle + badge tunggakan.
+- Portal Siswa: ikon SVG konsisten (tanpa emoji), design token penuh.
+- Dark mode menyeluruh: portal compat layer + chart re-render saat tema berubah.
+- Fix regression: dashboard 500 (array→isEmpty), 21 mismatch skema DB (migration audit), PPh21 bracket fallback.
+
 **Enterprise UI & White-label**
 - Design System — semantic tokens, komponen `x-ui.*`/`x-landing.*`, dark mode, responsive, font Manrope, Deep Blue `#2563EB` + Amber `#F59E0B`.
 - Multi-Theme — 5 tema sekolah + 5 tema landing, kontrol font/warna/radius per sekolah & platform.
@@ -28,7 +38,18 @@ Platform manajemen sekolah multi-tenant berbasis cloud. Mencakup akademik, keuan
 - Automation engine (trigger→action) + Anomaly detection + AI Chat-with-data + OCR Dokumen.
 - Internal Audit workflow + Compliance Dashboard + Accreditation Action Plans + Role Expansion (17 role).
 
-**Quality** — **197 test passing (523 assertions)**, responsive audit Playwright, `route:cache`, `deploy.sh`.
+**Quality** — **234 test passing (1431 assertions)**, responsive audit Playwright 7 viewport (0 overflow), `route:cache`, `deploy.sh`.
+
+## Screenshot UI
+
+| Set | Lokasi | Isi |
+|---|---|---|
+| Desktop 1440×900 | `public/marketing/screens/` | 26 halaman: landing, dashboard, siswa, invoice, PPDB, laporan, dll. |
+| Mobile 414×896 | `public/marketing/screens-mobile/` | 5 halaman kunci |
+| Dark mode 1440×900 | `public/marketing/screens-dark/` | Login, dashboard, siswa, invoice, My Work |
+| Portal (desktop+mobile) | `public/marketing/screens-portal/` | Portal siswa & portal orang tua |
+
+Regenerasi: `php artisan serve` lalu `node scripts/screenshot.cjs && node scripts/screenshot-mobile.cjs && node scripts/screenshot-dark.cjs && node scripts/screenshot-portal.cjs && node scripts/responsive-audit.cjs`.
 
 ---
 

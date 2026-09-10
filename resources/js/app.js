@@ -64,8 +64,18 @@
         return {
             mode: stored,
             set: function (mode) { storageSet('theme', mode); this.mode = mode; apply(mode); },
+            cycle: function () {
+                var next = this.mode === 'dark' ? 'light' : 'dark';
+                this.set(next);
+                window.dispatchEvent(new CustomEvent('sikadpro:theme-changed', { detail: { theme: next } }));
+            },
         };
     };
+
+    // Global toggle hook — dipakai portal & topbar via CustomEvent('toggle-theme').
+    window.addEventListener('toggle-theme', function () {
+        if (window.themeManager) window.themeManager().cycle();
+    });
 
     /* -----------------------------------------------------------
        Sidebar state — mobile drawer + desktop collapse (persisted)
@@ -201,8 +211,27 @@
     };
 
     /* -----------------------------------------------------------
-       Command palette (Cmd/Ctrl + K) — search + actions + navigation
-       ----------------------------------------------------------- */
+        Command palette (Cmd/Ctrl + K) — search + actions + navigation
+        Navigasi & aksi difilter secara lokal (fuzzy subsequence) sehingga
+        tetap tampil bahkan saat pencarian server berjalan / gagal.
+        ----------------------------------------------------------- */
+    function fuzzyScore(query, text) {
+        query = query.toLowerCase();
+        text = (text || '').toLowerCase();
+        var qi = 0, score = 0, streak = 0;
+        for (var ti = 0; ti < text.length && qi < query.length; ti++) {
+            if (text[ti] === query[qi]) {
+                qi++;
+                streak++;
+                score += 1 + streak; // reward consecutive matches
+                if (ti === 0 || /[\s\-_/]/.test(text[ti - 1])) score += 4; // word-start bonus
+            } else {
+                streak = 0;
+            }
+        }
+        return qi === query.length ? score : -1;
+    }
+
     window.commandPalette = function (cfg) {
         cfg = cfg || {};
         var searchUrl = cfg.searchUrl || '';
@@ -240,7 +269,7 @@
                 this.active = 0;
                 this.mode = 'idle';
                 this.filteredActions = actions;
-                this.filteredNav = nav;
+                this.filteredNav = nav.slice(0, 12);
                 var self = this;
                 this.$nextTick(function () { self.$refs.input.focus(); });
             },
@@ -251,22 +280,43 @@
             totalCount: function () {
                 return this.filteredActions.length + this.filteredNav.length + (this.mode === 'results' ? this.results.length : 0);
             },
+            filterLocal: function () {
+                var q = this.query.trim();
+                var self = this;
+                if (!q) {
+                    this.filteredActions = actions;
+                    this.filteredNav = nav.slice(0, 12);
+                    return;
+                }
+                function pick(list, limit) {
+                    var scored = [];
+                    list.forEach(function (item) {
+                        var s = Math.max(
+                            fuzzyScore(q, item.title),
+                            fuzzyScore(q, item.title + ' ' + (item.group || '')) * 0.9,
+                            fuzzyScore(q, item.sub || '') * 0.6
+                        );
+                        if (s >= 0) scored.push({ item: item, s: s });
+                    });
+                    scored.sort(function (a, b) { return b.s - a.s; });
+                    return scored.slice(0, limit).map(function (x) { return x.item; });
+                }
+                this.filteredActions = pick(actions, 6);
+                this.filteredNav = pick(nav, 14);
+            },
             onInput: debounce(function () {
                 var self = this;
                 var q = this.query.trim();
+                this.filterLocal();
+                this.active = 0;
                 if (q.length < 2) {
                     this.mode = 'idle';
-                    this.filteredActions = actions.filter(function (a) { return (a.title + ' ' + (a.group || '')).toLowerCase().includes(q.toLowerCase()); });
-                    this.filteredNav = nav.filter(function (n) { return (n.title + ' ' + (n.group || '')).toLowerCase().includes(q.toLowerCase()); });
                     this.results = [];
-                    this.active = 0;
                     return;
                 }
                 this.mode = 'search';
                 this.loading = true;
                 this.error = false;
-                this.filteredActions = [];
-                this.filteredNav = [];
                 fetch(searchUrl + '?q=' + encodeURIComponent(q))
                     .then(function (r) {
                         if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -279,7 +329,7 @@
                     })
                     .catch(function () {
                         self.error = true;
-                        self.mode = 'error';
+                        self.mode = 'results'; // tampilkan hasil lokal meski server gagal
                     })
                     .finally(function () { self.loading = false; });
             }, 250),

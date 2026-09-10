@@ -8,7 +8,8 @@
 
 /* ---------------------------------------------------------------
    1. DESIGN TOKENS — SIKAD visual identity
-   Deep Teal + Warm Amber + Plus Jakarta Sans
+   Enterprise Blue (#2563EB) + Warm Amber accent + Manrope.
+   Semua warna brand bisa dioverride white-label via --c-* vars.
    --------------------------------------------------------------- */
 :root {
     /* Brand (inherited from platform settings / white-label CSS) */
@@ -736,7 +737,7 @@ html[data-theme="dark"] .skeleton::after {
     line-height: 1;
     border-radius: 999px;
     background: var(--color-accent);
-    color: var(--color-primary);
+    color: #1F2937; /* kontras AA di atas amber, terbaca di sidebar gelap */
 }
 .sidebar-section-header {
     display: flex;
@@ -983,3 +984,44 @@ html[data-theme="dark"] .skeleton::after {
     body { background: #fff !important; color: #000 !important; }
     .card, .elite-card { border: 1px solid #ddd !important; box-shadow: none !important; }
 }
+
+/* ---------------------------------------------------------------
+   20. PORTAL DARK-MODE COMPATIBILITY LAYER
+   Portal (parent/student) memakai kelas legacy elite (`bg-white`,
+   `.elite-card`, `text-gray-*`). Layer ini memetakan kelas tersebut
+   ke token design system sehingga dark mode konsisten tanpa
+   mengubah ratusan file view.
+   --------------------------------------------------------------- */
+html[data-theme="dark"] {
+    --c-paper: #0F172A;
+    --c-ink: #F1F5F9;
+    --c-muted: #A7B4C7;
+    --c-rule: rgba(255, 255, 255, 0.10);
+}
+html[data-theme="dark"] body { background: var(--color-background); color: var(--color-text); }
+html[data-theme="dark"] .elite-card,
+html[data-theme="dark"] .elite-card:hover {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    box-shadow: none;
+}
+html[data-theme="dark"] .bg-white:not(.keep-white) {
+    background-color: var(--color-surface) !important;
+}
+html[data-theme="dark"] .bg-gray-50,
+html[data-theme="dark"] .hover\:bg-gray-50:hover { background-color: var(--color-surface-muted) !important; }
+html[data-theme="dark"] .text-gray-900,
+html[data-theme="dark"] .ink-primary { color: var(--color-text); }
+html[data-theme="dark"] .text-gray-800,
+html[data-theme="dark"] .text-gray-700 { color: var(--color-text-secondary); }
+html[data-theme="dark"] .text-gray-600,
+html[data-theme="dark"] .text-gray-500 { color: var(--color-text-secondary); }
+html[data-theme="dark"] .text-gray-400 { color: var(--color-text-muted); }
+html[data-theme="dark"] .border-rule,
+html[data-theme="dark"] [class*="border-rule"] { border-color: var(--color-border) !important; }
+html[data-theme="dark"] .border-gray-100,
+html[data-theme="dark"] .border-gray-200,
+html[data-theme="dark"] .border-gray-300 { border-color: var(--color-border) !important; }
+
+/* Chart canvas harus transparan agar ikut surface theme */
+canvas { color-scheme: light dark; }

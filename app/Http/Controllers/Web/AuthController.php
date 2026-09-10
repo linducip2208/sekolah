@@ -81,11 +81,13 @@ class AuthController extends Controller
     public function dashboard(): View
     {
         $user = auth()->user();
-        $roleDashboard = app(\App\Services\Dashboard\RoleDashboardService::class)
-            ->forRole($user->school_id, $user->id, app(\App\Services\Dashboard\RoleDashboardService::class)->roleFor($user));
+
+        // Command-center data: semua query terpusat + cache di service.
+        $data = app(\App\Services\Dashboard\DashboardDataService::class)->for($user);
 
         return view('school-admin.dashboard', [
-            'roleWidgets' => $roleDashboard,
+            'data' => $data,
+            'roleWidgets' => ['kpis' => $data['kpis']], // backward compat
         ]);
     }
 

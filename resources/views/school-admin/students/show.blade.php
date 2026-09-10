@@ -36,6 +36,9 @@
                 <x-ui.button href="{{ route('admin.students.edit', $s) }}" variant="secondary" icon="edit">Edit</x-ui.button>
                 <x-ui.button href="{{ route('admin.print.id-card', $s) }}" variant="ghost">ID Card</x-ui.button>
                 <x-ui.button href="{{ route('admin.print.report-card', $s) }}" variant="ghost">Raport</x-ui.button>
+                @if(rescue(fn () => route('admin.fee.invoices.create'), null, false))
+                    <a href="{{ rescue(fn () => route('admin.fee.invoices.create'), '#', false) }}?student_id={{ $s->id }}" class="btn btn-sm">Buat Tagihan</a>
+                @endif
             </div>
         </div>
     </div>
@@ -56,18 +59,20 @@
         @if($lcTransitions)
         <div class="flex flex-wrap gap-2 mt-3">
             @foreach($lcTransitions as $to)
-                <form method="POST" action="{{ route('admin.students.transition', $s) }}" class="inline">
+                <form method="POST" action="{{ route('admin.students.transition', $s) }}" class="inline"
+                      data-confirm="Ubah status siswa ke [{{ $lcLabels[$to] ?? $to }}]? Tindakan ini tercatat di riwayat siklus hidup."
+                      data-confirm-title="Konfirmasi Perubahan Status">
                     @csrf
                     <input type="hidden" name="to_status" value="{{ $to }}">
-                    <button class="text-xs px-3 py-1.5 rounded border border-rule hover:bg-gray-50" onclick="return confirm('Ubah status ke {{ $lcLabels[$to] ?? $to }}?')">
-                        {{ $to === 'graduated' ? '🎓' : '→' }} {{ $lcLabels[$to] ?? $to }}
-                    </button>
+                    <button class="btn btn-ghost btn-sm">{{ $lcLabels[$to] ?? $to }}</button>
                 </form>
             @endforeach
         </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.students.promote', $s) }}" class="flex flex-wrap gap-2 mt-3 items-end">
+        <form method="POST" action="{{ route('admin.students.promote', $s) }}" class="flex flex-wrap gap-2 mt-3 items-end"
+              data-confirm="Promosikan siswa ke kelas yang dipilih? Data kelas lama tetap tersimpan di riwayat."
+              data-confirm-title="Konfirmasi Promosi Kelas" data-confirm-danger="false">
             @csrf
             <div>
                 <label class="text-xs block mb-1 text-[var(--color-text-secondary)]">Promosi / Kenaikan Kelas</label>
@@ -78,7 +83,7 @@
                     @endforeach
                 </select>
             </div>
-            <button class="text-xs px-3 py-1.5 rounded bg-[var(--c-primary)] text-white">Promosikan</button>
+            <button class="btn btn-primary btn-sm">Promosikan</button>
         </form>
 
         @if($s->statusHistory->isNotEmpty())
@@ -241,7 +246,7 @@
                                         <td>{{ $d->incident_date?->format('d M Y') }}</td>
                                         <td>{{ $d->description }}</td>
                                         <td>{{ $d->points ?? 0 }}</td>
-                                        <td><x-ui.badge variant="warning">{{ $d->status }}</x-ui.badge></td>
+                                        <td><x-ui.status :status="$d->status" /></td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -263,7 +268,7 @@
                                     <tr>
                                         <td>{{ $c->scheduled_at?->format('d M Y H:i') }}</td>
                                         <td>{{ $c->type }}</td>
-                                        <td><x-ui.badge variant="accent">{{ $c->status }}</x-ui.badge></td>
+                                        <td><x-ui.status :status="$c->status" /></td>
                                         <td class="max-w-xs truncate">{{ $c->notes }}</td>
                                     </tr>
                                 @endforeach
@@ -315,7 +320,7 @@
                                         <td>{{ $inv->invoice_no }}</td>
                                         <td>{{ $inv->period }}</td>
                                         <td>{{ money($inv->amount, $school) }}</td>
-                                        <td><x-ui.badge :variant="$invTone($inv->status)">{{ $invStatus($inv->status) }}</x-ui.badge></td>
+                                        <td><x-ui.status :status="$inv->status" /></td>
                                     </tr>
                                 @endforeach
                             </tbody>

@@ -66,6 +66,28 @@ class AppServiceProvider extends ServiceProvider
                 ));
             }
         });
+
+        // Portal orang tua: share children + outstanding untuk layout
+        // (nav, children switcher, badge tagihan) di semua halaman portal.
+        View::composer(['layouts.parent'], function ($view) {
+            $children = collect();
+            $outstanding = 0;
+            try {
+                if (auth()->check() && auth()->user()->school_id) {
+                    $schoolId = (int) auth()->user()->school_id;
+                    $children = Student::whereHas('parents', fn ($q) => $q->where('parent_id', auth()->id()))
+                        ->where('students.school_id', $schoolId)
+                        ->with(['user:id,name', 'classSection.classRoom:id,name', 'classSection.section:id,name'])
+                        ->get(['id', 'user_id', 'admission_no', 'gender', 'class_section_id']);
+                    $outstanding = (int) (FeeInvoice::where('fee_invoices.school_id', $schoolId)
+                        ->whereIn('student_id', $children->pluck('id'))
+                        ->whereIn('status', ['unpaid', 'partial', 'overdue'])
+                        ->selectRaw('SUM(amount - paid_amount) as t')->value('t') ?? 0);
+                }
+            } catch (\Throwable) {
+            }
+            $view->with(compact('children', 'outstanding'));
+        });
     }
 
     private function configureRateLimiting(): void

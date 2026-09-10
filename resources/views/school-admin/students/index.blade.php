@@ -3,48 +3,40 @@
 @section('sidebar')@include('school-admin.partials.sidebar')@endsection
 @section('content')
 
-<div class="flex justify-between items-end mb-7">
-    <div>
-        <div class="elite-kicker mb-2">Discipuli</div>
-        <h1 class="elite-h1 text-3xl ink-primary mb-2">Daftar Siswa</h1>
-        <div class="elite-rule"></div>
-        <p class="font-serif text-sm text-gray-600 mt-3">{{ $students->total() }} siswa terdaftar di sekolah Anda.</p>
-    </div>
-    <a href="{{ route('admin.students.create') }}" class="btn-elite-gold">+ Tambah Siswa</a>
-</div>
+<x-ui.page-header title="Daftar Siswa" subtitle="{{ $students->total() }} siswa terdaftar di sekolah Anda.">
+    @if(rescue(fn () => route('admin.import.index'), null, false))
+        <a href="{{ route('admin.import.index') }}" class="btn btn-secondary btn-sm">Import</a>
+    @endif
+    <a href="{{ route('admin.students.create') }}" class="btn btn-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><path stroke-linecap="round" d="M12 4v16m8-8H4"/></svg>
+        Tambah Siswa
+    </a>
+</x-ui.page-header>
 
-<form method="GET" class="bg-white border border-rule p-5 mb-6 grid grid-cols-1 md:grid-cols-4 gap-3">
-    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / email / NIS"
-           class="md:col-span-2 border-2 border-rule px-3 py-2 font-serif text-sm">
-    <select name="class_section_id" class="border-2 border-rule px-3 py-2 font-serif text-sm">
-        <option value="">— Semua Rombel —</option>
-        @foreach($classSections as $cs)
-            <option value="{{ $cs->id }}" @selected(request('class_section_id') == $cs->id)>
-                {{ $cs->classRoom?->name }} {{ $cs->section?->name }}
-            </option>
-        @endforeach
-    </select>
-    <button class="btn-elite" style="padding:.6rem 1rem;font-size:.65rem;">Filter</button>
-</form>
+{{-- Filter chips + saved views --}}
+<x-ui.filter-bar :labels="['search' => 'Cari', 'class_section_id' => 'Rombel']"
+                 :valueLabels="collect($classSections)->mapWithKeys(fn ($cs) => ['class_section_id.'.$cs->id => trim(($cs->classRoom?->name ?? '').' '.($cs->section?->name ?? ''))])->all()" />
 
 <div x-data="{ checked: [], get count() { return this.checked.length } }">
 
 {{-- Bulk action bar (sticky) --}}
-<div x-show="count > 0" x-cloak class="bg-[var(--c-accent)] text-white px-4 py-3 mb-3 flex items-center justify-between sticky top-0 z-10">
-    <span class="elite-kicker text-[.65rem]"><span x-text="count"></span> siswa terpilih</span>
-    <form method="POST" action="{{ route('admin.bulk.students') }}" class="flex gap-2 items-center" onsubmit="return confirm('Eksekusi bulk action?')">
+<div x-show="count > 0" x-cloak class="card card-pad mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-16 z-20 border-l-4" style="border-left-color: var(--color-accent);">
+    <span class="text-sm font-semibold"><span x-text="count"></span> siswa terpilih</span>
+    <form method="POST" action="{{ route('admin.bulk.students') }}" class="flex flex-wrap gap-2 items-center"
+          data-confirm="Eksekusi bulk action pada siswa terpilih? Tindakan ini tidak bisa dibatalkan."
+          data-confirm-title="Konfirmasi Bulk Action">
         @csrf
         <template x-for="id in checked" :key="id"><input type="hidden" name="ids[]" :value="id"></template>
-            <select name="action" required class="text-xs px-2 py-1 text-gray-800 border-0">
-                <option value="">— pilih aksi —</option>
-                <option value="activate">Aktifkan</option>
-                <option value="deactivate">Nonaktifkan</option>
-                <option value="send_whatsapp">Kirim WhatsApp</option>
-                <option value="delete">Hapus</option>
-            </select>
-            <input type="text" name="whatsapp_message" placeholder="Pesan WhatsApp..." class="text-xs px-2 py-1 text-gray-800 border-0" style="display:none;" id="wa-msg-input">
-            <button type="submit" class="text-xs bg-white text-gray-900 px-3 py-1 hover:bg-gray-100">Eksekusi</button>
-        <button type="button" @click="checked = []; document.querySelectorAll('input.bulk-cb').forEach(c => c.checked=false)" class="text-xs underline">Batal</button>
+        <select name="action" required class="select max-w-44 text-sm" aria-label="Pilih aksi massal">
+            <option value="">— pilih aksi —</option>
+            <option value="activate">Aktifkan</option>
+            <option value="deactivate">Nonaktifkan</option>
+            <option value="send_whatsapp">Kirim WhatsApp</option>
+            <option value="delete">Hapus</option>
+        </select>
+        <input type="text" name="whatsapp_message" placeholder="Pesan WhatsApp…" class="input max-w-56 text-sm" style="display:none;" id="wa-msg-input">
+        <button type="submit" class="btn btn-sm">Eksekusi</button>
+        <button type="button" @click="checked = []; document.querySelectorAll('input.bulk-cb').forEach(c => c.checked=false)" class="btn btn-ghost btn-sm">Batal</button>
     </form>
 </div>
 
@@ -62,58 +54,96 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<div class="bg-white border border-rule overflow-hidden">
-    <table class="w-full text-sm">
-        <thead class="bg-[var(--c-primary)] text-white">
-            <tr>
-                <th class="px-3 py-3 w-8"><input type="checkbox" @change="checked = $event.target.checked ? Array.from(document.querySelectorAll('input.bulk-cb')).map(c => c.value) : []; document.querySelectorAll('input.bulk-cb').forEach(c => c.checked = $event.target.checked)"></th>
-                <th class="text-left px-4 py-3 elite-kicker text-[.6rem]">NIS</th>
-                <th class="text-left px-4 py-3 elite-kicker text-[.6rem]">Nama</th>
-                <th class="text-left px-4 py-3 elite-kicker text-[.6rem]">Rombel</th>
-                <th class="text-left px-4 py-3 elite-kicker text-[.6rem]">Gender</th>
-                <th class="text-left px-4 py-3 elite-kicker text-[.6rem]">Wali</th>
-                <th class="px-4 py-3"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($students as $s)
-                <tr class="border-t border-rule hover:bg-gray-50">
-                    <td class="px-3 py-3"><input type="checkbox" class="bulk-cb" value="{{ $s->id }}" @change="$event.target.checked ? checked.push($event.target.value) : (checked = checked.filter(v => v !== $event.target.value))"></td>
-                    <td class="px-4 py-3 font-mono text-xs">{{ $s->admission_no ?? '—' }}</td>
-                    <td class="px-4 py-3">
-                        <a href="{{ route('admin.students.show', $s) }}" class="font-serif font-semibold ink-primary hover:underline">{{ $s->user?->name }}</a>
-                        <div class="text-xs text-gray-500">{{ $s->user?->email }}</div>
-                    </td>
-                    <td class="px-4 py-3">{{ $s->classSection?->classRoom?->name }} {{ $s->classSection?->section?->name }}</td>
-                    <td class="px-4 py-3">
-                        <span class="elite-kicker text-[.55rem]">{{ ucfirst($s->gender ?? '—') }}</span>
-                    </td>
-                    <td class="px-4 py-3 text-xs">
-                        @if($s->guardian_name)
-                            <div>{{ $s->guardian_name }}</div>
-                            <div class="text-gray-500">{{ $s->guardian_phone ?? '' }}</div>
-                        @else —
-                        @endif
-                    </td>
-                    <td class="px-4 py-3 text-right whitespace-nowrap">
-                        <a href="{{ route('admin.students.show', $s) }}" class="text-xs underline ink-secondary hover:ink-accent">Profil</a>
-                        <a href="{{ route('admin.students.edit', $s) }}" class="text-xs underline ink-secondary hover:ink-accent ml-2">Edit</a>
-                        <form method="POST" action="{{ route('admin.students.destroy', $s) }}" class="inline ml-2"
-                              onsubmit="return confirm('Nonaktifkan siswa ini?')">
-                            @csrf @method('DELETE')
-                            <button class="text-xs text-red-700 hover:underline">Hapus</button>
-                        </form>
-                    </td>
+<div class="card overflow-hidden">
+    {{-- Toolbar --}}
+    <form method="GET" class="flex flex-col sm:flex-row gap-2 px-4 py-3 border-b border-[var(--color-border)]">
+        @if(request()->filled('class_section_id'))<input type="hidden" name="class_section_id" value="{{ request('class_section_id') }}">@endif
+        <input type="search" name="search" value="{{ request('search') }}" placeholder="Cari nama / email / NIS…" aria-label="Cari siswa" class="input sm:max-w-xs">
+        <select name="class_section_id" aria-label="Filter rombel" class="select sm:max-w-52">
+            <option value="">— Semua Rombel —</option>
+            @foreach($classSections as $cs)
+                <option value="{{ $cs->id }}" @selected(request('class_section_id') == $cs->id)>
+                    {{ $cs->classRoom?->name }} {{ $cs->section?->name }}
+                </option>
+            @endforeach
+        </select>
+        <button class="btn btn-secondary btn-sm flex-shrink-0">Terapkan</button>
+    </form>
+
+    <div class="table-scroll">
+        <table class="table-elite">
+            <thead>
+                <tr>
+                    <th class="w-10"><input type="checkbox" aria-label="Pilih semua siswa di halaman ini"
+                        @change="checked = $event.target.checked ? Array.from(document.querySelectorAll('input.bulk-cb')).map(c => c.value) : []; document.querySelectorAll('input.bulk-cb').forEach(c => c.checked = $event.target.checked)"></th>
+                    <th>NIS</th>
+                    <th>Nama</th>
+                    <th>Rombel</th>
+                    <th>Gender</th>
+                    <th>Status</th>
+                    <th>Wali</th>
+                    <th></th>
                 </tr>
-            @empty
-                <tr><td colspan="7" class="p-10 text-center text-gray-500 italic font-serif">Belum ada siswa.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse($students as $s)
+                    <tr>
+                        <td><input type="checkbox" class="bulk-cb" value="{{ $s->id }}" aria-label="Pilih {{ $s->user?->name }}"
+                            @change="$event.target.checked ? checked.push($event.target.value) : (checked = checked.filter(v => v !== $event.target.value))"></td>
+                        <td class="font-mono text-xs">{{ $s->admission_no ?? '—' }}</td>
+                        <td>
+                            <a href="{{ route('admin.students.show', $s) }}" class="font-semibold hover:underline" style="color: var(--color-primary);">{{ $s->user?->name }}</a>
+                            <div class="text-xs text-[var(--color-text-muted)]">{{ $s->user?->email }}</div>
+                        </td>
+                        <td>{{ $s->classSection?->classRoom?->name }} {{ $s->classSection?->section?->name }}</td>
+                        <td class="text-[var(--color-text-secondary)]">{{ match ($s->gender) { 'male' => 'Laki-laki', 'female' => 'Perempuan', default => '—' } }}</td>
+                        <td><x-ui.status :status="$s->status ?? ($s->user?->is_active ? 'active' : 'inactive')" /></td>
+                        <td>
+                            @if($s->guardian_name)
+                                <div>{{ $s->guardian_name }}</div>
+                                <div class="text-xs text-[var(--color-text-muted)]">{{ $s->guardian_phone ?? '' }}</div>
+                            @else —
+                            @endif
+                        </td>
+                        <td class="text-right whitespace-nowrap">
+                            <a href="{{ route('admin.students.show', $s) }}" class="text-sm font-semibold hover:underline" style="color: var(--color-primary);">Profil</a>
+                            <a href="{{ route('admin.students.edit', $s) }}" class="text-sm font-medium ml-2 hover:underline" style="color: var(--color-text-secondary);">Edit</a>
+                            <form method="POST" action="{{ route('admin.students.destroy', $s) }}" class="inline ml-2"
+                                  data-confirm="Nonaktifkan {{ $s->user?->name }}? Data akademik dan keuangan tetap tersimpan sebagai riwayat."
+                                  data-confirm-title="Konfirmasi Hapus Siswa" data-confirm-danger="true">
+                                @csrf @method('DELETE')
+                                <button class="text-sm font-medium hover:underline" style="color: var(--color-danger);">Hapus</button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="8">
+                        @if(request()->filled('search') || request()->filled('class_section_id'))
+                            <x-feedback.empty-state icon="search" title="Tidak ada siswa yang cocok" description="Coba ubah kata kunci atau filter rombel." />
+                        @else
+                            <x-feedback.empty-state icon="students" title="Belum ada siswa terdaftar"
+                                description="Tambahkan siswa satu per satu atau import dari file Excel/CSV." />
+                            <div class="flex justify-center gap-2 -mt-2 pb-6">
+                                <a href="{{ route('admin.students.create') }}" class="btn btn-sm">Tambah Manual</a>
+                                @if(rescue(fn () => route('admin.import.index'), null, false))
+                                    <a href="{{ route('admin.import.index') }}" class="btn btn-secondary btn-sm">Import Excel</a>
+                                @endif
+                            </div>
+                        @endif
+                    </td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    @if($students->hasPages())
+        <div class="px-4 py-3 border-t border-[var(--color-border)] flex items-center justify-between text-sm flex-wrap gap-2">
+            <span class="text-[var(--color-text-muted)]">Halaman {{ $students->currentPage() }} dari {{ $students->lastPage() }}</span>
+            {{ $students->withQueryString()->links() }}
+        </div>
+    @endif
 </div>
 
 </div>
-
-<div class="mt-5">{{ $students->links() }}</div>
 
 @endsection
