@@ -6,14 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Academic\Attendance;
 use App\Models\Academic\ClassSection;
 use App\Models\Academic\Student;
+use App\Services\Academic\AttendanceService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AttendanceWebController extends Controller
 {
+    public function __construct(private AttendanceService $service) {}
+
     private function schoolId(): int
     {
         return auth()->user()->school_id;
@@ -52,32 +54,23 @@ class AttendanceWebController extends Controller
     {
         $data = $request->validate([
             'class_section_id' => 'required|exists:class_sections,id',
-            'date'             => 'required|date',
-            'attendance'       => 'required|array',
-            'attendance.*'     => 'required|in:present,absent,late,half_day,on_leave',
-            'notes'            => 'nullable|array',
+            'date' => 'required|date',
+            'attendance' => 'required|array',
+            'attendance.*' => 'required|in:present,absent,late,half_day,on_leave',
+            'notes' => 'nullable|array',
         ]);
 
         $schoolId = $this->schoolId();
         $userId = auth()->id();
 
-        DB::transaction(function () use ($data, $schoolId, $userId) {
-            foreach ($data['attendance'] as $studentId => $status) {
-                Attendance::updateOrCreate(
-                    [
-                        'school_id'        => $schoolId,
-                        'class_section_id' => $data['class_section_id'],
-                        'student_id'       => $studentId,
-                        'date'             => $data['date'],
-                    ],
-                    [
-                        'status'    => $status,
-                        'marked_by' => $userId,
-                        'note'      => $data['notes'][$studentId] ?? null,
-                    ]
-                );
-            }
-        });
+        $records = collect($data['attendance'])
+            ->map(fn ($status, $studentId) => [
+                'student_id' => (int) $studentId,
+                'status' => $status,
+                'note' => $data['notes'][$studentId] ?? null,
+            ])->values()->all();
+
+        $this->service->bulkMark($data['class_section_id'], $data['date'], $records, $request->user());
 
         return back()->with('success', 'Absensi tersimpan untuk '.count($data['attendance']).' siswa.');
     }

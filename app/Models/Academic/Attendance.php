@@ -3,11 +3,14 @@
 namespace App\Models\Academic;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends SchoolModel
 {
+    use AuditableModel;
+
     protected $fillable = [
         'school_id', 'student_id', 'class_section_id', 'marked_by',
         'date', 'status', 'note',

@@ -20,10 +20,10 @@ class GradeApprovalService
         abort_unless(in_array($card->status, ['submitted'], true), 422, 'Hanya rapor yang diajukan yang bisa disetujui.');
 
         $card->update([
-            'status'      => 'approved',
+            'status' => 'approved',
             'approved_by' => $userId,
             'approved_at' => now(),
-            'is_published'=> true,
+            'is_published' => true,
         ]);
 
         return $card->fresh();
@@ -34,6 +34,22 @@ class GradeApprovalService
         abort_unless($card->status === 'approved', 422, 'Hanya rapor yang disetujui yang bisa dikunci.');
 
         $card->update(['status' => 'locked', 'locked_at' => now()]);
+
+        return $card->fresh();
+    }
+
+    public function reopen(ReportCard $card, string $reason): ReportCard
+    {
+        abort_unless($card->status === 'locked', 422, 'Hanya rapor terkunci yang bisa dibuka kembali.');
+        abort_if(trim($reason) === '', 422, 'Alasan pembukaan kembali wajib diisi.');
+
+        $card->update([
+            'status' => 'draft',
+            'is_published' => false,
+            'approved_by' => null,
+            'approved_at' => null,
+            'locked_at' => null,
+        ]);
 
         return $card->fresh();
     }

@@ -7,6 +7,7 @@ use App\Models\Academic\Student;
 use App\Models\School;
 use App\Models\User;
 use App\Services\Academic\GradeApprovalService;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 beforeEach(function () {
     $this->service = app(GradeApprovalService::class);
@@ -45,13 +46,27 @@ it('walks the approval flow draft -> submitted -> approved -> locked', function 
 });
 
 it('rejects invalid transitions', function () {
-    $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+    $this->expectException(HttpException::class);
     $this->service->approve($this->card, $this->user->id);
 });
 
 it('rejects a submitted card back to draft', function () {
     $submitted = $this->service->submit($this->card);
-    $rejected  = $this->service->reject($submitted);
+    $rejected = $this->service->reject($submitted);
 
     expect($rejected->status)->toBe('draft');
+});
+
+it('reopens a locked card back to draft with publication withdrawn', function () {
+    $this->card->update([
+        'status' => 'locked',
+        'is_published' => true,
+        'locked_at' => now(),
+    ]);
+
+    $reopened = $this->service->reopen($this->card, 'Koreksi nilai yang disetujui kepala sekolah.');
+
+    expect($reopened->status)->toBe('draft')
+        ->and($reopened->is_published)->toBeFalse()
+        ->and($reopened->locked_at)->toBeNull();
 });

@@ -40,6 +40,7 @@ Temuan yang diperbaiki:
 - Lesson Plan API dan admin flow menerima referensi akademik lintas sekolah tanpa verifikasi konsisten;
 - payment webhook belum memiliki payload fingerprint/replay record dan HMAC timestamp untuk outbound delivery;
 - backup UI membuat file sintetis ketika `mysqldump` gagal;
+- attendance dan marks maturity pass menambahkan lifecycle lock/reopen/correction, tenant-safe references, dan protection untuk rapor terkunci;
 - test baru menguji flow enterprise dan cross-school access.
 
 ## 3. Feature matrix aktual
@@ -55,9 +56,9 @@ Legenda: `✅ COMPLETE` berarti flow penting yang diaudit tersedia dan diuji; `R
 | Master data akademik | ✅ COMPLETE | Existing academic structure, curriculum, subject, class, calendar flows. |
 | Academic planning | ✅ COMPLETE | Existing CP/TP/ATP, PROTA/PROMES, journal, lesson plan, schedule extensions. |
 | Student 360 | ✅ COMPLETE | Existing profile/timeline and related tabs; sensitive visibility needs broader policy regression. |
-| Attendance | ✅ COMPLETE | Existing manual/QR/student attendance flows; device adapters remain deployment-specific. |
-| CBT / question bank | ✅ COMPLETE | Existing question bank, exam, auto-grade, review and analysis flows. |
-| Marks → report card | ✅ COMPLETE | Existing auto-grade/report card/QR verification path. |
+| Attendance | ✅ COMPLETE | Existing manual/QR/student attendance flows plus tenant-safe bulk writes, date lock/reopen, correction approval, queued absence notification, and audit logging; device adapters remain deployment-specific. |
+| CBT / question bank | ✅ COMPLETE | Existing question bank, exam, auto-grade, review and analysis flows; CBT mark sync now passes the central marks integrity service. |
+| Marks → report card | ✅ COMPLETE | Tenant-safe score validation, automatic grade resolution, immutable locked-card protection, auto-grade/report card/QR verification path. |
 | LMS / portals | ✅ COMPLETE | Existing classroom, lesson, assignment, quiz and portal routes; Playwright smoke coverage should be expanded. |
 | PPDB | ✅ COMPLETE | Existing public registration, review, selection, acceptance and enrollment flow. |
 | Kesiswaan / BK / UKS | ✅ COMPLETE | Existing discipline, counseling, clinic, achievement and extracurricular domains. |
@@ -154,6 +155,10 @@ Migration `2026_09_10_000001_add_enterprise_visitor_wallet_dapodik_tables.php` a
 
 Migration `2026_09_10_000002_add_payment_webhook_replay_fingerprint.php` adds a provider-scoped SHA-256 payload fingerprint for replay detection without exposing webhook secrets.
 
+Migrations `2026_09_10_000003_add_attendance_workflow_tables.php` and
+`2026_09_10_000004_add_soft_deletes_to_attendance_locks.php` add tenant-scoped attendance date locks and the
+upgrade-safe soft-delete column required by `SchoolModel`. No existing attendance records are removed.
+
 Migration `2026_08_23_000002_schema_audit_fixes.php` was repaired with the missing `DB` import and executed successfully.
 
 Production local database result: `php artisan migrate:status` reports all migrations as `Ran`.
@@ -165,6 +170,8 @@ Verified enterprise routes include:
 - `/api/v1/visitors`, `/api/v1/visitors/active`, check-in, pre-register, approve, check-out;
 - `/api/v1/canteen/menu`, wallet, top-up, transactions, orders, status, refund;
 - `/api/v1/admin/dapodik/config`, test connection, preview, runs, conflicts, confirm, CSV import/export;
+- `/api/v1/attendance/class/{classSectionId}/lock`, reopen, correction request, correction queue, approve, and reject;
+- `/api/v1/marks/bulk`, locked-card-aware mark update, and CBT mark synchronization through `MarksService`;
 - `/kunjungan` public registration;
 - existing `/docs`, `/blog`, `/sitemap.xml`, `/robots.txt` and IndexNow command.
 
@@ -201,6 +208,9 @@ Implemented/hardened:
 - idempotency keys for wallet top-up, purchase, refund and accounting posting;
 - canonical Visitor check-in queues a tenant-scoped host notification through `NotificationDispatcher`;
 - PPDB enrollment validates both applicant and destination class section against the active school;
+- Attendance bulk/offline/API writes validate class/student/school ownership; locked dates require the generic approval workflow;
+- Marks bulk/offline/CBT writes validate student/subject/semester/exam ownership and reject edits for locked report cards;
+- Grade and attendance mutations use `AuditableModel` so before/after changes are available in the activity log;
 - Counseling and Career student/counselor/assignee references are validated against the active school;
 - Lesson Plan API/admin writes validate class section, subject, semester, and teacher against the active school;
 - payment callbacks record payload fingerprints, reject already-processed replays, and serialize status application with a row lock;

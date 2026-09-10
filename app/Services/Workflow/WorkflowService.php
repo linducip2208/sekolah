@@ -3,6 +3,8 @@
 namespace App\Services\Workflow;
 
 use App\Models\Workflow\WorkflowRequest;
+use App\Services\Academic\AttendanceService;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Generic, reusable approval workflow for any school-scoped request type
@@ -13,35 +15,41 @@ class WorkflowService
     public function create(int $schoolId, int $requesterId, array $data): WorkflowRequest
     {
         return WorkflowRequest::create([
-            'school_id'    => $schoolId,
+            'school_id' => $schoolId,
             'requester_id' => $requesterId,
-            'type'         => $data['type'],
-            'title'        => $data['title'],
-            'description'  => $data['description'] ?? null,
-            'payload'      => $data['payload'] ?? null,
-            'status'       => 'submitted',
+            'type' => $data['type'],
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'payload' => $data['payload'] ?? null,
+            'status' => 'submitted',
             'submitted_at' => now(),
         ]);
     }
 
     public function approve(WorkflowRequest $request, ?string $note = null): WorkflowRequest
     {
-        $request->update([
-            'status'        => 'approved',
-            'approver_id'   => auth()->id(),
-            'decided_at'    => now(),
-            'decision_note' => $note,
-        ]);
+        DB::transaction(function () use ($request, $note) {
+            $request->update([
+                'status' => 'approved',
+                'approver_id' => auth()->id(),
+                'decided_at' => now(),
+                'decision_note' => $note,
+            ]);
 
-        return $request;
+            if ($request->type === 'attendance_correction') {
+                app(AttendanceService::class)->applyApprovedCorrection($request->fresh());
+            }
+        });
+
+        return $request->fresh();
     }
 
     public function reject(WorkflowRequest $request, string $note): WorkflowRequest
     {
         $request->update([
-            'status'        => 'rejected',
-            'approver_id'   => auth()->id(),
-            'decided_at'    => now(),
+            'status' => 'rejected',
+            'approver_id' => auth()->id(),
+            'decided_at' => now(),
             'decision_note' => $note,
         ]);
 

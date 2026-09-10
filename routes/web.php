@@ -292,6 +292,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/grades/approval/{card}/approve',   [GradeApprovalController::class, 'approve'])->name('grades.approval.approve');
         Route::post('/grades/approval/{card}/reject',    [GradeApprovalController::class, 'reject'])->name('grades.approval.reject');
         Route::post('/grades/approval/{card}/lock',      [GradeApprovalController::class, 'lock'])->name('grades.approval.lock');
+        Route::post('/grades/approval/{card}/reopen',    [GradeApprovalController::class, 'reopen'])->name('grades.approval.reopen');
 
         // ============== TRANSKRIP ==============
         Route::get('/grades/transcript',                  [TranscriptController::class, 'index'])->name('grades.transcript');

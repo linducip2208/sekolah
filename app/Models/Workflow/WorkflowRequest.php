@@ -3,11 +3,14 @@
 namespace App\Models\Workflow;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WorkflowRequest extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'workflow_requests';
 
     protected $fillable = [
@@ -16,27 +19,28 @@ class WorkflowRequest extends SchoolModel
     ];
 
     protected $casts = [
-        'payload'      => 'array',
+        'payload' => 'array',
         'submitted_at' => 'datetime',
-        'decided_at'   => 'datetime',
+        'decided_at' => 'datetime',
     ];
 
     public const TYPES = [
-        'leave'           => 'Cuti / Izin',
-        'purchase'        => 'Pengadaan',
-        'expense'         => 'Pengeluaran',
+        'leave' => 'Cuti / Izin',
+        'purchase' => 'Pengadaan',
+        'expense' => 'Pengeluaran',
         'student_transfer' => 'Pindah Siswa',
-        'discount'        => 'Diskon / Keringanan',
-        'refund'          => 'Pengembalian Dana',
-        'other'           => 'Lainnya',
+        'discount' => 'Diskon / Keringanan',
+        'refund' => 'Pengembalian Dana',
+        'attendance_correction' => 'Koreksi Absensi',
+        'other' => 'Lainnya',
     ];
 
     public const STATUSES = [
-        'draft'        => 'Draft',
-        'submitted'    => 'Diajukan',
+        'draft' => 'Draft',
+        'submitted' => 'Diajukan',
         'under_review' => 'Dalam Review',
-        'approved'     => 'Disetujui',
-        'rejected'     => 'Ditolak',
+        'approved' => 'Disetujui',
+        'rejected' => 'Ditolak',
     ];
 
     public function requester(): BelongsTo

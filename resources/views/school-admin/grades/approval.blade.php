@@ -54,6 +54,12 @@
                     <form method="POST" action="{{ route('admin.grades.approval.reject', $card) }}" class="inline ml-2">@csrf<button class="text-xs underline text-red-700">Tolak</button></form>
                     @elseif($card->status === 'approved')
                     <form method="POST" action="{{ route('admin.grades.approval.lock', $card) }}" class="inline">@csrf<button class="text-xs underline ink-secondary">Kunci</button></form>
+                    @if($card->status === 'locked')
+                        <form method="POST" action="{{ route('admin.grades.approval.reopen', $card) }}" class="inline ml-2">@csrf
+                            <input type="hidden" name="reason" value="Perlu koreksi data akademik">
+                            <button class="text-xs underline text-amber-700">Buka kembali</button>
+                        </form>
+                    @endif
                     @endif
                 </td>
             </tr>

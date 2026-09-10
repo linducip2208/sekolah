@@ -15,7 +15,7 @@ class RolePermissionSeeder extends Seeder
 
         $permissions = [
             // Attendance
-            'attendance.view', 'attendance.manage',
+            'attendance.view', 'attendance.manage', 'attendance.approve', 'attendance.reopen',
             // Timetable
             'timetable.view', 'timetable.manage',
             // Classroom
@@ -23,7 +23,7 @@ class RolePermissionSeeder extends Seeder
             // Exam
             'exam.view', 'exam.manage', 'exam.attempt',
             // Marks
-            'marks.view', 'marks.manage',
+            'marks.view', 'marks.manage', 'marks.approve', 'marks.lock', 'marks.reopen',
             // Fee
             'fee.view', 'fee.manage', 'fee.payment',
             // Payroll
@@ -115,10 +115,11 @@ class RolePermissionSeeder extends Seeder
 
         $roles = [
             'super_admin' => ['saas.manage', 'school.manage', 'student.manage', 'staff.manage',
-                'report.view', 'fee.manage', 'payroll.manage'],
+                'report.view', 'fee.manage', 'payroll.manage', 'attendance.view', 'attendance.manage',
+                'attendance.approve', 'attendance.reopen', 'marks.view', 'marks.manage', 'marks.approve', 'marks.lock', 'marks.reopen'],
 
             'admin' => ['school.manage', 'student.manage', 'student.view', 'staff.manage',
-                'staff.view', 'attendance.view', 'attendance.manage', 'timetable.manage',
+                'staff.view', 'attendance.view', 'attendance.manage', 'attendance.approve', 'attendance.reopen', 'marks.view', 'marks.manage', 'marks.approve', 'marks.lock', 'marks.reopen', 'timetable.manage',
                 'timetable.view', 'classroom.manage', 'classroom.view', 'exam.manage',
                 'exam.view', 'marks.manage', 'marks.view', 'fee.manage', 'fee.view',
                 'fee.payment', 'payroll.manage', 'payroll.view', 'library.manage',
@@ -192,8 +193,8 @@ class RolePermissionSeeder extends Seeder
             'foundation_admin' => ['foundation.view'],
 
             // ===== Enterprise roles (Role expansion) =====
-            'principal' => ['school.manage', 'student.view', 'staff.view', 'attendance.view',
-                'marks.view', 'fee.view', 'report.view', 'analytics.view',
+            'principal' => ['school.manage', 'student.view', 'staff.view', 'attendance.view', 'attendance.approve', 'attendance.reopen',
+                'marks.view', 'marks.approve', 'marks.lock', 'marks.reopen', 'fee.view', 'report.view', 'analytics.view',
                 'notice.view', 'notice.manage', 'chat.use', 'curriculum.view',
                 'lesson_plan.view', 'lesson_plan.approve', 'medical.view'],
             'hr' => ['staff.view', 'staff.manage', 'payroll.view', 'payroll.manage', 'report.view'],

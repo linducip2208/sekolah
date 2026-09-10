@@ -25,32 +25,32 @@ beforeEach(function () {
     $this->admin->assignRole('admin');
 
     $academicYear = AcademicYear::create([
-        'school_id'  => $this->school->id,
-        'name'       => '2024/2025',
+        'school_id' => $this->school->id,
+        'name' => '2024/2025',
         'start_date' => '2024-07-01',
-        'end_date'   => '2025-06-30',
-        'is_active'  => true,
+        'end_date' => '2025-06-30',
+        'is_active' => true,
     ]);
 
     $this->semester = Semester::create([
-        'school_id'       => $this->school->id,
-        'academic_year_id'=> $academicYear->id,
-        'name'            => 'Semester 1',
-        'start_date'      => '2024-07-01',
-        'end_date'        => '2024-12-31',
-        'is_active'       => true,
+        'school_id' => $this->school->id,
+        'academic_year_id' => $academicYear->id,
+        'name' => 'Semester 1',
+        'start_date' => '2024-07-01',
+        'end_date' => '2024-12-31',
+        'is_active' => true,
     ]);
 
-    $medium    = Medium::create(['school_id' => $this->school->id, 'name' => 'Indonesia']);
+    $medium = Medium::create(['school_id' => $this->school->id, 'name' => 'Indonesia']);
     $classRoom = ClassRoom::create(['school_id' => $this->school->id, 'medium_id' => $medium->id, 'name' => 'Kelas 10']);
-    $section   = Section::create(['school_id' => $this->school->id, 'name' => 'A']);
+    $section = Section::create(['school_id' => $this->school->id, 'name' => 'A']);
 
     $teacher = User::factory()->create(['school_id' => $this->school->id]);
     $this->classSection = ClassSection::create([
-        'school_id'        => $this->school->id,
-        'class_room_id'    => $classRoom->id,
-        'section_id'       => $section->id,
-        'medium_id'        => $medium->id,
+        'school_id' => $this->school->id,
+        'class_room_id' => $classRoom->id,
+        'section_id' => $section->id,
+        'medium_id' => $medium->id,
         'academic_year_id' => $academicYear->id,
         'class_teacher_id' => $teacher->id,
     ]);
@@ -58,21 +58,21 @@ beforeEach(function () {
     $this->subject = Subject::create([
         'school_id' => $this->school->id,
         'medium_id' => $medium->id,
-        'name'      => 'Matematika',
-        'code'      => 'MTK',
-        'type'      => 'theory',
+        'name' => 'Matematika',
+        'code' => 'MTK',
+        'type' => 'theory',
     ]);
 
-    $studentUser    = User::factory()->create(['school_id' => $this->school->id]);
-    $this->student  = Student::create([
-        'user_id'          => $studentUser->id,
-        'school_id'        => $this->school->id,
+    $studentUser = User::factory()->create(['school_id' => $this->school->id]);
+    $this->student = Student::create([
+        'user_id' => $studentUser->id,
+        'school_id' => $this->school->id,
         'class_section_id' => $this->classSection->id,
     ]);
 
     $this->gradeSystem = GradeSystem::create([
         'school_id' => $this->school->id,
-        'name'      => 'Sistem Nilai SMA',
+        'name' => 'Sistem Nilai SMA',
         'is_active' => true,
     ]);
 
@@ -88,11 +88,11 @@ test('admin can bulk input marks', function () {
     $response = $this->postJson('/api/v1/marks/bulk', [
         'marks' => [
             [
-                'student_id'     => $this->student->id,
-                'subject_id'     => $this->subject->id,
-                'semester_id'    => $this->semester->id,
+                'student_id' => $this->student->id,
+                'subject_id' => $this->subject->id,
+                'semester_id' => $this->semester->id,
                 'obtained_marks' => 85,
-                'total_marks'    => 100,
+                'total_marks' => 100,
             ],
         ],
     ]);
@@ -116,11 +116,11 @@ test('marks store grade automatically on bulk save', function () {
 
     $this->postJson('/api/v1/marks/bulk', [
         'marks' => [[
-            'student_id'     => $this->student->id,
-            'subject_id'     => $this->subject->id,
-            'semester_id'    => $this->semester->id,
+            'student_id' => $this->student->id,
+            'subject_id' => $this->subject->id,
+            'semester_id' => $this->semester->id,
             'obtained_marks' => 90,
-            'total_marks'    => 100,
+            'total_marks' => 100,
         ]],
     ]);
 
@@ -133,34 +133,34 @@ test('report cards are generated with ranking', function () {
     Sanctum::actingAs($this->admin);
 
     // Create a second student
-    $user2    = User::factory()->create(['school_id' => $this->school->id]);
+    $user2 = User::factory()->create(['school_id' => $this->school->id]);
     $student2 = Student::create([
-        'user_id'          => $user2->id,
-        'school_id'        => $this->school->id,
+        'user_id' => $user2->id,
+        'school_id' => $this->school->id,
         'class_section_id' => $this->classSection->id,
     ]);
 
     // Add marks for both students
     Mark::create([
-        'school_id'      => $this->school->id,
-        'student_id'     => $this->student->id,
-        'subject_id'     => $this->subject->id,
-        'semester_id'    => $this->semester->id,
+        'school_id' => $this->school->id,
+        'student_id' => $this->student->id,
+        'subject_id' => $this->subject->id,
+        'semester_id' => $this->semester->id,
         'obtained_marks' => 90,
-        'total_marks'    => 100,
+        'total_marks' => 100,
     ]);
 
     Mark::create([
-        'school_id'      => $this->school->id,
-        'student_id'     => $student2->id,
-        'subject_id'     => $this->subject->id,
-        'semester_id'    => $this->semester->id,
+        'school_id' => $this->school->id,
+        'student_id' => $student2->id,
+        'subject_id' => $this->subject->id,
+        'semester_id' => $this->semester->id,
         'obtained_marks' => 70,
-        'total_marks'    => 100,
+        'total_marks' => 100,
     ]);
 
     $service = app(MarksService::class);
-    $count   = $service->generateReportCards($this->semester->id);
+    $count = $service->generateReportCards($this->semester->id);
 
     expect($count)->toBe(2);
 
@@ -169,4 +169,51 @@ test('report cards are generated with ranking', function () {
 
     expect($card1->rank)->toBe(1)
         ->and($card2->rank)->toBe(2);
+});
+
+test('marks bulk cannot write a student from another school', function () {
+    Sanctum::actingAs($this->admin);
+    $otherSchool = School::factory()->create();
+    $otherUser = User::factory()->create(['school_id' => $otherSchool->id]);
+    $otherStudent = Student::create([
+        'user_id' => $otherUser->id,
+        'school_id' => $otherSchool->id,
+        'admission_no' => 'FOREIGN-1',
+    ]);
+
+    $response = $this->postJson('/api/v1/marks/bulk', [
+        'marks' => [[
+            'student_id' => $otherStudent->id,
+            'subject_id' => $this->subject->id,
+            'semester_id' => $this->semester->id,
+            'obtained_marks' => 80,
+            'total_marks' => 100,
+        ]],
+    ]);
+
+    $response->assertStatus(422);
+    $this->assertDatabaseMissing('marks', ['student_id' => $otherStudent->id]);
+});
+
+test('locked report card rejects mark edits', function () {
+    Sanctum::actingAs($this->admin);
+    $mark = Mark::create([
+        'school_id' => $this->school->id,
+        'student_id' => $this->student->id,
+        'subject_id' => $this->subject->id,
+        'semester_id' => $this->semester->id,
+        'obtained_marks' => 80,
+        'total_marks' => 100,
+    ]);
+    ReportCard::create([
+        'school_id' => $this->school->id,
+        'student_id' => $this->student->id,
+        'semester_id' => $this->semester->id,
+        'status' => 'locked',
+        'is_published' => true,
+    ]);
+
+    $this->putJson('/api/v1/marks/'.$mark->id, ['obtained_marks' => 95])
+        ->assertStatus(423);
+    $this->assertDatabaseHas('marks', ['id' => $mark->id, 'obtained_marks' => 80]);
 });

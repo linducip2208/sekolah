@@ -21,6 +21,7 @@ class GradeApprovalController extends Controller
 
     public function index(Request $request): View
     {
+        abort_unless(auth()->user()->can('marks.view'), 403);
         $schoolId = $this->schoolId();
 
         $cards = ReportCard::where('school_id', $schoolId)
@@ -38,29 +39,47 @@ class GradeApprovalController extends Controller
 
     public function submit(ReportCard $card): RedirectResponse
     {
+        abort_unless(auth()->user()->can('marks.manage'), 403);
         abort_unless($card->school_id === $this->schoolId(), 403);
         $this->service->submit($card);
+
         return back()->with('success', 'Rapor diajukan untuk disetujui.');
     }
 
     public function approve(ReportCard $card): RedirectResponse
     {
+        abort_unless(auth()->user()->can('marks.approve'), 403);
         abort_unless($card->school_id === $this->schoolId(), 403);
         $this->service->approve($card, auth()->id());
+
         return back()->with('success', 'Rapor disetujui.');
     }
 
     public function reject(ReportCard $card): RedirectResponse
     {
+        abort_unless(auth()->user()->can('marks.approve'), 403);
         abort_unless($card->school_id === $this->schoolId(), 403);
         $this->service->reject($card);
+
         return back()->with('success', 'Rapor ditolak (kembali ke draft).');
     }
 
     public function lock(ReportCard $card): RedirectResponse
     {
+        abort_unless(auth()->user()->can('marks.lock'), 403);
         abort_unless($card->school_id === $this->schoolId(), 403);
         $this->service->lock($card);
+
         return back()->with('success', 'Rapor dikunci.');
+    }
+
+    public function reopen(ReportCard $card, Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()->can('marks.reopen'), 403);
+        abort_unless($card->school_id === $this->schoolId(), 403);
+        $data = $request->validate(['reason' => 'required|string|max:2000']);
+        $this->service->reopen($card, $data['reason']);
+
+        return back()->with('success', 'Rapor dibuka kembali dan wajib diajukan ulang.');
     }
 }

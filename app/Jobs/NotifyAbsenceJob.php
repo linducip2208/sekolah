@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Academic\Student;
+use App\Services\Notification\NotificationDispatcher;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,16 +20,24 @@ class NotifyAbsenceJob implements ShouldQueue
         private int $schoolId
     ) {}
 
-    public function handle(): void
+    public function handle(NotificationDispatcher $dispatcher): void
     {
-        Student::whereIn('id', $this->studentIds)
+        Student::withoutGlobalScopes()
+            ->where('school_id', $this->schoolId)
+            ->whereIn('id', $this->studentIds)
             ->with('parents', 'user')
-            ->chunkById(50, function ($students) {
+            ->chunkById(50, function ($students) use ($dispatcher) {
                 foreach ($students as $student) {
-                    foreach ($student->parents as $parent) {
-                        if ($parent->fcm_token) {
-                            // FCM notification would be sent here via NotificationService
-                        }
+                    $parentIds = $student->parents->pluck('id')->map(fn ($id) => (int) $id)->all();
+                    if ($parentIds) {
+                        $dispatcher->dispatch(
+                            $this->schoolId,
+                            $parentIds,
+                            'attendance_absent',
+                            'Pemberitahuan absensi',
+                            "{$student->user?->name} tercatat tidak hadir pada {$this->date}.",
+                            ['student_id' => $student->id, 'date' => $this->date],
+                        );
                     }
                 }
             });

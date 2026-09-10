@@ -19,10 +19,10 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 |---|---:|---:|---|---|---|---:|
 | PPDB | 3 | 4 | Verification, selection, waiting list, batch enrollment, cross-school validation, student conversion | PPDB → Student → Rombel | PPDB registration + enrollment + cross-school regression | 4/5 |
 | Akademik & Lesson Plan | 2 | 3 | Lifecycle plan, approval path, school validation for class/subject/semester/teacher | Teacher → class → subject → semester | Syntax/Pint; broader workflow regression still needed | 3/5 |
-| Absensi | 3 | 3 | Manual/QR flows, recap and observer integration exist | Student 360, parent notification, analytics | Existing feature tests; correction/lock workflow needs more evidence | 3/5 |
+| Absensi | 3 | 4 | Manual/QR flows, bulk validation, lock/reopen lifecycle, correction approval, observer/audit integration, queued absence notification | Student 360, parent notification, analytics, generic workflow | 4 workflow tests / 10 assertions; broader mobile/report regression remains | 4/5 |
 | Bank Soal | 3 | 3 | Question metadata, review/versioning and analysis paths exist | CBT, quiz, item analysis | Existing question-bank tests | 3/5 |
 | CBT/Ujian | 3 | 4 | Scheduling, token, attempt, autosave/grade paths and analysis | CBT → Marks → Raport | Existing exam/CBT tests | 4/5 |
-| Nilai | 3 | 3 | Grade entry, weighting and approval/lock paths exist | Marks → Raport → Parent Portal | Existing marks/report tests; reopen audit needs expansion | 3/5 |
+| Nilai | 3 | 4 | Tenant-safe bulk/edit validation, score bounds, automatic grade resolution, CBT service sync, locked report-card protection, audit model | CBT → Marks → Raport → Parent Portal | 6 marks tests / 15 assertions plus CBT integration | 4/5 |
 | Raport | 3 | 4 | PDF/QR verification, bulk generation and publication path | Marks → Report Card → Parent | Existing report-card tests and Playwright capture | 4/5 |
 | LMS | 3 | 3 | Classroom, lessons, assignments, quiz and progress paths exist | Student Portal, Teacher Portal | Portal smoke; deeper deadline/resubmission tests needed | 3/5 |
 | Student 360 | 2 | 3 | Consolidated profile/timeline and permission-aware tabs | Academic, finance, BK, health, library, transport | Visibility regression needs broader coverage | 3/5 |

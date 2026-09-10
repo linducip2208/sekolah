@@ -158,7 +158,13 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     Route::get('/attendance/me',                        [AttendanceController::class, 'mine']);
     Route::get('/attendance/class/{classSectionId}',    [AttendanceController::class, 'getByClass']);
     Route::post('/attendance/class/{classSectionId}',   [AttendanceController::class, 'bulkMark']);
+    Route::post('/attendance/class/{classSectionId}/lock',   [AttendanceController::class, 'lock']);
+    Route::post('/attendance/class/{classSectionId}/reopen', [AttendanceController::class, 'reopen']);
+    Route::get('/attendance/corrections',               [AttendanceController::class, 'corrections']);
+    Route::post('/attendance/corrections/{workflowRequest}/approve', [AttendanceController::class, 'approveCorrection']);
+    Route::post('/attendance/corrections/{workflowRequest}/reject',  [AttendanceController::class, 'rejectCorrection']);
     Route::put('/attendance/{attendance}',              [AttendanceController::class, 'update']);
+    Route::post('/attendance/{attendance}/correction',  [AttendanceController::class, 'requestCorrection']);
     Route::get('/attendance/student/{studentId}',       [AttendanceController::class, 'getByStudent']);
     Route::get('/attendance/summary/{studentId}',       [AttendanceController::class, 'summary']);
 

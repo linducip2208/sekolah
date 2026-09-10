@@ -3,11 +3,14 @@
 namespace App\Models\Academic;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReportCard extends SchoolModel
 {
+    use AuditableModel;
+
     protected $fillable = [
         'school_id', 'student_id', 'semester_id',
         'total_percentage', 'overall_grade', 'gpa', 'rank', 'remarks', 'is_published',
@@ -16,11 +19,11 @@ class ReportCard extends SchoolModel
     ];
 
     protected $casts = [
-        'is_published'        => 'boolean',
-        'approved_at'         => 'datetime',
-        'locked_at'           => 'datetime',
-        'competency_scores'   => 'array',
-        'attendance_summary'  => 'array',
+        'is_published' => 'boolean',
+        'approved_at' => 'datetime',
+        'locked_at' => 'datetime',
+        'competency_scores' => 'array',
+        'attendance_summary' => 'array',
     ];
 
     public function approver(): BelongsTo

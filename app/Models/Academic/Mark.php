@@ -3,10 +3,13 @@
 namespace App\Models\Academic;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Mark extends SchoolModel
 {
+    use AuditableModel;
+
     protected $fillable = [
         'school_id', 'student_id', 'subject_id', 'exam_id',
         'semester_id', 'obtained_marks', 'total_marks', 'grade',
