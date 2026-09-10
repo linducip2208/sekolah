@@ -26,7 +26,7 @@ class PpdbController extends Controller
 
         return response()->json([
             'school' => ['id' => $school->id, 'name' => $school->name, 'subdomain' => $school->subdomain],
-            'data'   => $periods,
+            'data' => $periods,
         ]);
     }
 
@@ -35,24 +35,24 @@ class PpdbController extends Controller
         $school = School::where('subdomain', $subdomain)->firstOrFail();
 
         $data = $request->validate([
-            'ppdb_period_id'  => 'required|integer',
-            'jalur'           => 'required|in:zonasi,prestasi,afirmasi,undian,reguler',
-            'student_name'    => 'required|string|max:200',
-            'nisn'            => 'nullable|string|max:20',
-            'date_of_birth'   => 'required|date',
-            'gender'          => 'required|in:male,female',
-            'address'         => 'required|string',
-            'district'        => 'required|string|max:100',
-            'city'            => 'required|string|max:100',
-            'home_lat'        => 'nullable|numeric',
-            'home_lng'        => 'nullable|numeric',
+            'ppdb_period_id' => 'required|integer',
+            'jalur' => 'required|in:zonasi,prestasi,afirmasi,undian,reguler',
+            'student_name' => 'required|string|max:200',
+            'nisn' => 'nullable|string|max:20',
+            'date_of_birth' => 'required|date',
+            'gender' => 'required|in:male,female',
+            'address' => 'required|string',
+            'district' => 'required|string|max:100',
+            'city' => 'required|string|max:100',
+            'home_lat' => 'nullable|numeric',
+            'home_lng' => 'nullable|numeric',
             'previous_school' => 'nullable|string|max:200',
-            'parent_name'     => 'required|string|max:200',
-            'parent_phone'    => 'required|string|max:30',
-            'parent_email'    => 'required|email|max:200',
-            'documents'       => 'nullable|array',
-            'achievements'    => 'nullable|array',
-            'average_score'   => 'nullable|numeric|min:0|max:100',
+            'parent_name' => 'required|string|max:200',
+            'parent_phone' => 'required|string|max:30',
+            'parent_email' => 'required|email|max:200',
+            'documents' => 'nullable|array',
+            'achievements' => 'nullable|array',
+            'average_score' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $period = PpdbPeriod::withoutGlobalScopes()
@@ -99,12 +99,14 @@ class PpdbController extends Controller
     public function verify(Request $request, int $id): JsonResponse
     {
         $app = PpdbApplication::where('school_id', $request->user()->school_id)->findOrFail($id);
+
         return response()->json($this->service->verify($app, $request->user()->id));
     }
 
     public function accept(Request $request, int $id): JsonResponse
     {
         $app = PpdbApplication::where('school_id', $request->user()->school_id)->findOrFail($id);
+
         return response()->json($this->service->accept($app, $request->user()->id, $request->input('note')));
     }
 
@@ -112,13 +114,14 @@ class PpdbController extends Controller
     {
         $request->validate(['note' => 'required|string|max:1000']);
         $app = PpdbApplication::where('school_id', $request->user()->school_id)->findOrFail($id);
+
         return response()->json($this->service->reject($app, $request->user()->id, $request->input('note')));
     }
 
     public function uploadDoc(Request $request, int $id): JsonResponse
     {
         $request->validate([
-            'file'     => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png',
+            'file' => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png',
             'doc_type' => 'required|string|max:50',
         ]);
 
@@ -131,15 +134,16 @@ class PpdbController extends Controller
     public function batchEnroll(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'application_ids'   => 'required|array|min:1',
+            'application_ids' => 'required|array|min:1',
             'application_ids.*' => 'integer|exists:ppdb_applications,id',
-            'class_section_id'  => 'required|exists:class_sections,id',
+            'class_section_id' => 'required|exists:class_sections,id',
         ]);
 
         $result = $this->service->batchEnroll(
             $data['application_ids'],
             $data['class_section_id'],
             $request->user()->id,
+            $request->user()->school_id,
         );
 
         return response()->json($result);
@@ -158,6 +162,7 @@ class PpdbController extends Controller
     public function runSelection(Request $request, int $periodId): JsonResponse
     {
         $period = PpdbPeriod::where('school_id', $request->user()->school_id)->findOrFail($periodId);
+
         return response()->json($this->service->runSelection($period));
     }
 }

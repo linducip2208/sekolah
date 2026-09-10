@@ -14,7 +14,7 @@ Status penting yang terverifikasi:
 - ✅ Build frontend berhasil dengan `npm.cmd run build`.
 - ✅ Pint dan PHP syntax check berhasil pada file yang diubah.
 - ✅ Flow Visitor, immutable Wallet Ledger, idempotency, cross-school rejection, dan Dapodik fake sync diuji.
-- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 239 tests / 1.445 assertions.
+- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 240 tests / 1.448 assertions.
 - ⚠️ Dapodik live integration memerlukan endpoint dan credential sekolah; adapter tidak mengarang endpoint vendor.
 - ✅ Playwright desktop capture 26/26 halaman dan mobile capture 5/5 halaman berhasil pada server lokal port 8765.
 - ✅ Portal capture 4/4 (student dan parent, desktop/mobile) serta dark-mode capture 5/5 berhasil.
@@ -24,7 +24,7 @@ Status penting yang terverifikasi:
 
 ## 2. Audit repository
 
-Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.548 route pada baseline audit. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
+Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.562 route pada audit terakhir. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
 
 Temuan yang diperbaiki:
 
@@ -35,6 +35,8 @@ Temuan yang diperbaiki:
 - endpoint Visitor, Wallet, dan Dapodik belum memakai permission granular secara konsisten;
 - saldo kantin hanya cache tanpa ledger immutable dan refund idempotent;
 - beberapa seeder/service memakai fallback ID tenant/user `1`;
+- PPDB batch enrollment tidak membatasi application dan class section ke sekolah aktif;
+- endpoint Counseling/Career menerima referensi student/counselor/assignee tanpa verifikasi lintas sekolah;
 - test baru menguji flow enterprise dan cross-school access.
 
 ## 3. Feature matrix aktual
@@ -171,6 +173,8 @@ Passed:
 - Laravel Pint on changed implementation files;
 - `npm.cmd run build`;
 - enterprise test suite after test DB bootstrap: 5 tests / 13 assertions passed before assertion correction, then corrected wallet test passed independently (1 test / 4 assertions);
+- full PHPUnit/Pest suite: 240 tests / 1.448 assertions passed;
+- PPDB enrollment regression: 4 tests / 12 assertions passed, including cross-school rejection;
 - migration execution against local MySQL database;
 - route list generation.
 
@@ -190,6 +194,8 @@ Implemented/hardened:
 - database row locks for wallet mutation;
 - idempotency keys for wallet top-up, purchase, refund and accounting posting;
 - canonical Visitor check-in queues a tenant-scoped host notification through `NotificationDispatcher`;
+- PPDB enrollment validates both applicant and destination class section against the active school;
+- Counseling and Career student/counselor/assignee references are validated against the active school;
 - audit log for canonical Visitor flow.
 
 Remaining security work: complete IDOR/policy sweep over every legacy API/controller, verify upload MIME/path restrictions across all modules, and add automated webhook replay/signature coverage to the full suite.
@@ -233,6 +239,6 @@ The following legitimately require external setup:
 
 ## 19. Definition of Done conclusion
 
-The requested enterprise additions are implemented and migration/build gates are healthy. The repository must not yet be advertised as “SIKAD PRO COMPLETE” under the supplied Definition of Done because full-suite tests, comprehensive Playwright smoke, and live provider integrations remain unverified. The honest release label for this audit is:
+The requested enterprise additions are implemented and migration/build gates are healthy. The repository must not yet be advertised as “SIKAD PRO COMPLETE” under the supplied Definition of Done because the audit still has legacy policy/upload coverage gaps and live provider integrations require external credentials. The honest release label for this audit is:
 
-**SIKAD PRO enterprise core: ✅ COMPLETE for Visitor + Wallet + Dapodik architecture; full platform release: REQUIRES EXTERNAL CONFIGURATION and additional full-suite verification.**
+**SIKAD PRO enterprise core: ✅ COMPLETE for Visitor + Wallet + Dapodik architecture and verified local test/build gates; full platform release: REQUIRES EXTERNAL CONFIGURATION plus remaining legacy security coverage.**

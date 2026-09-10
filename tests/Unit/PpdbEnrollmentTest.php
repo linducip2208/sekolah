@@ -76,3 +76,33 @@ it('includes test and interview scores in ranking', function () {
     expect($app->ranking_score)->not->toBeNull();
     expect($result['accepted_total'])->toBeGreaterThanOrEqual(1);
 });
+
+it('does not batch enroll an applicant from another school', function () {
+    $otherSchool = School::factory()->create();
+    $otherYear = AcademicYear::create([
+        'school_id' => $otherSchool->id, 'name' => '2025/2026',
+        'start_date' => '2025-07-01', 'end_date' => '2026-06-30', 'is_active' => true,
+    ]);
+    $otherPeriod = PpdbPeriod::create([
+        'school_id' => $otherSchool->id, 'academic_year_id' => $otherYear->id, 'name' => 'PPDB Other',
+        'open_date' => '2025-06-01', 'close_date' => '2025-07-01', 'is_published' => true,
+    ]);
+    $otherApplication = PpdbApplication::create([
+        'school_id' => $otherSchool->id, 'ppdb_period_id' => $otherPeriod->id,
+        'registration_no' => 'PPDB-OTHER', 'jalur' => 'reguler',
+        'student_name' => 'Siswa Sekolah Lain', 'date_of_birth' => '2010-05-01', 'gender' => 'male',
+        'address' => 'Jakarta', 'district' => 'Jakarta Selatan', 'city' => 'Jakarta',
+        'parent_name' => 'Orang Tua', 'parent_phone' => '08123', 'parent_email' => 'other@example.com',
+        'status' => 'accepted',
+    ]);
+
+    $result = $this->service->batchEnroll(
+        [$otherApplication->id],
+        $this->classSection->id,
+        999,
+        $this->school->id,
+    );
+
+    expect($result)->toBe(['enrolled' => 0, 'failed' => [$otherApplication->id]]);
+    expect($otherApplication->fresh()->enrolled_student_id)->toBeNull();
+});

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Career;
 
 use App\Http\Controllers\Controller;
+use App\Models\Academic\Student;
 use App\Models\Career\CareerAssessment;
 use App\Models\Career\InternshipPlacement;
 use Illuminate\Http\JsonResponse;
@@ -14,19 +15,25 @@ class CareerController extends Controller
     {
         $data = $request->validate([
             'student_id' => 'required|integer',
-            'test_type'  => 'required|in:holland_riasec,mbti,cliftonstrengths,custom',
-            'responses'  => 'required|array',
-            'result'     => 'required|array',
+            'test_type' => 'required|in:holland_riasec,mbti,cliftonstrengths,custom',
+            'responses' => 'required|array',
+            'result' => 'required|array',
         ]);
-        $data['school_id'] = $request->user()->school_id;
-        $data['taken_at']  = today();
+        $schoolId = (int) $request->user()->school_id;
+        $this->studentForSchool($schoolId, (int) $data['student_id']);
+        $data['school_id'] = $schoolId;
+        $data['taken_at'] = today();
+
         return response()->json(CareerAssessment::create($data), 201);
     }
 
     public function studentAssessments(Request $request, int $studentId): JsonResponse
     {
+        $schoolId = (int) $request->user()->school_id;
+        $this->studentForSchool($schoolId, $studentId);
+
         return response()->json([
-            'data' => CareerAssessment::where('school_id', $request->user()->school_id)
+            'data' => CareerAssessment::where('school_id', $schoolId)
                 ->where('student_id', $studentId)
                 ->orderByDesc('taken_at')->get(),
         ]);
@@ -45,24 +52,27 @@ class CareerController extends Controller
     public function storeInternship(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'student_id'   => 'required|integer',
+            'student_id' => 'required|integer',
             'company_name' => 'required|string|max:200',
-            'position'     => 'required|string|max:200',
-            'mentor_name'  => 'nullable|string|max:200',
+            'position' => 'required|string|max:200',
+            'mentor_name' => 'nullable|string|max:200',
             'mentor_phone' => 'nullable|string|max:30',
-            'start_date'   => 'required|date',
-            'end_date'     => 'required|date|after_or_equal:start_date',
-            'status'       => 'nullable|in:planned,active,completed,dropped',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'status' => 'nullable|in:planned,active,completed,dropped',
         ]);
-        $data['school_id'] = $request->user()->school_id;
-        $data['status']    = $data['status'] ?? 'planned';
+        $schoolId = (int) $request->user()->school_id;
+        $this->studentForSchool($schoolId, (int) $data['student_id']);
+        $data['school_id'] = $schoolId;
+        $data['status'] = $data['status'] ?? 'planned';
+
         return response()->json(InternshipPlacement::create($data), 201);
     }
 
     public function logDailyActivity(Request $request, int $id): JsonResponse
     {
         $request->validate([
-            'date'     => 'required|date',
+            'date' => 'required|date',
             'activity' => 'required|string',
         ]);
 
@@ -71,11 +81,18 @@ class CareerController extends Controller
 
         $logs = $placement->daily_logs ?? [];
         $logs[] = [
-            'date'     => $request->input('date'),
+            'date' => $request->input('date'),
             'activity' => $request->input('activity'),
         ];
         $placement->update(['daily_logs' => $logs]);
 
         return response()->json($placement);
+    }
+
+    private function studentForSchool(int $schoolId, int $studentId): Student
+    {
+        return Student::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->findOrFail($studentId);
     }
 }
