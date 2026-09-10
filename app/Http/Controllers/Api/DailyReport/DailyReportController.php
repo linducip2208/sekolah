@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\DailyReport;
 
 use App\Http\Controllers\Controller;
+use App\Models\Academic\Student;
 use App\Models\DailyReport\DailyReport;
 use App\Services\DailyReport\DailyReportService;
 use Illuminate\Http\JsonResponse;
@@ -14,6 +15,13 @@ class DailyReportController extends Controller
 
     public function reportsForChild(Request $request, int $studentId): JsonResponse
     {
+        $student = Student::where('school_id', $request->user()->school_id)->findOrFail($studentId);
+        $user = $request->user();
+        $isParentOfStudent = $user->parentStudents()->whereKey($student->id)->exists();
+        $isStudent = (int) $student->user_id === (int) $user->id;
+        $isStaff = $user->hasRole('super_admin') || $user->can('daily_reports.view');
+        abort_unless($isParentOfStudent || $isStudent || $isStaff, 403, 'Tidak memiliki akses laporan harian siswa.');
+
         return response()->json([
             'data' => DailyReport::where('school_id', $request->user()->school_id)
                 ->where('student_id', $studentId)
@@ -35,6 +43,7 @@ class DailyReportController extends Controller
     public function send(Request $request, int $id): JsonResponse
     {
         $report = DailyReport::where('school_id', $request->user()->school_id)->findOrFail($id);
+
         return response()->json($this->service->send($report));
     }
 }

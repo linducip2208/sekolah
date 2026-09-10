@@ -29,7 +29,7 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 | BK/Counseling | 2 | 4 | Guarded scheduled/completed lifecycle, counselor/student tenant validation, overlapping-session detection, bullying assignment/closure rules, audit logging, restricted permissions | Attendance/risk/student profile → notification | Cross-school, overlap, and repeated-completion regressions | 4/5 |
 | Disiplin | 3 | 4 | Incident tenant validation, configurable points/threshold sanctions, parent notification job, history and audit logging | Student 360 → parent communication → intervention | Cross-school and threshold transition regressions | 4/5 |
 | UKS/Health | 2 | 4 | Tenant-safe student/staff references, permission-gated sensitive endpoints, visit/treatment/vaccination audit logging, parent notification path | Student profile → parent notification | Cross-school service-boundary regression; medicine stock remains a follow-up | 4/5 |
-| Ekstrakurikuler | 2 | 3 | Program, registration, attendance and achievement paths exist | Student profile, certificates | Existing CRUD/workflow tests | 3/5 |
+| Ekstrakurikuler | 2 | 4 | Program, registration, tenant-safe student/coach references, capacity enforcement, idempotent enrollment, active-member attendance validation, and transactional bulk attendance | Student profile, certificates, parent communication | 3 workflow tests / 8 assertions | 4/5 |
 | Finance/SPP | 3 | 4 | Invoice lifecycle, payment, reminders, refund and reconciliation paths | Payment → Invoice → Accounting → Notification | Finance and payment integration tests | 4/5 |
 | Payment | 3 | 4 | Provider abstraction, encrypted secrets, idempotency, signature verification, replay fingerprint, row lock | Payment → Fee Payment → Invoice | Invalid signature + duplicate callback tests | 4/5 |
 | Accounting | 3 | 4 | COA, scoped double-entry lines, row-locked posting, idempotent automatic references, refund posting, source references, and audit logging | Finance, payroll, procurement, wallet | 7 accounting tests / 21 assertions; closing-period depth remains | 4/5 |
@@ -59,6 +59,8 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 2. Complete legacy API policy/IDOR sweep and add permission-denied direct URL tests.
 3. Add drill-down report tests and query profiling using the seeded multi-school dataset.
 4. Verify queue workers, scheduler, storage backup target, and provider credentials in a production-like environment.
+
+Focused continuation checks after the latest full-suite snapshot: Parent Portal daily-report ownership 4 tests passed; Extracurricular workflow 3 tests / 8 assertions passed.
 
 Latest verification snapshot: 293 tests / 1,562 assertions passed; route registry: 1,571 routes; frontend production build passed.
 

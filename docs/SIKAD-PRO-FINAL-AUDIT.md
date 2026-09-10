@@ -59,6 +59,8 @@ Temuan yang diperbaiki:
 - AI model/feature assignment kini tidak dapat mereferensikan provider atau model sekolah lain; parent report memvalidasi user dan hubungan orang tua-siswa.
 - KPI appraisal, score, goal, dan staff summary kini menggunakan school-bound staff/criteria/reviewer references serta transaksi dan lifecycle guards.
 - kartu ID, emergency recipient, marks listing, dan batch report-card PDF menambahkan boundary checks untuk referensi sekolah dan data penerima.
+- ekstrakurikuler kini memvalidasi coach/siswa satu sekolah, mengunci kapasitas saat enrolment, membuat enrolment idempotent, dan hanya menerima absensi anggota aktif dalam transaksi.
+- daily report parent kini memverifikasi parent-child ownership atau akses staff sebelum mengembalikan data.
 
 ## 3. Feature matrix aktual
 
@@ -208,6 +210,7 @@ Passed:
 - focused academic tenant-boundary regressions are included in the full suite: Classroom 9 tests / 15 assertions, Timetable 8 tests / 16 assertions, Religious 2 tests / 2 assertions;
 - PPDB regression: 6 enrollment/lifecycle/selection tests plus 2 public-registration tests passed, including cross-school, deadline, duplicate-NISN, quota, and waitlist checks;
 - BK/Discipline/UKS regression: 6 service-boundary/lifecycle/threshold tests passed;
+- focused continuation regression: Parent Portal daily report ownership test passed; Extracurricular workflow 3 tests / 8 assertions passed;
 - workflow/notification regression: 5 tenant-boundary/replay/recipient-filter/revision tests passed;
 - library/transport regression: 8 issue/return/assignment tests passed;
 - webhook regression: timestamped outbound HMAC and duplicate signed payment callback tests passed;
