@@ -17,6 +17,7 @@ class CounselingController extends Controller
 
     public function sessions(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'counseling.view');
         $sessions = CounselingSession::where('school_id', $request->user()->school_id)
             ->when($request->input('student_id'), fn ($q, $sid) => $q->where('student_id', $sid))
             ->when($request->input('counselor_id'), fn ($q, $cid) => $q->where('counselor_id', $cid))
@@ -28,6 +29,7 @@ class CounselingController extends Controller
 
     public function scheduleSession(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'counseling.manage');
         $data = $request->validate([
             'student_id' => 'required|integer',
             'counselor_id' => 'required|integer',
@@ -48,6 +50,7 @@ class CounselingController extends Controller
 
     public function completeSession(Request $request, int $id): JsonResponse
     {
+        $this->requirePermission($request, 'counseling.manage');
         $data = $request->validate([
             'notes' => 'nullable|string|max:5000',
             'refer_external' => 'nullable|boolean',
@@ -67,6 +70,7 @@ class CounselingController extends Controller
 
     public function bullyingReports(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'counseling.view');
         $reports = BullyingReport::where('school_id', $request->user()->school_id)
             ->when($request->input('status'), fn ($q, $s) => $q->where('status', $s))
             ->orderByDesc('created_at')
@@ -96,6 +100,7 @@ class CounselingController extends Controller
 
     public function assignBullying(Request $request, int $id): JsonResponse
     {
+        $this->requirePermission($request, 'counseling.manage');
         $request->validate(['user_id' => 'required|integer']);
         $schoolId = (int) $request->user()->school_id;
         $this->userForSchool($schoolId, (int) $request->input('user_id'));
@@ -106,6 +111,7 @@ class CounselingController extends Controller
 
     public function closeBullying(Request $request, int $id): JsonResponse
     {
+        $this->requirePermission($request, 'counseling.manage');
         $data = $request->validate([
             'status' => 'required|in:action_taken,closed,unfounded',
             'action_summary' => 'nullable|string|max:5000',
@@ -126,6 +132,12 @@ class CounselingController extends Controller
 
         $schoolId = (int) $request->user()->school_id;
         $this->studentForSchool($schoolId, (int) $data['student_id']);
+        abort_unless(
+            (int) $request->user()->id === (int) Student::withoutGlobalScopes()->whereKey($data['student_id'])->value('user_id')
+                || $request->user()->can('counseling.manage'),
+            403,
+            'Tidak dapat mengisi wellness check-in siswa lain.',
+        );
 
         $checkin = $this->service->recordWellness(
             $schoolId,
@@ -140,6 +152,7 @@ class CounselingController extends Controller
 
     public function atRiskStudents(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'counseling.view');
         $days = (int) $request->input('days', 14);
         $grouped = $this->service->atRiskStudents($request->user()->school_id, $days);
 
@@ -164,5 +177,10 @@ class CounselingController extends Controller
         return User::withoutGlobalScopes()
             ->where('school_id', $schoolId)
             ->findOrFail($userId);
+    }
+
+    private function requirePermission(Request $request, string $permission): void
+    {
+        abort_unless($request->user()->hasRole('super_admin') || $request->user()->can($permission), 403, 'Tidak memiliki izin BK.');
     }
 }

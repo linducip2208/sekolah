@@ -4,10 +4,13 @@ namespace App\Models\Medical;
 
 use App\Models\Academic\Student;
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Vaccination extends SchoolModel
 {
+    use AuditableModel;
+
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
@@ -16,8 +19,8 @@ class Vaccination extends SchoolModel
     protected $table = 'vaccinations';
 
     protected $fillable = [
-        'school_id','student_id','vaccine_name','vaccinated_at',
-        'batch_number','administered_by','next_dose_due','certificate_path',
+        'school_id', 'student_id', 'vaccine_name', 'vaccinated_at',
+        'batch_number', 'administered_by', 'next_dose_due', 'certificate_path',
     ];
 
     protected $casts = [

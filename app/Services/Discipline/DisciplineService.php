@@ -2,6 +2,8 @@
 
 namespace App\Services\Discipline;
 
+use App\Jobs\NotifyParentDisciplineJob;
+use App\Models\Academic\Student;
 use App\Models\Discipline\DisciplineCategory;
 use App\Models\Discipline\DisciplineRecord;
 use Illuminate\Support\Facades\DB;
@@ -12,36 +14,38 @@ class DisciplineService
     {
         return DB::transaction(function () use ($schoolId, $studentId, $categoryId, $reporterId, $data) {
             $category = DisciplineCategory::where('school_id', $schoolId)->findOrFail($categoryId);
+            Student::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($studentId);
 
             $record = DisciplineRecord::create([
-                'school_id'              => $schoolId,
-                'student_id'             => $studentId,
+                'school_id' => $schoolId,
+                'student_id' => $studentId,
                 'discipline_category_id' => $categoryId,
-                'reported_by'            => $reporterId,
-                'incident_date'          => $data['incident_date'] ?? today(),
-                'description'            => $data['description'],
-                'evidence_files'         => $data['evidence_files'] ?? null,
-                'points'                 => $category->point_value,
-                'status'                 => 'reported',
+                'reported_by' => $reporterId,
+                'incident_date' => $data['incident_date'] ?? today(),
+                'description' => $data['description'],
+                'evidence_files' => $data['evidence_files'] ?? null,
+                'points' => $category->point_value,
+                'status' => 'reported',
             ]);
 
             if ($category->auto_sanction) {
                 $totalPoints = $this->totalPointsFor($schoolId, $studentId);
-                $thresholds  = (array) ($category->sanction_thresholds ?? []);
+                $thresholds = (array) ($category->sanction_thresholds ?? []);
 
+                usort($thresholds, fn (array $a, array $b) => ((int) ($b['at_points'] ?? 0)) <=> ((int) ($a['at_points'] ?? 0)));
                 foreach ($thresholds as $rule) {
-                    if (isset($rule['at_points']) && $totalPoints <= (int) $rule['at_points']) {
+                    if (isset($rule['at_points']) && $totalPoints >= (int) $rule['at_points']) {
                         $record->update([
-                            'status'           => 'sanctioned',
+                            'status' => 'sanctioned',
                             'sanction_applied' => $rule['action'] ?? 'review',
-                            'parent_notified'  => true,
+                            'parent_notified' => true,
                         ]);
                         break;
                     }
                 }
             }
 
-            \App\Jobs\NotifyParentDisciplineJob::dispatch($record->id);
+            NotifyParentDisciplineJob::dispatch($record->id);
 
             return $record->fresh();
         });

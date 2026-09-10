@@ -369,7 +369,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     });
 
     // Module 24 — UKS / Klinik
-    Route::middleware('role:admin|nurse')->group(function () {
+    Route::middleware('role_or_permission:admin|nurse|medical.view')->group(function () {
         Route::get('/medical/visits',                       [ClinicController::class, 'visits']);
         Route::post('/medical/visits',                      [ClinicController::class, 'storeVisit']);
         Route::get('/medical/students/{id}/record',         [ClinicController::class, 'record']);

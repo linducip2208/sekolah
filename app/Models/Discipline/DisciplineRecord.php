@@ -4,23 +4,26 @@ namespace App\Models\Discipline;
 
 use App\Models\Academic\Student;
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DisciplineRecord extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'discipline_records';
 
     protected $fillable = [
-        'school_id','student_id','discipline_category_id','reported_by',
-        'incident_date','description','evidence_files','points',
-        'status','sanction_applied','parent_notified',
+        'school_id', 'student_id', 'discipline_category_id', 'reported_by',
+        'incident_date', 'description', 'evidence_files', 'points',
+        'status', 'sanction_applied', 'parent_notified',
     ];
 
     protected $casts = [
-        'incident_date'   => 'date',
-        'evidence_files'  => 'array',
-        'points'          => 'integer',
+        'incident_date' => 'date',
+        'evidence_files' => 'array',
+        'points' => 'integer',
         'parent_notified' => 'boolean',
     ];
 

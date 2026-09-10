@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\Admin\Phase8;
 
 use App\Http\Controllers\Controller;
 use App\Models\Academic\AcademicYear;
+use App\Models\Academic\ClassSection;
 use App\Models\Academic\Student;
 use App\Models\Counseling\BullyingReport;
 use App\Models\Counseling\CounselingSession;
@@ -12,14 +13,13 @@ use App\Models\Discipline\DisciplineRecord;
 use App\Models\Facilities\TransportRoute;
 use App\Models\Facilities\Vehicle;
 use App\Models\Medical\ClinicVisit;
-use App\Models\Medical\MedicalRecord;
 use App\Models\Medical\Vaccination;
 use App\Models\PPDB\PpdbApplication;
 use App\Models\PPDB\PpdbPeriod;
 use App\Models\User;
+use App\Services\PPDB\PpdbService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class Phase8CrudController extends Controller
@@ -40,39 +40,42 @@ class Phase8CrudController extends Controller
     {
         return view('school-admin.ppdb.periods', [
             'periods' => PpdbPeriod::where('school_id', $this->schoolId())->orderByDesc('open_date')->get(),
-            'years'   => AcademicYear::where('school_id', $this->schoolId())->orderByDesc('start_date')->get(),
+            'years' => AcademicYear::where('school_id', $this->schoolId())->orderByDesc('start_date')->get(),
         ]);
     }
 
     public function storePpdbPeriod(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name'             => 'required|string|max:200',
+            'name' => 'required|string|max:200',
             'academic_year_id' => 'required|exists:academic_years,id',
-            'open_date'        => 'required|date',
-            'close_date'       => 'required|date|after_or_equal:open_date',
+            'open_date' => 'required|date',
+            'close_date' => 'required|date|after_or_equal:open_date',
             'announcement_date' => 'nullable|date',
             'reregistration_deadline' => 'nullable|date',
-            'form_fee_rupiah'  => 'nullable|numeric|min:0',
+            'form_fee_rupiah' => 'nullable|numeric|min:0',
         ]);
+        abort_unless(AcademicYear::where('school_id', $this->schoolId())->whereKey($data['academic_year_id'])->exists(), 422, 'Tahun ajaran bukan milik sekolah ini.');
         PpdbPeriod::create([
-            'school_id'              => $this->schoolId(),
-            'academic_year_id'       => $data['academic_year_id'],
-            'name'                   => $data['name'],
-            'open_date'              => $data['open_date'],
-            'close_date'             => $data['close_date'],
-            'announcement_date'      => $data['announcement_date'] ?? null,
+            'school_id' => $this->schoolId(),
+            'academic_year_id' => $data['academic_year_id'],
+            'name' => $data['name'],
+            'open_date' => $data['open_date'],
+            'close_date' => $data['close_date'],
+            'announcement_date' => $data['announcement_date'] ?? null,
             'reregistration_deadline' => $data['reregistration_deadline'] ?? null,
-            'form_fee'               => isset($data['form_fee_rupiah']) ? (int)($data['form_fee_rupiah']*100) : 0,
-            'is_published'           => false,
+            'form_fee' => isset($data['form_fee_rupiah']) ? (int) ($data['form_fee_rupiah'] * 100) : 0,
+            'is_published' => false,
         ]);
+
         return back()->with('success', 'Periode PPDB ditambahkan.');
     }
 
     public function publishPpdbPeriod(PpdbPeriod $period): RedirectResponse
     {
         $this->authorizeOwn($period);
-        $period->update(['is_published' => !$period->is_published]);
+        $period->update(['is_published' => ! $period->is_published]);
+
         return back()->with('success', 'Status publish diubah.');
     }
 
@@ -80,6 +83,7 @@ class Phase8CrudController extends Controller
     {
         $this->authorizeOwn($period);
         $period->delete();
+
         return back()->with('success', 'Periode dihapus.');
     }
 
@@ -87,22 +91,34 @@ class Phase8CrudController extends Controller
     {
         $applications = PpdbApplication::where('school_id', $this->schoolId())
             ->with('period:id,name')
-            ->when($request->status, fn($q) => $q->where('status', $request->status))
-            ->when($request->period_id, fn($q) => $q->where('ppdb_period_id', $request->period_id))
+            ->when($request->status, fn ($q) => $q->where('status', $request->status))
+            ->when($request->period_id, fn ($q) => $q->where('ppdb_period_id', $request->period_id))
             ->orderByDesc('created_at')->paginate(25)->withQueryString();
 
         return view('school-admin.ppdb.applications', [
             'applications' => $applications,
-            'periods'      => PpdbPeriod::where('school_id', $this->schoolId())->get(),
-            'classSections'=> \App\Models\Academic\ClassSection::where('school_id', $this->schoolId())->with(['classRoom', 'section'])->get(),
+            'periods' => PpdbPeriod::where('school_id', $this->schoolId())->get(),
+            'classSections' => ClassSection::where('school_id', $this->schoolId())->with(['classRoom', 'section'])->get(),
         ]);
     }
 
     public function reviewPpdbApplication(Request $request, PpdbApplication $application): RedirectResponse
     {
         $this->authorizeOwn($application);
-        $request->validate(['status' => 'required|in:submitted,review,accepted,waitlist,rejected,enrolled']);
-        $application->update(['status' => $request->status]);
+        $data = $request->validate([
+            'status' => 'required|in:submitted,verified,review,accepted,waitlist,rejected,enrolled',
+            'note' => 'nullable|string|max:1000',
+        ]);
+        $service = app(PpdbService::class);
+
+        match ($data['status']) {
+            'submitted', 'verified', 'review' => $service->verify($application, auth()->id()),
+            'accepted' => $service->accept($application, auth()->id(), $data['note'] ?? null),
+            'waitlist' => $service->addToWaitingList($application),
+            'rejected' => $service->reject($application, auth()->id(), $data['note'] ?? 'Ditolak pada proses review PPDB.'),
+            'enrolled' => abort(422, 'Konversi pendaftar menjadi siswa harus melalui aksi Jadikan Siswa.'),
+        };
+
         return back()->with('success', 'Status pendaftaran diperbarui.');
     }
 
@@ -112,12 +128,12 @@ class Phase8CrudController extends Controller
 
         $data = $request->validate([
             'entrance_test_score' => 'nullable|numeric|min:0|max:100',
-            'interview_score'     => 'nullable|numeric|min:0|max:100',
+            'interview_score' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $application->update([
             'entrance_test_score' => $data['entrance_test_score'] ?? null,
-            'interview_score'     => $data['interview_score'] ?? null,
+            'interview_score' => $data['interview_score'] ?? null,
         ]);
 
         return back()->with('success', 'Nilai tes & wawancara disimpan.');
@@ -129,10 +145,10 @@ class Phase8CrudController extends Controller
 
         $data = $request->validate([
             'class_section_id' => 'required|exists:class_sections,id',
-            'admission_no'     => 'nullable|string|max:50',
+            'admission_no' => 'nullable|string|max:50',
         ]);
 
-        app(\App\Services\PPDB\PpdbService::class)->enrollStudent(
+        app(PpdbService::class)->enrollStudent(
             $application,
             (int) $data['class_section_id'],
             $data['admission_no'] ?? null,
@@ -147,11 +163,11 @@ class Phase8CrudController extends Controller
         $this->authorizeOwn($application);
 
         $data = $request->validate([
-            'file'     => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png',
+            'file' => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png',
             'doc_type' => 'required|string|max:50',
         ]);
 
-        app(\App\Services\PPDB\PpdbService::class)->uploadDocument(
+        app(PpdbService::class)->uploadDocument(
             $application,
             $data['doc_type'],
             $request->file('file'),
@@ -163,12 +179,12 @@ class Phase8CrudController extends Controller
     public function ppdbBatchEnroll(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'application_ids'   => 'required|array|min:1',
+            'application_ids' => 'required|array|min:1',
             'application_ids.*' => 'integer|exists:ppdb_applications,id',
-            'class_section_id'  => 'required|exists:class_sections,id',
+            'class_section_id' => 'required|exists:class_sections,id',
         ]);
 
-        $result = app(\App\Services\PPDB\PpdbService::class)->batchEnroll(
+        $result = app(PpdbService::class)->batchEnroll(
             $data['application_ids'],
             $data['class_section_id'],
             auth()->id(),
@@ -176,7 +192,7 @@ class Phase8CrudController extends Controller
 
         $msg = "Berhasil mendaftarkan {$result['enrolled']} siswa.";
         if (count($result['failed']) > 0) {
-            $msg .= ' Gagal: ' . implode(', ', $result['failed']);
+            $msg .= ' Gagal: '.implode(', ', $result['failed']);
         }
 
         return back()->with('success', $msg);
@@ -184,7 +200,7 @@ class Phase8CrudController extends Controller
 
     public function ppdbReports(Request $request): View
     {
-        $reports = app(\App\Services\PPDB\PpdbService::class)->getReports(
+        $reports = app(PpdbService::class)->getReports(
             $this->schoolId(),
             $request->input('period_id'),
         );
@@ -212,24 +228,24 @@ class Phase8CrudController extends Controller
     public function storeClinicVisit(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'student_id'    => 'required|exists:students,id',
-            'visit_at'      => 'required|date',
-            'symptoms'      => 'required|string',
-            'diagnosis'     => 'nullable|string',
-            'treatment'     => 'nullable|string',
+            'student_id' => 'required|exists:students,id',
+            'visit_at' => 'required|date',
+            'symptoms' => 'required|string',
+            'diagnosis' => 'nullable|string',
+            'treatment' => 'nullable|string',
             'temperature_c' => 'nullable|numeric|min:30|max:45',
             'blood_pressure' => 'nullable|string|max:10',
             'returned_to_class' => 'nullable|boolean',
-            'sent_home'     => 'nullable|boolean',
+            'sent_home' => 'nullable|boolean',
             'parent_notified' => 'nullable|boolean',
         ]);
 
         ClinicVisit::create(array_merge($data, [
-            'school_id'        => $this->schoolId(),
-            'attended_by'      => auth()->id(),
-            'returned_to_class' => (bool)($data['returned_to_class'] ?? false),
-            'sent_home'        => (bool)($data['sent_home'] ?? false),
-            'parent_notified'  => (bool)($data['parent_notified'] ?? false),
+            'school_id' => $this->schoolId(),
+            'attended_by' => auth()->id(),
+            'returned_to_class' => (bool) ($data['returned_to_class'] ?? false),
+            'sent_home' => (bool) ($data['sent_home'] ?? false),
+            'parent_notified' => (bool) ($data['parent_notified'] ?? false),
             'referred_external' => false,
         ]));
 
@@ -244,22 +260,23 @@ class Phase8CrudController extends Controller
 
         return view('school-admin.clinic.vaccinations', [
             'vaccinations' => $vaccinations,
-            'students'     => Student::where('school_id', $this->schoolId())->with('user:id,name')->get(),
+            'students' => Student::where('school_id', $this->schoolId())->with('user:id,name')->get(),
         ]);
     }
 
     public function storeVaccination(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'student_id'      => 'required|exists:students,id',
-            'vaccine_name'    => 'required|string|max:200',
-            'vaccinated_at'   => 'required|date',
-            'batch_number'    => 'nullable|string|max:50',
+            'student_id' => 'required|exists:students,id',
+            'vaccine_name' => 'required|string|max:200',
+            'vaccinated_at' => 'required|date',
+            'batch_number' => 'nullable|string|max:50',
             'administered_by' => 'nullable|string|max:200',
-            'next_dose_due'   => 'nullable|date',
+            'next_dose_due' => 'nullable|date',
         ]);
         $data['school_id'] = $this->schoolId();
         Vaccination::create($data);
+
         return back()->with('success', 'Catatan vaksinasi tersimpan.');
     }
 
@@ -273,7 +290,7 @@ class Phase8CrudController extends Controller
                 ->orderByDesc('scheduled_at')->paginate(25),
             'students' => Student::where('school_id', $this->schoolId())->with('user:id,name')->get(),
             'counselors' => User::where('school_id', $this->schoolId())
-                ->whereHas('roles', fn($q) => $q->whereIn('name', ['counselor', 'teacher', 'admin']))
+                ->whereHas('roles', fn ($q) => $q->whereIn('name', ['counselor', 'teacher', 'admin']))
                 ->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -281,16 +298,17 @@ class Phase8CrudController extends Controller
     public function storeCounselingSession(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'student_id'   => 'required|exists:students,id',
+            'student_id' => 'required|exists:students,id',
             'counselor_id' => 'required|exists:users,id',
             'scheduled_at' => 'required|date',
             'duration_minutes' => 'nullable|integer|min:5|max:300',
-            'type'         => 'required|in:academic,behavior,mental_health,career,family,social',
-            'notes'        => 'nullable|string',
+            'type' => 'required|in:academic,behavior,mental_health,career,family,social',
+            'notes' => 'nullable|string',
         ]);
         $data['school_id'] = $this->schoolId();
         $data['status'] = 'scheduled';
         CounselingSession::create($data);
+
         return back()->with('success', 'Sesi konseling dijadwalkan.');
     }
 
@@ -306,11 +324,12 @@ class Phase8CrudController extends Controller
     {
         $this->authorizeOwn($report);
         $data = $request->validate([
-            'status'          => 'required|in:received,investigating,action_taken,closed,unfounded',
+            'status' => 'required|in:received,investigating,action_taken,closed,unfounded',
             'investigation_notes' => 'nullable|string',
-            'action_summary'  => 'nullable|string',
+            'action_summary' => 'nullable|string',
         ]);
         $report->update($data);
+
         return back()->with('success', 'Laporan diperbarui.');
     }
 
@@ -326,13 +345,14 @@ class Phase8CrudController extends Controller
     public function storeDisciplineCategory(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name'        => 'required|string|max:200',
-            'type'        => 'required|in:violation,achievement',
+            'name' => 'required|string|max:200',
+            'type' => 'required|in:violation,achievement',
             'point_value' => 'required|integer',
             'description' => 'nullable|string',
         ]);
         $data['school_id'] = $this->schoolId();
         DisciplineCategory::create($data);
+
         return back()->with('success', 'Kategori ditambahkan.');
     }
 
@@ -340,6 +360,7 @@ class Phase8CrudController extends Controller
     {
         $this->authorizeOwn($category);
         $category->delete();
+
         return back()->with('success', 'Kategori dihapus.');
     }
 
@@ -350,32 +371,33 @@ class Phase8CrudController extends Controller
                 ->with(['student.user:id,name', 'category', 'reporter:id,name'])
                 ->orderByDesc('incident_date')->paginate(25),
             'categories' => DisciplineCategory::where('school_id', $this->schoolId())->get(),
-            'students'   => Student::where('school_id', $this->schoolId())->with('user:id,name')->get(),
+            'students' => Student::where('school_id', $this->schoolId())->with('user:id,name')->get(),
         ]);
     }
 
     public function storeDisciplineRecord(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'student_id'             => 'required|exists:students,id',
+            'student_id' => 'required|exists:students,id',
             'discipline_category_id' => 'required|exists:discipline_categories,id',
-            'incident_date'          => 'required|date',
-            'description'            => 'required|string',
-            'sanction_applied'       => 'nullable|string',
+            'incident_date' => 'required|date',
+            'description' => 'required|string',
+            'sanction_applied' => 'nullable|string',
         ]);
         $cat = DisciplineCategory::findOrFail($data['discipline_category_id']);
         DisciplineRecord::create([
-            'school_id'              => $this->schoolId(),
-            'student_id'             => $data['student_id'],
+            'school_id' => $this->schoolId(),
+            'student_id' => $data['student_id'],
             'discipline_category_id' => $cat->id,
-            'reported_by'            => auth()->id(),
-            'incident_date'          => $data['incident_date'],
-            'description'            => $data['description'],
-            'points'                 => $cat->point_value,
-            'status'                 => 'reported',
-            'sanction_applied'       => $data['sanction_applied'] ?? null,
-            'parent_notified'        => false,
+            'reported_by' => auth()->id(),
+            'incident_date' => $data['incident_date'],
+            'description' => $data['description'],
+            'points' => $cat->point_value,
+            'status' => 'reported',
+            'sanction_applied' => $data['sanction_applied'] ?? null,
+            'parent_notified' => false,
         ]);
+
         return back()->with('success', 'Catatan disiplin ditambahkan.');
     }
 
@@ -392,13 +414,14 @@ class Phase8CrudController extends Controller
     {
         $data = $request->validate([
             'registration_no' => 'required|string|max:30',
-            'make_model'      => 'nullable|string|max:200',
-            'capacity'        => 'required|integer|min:1|max:100',
-            'driver_name'     => 'nullable|string|max:200',
-            'driver_phone'    => 'nullable|string|max:30',
+            'make_model' => 'nullable|string|max:200',
+            'capacity' => 'required|integer|min:1|max:100',
+            'driver_name' => 'nullable|string|max:200',
+            'driver_phone' => 'nullable|string|max:30',
         ]);
         $data['school_id'] = $this->schoolId();
         Vehicle::create($data);
+
         return back()->with('success', 'Kendaraan ditambahkan.');
     }
 
@@ -406,6 +429,7 @@ class Phase8CrudController extends Controller
     {
         $this->authorizeOwn($vehicle);
         $vehicle->delete();
+
         return back()->with('success', 'Kendaraan dihapus.');
     }
 
@@ -419,15 +443,16 @@ class Phase8CrudController extends Controller
     public function storeTransportRoute(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name'         => 'required|string|max:200',
+            'name' => 'required|string|max:200',
             'fee_per_month_rupiah' => 'required|numeric|min:0',
         ]);
         TransportRoute::create([
-            'school_id'     => $this->schoolId(),
-            'name'          => $data['name'],
-            'fee_per_month' => (int)($data['fee_per_month_rupiah'] * 100),
-            'is_active'     => true,
+            'school_id' => $this->schoolId(),
+            'name' => $data['name'],
+            'fee_per_month' => (int) ($data['fee_per_month_rupiah'] * 100),
+            'is_active' => true,
         ]);
+
         return back()->with('success', 'Rute ditambahkan.');
     }
 
@@ -435,6 +460,7 @@ class Phase8CrudController extends Controller
     {
         $this->authorizeOwn($route);
         $route->delete();
+
         return back()->with('success', 'Rute dihapus.');
     }
 }

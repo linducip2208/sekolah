@@ -20,6 +20,7 @@ class PpdbController extends Controller
         $periods = PpdbPeriod::withoutGlobalScopes()
             ->where('school_id', $school->id)
             ->where('is_published', true)
+            ->where('open_date', '<=', now()->toDateString())
             ->where('close_date', '>=', now()->toDateString())
             ->orderBy('open_date')
             ->get();
@@ -87,6 +88,8 @@ class PpdbController extends Controller
     // Admin
     public function adminIndex(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'ppdb.view');
+
         $apps = PpdbApplication::where('school_id', $request->user()->school_id)
             ->when($request->input('status'), fn ($q, $s) => $q->where('status', $s))
             ->when($request->input('period_id'), fn ($q, $p) => $q->where('ppdb_period_id', $p))
@@ -98,6 +101,7 @@ class PpdbController extends Controller
 
     public function verify(Request $request, int $id): JsonResponse
     {
+        $this->requirePermission($request, 'ppdb.review');
         $app = PpdbApplication::where('school_id', $request->user()->school_id)->findOrFail($id);
 
         return response()->json($this->service->verify($app, $request->user()->id));
@@ -105,6 +109,7 @@ class PpdbController extends Controller
 
     public function accept(Request $request, int $id): JsonResponse
     {
+        $this->requirePermission($request, 'ppdb.review');
         $app = PpdbApplication::where('school_id', $request->user()->school_id)->findOrFail($id);
 
         return response()->json($this->service->accept($app, $request->user()->id, $request->input('note')));
@@ -112,6 +117,7 @@ class PpdbController extends Controller
 
     public function reject(Request $request, int $id): JsonResponse
     {
+        $this->requirePermission($request, 'ppdb.review');
         $request->validate(['note' => 'required|string|max:1000']);
         $app = PpdbApplication::where('school_id', $request->user()->school_id)->findOrFail($id);
 
@@ -133,6 +139,7 @@ class PpdbController extends Controller
 
     public function batchEnroll(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'ppdb.manage');
         $data = $request->validate([
             'application_ids' => 'required|array|min:1',
             'application_ids.*' => 'integer|exists:ppdb_applications,id',
@@ -151,6 +158,7 @@ class PpdbController extends Controller
 
     public function reports(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'ppdb.view');
         $reports = $this->service->getReports(
             $request->user()->school_id,
             $request->input('period_id'),
@@ -161,8 +169,14 @@ class PpdbController extends Controller
 
     public function runSelection(Request $request, int $periodId): JsonResponse
     {
+        $this->requirePermission($request, 'ppdb.review');
         $period = PpdbPeriod::where('school_id', $request->user()->school_id)->findOrFail($periodId);
 
         return response()->json($this->service->runSelection($period));
+    }
+
+    private function requirePermission(Request $request, string $permission): void
+    {
+        abort_unless($request->user()->hasRole('super_admin') || $request->user()->can($permission), 403, 'Tidak memiliki izin PPDB.');
     }
 }

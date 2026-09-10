@@ -4,11 +4,15 @@ namespace App\Models\PPDB;
 
 use App\Models\School;
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PpdbPeriod extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'ppdb_periods';
 
     protected $fillable = [
@@ -18,14 +22,14 @@ class PpdbPeriod extends SchoolModel
     ];
 
     protected $casts = [
-        'open_date'                => 'date',
-        'close_date'               => 'date',
-        'announcement_date'        => 'date',
-        'reregistration_deadline'  => 'date',
-        'form_fee'                 => 'integer',
-        'jalur_config'             => 'array',
-        'document_requirements'    => 'array',
-        'is_published'             => 'boolean',
+        'open_date' => 'date',
+        'close_date' => 'date',
+        'announcement_date' => 'date',
+        'reregistration_deadline' => 'date',
+        'form_fee' => 'integer',
+        'jalur_config' => 'array',
+        'document_requirements' => 'array',
+        'is_published' => 'boolean',
     ];
 
     public function applications(): HasMany
@@ -36,5 +40,14 @@ class PpdbPeriod extends SchoolModel
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);
+    }
+
+    public function isOpen(?CarbonInterface $at = null): bool
+    {
+        $at ??= now();
+
+        return $this->is_published
+            && $this->open_date->copy()->startOfDay()->lessThanOrEqualTo($at)
+            && $this->close_date->copy()->endOfDay()->greaterThanOrEqualTo($at);
     }
 }

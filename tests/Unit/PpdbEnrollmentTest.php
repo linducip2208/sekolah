@@ -1,5 +1,7 @@
 <?php
 
+use App\Mail\PpdbAcceptanceMail;
+use App\Mail\PpdbSubmissionMail;
 use App\Models\Academic\AcademicYear;
 use App\Models\Academic\ClassRoom;
 use App\Models\Academic\ClassSection;
@@ -11,7 +13,9 @@ use App\Models\PPDB\PpdbPeriod;
 use App\Models\School;
 use App\Models\User;
 use App\Services\PPDB\PpdbService;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 beforeEach(function () {
     $this->service = app(PpdbService::class);
@@ -62,7 +66,7 @@ it('converts an accepted applicant into an enrolled student', function () {
 it('refuses to enroll an application that is not accepted', function () {
     $this->application->update(['status' => 'verified']);
 
-    $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+    $this->expectException(HttpException::class);
     $this->service->enrollStudent($this->application->fresh(), $this->classSection->id);
 });
 
@@ -105,4 +109,73 @@ it('does not batch enroll an applicant from another school', function () {
 
     expect($result)->toBe(['enrolled' => 0, 'failed' => [$otherApplication->id]]);
     expect($otherApplication->fresh()->enrolled_student_id)->toBeNull();
+});
+
+it('enforces the PPDB lifecycle and rejects duplicate NISN', function () {
+    Mail::fake();
+    $this->period->update([
+        'open_date' => today(),
+        'close_date' => today()->addDays(5),
+        'jalur_config' => ['reguler' => ['quota' => 2]],
+    ]);
+
+    $data = [
+        'jalur' => 'reguler',
+        'student_name' => 'Siti Validasi',
+        'nisn' => '0099887766',
+        'date_of_birth' => '2010-06-01',
+        'gender' => 'female',
+        'address' => 'Jakarta',
+        'district' => 'Jakarta Selatan',
+        'city' => 'Jakarta',
+        'parent_name' => 'Wali Siti',
+        'parent_phone' => '08124',
+        'parent_email' => 'siti@example.com',
+    ];
+
+    $application = $this->service->register($this->period, $data);
+    $reviewer = User::factory()->create(['school_id' => $this->school->id]);
+    expect($application->status)->toBe('draft');
+    expect(fn () => $this->service->verify($application, $reviewer->id))->toThrow(HttpException::class);
+
+    $submitted = $this->service->submit($application);
+    $verified = $this->service->verify($submitted, $reviewer->id);
+    $accepted = $this->service->accept($verified, $reviewer->id);
+    expect($accepted->status)->toBe('accepted');
+    Mail::assertQueued(PpdbSubmissionMail::class);
+    Mail::assertQueued(PpdbAcceptanceMail::class);
+
+    expect(fn () => $this->service->register($this->period, $data))->toThrow(HttpException::class);
+});
+
+it('assigns verified applicants to accepted and waitlist positions by quota', function () {
+    $this->period->update(['jalur_config' => ['reguler' => ['quota' => 1]]]);
+
+    $first = $this->application->fresh();
+    $first->update(['status' => 'verified', 'average_score' => 95]);
+    $second = PpdbApplication::create([
+        'school_id' => $this->school->id,
+        'ppdb_period_id' => $this->period->id,
+        'registration_no' => 'PPDB-2',
+        'jalur' => 'reguler',
+        'student_name' => 'Peserta Kedua',
+        'date_of_birth' => '2010-06-02',
+        'gender' => 'female',
+        'address' => 'Jakarta',
+        'district' => 'Jakarta Selatan',
+        'city' => 'Jakarta',
+        'parent_name' => 'Wali Kedua',
+        'parent_phone' => '08125',
+        'parent_email' => 'kedua@example.com',
+        'average_score' => 70,
+        'status' => 'verified',
+    ]);
+
+    $result = $this->service->runSelection($this->period);
+
+    expect($result['accepted_total'])->toBe(1)
+        ->and($result['waitlist_total'])->toBe(1);
+    expect($first->fresh()->status)->toBe('accepted');
+    expect($second->fresh()->status)->toBe('waitlist')
+        ->and($second->fresh()->waiting_list_position)->toBe(1);
 });

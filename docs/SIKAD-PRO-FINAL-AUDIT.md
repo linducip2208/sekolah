@@ -24,7 +24,7 @@ Status penting yang terverifikasi:
 
 ## 2. Audit repository
 
-Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.559 route pada audit terakhir. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
+Audit mencakup routes, controllers, models, services, middleware, policies, migrations, seeders, Blade views/components, navigation, dashboard, API, jobs, scheduled commands, tests, dan docs. Route registry menghasilkan 1.559 route pada audit terakhir sebelum pass PPDB/kesiswaan. Referensi route pada navigation configuration diverifikasi: 140 referensi, 0 route hilang.
 
 Temuan yang diperbaiki:
 
@@ -35,8 +35,8 @@ Temuan yang diperbaiki:
 - endpoint Visitor, Wallet, dan Dapodik belum memakai permission granular secara konsisten;
 - saldo kantin hanya cache tanpa ledger immutable dan refund idempotent;
 - beberapa seeder/service memakai fallback ID tenant/user `1`;
-- PPDB batch enrollment tidak membatasi application dan class section ke sekolah aktif;
-- endpoint Counseling/Career menerima referensi student/counselor/assignee tanpa verifikasi lintas sekolah;
+- PPDB admin review masih dapat melewati lifecycle service dan public period belum memvalidasi seluruh window pendaftaran;
+- Counseling/UKS/Discipline service boundaries belum konsisten memvalidasi student/counselor/category lintas sekolah;
 - Lesson Plan API dan admin flow menerima referensi akademik lintas sekolah tanpa verifikasi konsisten;
 - payment webhook belum memiliki payload fingerprint/replay record dan HMAC timestamp untuk outbound delivery;
 - backup UI membuat file sintetis ketika `mysqldump` gagal;
@@ -44,6 +44,8 @@ Temuan yang diperbaiki:
 - inventory dan procurement maturity pass menambahkan row locking, non-negative stock invariant, transfer movement types, scoped supplier/budget validation, serta bounded partial receiving;
 - accounting maturity pass menambahkan tenant-safe COA lines, double-entry line validation, row-locked posting, automatic reference idempotency, dan audit logging;
 - payroll maturity pass menambahkan tenant-safe staff lookup, finalization row lock, paid-slip replay protection, audit logging, dan idempotent payroll journal;
+- PPDB maturity pass menambahkan open/close window, jalur/quota validation, duplicate NISN detection, guarded lifecycle, configurable scoring, row-locked selection/waitlist, and audit logging;
+- BK/Discipline/UKS maturity pass menambahkan permission gates, tenant-safe student/staff references, guarded counseling lifecycle, conflict detection, configurable sanction thresholds, and audit logging;
 - test baru menguji flow enterprise dan cross-school access.
 
 ## 3. Feature matrix aktual
@@ -63,8 +65,8 @@ Legenda: `✅ COMPLETE` berarti flow penting yang diaudit tersedia dan diuji; `R
 | CBT / question bank | ✅ COMPLETE | Existing question bank, exam, auto-grade, review and analysis flows; CBT mark sync now passes the central marks integrity service. |
 | Marks → report card | ✅ COMPLETE | Tenant-safe score validation, automatic grade resolution, immutable locked-card protection, auto-grade/report card/QR verification path. |
 | LMS / portals | ✅ COMPLETE | Existing classroom, lesson, assignment, quiz and portal routes; Playwright smoke coverage should be expanded. |
-| PPDB | ✅ COMPLETE | Existing public registration, review, selection, acceptance and enrollment flow. |
-| Kesiswaan / BK / UKS | ✅ COMPLETE | Existing discipline, counseling, clinic, achievement and extracurricular domains. |
+| PPDB | ✅ COMPLETE | Existing public registration, guarded review/selection/waitlist, acceptance and tenant-safe enrollment flow; admission-letter/payment/re-registration variants still depend on existing school configuration. |
+| Kesiswaan / BK / UKS | ✅ COMPLETE | Existing domains now enforce sensitive permissions and service-boundary tenant checks; medicine-stock and broader parent-visibility regression remain follow-up items. |
 | Finance / billing / payment | ✅ COMPLETE | Existing fee, invoice, refund and configurable provider path; live provider requires setup. |
 | Double-entry accounting | ✅ COMPLETE | Existing COA/journal/reporting plus tenant-safe lines, row-locked posting, idempotent automatic references, audit logging, and canteen posting hooks. |
 | HR / payroll | ✅ COMPLETE | Existing payroll, BPJS/PPh21, KPI and HR tables now finalize paid slips through a locked service and idempotent accounting journal; staff attendance policy remains configuration-dependent. |
@@ -217,7 +219,11 @@ Implemented/hardened:
 - Inventory item, stock movement, stock opname, procurement request, procurement item, and procurement approval mutations now use activity logging;
 - Accounting COA, journal header, and journal line mutations now use activity logging; posted journals remain non-deletable through the admin flow;
 - Payroll structure and salary slip mutations now use activity logging; paid slips remain immutable through the API flow;
-- Counseling and Career student/counselor/assignee references are validated against the active school;
+- PPDB registration validates the open period, configured jalur, duplicate identifiers, and school-bound reviewer; selection locks the period/applications and enforces quota/waitlist;
+- PPDB enrollment validates both applicant and destination class section against the active school and locks the application before conversion;
+- Counseling sessions validate student/counselor tenant ownership, prevent overlapping sessions, and reject repeated completion;
+- Discipline records validate student tenant ownership and apply configurable threshold sanctions when points reach the configured threshold;
+- Clinic records, visits, and vaccinations validate student/staff tenant ownership and expose only permission-gated medical endpoints;
 - Lesson Plan API/admin writes validate class section, subject, semester, and teacher against the active school;
 - payment callbacks record payload fingerprints, reject already-processed replays, and serialize status application with a row lock;
 - outbound webhooks sign `timestamp.payload` and expose timestamp/attempt headers for receiver replay windows;

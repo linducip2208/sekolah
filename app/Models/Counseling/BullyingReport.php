@@ -3,22 +3,25 @@
 namespace App\Models\Counseling;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 
 class BullyingReport extends SchoolModel
 {
+    use AuditableModel;
+
     protected $table = 'bullying_reports';
 
     protected $fillable = [
-        'school_id','reporter_id','is_anonymous','victims_described',
-        'perpetrators_described','type','incident_date','location','description',
-        'evidence_files','status','assigned_to','investigation_notes','action_summary',
+        'school_id', 'reporter_id', 'is_anonymous', 'victims_described',
+        'perpetrators_described', 'type', 'incident_date', 'location', 'description',
+        'evidence_files', 'status', 'assigned_to', 'investigation_notes', 'action_summary',
     ];
 
     protected $casts = [
-        'is_anonymous'           => 'boolean',
-        'incident_date'          => 'date',
-        'victims_described'      => 'array',
+        'is_anonymous' => 'boolean',
+        'incident_date' => 'date',
+        'victims_described' => 'array',
         'perpetrators_described' => 'array',
-        'evidence_files'         => 'array',
+        'evidence_files' => 'array',
     ];
 }

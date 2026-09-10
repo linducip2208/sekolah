@@ -2,15 +2,20 @@
 
 namespace App\Services\Medical;
 
+use App\Jobs\NotifyParentClinicVisitJob;
+use App\Models\Academic\Student;
 use App\Models\Medical\ClinicVisit;
 use App\Models\Medical\MedicalRecord;
 use App\Models\Medical\Vaccination;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class ClinicService
 {
     public function getOrCreateRecord(int $schoolId, int $studentId): MedicalRecord
     {
+        Student::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($studentId);
+
         return MedicalRecord::firstOrCreate(
             ['school_id' => $schoolId, 'student_id' => $studentId],
             [],
@@ -19,28 +24,32 @@ class ClinicService
 
     public function updateRecord(MedicalRecord $record, array $data): MedicalRecord
     {
+        abort_unless($record->school_id === auth()->user()?->school_id, 403, 'Catatan kesehatan bukan milik sekolah ini.');
         $record->update($data);
+
         return $record->fresh();
     }
 
     public function recordVisit(int $schoolId, int $studentId, int $attendedBy, array $data): ClinicVisit
     {
         return DB::transaction(function () use ($schoolId, $studentId, $attendedBy, $data) {
+            Student::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($studentId);
+            User::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($attendedBy);
             $visit = ClinicVisit::create([
-                'school_id'         => $schoolId,
-                'student_id'        => $studentId,
-                'attended_by'       => $attendedBy,
-                'visit_at'          => $data['visit_at'] ?? now(),
-                'symptoms'          => $data['symptoms'],
-                'diagnosis'         => $data['diagnosis'] ?? null,
-                'treatment'         => $data['treatment'] ?? null,
+                'school_id' => $schoolId,
+                'student_id' => $studentId,
+                'attended_by' => $attendedBy,
+                'visit_at' => $data['visit_at'] ?? now(),
+                'symptoms' => $data['symptoms'],
+                'diagnosis' => $data['diagnosis'] ?? null,
+                'treatment' => $data['treatment'] ?? null,
                 'medications_given' => $data['medications_given'] ?? [],
-                'temperature_c'     => $data['temperature_c'] ?? null,
-                'blood_pressure'    => $data['blood_pressure'] ?? null,
+                'temperature_c' => $data['temperature_c'] ?? null,
+                'blood_pressure' => $data['blood_pressure'] ?? null,
                 'returned_to_class' => $data['returned_to_class'] ?? true,
-                'sent_home'         => $data['sent_home'] ?? false,
+                'sent_home' => $data['sent_home'] ?? false,
                 'referred_external' => $data['referred_external'] ?? false,
-                'referred_to'       => $data['referred_to'] ?? null,
+                'referred_to' => $data['referred_to'] ?? null,
             ]);
 
             if ($visit->sent_home || $visit->referred_external) {
@@ -53,14 +62,16 @@ class ClinicService
 
     public function recordVaccination(int $schoolId, int $studentId, array $data): Vaccination
     {
+        Student::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($studentId);
+
         return Vaccination::create([
-            'school_id'        => $schoolId,
-            'student_id'       => $studentId,
-            'vaccine_name'     => $data['vaccine_name'],
-            'vaccinated_at'    => $data['vaccinated_at'],
-            'batch_number'     => $data['batch_number'] ?? null,
-            'administered_by'  => $data['administered_by'] ?? null,
-            'next_dose_due'    => $data['next_dose_due'] ?? null,
+            'school_id' => $schoolId,
+            'student_id' => $studentId,
+            'vaccine_name' => $data['vaccine_name'],
+            'vaccinated_at' => $data['vaccinated_at'],
+            'batch_number' => $data['batch_number'] ?? null,
+            'administered_by' => $data['administered_by'] ?? null,
+            'next_dose_due' => $data['next_dose_due'] ?? null,
             'certificate_path' => $data['certificate_path'] ?? null,
         ]);
     }
@@ -68,6 +79,6 @@ class ClinicService
     protected function notifyParent(ClinicVisit $visit): void
     {
         $visit->update(['parent_notified' => true]);
-        \App\Jobs\NotifyParentClinicVisitJob::dispatch($visit->id);
+        NotifyParentClinicVisitJob::dispatch($visit->id);
     }
 }

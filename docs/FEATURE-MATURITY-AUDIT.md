@@ -17,7 +17,7 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 
 | Modul | Current before | After | Improvements | Integrations | Test coverage | Score |
 |---|---:|---:|---|---|---|---:|
-| PPDB | 3 | 4 | Verification, selection, waiting list, batch enrollment, cross-school validation, student conversion | PPDB → Student → Rombel | PPDB registration + enrollment + cross-school regression | 4/5 |
+| PPDB | 3 | 4 | Open/close window, configured jalur/quota, duplicate NISN detection, guarded lifecycle, configurable scoring, row-locked selection/waitlist, batch enrollment, cross-school validation, student conversion, audit logging | PPDB → Student → Rombel → Billing | Registration/enrollment + lifecycle/selection regressions | 4/5 |
 | Akademik & Lesson Plan | 2 | 3 | Lifecycle plan, approval path, school validation for class/subject/semester/teacher | Teacher → class → subject → semester | Syntax/Pint; broader workflow regression still needed | 3/5 |
 | Absensi | 3 | 4 | Manual/QR flows, bulk validation, lock/reopen lifecycle, correction approval, observer/audit integration, queued absence notification | Student 360, parent notification, analytics, generic workflow | 4 workflow tests / 10 assertions; broader mobile/report regression remains | 4/5 |
 | Bank Soal | 3 | 3 | Question metadata, review/versioning and analysis paths exist | CBT, quiz, item analysis | Existing question-bank tests | 3/5 |
@@ -26,9 +26,9 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 | Raport | 3 | 4 | PDF/QR verification, bulk generation and publication path | Marks → Report Card → Parent | Existing report-card tests and Playwright capture | 4/5 |
 | LMS | 3 | 3 | Classroom, lessons, assignments, quiz and progress paths exist | Student Portal, Teacher Portal | Portal smoke; deeper deadline/resubmission tests needed | 3/5 |
 | Student 360 | 2 | 3 | Consolidated profile/timeline and permission-aware tabs | Academic, finance, BK, health, library, transport | Visibility regression needs broader coverage | 3/5 |
-| BK/Counseling | 2 | 3 | Session lifecycle, assignment, confidentiality-sensitive API scope | Attendance/risk/student profile | Cross-school reference hardening; workflow tests pending | 3/5 |
-| Disiplin | 3 | 3 | Incident, points, sanctions and history paths exist | Student 360, parent communication | Existing domain tests | 3/5 |
-| UKS/Health | 2 | 3 | Visit, treatment, vaccination and restricted visibility paths exist | Student profile, parent portal | Permission/stock regression needs expansion | 3/5 |
+| BK/Counseling | 2 | 4 | Guarded scheduled/completed lifecycle, counselor/student tenant validation, overlapping-session detection, bullying assignment/closure rules, audit logging, restricted permissions | Attendance/risk/student profile → notification | Cross-school, overlap, and repeated-completion regressions | 4/5 |
+| Disiplin | 3 | 4 | Incident tenant validation, configurable points/threshold sanctions, parent notification job, history and audit logging | Student 360 → parent communication → intervention | Cross-school and threshold transition regressions | 4/5 |
+| UKS/Health | 2 | 4 | Tenant-safe student/staff references, permission-gated sensitive endpoints, visit/treatment/vaccination audit logging, parent notification path | Student profile → parent notification | Cross-school service-boundary regression; medicine stock remains a follow-up | 4/5 |
 | Ekstrakurikuler | 2 | 3 | Program, registration, attendance and achievement paths exist | Student profile, certificates | Existing CRUD/workflow tests | 3/5 |
 | Finance/SPP | 3 | 4 | Invoice lifecycle, payment, reminders, refund and reconciliation paths | Payment → Invoice → Accounting → Notification | Finance and payment integration tests | 4/5 |
 | Payment | 3 | 4 | Provider abstraction, encrypted secrets, idempotency, signature verification, replay fingerprint, row lock | Payment → Fee Payment → Invoice | Invalid signature + duplicate callback tests | 4/5 |

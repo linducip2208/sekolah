@@ -6,7 +6,9 @@ use App\Jobs\NotifyAdminBullyingReportJob;
 use App\Models\Academic\Student;
 use App\Models\Counseling\BullyingReport;
 use App\Models\Counseling\CounselingSession;
+use App\Models\User;
 use App\Models\Wellness\WellnessCheckin;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class CounselingService
@@ -16,6 +18,24 @@ class CounselingService
         Student::withoutGlobalScopes()
             ->where('school_id', $schoolId)
             ->findOrFail($data['student_id']);
+        User::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($data['counselor_id']);
+
+        $start = Carbon::parse($data['scheduled_at']);
+        $end = $start->copy()->addMinutes($data['duration_minutes'] ?? 45);
+        $hasConflict = CounselingSession::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->whereIn('status', ['scheduled', 'rescheduled'])
+            ->whereDate('scheduled_at', $start->toDateString())
+            ->get()
+            ->contains(function (CounselingSession $existing) use ($start, $end, $data) {
+                $existingEnd = $existing->scheduled_at->copy()->addMinutes($existing->duration_minutes);
+
+                return ($existing->counselor_id === (int) $data['counselor_id'] || $existing->student_id === (int) $data['student_id'])
+                    && $existing->scheduled_at->lt($end)
+                    && $existingEnd->gt($start);
+            });
+
+        abort_if($hasConflict, 422, 'Jadwal konseling berbenturan dengan sesi lain.');
 
         return CounselingSession::create([
             'school_id' => $schoolId,
@@ -30,14 +50,19 @@ class CounselingService
 
     public function completeSession(CounselingSession $session, ?string $notes, bool $referExternal = false, ?string $referredTo = null): CounselingSession
     {
-        $session->update([
-            'status' => 'completed',
-            'notes' => $notes,
-            'refer_external' => $referExternal,
-            'referred_to' => $referredTo,
-        ]);
+        return DB::transaction(function () use ($session, $notes, $referExternal, $referredTo) {
+            $locked = CounselingSession::withoutGlobalScopes()->whereKey($session->id)->lockForUpdate()->firstOrFail();
+            abort_unless(in_array($locked->status, ['scheduled', 'rescheduled'], true), 422, 'Sesi konseling tidak dapat diselesaikan dari status saat ini.');
 
-        return $session->fresh();
+            $locked->update([
+                'status' => 'completed',
+                'notes' => $notes,
+                'refer_external' => $referExternal,
+                'referred_to' => $referredTo,
+            ]);
+
+            return $locked->fresh();
+        });
     }
 
     public function reportBullying(int $schoolId, ?int $reporterId, array $data): BullyingReport
@@ -65,16 +90,17 @@ class CounselingService
 
     public function assignBullyingReport(BullyingReport $report, int $userId): BullyingReport
     {
-        $report->update([
-            'assigned_to' => $userId,
-            'status' => 'investigating',
-        ]);
+        User::withoutGlobalScopes()->where('school_id', $report->school_id)->findOrFail($userId);
+        abort_unless(in_array($report->status, ['received', 'investigating'], true), 422, 'Laporan bullying sudah ditutup.');
+        $report->update(['assigned_to' => $userId, 'status' => 'investigating']);
 
         return $report->fresh();
     }
 
     public function closeBullyingReport(BullyingReport $report, string $status, ?string $actionSummary = null): BullyingReport
     {
+        abort_unless(in_array($report->status, ['received', 'investigating', 'action_taken'], true), 422, 'Laporan bullying sudah ditutup.');
+        abort_if($status === 'action_taken' && blank($actionSummary), 422, 'Ringkasan tindakan wajib diisi.');
         $report->update([
             'status' => $status,
             'action_summary' => $actionSummary,

@@ -15,7 +15,7 @@
 </select>
 <select name="status" class="border-2 border-rule px-3 py-2 font-serif text-sm">
 <option value="">— Semua Status —</option>
-@foreach(['submitted','review','accepted','waitlist','rejected','enrolled'] as $s)
+@foreach(['submitted','verified','accepted','waitlist','rejected','enrolled'] as $s)
 <option value="{{ $s }}" @selected(request('status')===$s)>{{ ucfirst($s) }}</option>
 @endforeach
 </select>
@@ -38,7 +38,7 @@
         <td class="px-3 py-3">
 <form method="POST" action="{{ route('admin.ppdb.applications.review', $a) }}" class="inline">@csrf
 <select name="status" onchange="this.form.submit()" class="text-xs border border-rule px-2 py-1">
-@foreach(['submitted','review','accepted','waitlist','rejected','enrolled'] as $s)
+@foreach(['submitted','verified','accepted','waitlist','rejected','enrolled'] as $s)
 <option value="{{ $s }}" @selected($a->status === $s)>{{ ucfirst($s) }}</option>
 @endforeach
 </select></form>

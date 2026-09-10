@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Admin\Phase8;
 use App\Http\Controllers\Controller;
 use App\Models\PPDB\PpdbFormField;
 use App\Models\PPDB\PpdbPeriod;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -22,44 +23,46 @@ class PpdbFormBuilderController extends Controller
         $periods = PpdbPeriod::where('school_id', $this->schoolId())->orderByDesc('open_date')->get();
 
         $fields = PpdbFormField::where('school_id', $this->schoolId())
-            ->when($periodId, fn($q) => $q->where('period_id', $periodId))
+            ->when($periodId, fn ($q) => $q->where('period_id', $periodId))
             ->orderBy('sort_order')
             ->get();
 
         return view('school-admin.ppdb.form-builder', [
-            'fields'  => $fields,
+            'fields' => $fields,
             'periods' => $periods,
-            'periodId'=> $periodId,
+            'periodId' => $periodId,
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'period_id'     => 'required|exists:ppdb_periods,id',
-            'field_name'    => 'required|string|max:100',
-            'field_type'    => 'required|in:text,textarea,number,date,file,select,checkbox,radio',
-            'field_label'   => 'required|string|max:200',
-            'options'       => 'nullable|array',
-            'is_required'   => 'nullable|boolean',
-            'sort_order'    => 'nullable|integer|min:0',
+            'period_id' => 'required|exists:ppdb_periods,id',
+            'field_name' => 'required|string|max:100',
+            'field_type' => 'required|in:text,textarea,number,date,file,select,checkbox,radio',
+            'field_label' => 'required|string|max:200',
+            'options' => 'nullable|array',
+            'is_required' => 'nullable|boolean',
+            'sort_order' => 'nullable|integer|min:0',
         ]);
+
+        abort_unless(PpdbPeriod::where('school_id', $this->schoolId())->whereKey($data['period_id'])->exists(), 422, 'Periode PPDB bukan milik sekolah ini.');
 
         $maxOrder = PpdbFormField::where('school_id', $this->schoolId())
             ->where('period_id', $data['period_id'])
             ->max('sort_order') ?? 0;
 
         PpdbFormField::create([
-            'school_id'      => $this->schoolId(),
-            'period_id'      => $data['period_id'],
-            'field_name'     => $data['field_name'],
-            'field_type'     => $data['field_type'],
-            'field_label'    => $data['field_label'],
-            'options'        => $data['options'] ?? null,
-            'is_required'    => $data['is_required'] ?? true,
-            'validation_rules'=> null,
-            'sort_order'     => $data['sort_order'] ?? ($maxOrder + 1),
-            'is_active'      => true,
+            'school_id' => $this->schoolId(),
+            'period_id' => $data['period_id'],
+            'field_name' => $data['field_name'],
+            'field_type' => $data['field_type'],
+            'field_label' => $data['field_label'],
+            'options' => $data['options'] ?? null,
+            'is_required' => $data['is_required'] ?? true,
+            'validation_rules' => null,
+            'sort_order' => $data['sort_order'] ?? ($maxOrder + 1),
+            'is_active' => true,
         ]);
 
         return back()->with('success', 'Field formulir ditambahkan.');
@@ -70,15 +73,16 @@ class PpdbFormBuilderController extends Controller
         abort_unless($field->school_id === $this->schoolId(), 403);
 
         $data = $request->validate([
-            'field_label'   => 'sometimes|string|max:200',
-            'field_type'    => 'sometimes|in:text,textarea,number,date,file,select,checkbox,radio',
-            'options'       => 'nullable|array',
-            'is_required'   => 'sometimes|boolean',
-            'is_active'     => 'sometimes|boolean',
-            'sort_order'    => 'sometimes|integer|min:0',
+            'field_label' => 'sometimes|string|max:200',
+            'field_type' => 'sometimes|in:text,textarea,number,date,file,select,checkbox,radio',
+            'options' => 'nullable|array',
+            'is_required' => 'sometimes|boolean',
+            'is_active' => 'sometimes|boolean',
+            'sort_order' => 'sometimes|integer|min:0',
         ]);
 
         $field->update($data);
+
         return back()->with('success', 'Field diperbarui.');
     }
 
@@ -86,13 +90,14 @@ class PpdbFormBuilderController extends Controller
     {
         abort_unless($field->school_id === $this->schoolId(), 403);
         $field->delete();
+
         return back()->with('success', 'Field dihapus.');
     }
 
-    public function reorder(Request $request): \Illuminate\Http\JsonResponse
+    public function reorder(Request $request): JsonResponse
     {
         $request->validate([
-            'order'   => 'required|array',
+            'order' => 'required|array',
             'order.*' => 'integer|exists:ppdb_form_fields,id',
         ]);
 
