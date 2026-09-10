@@ -44,6 +44,7 @@ Temuan yang diperbaiki:
 - attendance dan marks maturity pass menambahkan lifecycle lock/reopen/correction, tenant-safe references, dan protection untuk rapor terkunci;
 - classroom, timetable, dan religious service boundary pass menambahkan validasi referensi lintas sekolah, room/time conflict detection, atomic bulk timetable replacement, dan student ownership checks pada assignment/religious progress;
 - LMS, CBT, room booking, dan bank reconciliation boundary pass menambahkan validasi course/exam/student/room/payment sekolah, approval ownership, serta summary reconciliation berbasis aggregate query;
+- academic year dan student import boundary pass menambahkan validasi school ownership untuk aktivasi semester/tahun dan class section tujuan import;
 - inventory dan procurement maturity pass menambahkan row locking, non-negative stock invariant, transfer movement types, scoped supplier/budget validation, serta bounded partial receiving;
 - accounting maturity pass menambahkan tenant-safe COA lines, double-entry line validation, row-locked posting, automatic reference idempotency, dan audit logging;
 - payroll maturity pass menambahkan tenant-safe staff lookup, finalization row lock, paid-slip replay protection, audit logging, dan idempotent payroll journal;
@@ -197,6 +198,7 @@ Passed:
 - enterprise test suite after test DB bootstrap: 5 tests / 13 assertions passed before assertion correction, then corrected wallet test passed independently (1 test / 4 assertions);
 - full PHPUnit/Pest suite: 283 tests / 1.532 assertions passed;
 - post-baseline focused regression: CourseService 9 tests, Exam 7 tests, RoomBooking 3 tests, BankReconciliation 5 tests passed;
+- focused master-data regression: AcademicYearService 2 tests / 3 assertions passed; full suite re-run is required after this checkpoint;
 - focused academic tenant-boundary regressions are included in the full suite: Classroom 9 tests / 15 assertions, Timetable 8 tests / 16 assertions, Religious 2 tests / 2 assertions;
 - PPDB regression: 6 enrollment/lifecycle/selection tests plus 2 public-registration tests passed, including cross-school, deadline, duplicate-NISN, quota, and waitlist checks;
 - BK/Discipline/UKS regression: 6 service-boundary/lifecycle/threshold tests passed;

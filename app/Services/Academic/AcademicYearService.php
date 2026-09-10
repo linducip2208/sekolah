@@ -3,20 +3,25 @@
 namespace App\Services\Academic;
 
 use App\Models\Academic\AcademicYear;
+use App\Models\Academic\Semester;
 use Illuminate\Support\Facades\DB;
 
 class AcademicYearService
 {
     public function activate(int $academicYearId): AcademicYear
     {
-        return DB::transaction(function () use ($academicYearId) {
-            AcademicYear::where('school_id', auth()->user()->school_id)
+        $schoolId = $this->schoolId();
+
+        return DB::transaction(function () use ($academicYearId, $schoolId) {
+            AcademicYear::where('school_id', $schoolId)
                 ->update(['is_active' => false]);
 
-            $year = AcademicYear::findOrFail($academicYearId);
+            $year = AcademicYear::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->findOrFail($academicYearId);
             $year->update(['is_active' => true]);
 
-            if (!$year->semesters()->where('is_active', true)->exists()) {
+            if (! $year->semesters()->where('is_active', true)->exists()) {
                 $year->semesters()->oldest('start_date')->first()
                     ?->update(['is_active' => true]);
             }
@@ -25,16 +30,27 @@ class AcademicYearService
         });
     }
 
-    public function activateSemester(int $semesterId): \App\Models\Academic\Semester
+    public function activateSemester(int $semesterId): Semester
     {
-        return DB::transaction(function () use ($semesterId) {
-            $semester = \App\Models\Academic\Semester::findOrFail($semesterId);
+        $schoolId = $this->schoolId();
 
-            \App\Models\Academic\Semester::where('academic_year_id', $semester->academic_year_id)
+        return DB::transaction(function () use ($semesterId, $schoolId) {
+            $semester = Semester::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->findOrFail($semesterId);
+
+            Semester::where('school_id', $schoolId)
+                ->where('academic_year_id', $semester->academic_year_id)
                 ->update(['is_active' => false]);
 
             $semester->update(['is_active' => true]);
+
             return $semester->fresh();
         });
+    }
+
+    private function schoolId(): int
+    {
+        return (int) auth()->user()->school_id;
     }
 }
