@@ -37,6 +37,7 @@ Temuan yang diperbaiki:
 - beberapa seeder/service memakai fallback ID tenant/user `1`;
 - PPDB batch enrollment tidak membatasi application dan class section ke sekolah aktif;
 - endpoint Counseling/Career menerima referensi student/counselor/assignee tanpa verifikasi lintas sekolah;
+- Lesson Plan API dan admin flow menerima referensi akademik lintas sekolah tanpa verifikasi konsisten;
 - test baru menguji flow enterprise dan cross-school access.
 
 ## 3. Feature matrix aktual
@@ -196,6 +197,7 @@ Implemented/hardened:
 - canonical Visitor check-in queues a tenant-scoped host notification through `NotificationDispatcher`;
 - PPDB enrollment validates both applicant and destination class section against the active school;
 - Counseling and Career student/counselor/assignee references are validated against the active school;
+- Lesson Plan API/admin writes validate class section, subject, semester, and teacher against the active school;
 - audit log for canonical Visitor flow.
 
 Remaining security work: complete IDOR/policy sweep over every legacy API/controller, verify upload MIME/path restrictions across all modules, and add automated webhook replay/signature coverage to the full suite.
