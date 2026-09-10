@@ -2,6 +2,7 @@
 
 namespace App\Services\Facilities;
 
+use App\Models\Academic\Student;
 use App\Models\Facilities\HostelAllocation;
 use App\Models\Facilities\HostelBed;
 use App\Models\Facilities\HostelRoom;
@@ -12,21 +13,33 @@ class HostelService
     public function allocate(int $studentId, int $roomId, string $fromDate): HostelAllocation
     {
         return DB::transaction(function () use ($studentId, $roomId, $fromDate) {
-            $room = HostelRoom::lockForUpdate()->findOrFail($roomId);
+            $schoolId = $this->schoolId();
+            Student::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($studentId);
+            $room = HostelRoom::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->lockForUpdate()
+                ->findOrFail($roomId);
 
             if ($room->occupied >= $room->capacity) {
                 abort(422, 'Kamar sudah penuh.');
             }
 
-            HostelAllocation::where('student_id', $studentId)
+            HostelAllocation::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('student_id', $studentId)
                 ->where('is_active', true)
                 ->update(['is_active' => false]);
 
-            HostelBed::where('student_id', $studentId)
+            HostelBed::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('student_id', $studentId)
                 ->where('status', 'occupied')
                 ->update(['status' => 'available', 'student_id' => null]);
 
-            $bed = HostelBed::where('hostel_room_id', $roomId)
+            $bed = HostelBed::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('hostel_room_id', $roomId)
+                ->lockForUpdate()
                 ->where('status', 'available')
                 ->first();
 
@@ -35,17 +48,21 @@ class HostelService
             }
 
             $allocation = HostelAllocation::create([
-                'school_id'       => auth()->user()->school_id,
-                'student_id'      => $studentId,
-                'hostel_room_id'  => $roomId,
-                'from_date'       => $fromDate,
-                'is_active'       => true,
+                'school_id' => auth()->user()->school_id,
+                'student_id' => $studentId,
+                'hostel_room_id' => $roomId,
+                'from_date' => $fromDate,
+                'is_active' => true,
             ]);
 
-            $occupied = HostelAllocation::where('hostel_room_id', $roomId)->where('is_active', true)->count();
+            $occupied = HostelAllocation::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('hostel_room_id', $roomId)
+                ->where('is_active', true)
+                ->count();
             $room->update([
                 'occupied' => $occupied,
-                'status'   => $occupied >= $room->capacity ? 'full' : ($occupied > 0 ? 'partial' : 'available'),
+                'status' => $occupied >= $room->capacity ? 'full' : ($occupied > 0 ? 'partial' : 'available'),
             ]);
 
             return $allocation->load('room.hostel', 'student.user');
@@ -55,11 +72,16 @@ class HostelService
     public function checkout(int $studentId): void
     {
         DB::transaction(function () use ($studentId) {
-            $allocation = HostelAllocation::where('student_id', $studentId)
+            $schoolId = $this->schoolId();
+            Student::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($studentId);
+            $allocation = HostelAllocation::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('student_id', $studentId)
                 ->where('is_active', true)
+                ->lockForUpdate()
                 ->first();
 
-            if (!$allocation) {
+            if (! $allocation) {
                 abort(422, 'Tidak ada alokasi aktif untuk siswa ini.');
             }
 
@@ -67,15 +89,21 @@ class HostelService
 
             $allocation->update(['is_active' => false, 'to_date' => now()->toDateString()]);
 
-            HostelBed::where('student_id', $studentId)
+            HostelBed::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('student_id', $studentId)
                 ->where('status', 'occupied')
                 ->update(['status' => 'available', 'student_id' => null]);
 
-            $occupied = HostelAllocation::where('hostel_room_id', $roomId)->where('is_active', true)->count();
-            $room = HostelRoom::findOrFail($roomId);
+            $occupied = HostelAllocation::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('hostel_room_id', $roomId)
+                ->where('is_active', true)
+                ->count();
+            $room = HostelRoom::withoutGlobalScopes()->where('school_id', $schoolId)->lockForUpdate()->findOrFail($roomId);
             $room->update([
                 'occupied' => $occupied,
-                'status'   => $occupied >= $room->capacity ? 'full' : ($occupied > 0 ? 'partial' : 'available'),
+                'status' => $occupied >= $room->capacity ? 'full' : ($occupied > 0 ? 'partial' : 'available'),
             ]);
         });
     }
@@ -83,13 +111,20 @@ class HostelService
     public function allocateBed(int $bedId, int $studentId): void
     {
         DB::transaction(function () use ($bedId, $studentId) {
-            $bed = HostelBed::lockForUpdate()->findOrFail($bedId);
+            $schoolId = $this->schoolId();
+            Student::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($studentId);
+            $bed = HostelBed::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->lockForUpdate()
+                ->findOrFail($bedId);
 
             if ($bed->status !== 'available') {
                 abort(422, 'Tempat tidur tidak tersedia.');
             }
 
-            HostelBed::where('student_id', $studentId)
+            HostelBed::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('student_id', $studentId)
                 ->where('status', 'occupied')
                 ->update(['status' => 'available', 'student_id' => null]);
 
@@ -99,7 +134,14 @@ class HostelService
 
     public function deallocateBed(int $bedId): void
     {
-        $bed = HostelBed::findOrFail($bedId);
+        $bed = HostelBed::withoutGlobalScopes()
+            ->where('school_id', $this->schoolId())
+            ->findOrFail($bedId);
         $bed->update(['status' => 'available', 'student_id' => null]);
+    }
+
+    protected function schoolId(): int
+    {
+        return (int) auth()->user()->school_id;
     }
 }

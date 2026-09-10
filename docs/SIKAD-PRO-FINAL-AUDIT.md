@@ -46,6 +46,8 @@ Temuan yang diperbaiki:
 - payroll maturity pass menambahkan tenant-safe staff lookup, finalization row lock, paid-slip replay protection, audit logging, dan idempotent payroll journal;
 - PPDB maturity pass menambahkan open/close window, jalur/quota validation, duplicate NISN detection, guarded lifecycle, configurable scoring, row-locked selection/waitlist, and audit logging;
 - BK/Discipline/UKS maturity pass menambahkan permission gates, tenant-safe student/staff references, guarded counseling lifecycle, conflict detection, configurable sanction thresholds, and audit logging;
+- library/hostel/transport maturity pass menambahkan tenant-safe member/room/route validation, row-locked inventory/occupancy updates, transactional transport assignment, and audit logging;
+- workflow/notification maturity pass menambahkan tenant-bound requester/approver decisions, terminal-state protection, rejection reason enforcement, and recipient filtering before notification logging/sending;
 - test baru menguji flow enterprise dan cross-school access.
 
 ## 3. Feature matrix aktual

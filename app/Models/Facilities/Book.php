@@ -3,11 +3,14 @@
 namespace App\Models\Facilities;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Book extends SchoolModel
 {
+    use AuditableModel;
+
     protected $fillable = [
         'school_id', 'book_category_id', 'title', 'author', 'isbn',
         'publisher', 'publish_year', 'edition', 'total_quantity',
@@ -19,16 +22,16 @@ class Book extends SchoolModel
     ];
 
     protected $casts = [
-        'is_active'          => 'boolean',
-        'total_quantity'     => 'integer',
+        'is_active' => 'boolean',
+        'total_quantity' => 'integer',
         'available_quantity' => 'integer',
-        'is_digital'         => 'boolean',
-        'is_downloadable'    => 'boolean',
-        'file_size'          => 'integer',
-        'page_count'         => 'integer',
-        'preview_pages'      => 'integer',
-        'download_count'     => 'integer',
-        'read_count'         => 'integer',
+        'is_digital' => 'boolean',
+        'is_downloadable' => 'boolean',
+        'file_size' => 'integer',
+        'page_count' => 'integer',
+        'preview_pages' => 'integer',
+        'download_count' => 'integer',
+        'read_count' => 'integer',
     ];
 
     public function category(): BelongsTo

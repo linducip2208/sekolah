@@ -3,16 +3,19 @@
 namespace App\Models\Facilities;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class HostelRoom extends SchoolModel
 {
+    use AuditableModel;
+
     protected $fillable = ['school_id', 'hostel_id', 'room_no', 'capacity', 'occupied', 'status', 'fee_per_month'];
 
     protected $casts = [
-        'capacity'      => 'integer',
-        'occupied'      => 'integer',
+        'capacity' => 'integer',
+        'occupied' => 'integer',
         'fee_per_month' => 'integer',
     ];
 

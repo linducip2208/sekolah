@@ -3,15 +3,18 @@
 namespace App\Models\Facilities;
 
 use App\Models\Scopes\SchoolScope;
+use App\Models\Traits\AuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BookIssue extends Model
 {
+    use AuditableModel;
+
     protected static function booted(): void
     {
-        static::addGlobalScope(new SchoolScope());
+        static::addGlobalScope(new SchoolScope);
         static::creating(function (self $model) {
             if (empty($model->school_id) && auth()->check()) {
                 $model->school_id = auth()->user()->school_id;
@@ -26,10 +29,10 @@ class BookIssue extends Model
     ];
 
     protected $casts = [
-        'issue_date'  => 'date',
-        'due_date'    => 'date',
+        'issue_date' => 'date',
+        'due_date' => 'date',
         'return_date' => 'date',
-        'fine_paid'   => 'boolean',
+        'fine_paid' => 'boolean',
         'fine_amount' => 'integer',
     ];
 

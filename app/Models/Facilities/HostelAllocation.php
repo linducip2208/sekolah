@@ -4,17 +4,20 @@ namespace App\Models\Facilities;
 
 use App\Models\Academic\Student;
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class HostelAllocation extends SchoolModel
 {
+    use AuditableModel;
+
     protected $fillable = [
         'school_id', 'student_id', 'hostel_room_id', 'from_date', 'to_date', 'is_active',
     ];
 
     protected $casts = [
         'from_date' => 'date',
-        'to_date'   => 'date',
+        'to_date' => 'date',
         'is_active' => 'boolean',
     ];
 

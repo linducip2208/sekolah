@@ -14,17 +14,27 @@ class NotificationDispatcher
 {
     public function dispatch(int $schoolId, array $userIds, string $type, string $title, string $body, array $data = []): array
     {
+        $userIds = User::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->whereIn('id', array_unique(array_map('intval', $userIds)))
+            ->pluck('id')
+            ->all();
+
+        if ($userIds === []) {
+            return ['push' => null, 'sms' => null, 'whatsapp' => null];
+        }
+
         $now = now();
         $rows = [];
         foreach ($userIds as $uid) {
             $rows[] = [
-                'school_id'  => $schoolId,
-                'user_id'    => $uid,
-                'type'       => $type,
-                'title'      => $title,
-                'body'       => $body,
-                'data'       => json_encode($data),
-                'is_read'    => false,
+                'school_id' => $schoolId,
+                'user_id' => $uid,
+                'type' => $type,
+                'title' => $title,
+                'body' => $body,
+                'data' => json_encode($data),
+                'is_read' => false,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
@@ -43,7 +53,9 @@ class NotificationDispatcher
                 ->pluck('token')
                 ->all();
             if (empty($tokens)) {
-                $tokens = User::whereIn('id', $userIds)
+                $tokens = User::withoutGlobalScopes()
+                    ->where('school_id', $schoolId)
+                    ->whereIn('id', $userIds)
                     ->whereNotNull('fcm_token')
                     ->pluck('fcm_token')
                     ->all();
@@ -53,7 +65,12 @@ class NotificationDispatcher
             }
         }
 
-        $phoneNumbers = User::whereIn('id', $userIds)->whereNotNull('phone')->pluck('phone')->all();
+        $phoneNumbers = User::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->whereIn('id', $userIds)
+            ->whereNotNull('phone')
+            ->pluck('phone')
+            ->all();
 
         $smsProvider = $this->getProvider($schoolId, 'sms');
         if ($smsProvider && $phoneNumbers) {
@@ -82,8 +99,8 @@ class NotificationDispatcher
     public function adapterFor(NotificationProvider $provider): NotificationAdapter
     {
         return match ($provider->api_format) {
-            'fcm_legacy'   => app(FcmLegacyAdapter::class),
-            default        => app(RestGenericAdapter::class),
+            'fcm_legacy' => app(FcmLegacyAdapter::class),
+            default => app(RestGenericAdapter::class),
         };
     }
 

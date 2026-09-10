@@ -3,10 +3,13 @@
 namespace App\Models\Facilities;
 
 use App\Models\SchoolModel;
+use App\Models\Traits\AuditableModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Hostel extends SchoolModel
 {
+    use AuditableModel;
+
     protected $fillable = [
         'school_id', 'name', 'type', 'warden_name', 'warden_phone',
         'warden_email', 'description', 'is_active',
