@@ -480,6 +480,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/classroom/assignments/submissions/{submission}/grade', [AssignmentController::class, 'grade'])->name('assignments.submissions.grade');
         Route::delete('/classroom/assignments/submissions/{submission}', [AssignmentController::class, 'destroySubmission'])->name('assignments.submissions.destroy');
 
+        // Canonical classroom-prefixed aliases kept for links from the classroom module.
+        Route::get('/classroom/assignments',                  [AssignmentController::class, 'index'])->name('classroom.assignments.index');
+        Route::get('/classroom/assignments/create',           [AssignmentController::class, 'create'])->name('classroom.assignments.create');
+        Route::post('/classroom/assignments',                 [AssignmentController::class, 'store'])->name('classroom.assignments.store');
+        Route::get('/classroom/assignments/{assignment}/edit',[AssignmentController::class, 'edit'])->name('classroom.assignments.edit');
+        Route::put('/classroom/assignments/{assignment}',     [AssignmentController::class, 'update'])->name('classroom.assignments.update');
+        Route::delete('/classroom/assignments/{assignment}',  [AssignmentController::class, 'destroy'])->name('classroom.assignments.destroy');
+        Route::get('/classroom/assignments/{assignment}/submissions', [AssignmentController::class, 'submissions'])->name('classroom.assignments.submissions');
+        Route::post('/classroom/assignments/submissions/{submission}/grade', [AssignmentController::class, 'grade'])->name('classroom.assignments.submissions.grade');
+        Route::delete('/classroom/assignments/submissions/{submission}', [AssignmentController::class, 'destroySubmission'])->name('classroom.assignments.submissions.destroy');
+
         Route::get('/canteen/categories',                [Phase9CrudController::class, 'canteenCategories'])->name('canteen.categories.index');
         Route::post('/canteen/categories',               [Phase9CrudController::class, 'storeCanteenCategory'])->name('canteen.categories.store');
         Route::delete('/canteen/categories/{category}',  [Phase9CrudController::class, 'deleteCanteenCategory'])->name('canteen.categories.destroy');

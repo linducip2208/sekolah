@@ -54,7 +54,7 @@
 @forelse($assessments as $a)<tr class="border-t border-rule">
 <td class="px-3 py-3 font-serif font-semibold">{{ $a->teacher?->name }}</td>
 <td class="px-3 py-3 text-xs">{{ $a->assessor?->name ?? '—' }}</td>
-<td class="px-3 py-3 text-xs">{{ match($a->type){'self'=>'Self','peer'=>'Peer','supervisor'=>'Kepsek',default:$a->type} }}</td>
+<td class="px-3 py-3 text-xs">{{ match($a->type){'self'=>'Self','peer'=>'Peer','supervisor'=>'Kepsek',default => $a->type} }}</td>
 <td class="px-3 py-3 font-mono text-xs">Smt {{ $a->semester }}</td>
 <td class="px-3 py-3 text-xs">{{ $a->assessment_date?->format('d M Y') }}</td>
 <td class="px-3 py-3 text-right font-mono font-bold">{{ $a->final_score ?? '—' }}</td>

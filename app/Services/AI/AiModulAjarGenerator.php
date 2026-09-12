@@ -134,6 +134,6 @@ PROMPT;
         }
         return AiModel::where('school_id', $schoolId)->where('is_active', true)
             ->whereHas('provider', fn ($q) => $q->where('is_active', true))
-            ->orderBy('priority')->firstOrFail();
+            ->orderBy('display_name')->orderBy('model_name')->firstOrFail();
     }
 }

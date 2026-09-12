@@ -37,7 +37,7 @@ class LessonPlanController extends Controller
             'teachers' => User::where('school_id', $schoolId)
                 ->whereHas('roles', fn ($q) => $q->where('name', 'teacher'))->get(['id', 'name']),
             'providers' => AiProvider::where('school_id', $schoolId)->where('is_active', true)->orderBy('priority')->orderBy('name')->get(),
-            'aiModels' => AiModel::where('school_id', $schoolId)->where('is_active', true)->with('provider')->orderBy('priority')->get(),
+            'aiModels' => AiModel::where('school_id', $schoolId)->where('is_active', true)->with('provider')->orderBy('display_name')->orderBy('model_name')->get(),
         ]);
     }
 

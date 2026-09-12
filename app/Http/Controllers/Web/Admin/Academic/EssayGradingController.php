@@ -76,7 +76,7 @@ class EssayGradingController extends Controller
         $aiModels = AiModel::where('school_id', $schoolId)
             ->where('is_active', true)
             ->with('provider')
-            ->orderBy('priority')
+            ->orderBy('display_name')->orderBy('model_name')
             ->get();
 
         return view('school-admin.academic.essay-grading.index', [

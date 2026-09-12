@@ -27,11 +27,11 @@
 
     <div class="grid">
         <div class="grid-item"><span class="label">Penilai</span><br><span class="value">{{ $assessment->assessor?->name ?? '—' }}</span></div>
-        <div class="grid-item"><span class="label">Tipe Penilaian</span><br><span class="value">{{ match($assessment->type){'self'=>'Self Assessment','peer'=>'Peer Review','supervisor'=>'Kepala Sekolah / Pengawas',default:$assessment->type} }}</span></div>
+        <div class="grid-item"><span class="label">Tipe Penilaian</span><br><span class="value">{{ match($assessment->type){'self'=>'Self Assessment','peer'=>'Peer Review','supervisor'=>'Kepala Sekolah / Pengawas',default => $assessment->type} }}</span></div>
         <div class="grid-item"><span class="label">Tahun Ajaran</span><br><span class="value">{{ $assessment->academicYear?->name ?? '—' }}</span></div>
         <div class="grid-item"><span class="label">Semester</span><br><span class="value">{{ $assessment->semester }}</span></div>
         <div class="grid-item"><span class="label">Tanggal Penilaian</span><br><span class="value">{{ $assessment->assessment_date?->format('d M Y') }}</span></div>
-        <div class="grid-item"><span class="label">Status</span><br><span class="value">{{ match($assessment->status){'draft'=>'Draft','submitted'=>'Terkirim','verified'=>'Terverifikasi',default:$assessment->status} }}</span></div>
+        <div class="grid-item"><span class="label">Status</span><br><span class="value">{{ match($assessment->status){'draft'=>'Draft','submitted'=>'Terkirim','verified'=>'Terverifikasi',default => $assessment->status} }}</span></div>
     </div>
 
     <div class="score-box">

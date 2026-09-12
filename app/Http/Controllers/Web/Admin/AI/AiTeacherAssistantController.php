@@ -42,7 +42,7 @@ class AiTeacherAssistantController extends Controller
             'subjects'  => Subject::where('school_id', $schoolId)->orderBy('name')->get(),
             'students'  => Student::where('school_id', $schoolId)->with('user:id,name')->orderBy('admission_no')->get(),
             'providers' => AiProvider::where('school_id', $schoolId)->where('is_active', true)->orderBy('priority')->get(),
-            'aiModels'  => AiModel::where('school_id', $schoolId)->where('is_active', true)->with('provider')->orderBy('priority')->get(),
+            'aiModels'  => AiModel::where('school_id', $schoolId)->where('is_active', true)->with('provider')->orderBy('display_name')->orderBy('model_name')->get(),
         ]);
     }
 

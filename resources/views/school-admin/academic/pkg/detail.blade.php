@@ -14,10 +14,10 @@
         <div class="grid grid-cols-2 gap-3 text-sm">
             <div><span class="elite-kicker text-[.55rem]">Guru Dinilai</span><br><span class="font-serif font-semibold">{{ $assessment->teacher?->name }}</span></div>
             <div><span class="elite-kicker text-[.55rem]">Penilai</span><br><span class="font-serif font-semibold">{{ $assessment->assessor?->name ?? '—' }}</span></div>
-            <div><span class="elite-kicker text-[.55rem]">Tipe</span><br>{{ match($assessment->type){'self'=>'Self Assessment','peer'=>'Peer Review','supervisor'=>'Kepala Sekolah/Pengawas',default:$assessment->type} }}</div>
+            <div><span class="elite-kicker text-[.55rem]">Tipe</span><br>{{ match($assessment->type){'self'=>'Self Assessment','peer'=>'Peer Review','supervisor'=>'Kepala Sekolah/Pengawas',default => $assessment->type} }}</div>
             <div><span class="elite-kicker text-[.55rem]">Semester</span><br>Smt {{ $assessment->semester }} · {{ $assessment->academicYear?->name }}</div>
             <div><span class="elite-kicker text-[.55rem]">Tanggal</span><br>{{ $assessment->assessment_date?->format('d M Y') }}</div>
-            <div><span class="elite-kicker text-[.55rem]">Status</span><br>{{ match($assessment->status){'draft'=>'Draft','submitted'=>'Terkirim','verified'=>'Terverifikasi',default:$assessment->status} }}</div>
+            <div><span class="elite-kicker text-[.55rem]">Status</span><br>{{ match($assessment->status){'draft'=>'Draft','submitted'=>'Terkirim','verified'=>'Terverifikasi',default => $assessment->status} }}</div>
         </div>
     </div>
 
