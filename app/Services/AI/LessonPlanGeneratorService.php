@@ -105,7 +105,7 @@ class LessonPlanGeneratorService
             'subject_id'           => $lessonPlanData['subject_id'] ?? null,
             'teacher_id'           => $lessonPlanData['teacher_id'] ?? null,
             'title'                => $lessonPlanData['title'] ?? "RPP {$topic}",
-            'lesson_date'          => $lessonPlanData['lesson_date'] ?? null,
+            'lesson_date'          => $lessonPlanData['lesson_date'] ?? today()->toDateString(),
             'duration_minutes'     => $lessonPlanData['duration_minutes'] ?? 90,
             'learning_objectives'  => $parsed['tujuan_pembelajaran'] ?? [],
             'material_summary'     => $parsed['materi'] ?? $parsed['kegiatan_pendahuluan'] ?? $result['raw_text'],

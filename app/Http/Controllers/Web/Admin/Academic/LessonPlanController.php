@@ -57,6 +57,15 @@ class LessonPlanController extends Controller
         ]);
         $this->validateSchoolReferences($schoolId, $data);
         $data['school_id'] = $schoolId;
+        // Kolom-kolom ini NOT NULL di database, sedangkan form manual boleh
+        // membiarkannya kosong.
+        $data['lesson_date'] = $data['lesson_date'] ?? today()->toDateString();
+        $data['duration_minutes'] = $data['duration_minutes'] ?? 90;
+        $data['learning_objectives'] = [];
+        $data['activities'] = [];
+        $data['assessment_methods'] = [];
+        $data['resources'] = [];
+        $data['material_summary'] = $data['material_summary'] ?? '';
         $data['status'] = 'draft';
         LessonPlan::create($data);
 
@@ -121,9 +130,9 @@ class LessonPlanController extends Controller
         $userId = auth()->id();
 
         $data = $request->validate([
-            'subject_id' => 'nullable|exists:subjects,id',
-            'class_section_id' => 'nullable|exists:class_sections,id',
-            'teacher_id' => 'nullable|exists:users,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'class_section_id' => 'required|exists:class_sections,id',
+            'teacher_id' => 'required|exists:users,id',
             'title' => 'required|string|max:255',
             'subject_name' => 'required|string|max:255',
             'class_level' => 'required|string|max:50',

@@ -102,6 +102,8 @@ class DropoutRiskController extends Controller
             'ai_model_id'    => 'nullable|exists:ai_models,id',
         ]);
 
+        Student::where('school_id', $schoolId)->findOrFail((int) $data['student_id']);
+
         try {
             $this->service->predictForStudent(
                 $schoolId,

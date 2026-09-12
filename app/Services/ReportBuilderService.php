@@ -66,9 +66,10 @@ class ReportBuilderService
             $groupField = $grouping['field'];
             $aggFunc = $grouping['aggregate'] ?? 'count';
             $aggTarget = $grouping['aggregate_target'] ?? '*';
+            $aggTarget = $aggTarget ?: '*';
 
             $query = $this->applyGroupedSelect($query, $columns, $dataSource, $groupField, $aggFunc, $aggTarget);
-            $results = $query->groupBy($groupField)->limit($limit)->get();
+            $results = $query->groupBy($this->fieldReference($groupField, $dataSource))->limit($limit)->get();
         } else {
             $results = $query->select($this->resolveSelects($columns, $dataSource))->limit($limit)->get();
         }
@@ -103,9 +104,10 @@ class ReportBuilderService
                 $groupField = $grouping['field'];
                 $aggFunc = $grouping['aggregate'] ?? 'count';
                 $aggTarget = $grouping['aggregate_target'] ?? '*';
+                $aggTarget = $aggTarget ?: '*';
 
                 $query = $this->applyGroupedSelect($query, $columns, $dataSource, $groupField, $aggFunc, $aggTarget);
-                $results = $query->groupBy($groupField)->cursor();
+                $results = $query->groupBy($this->fieldReference($groupField, $dataSource))->cursor();
             } else {
                 $results = $query->select($this->resolveSelects($columns, $dataSource))->cursor();
             }
@@ -172,6 +174,10 @@ class ReportBuilderService
 
         return match ($dataSource) {
             'students' => Student::with('user', 'classSection.classRoom', 'classSection.section')
+                ->leftJoin('users as u', 'students.user_id', '=', 'u.id')
+                ->leftJoin('class_sections as cs', 'students.class_section_id', '=', 'cs.id')
+                ->leftJoin('class_rooms as cr', 'cs.class_room_id', '=', 'cr.id')
+                ->leftJoin('sections as sec', 'cs.section_id', '=', 'sec.id')
                 ->where('students.school_id', $schoolId)
                 ->select('students.*'),
 
@@ -180,6 +186,9 @@ class ReportBuilderService
                 ->join('users as u', 's.user_id', '=', 'u.id')
                 ->join('subjects as sub', 'm.subject_id', '=', 'sub.id')
                 ->leftJoin('exams as e', 'm.exam_id', '=', 'e.id')
+                ->leftJoin('class_sections as cs', 's.class_section_id', '=', 'cs.id')
+                ->leftJoin('class_rooms as cr', 'cs.class_room_id', '=', 'cr.id')
+                ->leftJoin('sections as sec', 'cs.section_id', '=', 'sec.id')
                 ->where('m.school_id', $schoolId),
 
             'attendance' => DB::table('attendances as a')
@@ -193,15 +202,22 @@ class ReportBuilderService
             'invoices' => DB::table('fee_invoices as fi')
                 ->join('students as s', 'fi.student_id', '=', 's.id')
                 ->join('users as u', 's.user_id', '=', 'u.id')
+                ->leftJoin('fee_payments as fp', 'fp.fee_invoice_id', '=', 'fi.id')
+                ->leftJoin('class_sections as cs', 's.class_section_id', '=', 'cs.id')
+                ->leftJoin('class_rooms as cr', 'cs.class_room_id', '=', 'cr.id')
+                ->leftJoin('sections as sec', 'cs.section_id', '=', 'sec.id')
                 ->where('fi.school_id', $schoolId),
 
             'payments' => DB::table('fee_payments as fp')
                 ->join('fee_invoices as fi', 'fp.fee_invoice_id', '=', 'fi.id')
                 ->join('students as s', 'fi.student_id', '=', 's.id')
                 ->join('users as u', 's.user_id', '=', 'u.id')
+                ->leftJoin('class_sections as cs', 's.class_section_id', '=', 'cs.id')
+                ->leftJoin('class_rooms as cr', 'cs.class_room_id', '=', 'cr.id')
+                ->leftJoin('sections as sec', 'cs.section_id', '=', 'sec.id')
                 ->where('fi.school_id', $schoolId),
 
-            'staff' => DB::table('staff as st')
+            'staff' => DB::table('staffs as st')
                 ->leftJoin('users as u', 'st.user_id', '=', 'u.id')
                 ->where('st.school_id', $schoolId),
 
@@ -226,7 +242,7 @@ class ReportBuilderService
             if ($computed) {
                 $selects[] = DB::raw($this->resolveComputedExpression($field, $dataSource) . ' as ' . $field);
             } else {
-                $selects[] = $field;
+                $selects[] = DB::raw($this->fieldExpression($field, $dataSource));
             }
         }
 
@@ -236,7 +252,9 @@ class ReportBuilderService
     private function resolveComputedExpression(string $field, string $dataSource): string
     {
         return match ($field) {
-            'age'       => 'TIMESTAMPDIFF(YEAR, s.date_of_birth, CURDATE())',
+            'age'       => $dataSource === 'students'
+                ? 'TIMESTAMPDIFF(YEAR, students.date_of_birth, CURDATE())'
+                : 'TIMESTAMPDIFF(YEAR, s.date_of_birth, CURDATE())',
             'gpa'       => 'ROUND(AVG(m.obtained_marks / NULLIF(m.total_marks, 0) * 100), 2)',
             'attendance_pct' => 'ROUND(SUM(CASE WHEN a.status IN (\'present\',\'late\') THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 1)',
             'arrears'   => 'SUM(fi.amount - fi.paid_amount)',
@@ -356,27 +374,84 @@ class ReportBuilderService
 
     private function applyGroupedSelect(Builder|QueryBuilder $query, array $columns, string $dataSource, string $groupField, string $aggFunc, string $aggTarget): Builder|QueryBuilder
     {
-        $selects = [$groupField];
+        $selects = [DB::raw($this->fieldExpression($groupField, $dataSource))];
         $aggLabel = "{$aggFunc}_{$aggTarget}";
+
+        if (! in_array(strtolower($aggFunc), ['count', 'sum', 'avg', 'max', 'min'], true)) {
+            throw new \InvalidArgumentException('Fungsi agregasi tidak valid.');
+        }
 
         if ($aggFunc === 'count' && $aggTarget === '*') {
             $selects[] = DB::raw('COUNT(*) as total_count');
         } else {
-            $selects[] = DB::raw(strtoupper($aggFunc) . "({$aggTarget}) as {$aggLabel}");
+            $aggregateTarget = $aggTarget === '*' ? '*' : $this->fieldReference($aggTarget, $dataSource);
+            $selects[] = DB::raw(strtoupper($aggFunc) . "({$aggregateTarget}) as {$aggLabel}");
         }
 
-        foreach ($columns as $col) {
-            $field = is_string($col) ? $col : ($col['field'] ?? '');
-            $computed = is_string($col) ? false : ($col['computed'] ?? false);
-
-            if ($computed) {
-                $selects[] = DB::raw($this->resolveComputedExpression($field, $dataSource) . ' as ' . $field);
-            } elseif ($field !== $groupField && $field !== $aggLabel) {
-                $selects[] = $field;
-            }
-        }
-
+        // Saat memakai GROUP BY, kolom detail lain tidak boleh ikut SELECT:
+        // MySQL dengan ONLY_FULL_GROUP_BY akan menolaknya. Hasil grup hanya
+        // memuat field grup dan nilai agregat.
         return $query->select($selects);
+    }
+
+    private function fieldExpression(string $field, string $dataSource): string
+    {
+        return $this->fieldReference($field, $dataSource) . ' as ' . $field;
+    }
+
+    private function fieldReference(string $field, string $dataSource): string
+    {
+        $fields = [
+            'students' => [
+                'name' => 'u.name', 'student_name' => 'u.name',
+                'admission_no' => 'students.admission_no', 'gender' => 'students.gender',
+                'date_of_birth' => 'students.date_of_birth', 'guardian_name' => 'students.guardian_name',
+                'guardian_phone' => 'students.guardian_phone', 'class_name' => 'cr.name',
+                'section_name' => 'sec.name', 'month' => "DATE_FORMAT(students.created_at, '%Y-%m')",
+            ],
+            'marks' => [
+                'name' => 'u.name', 'student_name' => 'u.name', 'admission_no' => 's.admission_no',
+                'gender' => 's.gender', 'date_of_birth' => 's.date_of_birth', 'guardian_name' => 's.guardian_name',
+                'guardian_phone' => 's.guardian_phone', 'obtained_marks' => 'm.obtained_marks',
+                'total_marks' => 'm.total_marks', 'grade' => 'm.grade',
+                'subject_name' => 'sub.name', 'exam_name' => 'e.title', 'date' => 'm.created_at',
+                'class_name' => 'cr.name', 'section_name' => 'sec.name',
+                'month' => "DATE_FORMAT(m.created_at, '%Y-%m')",
+            ],
+            'attendance' => [
+                'name' => 'u.name', 'student_name' => 'u.name', 'admission_no' => 's.admission_no',
+                'gender' => 's.gender', 'date_of_birth' => 's.date_of_birth', 'guardian_name' => 's.guardian_name',
+                'guardian_phone' => 's.guardian_phone', 'date' => 'a.date', 'status' => 'a.status',
+                'class_name' => 'cr.name', 'section_name' => 'sec.name',
+                'month' => "DATE_FORMAT(a.date, '%Y-%m')",
+            ],
+            'invoices' => [
+                'name' => 'u.name', 'student_name' => 'u.name', 'admission_no' => 's.admission_no',
+                'gender' => 's.gender', 'date_of_birth' => 's.date_of_birth', 'guardian_name' => 's.guardian_name',
+                'guardian_phone' => 's.guardian_phone', 'invoice_no' => 'fi.invoice_no', 'amount' => 'fi.amount',
+                'paid_amount' => 'fi.paid_amount', 'status' => 'fi.status', 'date' => 'fi.due_date',
+                'month' => "DATE_FORMAT(fi.due_date, '%Y-%m')",
+            ],
+            'payments' => [
+                'name' => 'u.name', 'student_name' => 'u.name', 'admission_no' => 's.admission_no',
+                'gender' => 's.gender', 'date_of_birth' => 's.date_of_birth', 'guardian_name' => 's.guardian_name',
+                'guardian_phone' => 's.guardian_phone', 'invoice_no' => 'fi.invoice_no', 'amount' => 'fp.amount',
+                'paid_amount' => 'fp.amount', 'date' => 'fp.payment_date',
+                'month' => "DATE_FORMAT(fp.payment_date, '%Y-%m')",
+            ],
+            'staff' => [
+                'name' => 'u.name', 'phone' => 'u.phone', 'gender' => 'u.gender',
+                'subject_name' => 'st.designation', 'class_name' => 'st.department',
+                'section_name' => 'st.designation', 'month' => "DATE_FORMAT(st.created_at, '%Y-%m')",
+            ],
+        ];
+
+        $reference = $fields[$dataSource][$field] ?? null;
+        if (! $reference) {
+            throw new \InvalidArgumentException("Kolom laporan tidak valid: {$field}");
+        }
+
+        return $reference;
     }
 
     private function buildChartData(Builder|QueryBuilder $query, array $chartConfig, ?array $grouping): array

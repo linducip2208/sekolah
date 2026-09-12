@@ -40,24 +40,31 @@ class EssayGradingController extends Controller
         $gradings = collect();
 
         if ($selectedExamId) {
-            $questions = ExamQuestion::where('exam_id', $selectedExamId)
-                ->orderBy('order')->get();
+            $selectedExam = Exam::where('school_id', $schoolId)->find($selectedExamId);
 
-            if ($selectedQuestionId) {
-                $selectedExam = Exam::with('classSection')->find($selectedExamId);
+            if ($selectedExam) {
+                $questions = ExamQuestion::where('school_id', $schoolId)
+                    ->where('exam_id', $selectedExam->id)
+                    ->orderBy('order')->get();
+                $selectedQuestion = $selectedQuestionId
+                    ? $questions->firstWhere('id', (int) $selectedQuestionId)
+                    : null;
+
+                if ($selectedQuestion) {
                 $students = Student::where('school_id', $schoolId)
-                    ->where('class_section_id', $selectedExam?->class_section_id)
+                    ->where('class_section_id', $selectedExam->class_section_id)
                     ->with('user:id,name')
                     ->orderBy('admission_no')
                     ->get();
 
                 $gradings = AiEssayGrading::where('school_id', $schoolId)
                     ->where('exam_id', $selectedExamId)
-                    ->when($selectedQuestionId, fn ($q) => $q->where('question_text', 'like', '%' . ($questions->find($selectedQuestionId)?->question ?? '') . '%'))
+                    ->where('question_text', $selectedQuestion->question)
                     ->with(['student.user:id,name', 'aiModel', 'grader:id,name'])
                     ->orderByDesc('graded_at')
                     ->get()
                     ->keyBy('student_id');
+                }
             }
         }
 
@@ -100,6 +107,8 @@ class EssayGradingController extends Controller
             'rubric'           => 'nullable|string',
         ]);
 
+        $this->assertExamStudent($schoolId, (int) $data['exam_id'], (int) $data['student_id']);
+
         try {
             $this->service->grade(
                 $schoolId, $userId,
@@ -132,6 +141,11 @@ class EssayGradingController extends Controller
             'submissions.*.answer'          => 'nullable|string',
             'submissions.*.reference_answer'=> 'nullable|string',
         ]);
+
+        $exam = Exam::where('school_id', $schoolId)->findOrFail((int) $data['exam_id']);
+        foreach ($data['submissions'] as $submission) {
+            $this->assertExamStudent($schoolId, (int) $exam->id, (int) $submission['student_id']);
+        }
 
         $submissions = [];
         foreach ($data['submissions'] as $sub) {
@@ -172,6 +186,8 @@ class EssayGradingController extends Controller
             return back()->withErrors('Pilih ujian terlebih dahulu.');
         }
 
+        Exam::where('school_id', $schoolId)->findOrFail((int) $examId);
+
         $gradings = AiEssayGrading::where('school_id', $schoolId)
             ->where('exam_id', $examId)
             ->with(['student.user:id,name'])
@@ -206,5 +222,15 @@ class EssayGradingController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    private function assertExamStudent(int $schoolId, int $examId, int $studentId): void
+    {
+        $exam = Exam::where('school_id', $schoolId)->findOrFail($examId);
+        $student = Student::where('school_id', $schoolId)->findOrFail($studentId);
+
+        if ($exam->class_section_id && $exam->class_section_id !== $student->class_section_id) {
+            abort(422, 'Siswa tidak berasal dari rombel ujian tersebut.');
+        }
     }
 }

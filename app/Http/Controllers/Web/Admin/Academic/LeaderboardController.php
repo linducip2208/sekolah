@@ -26,8 +26,21 @@ class LeaderboardController extends Controller
 
         $config = $service->getConfig($schoolId, $configType);
         $rankings = $service->calculateRankings($schoolId, $configType, $classSectionId ? (int) $classSectionId : null);
-        $classSections = ClassSection::where('school_id', $schoolId)->orderBy('name')->get();
-        $students = Student::where('school_id', $schoolId)->with('user:id,name')->orderBy('id')->get();
+        // ClassSection tidak memiliki kolom `name`; label rombel dibentuk dari
+        // relasi class room + section.
+        $classSections = ClassSection::where('school_id', $schoolId)
+            ->with(['classRoom:id,name', 'section:id,name'])
+            ->get()
+            ->sortBy(fn (ClassSection $classSection) => trim(sprintf(
+                '%s %s',
+                $classSection->classRoom?->name ?? '',
+                $classSection->section?->name ?? '',
+            )))
+            ->values();
+        $students = Student::where('school_id', $schoolId)
+            ->with('user:id,name')
+            ->orderBy('id')
+            ->get();
 
         $periods = [
             'weekly'   => 'Mingguan',

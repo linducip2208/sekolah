@@ -21,6 +21,7 @@ class LessonPlan extends SchoolModel
         'activities','assessment_methods','resources','curriculum_type',
         'status','reviewer_id','reviewed_at','reviewer_feedback',
         'actually_executed','execution_note',
+        'ai_provider_id','ai_model_id','ai_generated','ai_prompt_used','ai_tokens_used',
     ];
 
     protected $casts = [

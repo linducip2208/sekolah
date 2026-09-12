@@ -40,7 +40,7 @@
         <select name="class_section_id" onchange="this.form.submit()" class="border-2 border-rule px-3 py-2 text-sm font-serif">
             <option value="">— Semua Kelas —</option>
             @foreach($classSections as $cs)
-            <option value="{{ $cs->id }}" {{ (string)$classSectionId === (string)$cs->id ? 'selected' : '' }}>{{ $cs->name }}</option>
+            <option value="{{ $cs->id }}" {{ (string)$classSectionId === (string)$cs->id ? 'selected' : '' }}>{{ $cs->classRoom?->name }} {{ $cs->section?->name }}</option>
             @endforeach
         </select>
     </form>

@@ -26,15 +26,21 @@ class OsisController extends Controller
 
     public function index(): View
     {
-        $elections = OsisElection::with(['candidates.student.user'])
+        $schoolId = $this->schoolId();
+        $elections = OsisElection::where('school_id', $schoolId)
+            ->with(['academicYear', 'candidates.student.user'])
             ->orderByDesc('created_at')
             ->get();
 
-        $activeElection = OsisElection::where('status', '!=', 'completed')
+        $activeElection = OsisElection::where('school_id', $schoolId)
+            ->where('status', '!=', 'completed')
             ->latest()
             ->first();
+        $academicYears = AcademicYear::where('school_id', $schoolId)
+            ->orderByDesc('start_date')
+            ->get();
 
-        return view('school-admin.osis.index', compact('elections', 'activeElection'));
+        return view('school-admin.osis.index', compact('elections', 'activeElection', 'academicYears'));
     }
 
     public function storeElection(Request $request): \Illuminate\Http\RedirectResponse
@@ -53,6 +59,7 @@ class OsisController extends Controller
 
         $data['school_id'] = $this->schoolId();
         $data['status'] = 'setup';
+        $data['positions'] = $this->normalizePositions($data['positions']);
 
         OsisElection::create($data);
 
@@ -61,6 +68,7 @@ class OsisController extends Controller
 
     public function updateElection(Request $request, OsisElection $election): \Illuminate\Http\RedirectResponse
     {
+        $this->authorizeOwn($election);
         $data = $request->validate([
             'title'            => 'required|string|max:255',
             'nomination_start' => 'nullable|date',
@@ -71,6 +79,7 @@ class OsisController extends Controller
             'positions'        => 'required|array|min:1',
             'positions.*'      => 'string|max:100',
         ]);
+        $data['positions'] = $this->normalizePositions($data['positions']);
 
         $election->update($data);
 
@@ -79,6 +88,7 @@ class OsisController extends Controller
 
     public function deleteElection(OsisElection $election): \Illuminate\Http\RedirectResponse
     {
+        $this->authorizeOwn($election);
         $election->delete();
 
         return back()->with('success', 'Pemilihan OSIS dihapus.');
@@ -88,14 +98,16 @@ class OsisController extends Controller
 
     public function candidates(OsisElection $election): View
     {
+        $this->authorizeOwn($election);
         $election->load('candidates.student.user');
-        $students = Student::with('user')->get();
+        $students = Student::where('school_id', $this->schoolId())->with('user')->get();
 
         return view('school-admin.osis.candidates', compact('election', 'students'));
     }
 
     public function storeCandidate(Request $request, OsisElection $election): \Illuminate\Http\RedirectResponse
     {
+        $this->authorizeOwn($election);
         $data = $request->validate([
             'student_id' => 'required|integer|exists:students,id',
             'position'   => 'required|string|max:100',
@@ -105,6 +117,7 @@ class OsisController extends Controller
 
         $data['osis_election_id'] = $election->id;
         $data['status'] = 'registered';
+        abort_unless(Student::where('school_id', $this->schoolId())->whereKey($data['student_id'])->exists(), 422, 'Siswa bukan bagian dari sekolah ini.');
 
         if ($request->hasFile('photo')) {
             $data['photo_path'] = $request->file('photo')->store('osis-photos', 'public');
@@ -117,6 +130,7 @@ class OsisController extends Controller
 
     public function approveCandidate(OsisCandidate $candidate): \Illuminate\Http\RedirectResponse
     {
+        $this->authorizeCandidate($candidate);
         $candidate->update(['status' => 'approved']);
 
         return back()->with('success', 'Kandidat disetujui.');
@@ -124,6 +138,7 @@ class OsisController extends Controller
 
     public function disqualifyCandidate(Request $request, OsisCandidate $candidate): \Illuminate\Http\RedirectResponse
     {
+        $this->authorizeCandidate($candidate);
         $candidate->update(['status' => 'disqualified']);
 
         return back()->with('success', 'Kandidat didiskualifikasi.');
@@ -131,6 +146,7 @@ class OsisController extends Controller
 
     public function deleteCandidate(OsisCandidate $candidate): \Illuminate\Http\RedirectResponse
     {
+        $this->authorizeCandidate($candidate);
         $candidate->delete();
 
         return back()->with('success', 'Kandidat dihapus.');
@@ -140,6 +156,7 @@ class OsisController extends Controller
 
     public function results(OsisElection $election): View
     {
+        $this->authorizeOwn($election);
         $election->load(['candidates.student.user', 'candidates' => function ($q) {
             $q->orderByDesc('vote_count');
         }]);
@@ -152,6 +169,7 @@ class OsisController extends Controller
 
     public function liveVotes(OsisElection $election): \Illuminate\Http\JsonResponse
     {
+        $this->authorizeOwn($election);
         $candidates = OsisCandidate::where('osis_election_id', $election->id)
             ->with('student.user')
             ->orderByDesc('vote_count')
@@ -174,6 +192,7 @@ class OsisController extends Controller
 
     public function finalizeResults(OsisElection $election): \Illuminate\Http\RedirectResponse
     {
+        $this->authorizeOwn($election);
         $election->update(['status' => 'completed']);
 
         return back()->with('success', 'Hasil pemilihan sudah difinalisasi.');
@@ -183,11 +202,12 @@ class OsisController extends Controller
 
     public function programs(): View
     {
-        $programs = OsisProgram::with('election')
+        $schoolId = $this->schoolId();
+        $programs = OsisProgram::where('school_id', $schoolId)->with('election')
             ->orderByDesc('created_at')
             ->get();
 
-        $elections = OsisElection::where('status', 'completed')
+        $elections = OsisElection::where('school_id', $schoolId)->where('status', 'completed')
             ->orderByDesc('created_at')
             ->get();
 
@@ -208,6 +228,9 @@ class OsisController extends Controller
 
         $data['school_id'] = $this->schoolId();
         $data['status'] = 'planned';
+        if (! empty($data['osis_election_id'])) {
+            OsisElection::where('school_id', $this->schoolId())->findOrFail($data['osis_election_id']);
+        }
 
         OsisProgram::create($data);
 
@@ -216,6 +239,7 @@ class OsisController extends Controller
 
     public function updateProgram(Request $request, OsisProgram $program): \Illuminate\Http\RedirectResponse
     {
+        abort_unless($program->school_id === $this->schoolId(), 403);
         $data = $request->validate([
             'title'          => 'required|string|max:255',
             'description'    => 'nullable|string',
@@ -233,8 +257,29 @@ class OsisController extends Controller
 
     public function deleteProgram(OsisProgram $program): \Illuminate\Http\RedirectResponse
     {
+        abort_unless($program->school_id === $this->schoolId(), 403);
         $program->delete();
 
         return back()->with('success', 'Program OSIS dihapus.');
+    }
+
+    private function authorizeOwn(OsisElection $election): void
+    {
+        abort_unless($election->school_id === $this->schoolId(), 403);
+    }
+
+    private function authorizeCandidate(OsisCandidate $candidate): void
+    {
+        abort_unless($candidate->election?->school_id === $this->schoolId(), 403);
+    }
+
+    private function normalizePositions(array $positions): array
+    {
+        return collect($positions)
+            ->flatMap(fn ($position) => preg_split('/[,\r\n]+/', (string) $position))
+            ->map(fn ($position) => trim($position))
+            ->filter()
+            ->values()
+            ->all();
     }
 }

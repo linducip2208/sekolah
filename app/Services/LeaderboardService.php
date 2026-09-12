@@ -63,7 +63,11 @@ class LeaderboardService
             [$periodStart, $periodEnd] = $this->getPeriodRange($configType);
 
             $studentsQuery = Student::where('school_id', $schoolId)
-                ->with('user:id,name,email');
+                ->with([
+                    'user:id,name,email',
+                    'classSection.classRoom:id,name',
+                    'classSection.section:id,name',
+                ]);
 
             if ($classSectionId) {
                 $studentsQuery->where('class_section_id', $classSectionId);
@@ -123,7 +127,11 @@ class LeaderboardService
                     $rankings[] = [
                         'student_id'          => $student->id,
                         'student_name'        => $student->user?->name ?? 'Tanpa Nama',
-                        'class_section'       => $student->classSection?->name ?? '—',
+                        'class_section'       => trim(sprintf(
+                            '%s %s',
+                            $student->classSection?->classRoom?->name ?? '',
+                            $student->classSection?->section?->name ?? '',
+                        )) ?: '—',
                         'raw_points'          => $totalRawScore,
                         'weighted_score'      => round($weightedScore, 2),
                         'academic_points'     => $academicScore,

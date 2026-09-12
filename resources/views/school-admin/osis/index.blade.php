@@ -14,7 +14,9 @@
         <h1 class="elite-h1 text-3xl ink-primary mb-2">Pemilihan OSIS</h1>
         <div class="elite-rule"></div>
     </div>
-    <a href="{{ route('admin.osis.candidates', $activeElection) }}" class="btn-elite">Kelola Kandidat</a>
+    @if($activeElection)
+        <a href="{{ route('admin.osis.candidates', $activeElection) }}" class="btn-elite">Kelola Kandidat</a>
+    @endif
 </div>
 
 {{-- Active election tracking --}}
@@ -65,7 +67,7 @@
                 <label class="elite-kicker block mb-1">Tahun Ajaran</label>
                 <select name="academic_year_id" class="w-full border border-rule p-2.5">
                     <option value="">— Pilih —</option>
-                    @foreach(\App\Models\Academic\AcademicYear::orderByDesc('name')->get() as $ay)
+                    @foreach($academicYears as $ay)
                     <option value="{{ $ay->id }}">{{ $ay->name }}</option>
                     @endforeach
                 </select>

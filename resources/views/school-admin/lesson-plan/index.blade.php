@@ -133,6 +133,13 @@
                     @foreach($classSections as $cs)<option value="{{ $cs->id }}">{{ $cs->classRoom?->name }} {{ $cs->section?->name }}</option>@endforeach
                 </select>
             </div>
+            <div>
+                <label class="elite-kicker text-[.6rem] block mb-1">Guru (untuk simpan)</label>
+                <select id="aiTeacherId" class="w-full border-2 border-rule px-3 py-2 font-serif text-sm">
+                    <option value="">Pilih guru</option>
+                    @foreach($teachers as $teacher)<option value="{{ $teacher->id }}">{{ $teacher->name }}</option>@endforeach
+                </select>
+            </div>
             @if($aiModels->isNotEmpty())
             <div>
                 <label class="elite-kicker text-[.6rem] block mb-1">AI Model</label>
@@ -232,6 +239,7 @@
                     <input type="hidden" name="meeting_number" id="saveMeetingNumber">
                     <input type="hidden" name="subject_id" id="saveSubjectId">
                     <input type="hidden" name="class_section_id" id="saveClassSectionId">
+                    <input type="hidden" name="teacher_id" id="saveTeacherId">
                     <input type="hidden" name="ai_provider_id" id="saveProviderId">
                     <input type="hidden" name="ai_model_id" id="saveModelId">
                     <button type="submit" class="btn-elite bg-green-700 border-green-700 text-white">
@@ -283,6 +291,7 @@ function generateRpp() {
     document.getElementById('saveMeetingNumber').value = meetingNumber;
     document.getElementById('saveSubjectId').value = document.getElementById('aiSubjectId').value;
     document.getElementById('saveClassSectionId').value = document.getElementById('aiClassSectionId').value;
+    document.getElementById('saveTeacherId').value = document.getElementById('aiTeacherId').value;
     document.getElementById('saveProviderId').value = providerId || '';
     document.getElementById('saveModelId').value = modelId || '';
 
