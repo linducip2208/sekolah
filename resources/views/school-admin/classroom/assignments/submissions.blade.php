@@ -2,7 +2,7 @@
 @section('title', 'Hasil Tugas: ' . $assignment->title)
 @section('sidebar')@include('school-admin.partials.sidebar')@endsection
 @section('content')
-<a href="{{ route('admin.assignments.index') }}" class="elite-kicker text-xs ink-secondary hover:ink-accent mb-4 inline-block">← Kembali</a>
+<a href="{{ route('admin.classroom.assignments.index') }}" class="elite-kicker text-xs ink-secondary hover:ink-accent mb-4 inline-block">← Kembali</a>
 <div class="mb-7"><div class="elite-kicker mb-2">Operationes</div>
 <h1 class="elite-h1 text-3xl ink-primary mb-2">{{ $assignment->title }}</h1><div class="elite-rule"></div></div>
 
@@ -48,7 +48,7 @@
 <td class="px-3 py-3 text-xs text-gray-600 max-w-xs truncate">{{ $s->feedback ?? '—' }}</td>
 <td class="px-3 py-3 text-right space-x-1">
     <button onclick="openGrade({{ $s->id }}, {{ $s->marks ?? 'null' }}, '{{ addslashes($s->feedback ?? '') }}', {{ $assignment->total_marks }})" class="text-xs underline ink-accent hover:ink-primary">Nilai</button>
-    <form method="POST" action="{{ route('admin.assignments.submissions.destroy', $s) }}" class="inline" onsubmit="return confirm('Hapus pengumpulan?')">@csrf @method('DELETE')<button class="text-xs text-red-700 hover:underline">Hapus</button></form>
+    <form method="POST" action="{{ route('admin.classroom.assignments.submissions.destroy', $s) }}" class="inline" onsubmit="return confirm('Hapus pengumpulan?')">@csrf @method('DELETE')<button class="text-xs text-red-700 hover:underline">Hapus</button></form>
 </td>
 </tr>@empty<tr><td colspan="6" class="p-10 text-center text-gray-500 italic font-serif">Belum ada yang mengumpulkan.</td></tr>@endforelse
 </tbody></table></div>

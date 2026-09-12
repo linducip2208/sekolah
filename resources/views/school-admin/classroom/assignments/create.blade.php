@@ -5,7 +5,7 @@
 <div class="mb-7"><div class="elite-kicker mb-2">Operationes</div>
 <h1 class="elite-h1 text-3xl ink-primary mb-2">{{ isset($assignment) ? 'Edit Tugas' : 'Buat Tugas Baru' }}</h1><div class="elite-rule"></div></div>
 
-<form method="POST" action="{{ isset($assignment) ? route('admin.assignments.update', $assignment) : route('admin.assignments.store') }}" x-data="questionBuilder({{ isset($assignment) ? json_encode($assignment->questions) : '[]' }})" class="max-w-5xl">@csrf
+<form method="POST" action="{{ isset($assignment) ? route('admin.classroom.assignments.update', $assignment) : route('admin.classroom.assignments.store') }}" x-data="questionBuilder({{ isset($assignment) ? json_encode($assignment->questions) : '[]' }})" class="max-w-5xl">@csrf
     @if(isset($assignment)) @method('PUT') @endif
 
     <div class="elite-card p-6 mb-6 grid md:grid-cols-2 gap-4">
@@ -89,7 +89,7 @@
 
     <div class="flex gap-3 mb-10">
         <button class="btn-elite">{{ isset($assignment) ? 'Update Tugas' : 'Simpan Tugas' }}</button>
-        <a href="{{ route('admin.assignments.index') }}" class="btn-elite-ghost">Batal</a>
+        <a href="{{ route('admin.classroom.assignments.index') }}" class="btn-elite-ghost">Batal</a>
     </div>
 </form>
 @endsection

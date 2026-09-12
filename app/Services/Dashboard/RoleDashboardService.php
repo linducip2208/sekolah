@@ -108,7 +108,7 @@ class RoleDashboardService
 
         return [
             ['label' => 'Kelas Hari Ini', 'value' => $safe(fn () => TimetableSlot::where('school_id', $schoolId)->where('teacher_id', $userId)->where('day_of_week', $today)->count(), 0), 'tone' => 'primary', 'href' => route('admin.timetable.index')],
-            ['label' => 'Tugas', 'value' => $safe(fn () => Assignment::where('school_id', $schoolId)->count(), 0), 'tone' => 'info', 'href' => route('admin.assignments.index')],
+            ['label' => 'Tugas', 'value' => $safe(fn () => Assignment::where('school_id', $schoolId)->count(), 0), 'tone' => 'info', 'href' => route('admin.classroom.assignments.index')],
             ['label' => 'Ujian', 'value' => $safe(fn () => Exam::where('school_id', $schoolId)->count(), 0), 'tone' => 'info', 'href' => route('admin.exams.index')],
             ['label' => 'Jurnal Mengajar', 'value' => $safe(fn () => TeachingJournal::where('school_id', $schoolId)->where('teacher_id', $userId)->count(), 0), 'tone' => 'success', 'href' => route('admin.teaching-journal.index')],
             ['label' => 'Siswa At-Risk', 'value' => $safe(fn () => $this->atRiskCount($schoolId), 0), 'tone' => 'danger', 'href' => route('admin.analytics.dashboard')],

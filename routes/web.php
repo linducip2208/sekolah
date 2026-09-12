@@ -469,17 +469,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/ptm-schedules/{ptmSchedule}',          [PtmScheduleController::class, 'destroy'])->name('ptm-schedules.destroy');
         Route::post('/ptm-schedules/send-reminders',           [PtmScheduleController::class, 'sendReminders'])->name('ptm-schedules.send-reminders');
 
-        // Enhanced Assignments (Online Classroom)
-        Route::get('/classroom/assignments',                  [AssignmentController::class, 'index'])->name('assignments.index');
-        Route::get('/classroom/assignments/create',           [AssignmentController::class, 'create'])->name('assignments.create');
-        Route::post('/classroom/assignments',                 [AssignmentController::class, 'store'])->name('assignments.store');
-        Route::get('/classroom/assignments/{assignment}/edit',[AssignmentController::class, 'edit'])->name('assignments.edit');
-        Route::put('/classroom/assignments/{assignment}',     [AssignmentController::class, 'update'])->name('assignments.update');
-        Route::delete('/classroom/assignments/{assignment}',  [AssignmentController::class, 'destroy'])->name('assignments.destroy');
-        Route::get('/classroom/assignments/{assignment}/submissions', [AssignmentController::class, 'submissions'])->name('assignments.submissions');
-        Route::post('/classroom/assignments/submissions/{submission}/grade', [AssignmentController::class, 'grade'])->name('assignments.submissions.grade');
-        Route::delete('/classroom/assignments/submissions/{submission}', [AssignmentController::class, 'destroySubmission'])->name('assignments.submissions.destroy');
-
         // Canonical classroom-prefixed aliases kept for links from the classroom module.
         Route::get('/classroom/assignments',                  [AssignmentController::class, 'index'])->name('classroom.assignments.index');
         Route::get('/classroom/assignments/create',           [AssignmentController::class, 'create'])->name('classroom.assignments.create');

@@ -105,7 +105,7 @@ class AssignmentController extends Controller
             $assignment->update(['answer_key' => $answerKey]);
         }
 
-        return redirect()->route('admin.assignments.index')->with('success', 'Tugas berhasil dibuat.');
+        return redirect()->route('admin.classroom.assignments.index')->with('success', 'Tugas berhasil dibuat.');
     }
 
     public function edit(Assignment $assignment): View
@@ -144,7 +144,7 @@ class AssignmentController extends Controller
             'max_file_size_mb'      => $data['max_file_size_mb'] ?? 10,
         ]);
 
-        return redirect()->route('admin.assignments.index')->with('success', 'Tugas diperbarui.');
+        return redirect()->route('admin.classroom.assignments.index')->with('success', 'Tugas diperbarui.');
     }
 
     public function destroy(Assignment $assignment): RedirectResponse
