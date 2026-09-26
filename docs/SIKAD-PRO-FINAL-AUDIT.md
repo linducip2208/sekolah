@@ -14,7 +14,7 @@ Status penting yang terverifikasi:
 - ✅ Build frontend berhasil dengan `npm.cmd run build`.
 - ✅ Pint dan PHP syntax check berhasil pada file yang diubah.
 - ✅ Flow Visitor, immutable Wallet Ledger, idempotency, cross-school rejection, dan Dapodik fake sync diuji.
-- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 293 tests / 1.562 assertions.
+- ✅ Full test suite lulus setelah migration repository test database diinisialisasi: 304 tests / 1.590 assertions.
 - ⚠️ Dapodik live integration memerlukan endpoint dan credential sekolah; adapter tidak mengarang endpoint vendor.
 - ✅ Playwright desktop capture 26/26 halaman dan mobile capture 5/5 halaman berhasil pada server lokal port 8765.
 - ✅ Portal capture 4/4 (student dan parent, desktop/mobile) serta dark-mode capture 5/5 berhasil.
@@ -61,6 +61,7 @@ Temuan yang diperbaiki:
 - kartu ID, emergency recipient, marks listing, dan batch report-card PDF menambahkan boundary checks untuk referensi sekolah dan data penerima.
 - ekstrakurikuler kini memvalidasi coach/siswa satu sekolah, mengunci kapasitas saat enrolment, membuat enrolment idempotent, dan hanya menerima absensi anggota aktif dalam transaksi.
 - daily report parent kini memverifikasi parent-child ownership atau akses staff sebelum mengembalikan data.
+- admin student flow kini memvalidasi class section lintas sekolah dan mencegah duplikasi nomor induk pada level sekolah saat create/update.
 
 ## 3. Feature matrix aktual
 
@@ -204,7 +205,7 @@ Passed:
 - Laravel Pint on changed implementation files;
 - `npm.cmd run build`;
 - enterprise test suite after test DB bootstrap: 5 tests / 13 assertions passed before assertion correction, then corrected wallet test passed independently (1 test / 4 assertions);
-- full PHPUnit/Pest suite: 293 tests / 1.562 assertions passed;
+- full PHPUnit/Pest suite: 304 tests / 1.590 assertions passed;
 - post-baseline focused regression: CourseService 9 tests, Exam 7 tests, RoomBooking 3 tests, BankReconciliation 5 tests passed;
 - focused master-data regression: AcademicYearService 2 tests / 3 assertions passed; full suite re-run is required after this checkpoint;
 - focused academic tenant-boundary regressions are included in the full suite: Classroom 9 tests / 15 assertions, Timetable 8 tests / 16 assertions, Religious 2 tests / 2 assertions;
@@ -255,6 +256,8 @@ Implemented/hardened:
 - AI provider/model/feature assignment writes validate same-school references; AI parent report validates the requesting user and parent-child ownership.
 - KPI scores validate criteria against the appraisal template and school, clamp scores to safe bounds, and protect appraisal/goal references by school.
 - ID gate card issuance deactivates only cards belonging to the active school and validates the student before issuing a new card.
+- Achievement records validate student/category/verifier ownership; student achievement and badge reads enforce parent/student visibility.
+- Event RSVP capacity is recalculated under an event row lock, RSVP users are school-bound, and QR check-in is school-scoped, idempotent, and limited to `going` RSVPs.
 
 Remaining security work: complete IDOR/policy sweep over every legacy API/controller, verify upload MIME/path restrictions across all modules, and add automated webhook replay/signature coverage to the full suite.
 

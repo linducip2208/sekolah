@@ -19,7 +19,10 @@ class DailyReportController extends Controller
         $user = $request->user();
         $isParentOfStudent = $user->parentStudents()->whereKey($student->id)->exists();
         $isStudent = (int) $student->user_id === (int) $user->id;
-        $isStaff = $user->hasRole('super_admin') || $user->can('daily_reports.view');
+        // Parents may have daily_report.view for their own child portal, but that
+        // permission must not turn the endpoint into a school-wide directory.
+        // School-wide access is reserved for the management permission.
+        $isStaff = $user->hasRole('super_admin') || $user->can('daily_report.manage');
         abort_unless($isParentOfStudent || $isStudent || $isStaff, 403, 'Tidak memiliki akses laporan harian siswa.');
 
         return response()->json([

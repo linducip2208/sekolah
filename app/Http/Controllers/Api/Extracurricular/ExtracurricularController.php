@@ -14,6 +14,8 @@ class ExtracurricularController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'ekskul.view');
+
         return response()->json([
             'data' => Extracurricular::where('school_id', $request->user()->school_id)
                 ->where('is_active', true)
@@ -23,6 +25,8 @@ class ExtracurricularController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'ekskul.manage');
+
         $data = $request->validate([
             'name' => 'required|string|max:200',
             'icon' => 'nullable|string|max:200',
@@ -43,6 +47,8 @@ class ExtracurricularController extends Controller
 
     public function enroll(Request $request, int $id): JsonResponse
     {
+        $this->requirePermission($request, 'ekskul.manage');
+
         $request->validate(['student_id' => 'required|integer']);
 
         $schoolId = (int) $request->user()->school_id;
@@ -93,6 +99,8 @@ class ExtracurricularController extends Controller
 
     public function markAttendance(Request $request, int $ekskulId): JsonResponse
     {
+        $this->requirePermission($request, 'ekskul.manage');
+
         $data = $request->validate([
             'session_date' => 'required|date',
             'attendances' => 'required|array',
@@ -131,5 +139,14 @@ class ExtracurricularController extends Controller
         });
 
         return response()->json(['ok' => true, 'count' => count($data['attendances'])]);
+    }
+
+    private function requirePermission(Request $request, string $permission): void
+    {
+        abort_unless(
+            $request->user()->hasRole('super_admin') || $request->user()->can($permission),
+            403,
+            'Tidak memiliki izin ekstrakurikuler.'
+        );
     }
 }

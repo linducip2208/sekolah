@@ -87,3 +87,17 @@ test('parent cannot view another student daily report', function () {
     $this->getJson("/api/v1/parent/children/{$otherStudent->id}/daily-reports")
         ->assertStatus(403);
 });
+
+test('parent can view their own student daily report', function () {
+    Sanctum::actingAs($this->parent);
+
+    DailyReport::create([
+        'school_id' => $this->school->id,
+        'student_id' => $this->student->id,
+        'report_date' => today(),
+    ]);
+
+    $this->getJson("/api/v1/parent/children/{$this->student->id}/daily-reports")
+        ->assertOk()
+        ->assertJsonPath('data.data.0.student_id', $this->student->id);
+});

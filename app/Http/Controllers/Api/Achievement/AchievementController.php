@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Achievement;
 
 use App\Http\Controllers\Controller;
+use App\Models\Academic\Student;
 use App\Models\Achievement\AchievementCategory;
 use App\Models\Achievement\DigitalBadge;
 use App\Models\Achievement\StudentAchievement;
@@ -17,6 +18,8 @@ class AchievementController extends Controller
 
     public function categories(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'achievement.view');
+
         return response()->json([
             'data' => AchievementCategory::where('school_id', $request->user()->school_id)->get(),
         ]);
@@ -24,17 +27,22 @@ class AchievementController extends Controller
 
     public function storeCategory(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'achievement.manage');
+
         $data = $request->validate([
-            'name'   => 'required|string|max:200',
-            'scope'  => 'required|in:internal,district,province,national,international',
+            'name' => 'required|string|max:200',
+            'scope' => 'required|in:internal,district,province,national,international',
             'points' => 'nullable|integer|min:0',
         ]);
         $data['school_id'] = $request->user()->school_id;
+
         return response()->json(AchievementCategory::create($data), 201);
     }
 
     public function studentAchievements(Request $request, int $studentId): JsonResponse
     {
+        $this->assertStudentReadable($request, $studentId);
+
         return response()->json([
             'data' => StudentAchievement::where('school_id', $request->user()->school_id)
                 ->where('student_id', $studentId)
@@ -44,14 +52,16 @@ class AchievementController extends Controller
 
     public function recordAchievement(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'achievement.manage');
+
         $data = $request->validate([
-            'student_id'              => 'required|integer',
+            'student_id' => 'required|integer',
             'achievement_category_id' => 'required|integer',
-            'title'                   => 'required|string|max:200',
-            'achieved_at'             => 'required|date',
-            'issuer'                  => 'nullable|string|max:200',
-            'certificate_path'        => 'nullable|string|max:500',
-            'description'             => 'nullable|string',
+            'title' => 'required|string|max:200',
+            'achieved_at' => 'required|date',
+            'issuer' => 'nullable|string|max:200',
+            'certificate_path' => 'nullable|string|max:500',
+            'description' => 'nullable|string',
         ]);
 
         return response()->json($this->service->recordAchievement(
@@ -61,12 +71,17 @@ class AchievementController extends Controller
 
     public function verifyAchievement(Request $request, int $id): JsonResponse
     {
+        $this->requirePermission($request, 'achievement.manage');
+
         $a = StudentAchievement::where('school_id', $request->user()->school_id)->findOrFail($id);
+
         return response()->json($this->service->verify($a, $request->user()->id));
     }
 
     public function badges(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'achievement.view');
+
         return response()->json([
             'data' => DigitalBadge::where('school_id', $request->user()->school_id)->get(),
         ]);
@@ -74,6 +89,8 @@ class AchievementController extends Controller
 
     public function studentBadges(Request $request, int $studentId): JsonResponse
     {
+        $this->assertStudentReadable($request, $studentId);
+
         return response()->json([
             'data' => StudentBadge::where('school_id', $request->user()->school_id)
                 ->where('student_id', $studentId)
@@ -84,11 +101,43 @@ class AchievementController extends Controller
 
     public function leaderboard(Request $request): JsonResponse
     {
+        $this->requirePermission($request, 'achievement.view');
+
         return response()->json([
             'data' => $this->service->studentLeaderboard(
                 $request->user()->school_id,
                 (int) $request->input('limit', 20),
             ),
         ]);
+    }
+
+    private function requirePermission(Request $request, string $permission): void
+    {
+        $managePermission = str_ends_with($permission, '.view')
+            ? substr($permission, 0, -5).'.manage'
+            : null;
+
+        abort_unless(
+            $request->user()->hasRole('super_admin')
+                || $request->user()->can($permission)
+                || ($managePermission && $request->user()->can($managePermission)),
+            403,
+            'Tidak memiliki izin prestasi.'
+        );
+    }
+
+    private function assertStudentReadable(Request $request, int $studentId): void
+    {
+        $student = Student::where('school_id', $request->user()->school_id)->findOrFail($studentId);
+        $user = $request->user();
+        if ($user->hasRole('student')) {
+            abort_unless((int) $student->user_id === (int) $user->id, 403);
+        }
+        if ($user->hasRole('parent')) {
+            abort_unless($student->parents()->whereKey($user->id)->exists(), 403);
+        }
+        if (! $user->hasRole(['student', 'parent'])) {
+            $this->requirePermission($request, 'achievement.view');
+        }
     }
 }

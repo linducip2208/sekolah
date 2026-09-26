@@ -25,11 +25,11 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 | Nilai | 3 | 4 | Tenant-safe bulk/edit validation, score bounds, automatic grade resolution, CBT service sync, locked report-card protection, audit model | CBT → Marks → Raport → Parent Portal | 6 marks tests / 15 assertions plus CBT integration | 4/5 |
 | Raport | 3 | 4 | PDF/QR verification, bulk generation and publication path | Marks → Report Card → Parent | Existing report-card tests and Playwright capture | 4/5 |
 | LMS | 3 | 4 | Classroom, lessons, assignments, quiz and progress paths with school-bound course/module/lesson/material/assignment/submission service boundaries and student ownership checks | Student Portal, Teacher Portal | Course service boundary/progress tests; deeper deadline/resubmission tests needed | 4/5 |
-| Student 360 | 2 | 3 | Consolidated profile/timeline and permission-aware tabs | Academic, finance, BK, health, library, transport | Visibility regression needs broader coverage | 3/5 |
+| Student 360 | 2 | 3 | Consolidated profile/timeline and permission-aware tabs, with explicit student/class/admission duplicate guards in the admin flow | Academic, finance, BK, health, library, transport | Visibility regression needs broader coverage | 3/5 |
 | BK/Counseling | 2 | 4 | Guarded scheduled/completed lifecycle, counselor/student tenant validation, overlapping-session detection, bullying assignment/closure rules, audit logging, restricted permissions | Attendance/risk/student profile → notification | Cross-school, overlap, and repeated-completion regressions | 4/5 |
 | Disiplin | 3 | 4 | Incident tenant validation, configurable points/threshold sanctions, parent notification job, history and audit logging | Student 360 → parent communication → intervention | Cross-school and threshold transition regressions | 4/5 |
 | UKS/Health | 2 | 4 | Tenant-safe student/staff references, permission-gated sensitive endpoints, visit/treatment/vaccination audit logging, parent notification path | Student profile → parent notification | Cross-school service-boundary regression; medicine stock remains a follow-up | 4/5 |
-| Ekstrakurikuler | 2 | 4 | Program, registration, tenant-safe student/coach references, capacity enforcement, idempotent enrollment, active-member attendance validation, and transactional bulk attendance | Student profile, certificates, parent communication | 3 workflow tests / 8 assertions | 4/5 |
+| Ekstrakurikuler | 2 | 4 | Program, registration, tenant-safe student/coach references, capacity enforcement, idempotent enrollment, active-member attendance validation, permission checks, and transactional bulk attendance | Student profile, certificates, parent communication | 3 workflow tests / 8 assertions | 4/5 |
 | Finance/SPP | 3 | 4 | Invoice lifecycle, payment, reminders, refund and reconciliation paths | Payment → Invoice → Accounting → Notification | Finance and payment integration tests | 4/5 |
 | Payment | 3 | 4 | Provider abstraction, encrypted secrets, idempotency, signature verification, replay fingerprint, row lock | Payment → Fee Payment → Invoice | Invalid signature + duplicate callback tests | 4/5 |
 | Accounting | 3 | 4 | COA, scoped double-entry lines, row-locked posting, idempotent automatic references, refund posting, source references, and audit logging | Finance, payroll, procurement, wallet | 7 accounting tests / 21 assertions; closing-period depth remains | 4/5 |
@@ -62,6 +62,6 @@ Dokumen ini menilai kedalaman fitur berdasarkan implementasi yang dapat ditemuka
 
 Focused continuation checks after the latest full-suite snapshot: Parent Portal daily-report ownership 4 tests passed; Extracurricular workflow 3 tests / 8 assertions passed.
 
-Latest verification snapshot: 293 tests / 1,562 assertions passed; route registry: 1,571 routes; frontend production build passed.
+Latest verification snapshot: 304 tests / 1,590 assertions passed; route registry: 1,571 routes; frontend production build passed.
 
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.
