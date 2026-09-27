@@ -100,6 +100,16 @@ class InventoryStockService
 
     private function recordMovement(InventoryItem $item, string $type, int $qtyChange, ?string $note, ?string $reference, ?int $userId): InventoryItem
     {
+        if ($reference) {
+            $duplicate = StockMovement::where('school_id', $item->school_id)
+                ->where('inventory_item_id', $item->id)
+                ->where('reference', $reference)
+                ->exists();
+            if ($duplicate) {
+                return $item->fresh();
+            }
+        }
+
         $newQty = $item->quantity + $qtyChange;
         abort_if($newQty < 0, 422, "Stok tidak cukup (tersedia {$item->quantity}).");
 

@@ -41,30 +41,60 @@ class AiService
         $start  = microtime(true);
         $result = null;
         $error  = null;
-        try {
-            $result = $adapter->chat($messages, $options);
-        } catch (\Throwable $e) {
-            $error = $e->getMessage();
-            throw $e;
-        } finally {
-            $latencyMs = (int) round((microtime(true) - $start) * 1000);
-            $cost      = $this->estimateCost($model, $result['input_tokens'] ?? 0, $result['output_tokens'] ?? 0);
 
-            AiUsageLog::create([
-                'school_id'      => $schoolId,
-                'user_id'        => $userId,
-                'ai_model_id'    => $model->id,
-                'feature_key'    => $featureKey,
-                'input_tokens'   => $result['input_tokens'] ?? 0,
-                'output_tokens'  => $result['output_tokens'] ?? 0,
-                'estimated_cost' => $cost,
-                'latency_ms'     => $latencyMs,
-                'success'        => $error === null,
-                'error'          => $error,
-            ]);
+        for ($attempt = 1; $attempt <= 2; $attempt++) {
+            try {
+                $result = $adapter->chat($messages, $options);
+                $error = null;
+                break;
+            } catch (\Throwable $e) {
+                $error = $e->getMessage();
+                // Single retry for transient provider failures; then surface the error.
+                if ($attempt === 1 && $this->isTransient($e)) {
+                    usleep(500000);
+                    continue;
+                }
+                $this->logUsage($schoolId, $userId, $model, $featureKey, $result, $start, $error);
+                throw $e;
+            }
         }
 
+        $this->logUsage($schoolId, $userId, $model, $featureKey, $result, $start, $error);
+
         return $result;
+    }
+
+    protected function isTransient(\Throwable $e): bool
+    {
+        $message = strtolower($e->getMessage());
+
+        foreach (['timeout', 'timed out', 'connection', 'temporarily', 'overloaded', 'rate limit', '429', '500', '502', '503', '504'] as $needle) {
+            if (str_contains($message, $needle)) {
+                return true;
+            }
+        }
+
+        $code = (int) $e->getCode();
+        return in_array($code, [0, 408, 429, 500, 502, 503, 504], true);
+    }
+
+    protected function logUsage(int $schoolId, int $userId, AiModel $model, string $featureKey, ?array $result, float $start, ?string $error): void
+    {
+        $latencyMs = (int) round((microtime(true) - $start) * 1000);
+        $cost      = $this->estimateCost($model, $result['input_tokens'] ?? 0, $result['output_tokens'] ?? 0);
+
+        AiUsageLog::create([
+            'school_id'      => $schoolId,
+            'user_id'        => $userId,
+            'ai_model_id'    => $model->id,
+            'feature_key'    => $featureKey,
+            'input_tokens'   => $result['input_tokens'] ?? 0,
+            'output_tokens'  => $result['output_tokens'] ?? 0,
+            'estimated_cost' => $cost,
+            'latency_ms'     => $latencyMs,
+            'success'        => $error === null,
+            'error'          => $error,
+        ]);
     }
 
     protected function estimateCost(AiModel $model, int $inputTokens, int $outputTokens): float

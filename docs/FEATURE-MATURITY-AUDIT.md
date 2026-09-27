@@ -125,4 +125,14 @@ Latest verification snapshot: 304 tests / 1,590 assertions passed; route registr
 - Regression baru: `LmsApiTest` (4), `PpdbEnrollInvoiceTest` (2), `GlobalSearchTest` (1).
 - Full suite 27 Sep 2026 putaran 5: **334 passed / 1,646 assertions, 0 failed**. Build + caches passed; `diff --check` bersih.
 
+## Verifikasi 27 September 2026 — putaran 6 (maturity depth)
+
+- Bank soal: `attachToExam` transaksional, tolak item lintas sekolah, dedup item sudah terpasang; `recordItemAnalytics` wajib `school_id`.
+- Inventory: `recordMovement` idempoten via `reference` (double-submit aman).
+- Lifecycle: transfer/promosi via service + history (tunggal, tanpa duplikasi endpoint).
+- AI: retry 1x untuk error transient + pencatatan usage tunggal yang akurat (controller sudah 422 ramah).
+- Analytics: `studentsByClass`, `unpaidInvoices`, `averageMarksBySubject` agregasi SQL + limit (tutup OOM).
+- Regression: cakupan putaran 5 tetap hijau (9 tests spot-check).
+- Full suite 27 Sep 2026 putaran 6: **334 passed / 1,646 assertions, 0 failed**. Build + caches passed; `diff --check` bersih.
+
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.

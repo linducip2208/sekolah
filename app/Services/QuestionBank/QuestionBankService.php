@@ -37,28 +37,44 @@ class QuestionBankService
 
     /**
      * Attach bank items to an exam as ExamQuestion rows (linked to their source).
-     * Returns the number of questions created.
+     * Skips items already attached or from another school. Returns created count.
      */
     public function attachToExam(Exam $exam, Collection $items): int
     {
-        $order = $exam->questions()->max('order') ?? 0;
-        $created = 0;
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($exam, $items) {
+            $existing = $exam->questions()
+                ->whereNotNull('question_bank_item_id')
+                ->pluck('question_bank_item_id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
 
-        foreach ($items as $item) {
-            $exam->questions()->create([
-                'school_id'             => $exam->school_id,
-                'question_bank_item_id' => $item->id,
-                'question'              => $item->question_html,
-                'type'                  => $this->toExamType($item->type),
-                'options'               => $item->options,
-                'correct_answer'        => $this->normalizeAnswerKey($item->answer_key),
-                'marks'                 => 1,
-                'order'                 => ++$order,
-            ]);
-            $created++;
-        }
+            $order = $exam->questions()->max('order') ?? 0;
+            $created = 0;
 
-        return $created;
+            foreach ($items as $item) {
+                if ((int) $item->school_id !== (int) $exam->school_id) {
+                    continue;
+                }
+                if (in_array((int) $item->id, $existing, true)) {
+                    continue;
+                }
+
+                $exam->questions()->create([
+                    'school_id'             => $exam->school_id,
+                    'question_bank_item_id' => $item->id,
+                    'question'              => $item->question_html,
+                    'type'                  => $this->toExamType($item->type),
+                    'options'               => $item->options,
+                    'correct_answer'        => $this->normalizeAnswerKey($item->answer_key),
+                    'marks'                 => 1,
+                    'order'                 => ++$order,
+                ]);
+                $existing[] = (int) $item->id;
+                $created++;
+            }
+
+            return $created;
+        });
     }
 
     public function toExamType(string $bankType): string
@@ -83,11 +99,15 @@ class QuestionBankService
         return (string) $key;
     }
 
-    public function recordItemAnalytics(int $itemId, float $avgScorePct, ?float $discrimination = null): void
+    public function recordItemAnalytics(int $schoolId, int $itemId, float $avgScorePct, ?float $discrimination = null): void
     {
-        QuestionBankItem::where('id', $itemId)->update(array_filter([
-            'avg_score_pct'  => $avgScorePct,
-            'discrimination' => $discrimination,
-        ], fn ($v) => $v !== null));
+        QuestionBankItem::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->whereKey($itemId)
+            ->firstOrFail()
+            ->update(array_filter([
+                'avg_score_pct'  => $avgScorePct,
+                'discrimination' => $discrimination,
+            ], fn ($v) => $v !== null));
     }
 }

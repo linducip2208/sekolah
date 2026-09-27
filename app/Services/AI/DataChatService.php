@@ -145,19 +145,33 @@ PROMPT;
 
     protected function studentsByClass(int $schoolId): array
     {
-        $rows = Student::where('school_id', $schoolId)
-            ->with(['classSection.classRoom', 'classSection.section'])
+        $counts = Student::where('school_id', $schoolId)
+            ->selectRaw('class_section_id, COUNT(*) as total')
+            ->groupBy('class_section_id')
+            ->orderByDesc('total')
+            ->limit(50)
+            ->get();
+
+        $sections = \App\Models\Academic\ClassSection::where('school_id', $schoolId)
+            ->whereIn('id', $counts->pluck('class_section_id')->filter()->all())
+            ->with(['classRoom', 'section'])
             ->get()
-            ->groupBy(fn ($s) => trim(($s->classSection?->classRoom?->name ?? 'Tanpa Rombel') . ' ' . ($s->classSection?->section?->name ?? '')))
-            ->map(fn ($g) => ['label' => $g->first()->classSection ? ($g->first()->classSection->classRoom?->name . ' ' . $g->first()->classSection->section?->name) : 'Tanpa Rombel', 'value' => $g->count()])
-            ->sortByDesc('value')
-            ->values()
-            ->all();
+            ->keyBy('id');
+
+        $total = 0;
+        $rows = $counts->map(function ($c) use ($sections, &$total) {
+            $total += (int) $c->total;
+            $section = $sections->get($c->class_section_id);
+            $label = $section
+                ? trim(($section->classRoom?->name ?? '') . ' ' . ($section->section?->name ?? ''))
+                : 'Tanpa Rombel';
+            return ['label' => $label ?: 'Tanpa Rombel', 'value' => (int) $c->total];
+        })->all();
 
         return [
             'columns' => ['Rombel', 'Jumlah Siswa'],
             'rows'    => $rows,
-            'summary' => 'Total ' . array_sum(array_column($rows, 'value')) . ' siswa',
+            'summary' => 'Total ' . $total . ' siswa',
         ];
     }
 
@@ -204,20 +218,27 @@ PROMPT;
 
     protected function unpaidInvoices(int $schoolId): array
     {
-        $invoices = FeeInvoice::where('school_id', $schoolId)
-            ->whereIn('status', ['unpaid', 'partial', 'overdue'])
-            ->get();
+        $base = fn () => FeeInvoice::where('school_id', $schoolId)
+            ->whereIn('status', ['unpaid', 'partial', 'overdue']);
 
-        $rows = $invoices->map(fn ($i) => [
-            'label'    => '#' . $i->id,
-            'value'    => $i->amount - $i->paid_amount,
-            'currency' => true,
-        ])->all();
+        $summary = (clone $base())
+            ->selectRaw('COUNT(*) as cnt, COALESCE(SUM(amount - paid_amount), 0) as sisa')
+            ->first();
+
+        $rows = (clone $base())
+            ->orderByDesc('id')
+            ->limit(200)
+            ->get(['id', 'amount', 'paid_amount'])
+            ->map(fn ($i) => [
+                'label'    => '#' . $i->id,
+                'value'    => $i->amount - $i->paid_amount,
+                'currency' => true,
+            ])->all();
 
         return [
             'columns' => ['Invoice', 'Sisa (Rp)'],
             'rows'    => $rows,
-            'summary' => $invoices->count() . ' invoice menunggak, total ' . $this->rupiah($invoices->sum(fn ($i) => $i->amount - $i->paid_amount)),
+            'summary' => ((int) ($summary->cnt ?? 0)) . ' invoice menunggak, total ' . $this->rupiah((int) ($summary->sisa ?? 0)),
         ];
     }
 
@@ -240,13 +261,21 @@ PROMPT;
     protected function averageMarksBySubject(int $schoolId): array
     {
         $rows = Mark::where('school_id', $schoolId)
-            ->with('subject')
-            ->get()
-            ->groupBy(fn ($m) => $m->subject?->name ?? 'Tanpa Mapel')
-            ->map(fn ($g, $name) => ['label' => $name, 'value' => round($g->avg('obtained_marks') ?? 0, 1)])
-            ->sortByDesc('value')
-            ->values()
+            ->selectRaw('subject_id, AVG(obtained_marks) as rata')
+            ->groupBy('subject_id')
+            ->orderByDesc('rata')
+            ->limit(50)
+            ->get();
+
+        $names = \App\Models\Academic\Subject::where('school_id', $schoolId)
+            ->whereIn('id', $rows->pluck('subject_id')->filter()->all())
+            ->pluck('name', 'id')
             ->all();
+
+        $rows = $rows->map(fn ($r) => [
+            'label' => $names[$r->subject_id] ?? 'Tanpa Mapel',
+            'value' => round((float) $r->rata, 1),
+        ])->all();
 
         return [
             'columns' => ['Mapel', 'Rata-rata Nilai'],
