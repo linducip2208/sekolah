@@ -249,6 +249,7 @@ class PaymentService
 
             if ($event['status'] === 'paid' && $tx->status !== PaymentTransaction::STATUS_PAID) {
                 $payment = FeePayment::create([
+                    'school_id' => $tx->school_id,
                     'fee_invoice_id' => $tx->fee_invoice_id,
                     'collected_by' => $tx->initiated_by,
                     'amount' => $tx->net_amount,

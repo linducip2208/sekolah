@@ -25,11 +25,11 @@ class FoundationController extends Controller
 
     public function dashboard(Request $request, int $id): JsonResponse
     {
-        $foundation = Foundation::findOrFail($id);
-
-        if (!$this->service->isAdmin($request->user()->id, $foundation->id)) {
+        if (!$this->service->isAdmin($request->user()->id, $id)) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
+
+        $foundation = Foundation::findOrFail($id);
 
         return response()->json([
             'metrics' => $this->service->aggregateMetrics($foundation),
@@ -39,10 +39,11 @@ class FoundationController extends Controller
 
     public function schoolDetail(Request $request, int $foundationId, int $schoolId): JsonResponse
     {
-        $foundation = Foundation::findOrFail($foundationId);
-        if (!$this->service->isAdmin($request->user()->id, $foundation->id)) {
+        if (!$this->service->isAdmin($request->user()->id, $foundationId)) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
+
+        $foundation = Foundation::findOrFail($foundationId);
 
         $school = $foundation->schools()->where('schools.id', $schoolId)->firstOrFail();
 

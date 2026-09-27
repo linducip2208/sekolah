@@ -47,7 +47,7 @@ return [
     | Skip license check on localhost / .test domains in local env.
     | Banner is shown on every page when this is on.
     */
-    'dev_bypass' => env('LICENSE_DEV_BYPASS', true),
+    'dev_bypass' => env('LICENSE_DEV_BYPASS', false),
 
     /*
     |---------------------------------------------------------------------

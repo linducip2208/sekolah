@@ -64,4 +64,19 @@ Focused continuation checks after the latest full-suite snapshot: Parent Portal 
 
 Latest verification snapshot: 304 tests / 1,590 assertions passed; route registry: 1,571 routes; frontend production build passed.
 
+## Verifikasi 27 September 2026 (sale-ready hardening)
+
+- `fee_payments.school_id` ditambahkan (migration `2026_09_27_000001`, backfill dari invoice) + `FeePayment` kini `SchoolTenantModel`; `FeeService::recordPayment`, `FeeInstallmentService::pay`, `PaymentService::applyStatusUpdate`, dan `FeeWebController::recordPayment` menulis `school_id`. Memperbaiki SQL error `DataChatService::revenueByMonth` (`where school_id` atas kolom yang belum ada).
+- `FeeService::recordPayment` menolak invoice lintas sekolah (404) walau scope nonaktif.
+- `FeeRefundService::refund` memposting jurnal refund atomik di dalam transaksi dengan referensi idempoten `REFUND-{id}`; pemanggilan ganda di controller dihapus.
+- `EnsureSchoolAccess` mendukung web (redirect/abort 403) dan dipasang pada grup `admin.*` + `portal.*`.
+- `FoundationController::dashboard/schoolDetail` cek `isAdmin` sebelum `findOrFail` (tutup existence oracle).
+- Throttle publik: tracer form/submit, visitor scan, device GPS/gate, WA webhook.
+- 11 Policy didaftarkan via `Gate::policy()` di `AppServiceProvider` (sebelumnya dead-code).
+- `config/license.php` `dev_bypass` default `false` (secure-by-default prod); `.env` lokal diberi `LICENSE_DEV_BYPASS=true` + vars v3.
+- Diverifikasi tidak perlu diubah (false positive audit): shortcut manifest `/portal/` + `/siswa` valid; SW/PWA sudah global via `elite.partials.head`; `.env.example` sudah memuat queue/cache/mail/redis/license/sentry/backup; dead-route `driver-schedules` tidak ditemukan di kode saat ini.
+- Regression baru: `tests/Feature/Finance/FeePaymentTenantTest.php` (3 tests) — passed.
+- Route registry saat ini: 1,576 routes.
+- Full suite 27 Sep 2026 (sesudah hardening): **307 passed / 1,589 assertions, 0 failed** (5.3 mnt). Frontend `npm run build` passed; `route:cache` + `config:cache` passed (cache dibersihkan kembali untuk dev).
+
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.

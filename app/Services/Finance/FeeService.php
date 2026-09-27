@@ -58,7 +58,12 @@ class FeeService
         return DB::transaction(function () use ($invoiceId, $amount, $collectedBy, $method) {
             $invoice = FeeInvoice::lockForUpdate()->findOrFail($invoiceId);
 
+            if (auth()->check() && $invoice->school_id !== auth()->user()->school_id) {
+                abort(404);
+            }
+
             $invoice->payments()->create([
+                'school_id'      => $invoice->school_id,
                 'fee_invoice_id' => $invoiceId,
                 'collected_by'   => $collectedBy,
                 'amount'         => $amount,

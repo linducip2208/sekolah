@@ -107,14 +107,14 @@ Route::prefix('v1')->middleware(['api'])->group(function () {
     Route::get('/public/events/{subdomain}/{slug}',  [EventController::class, 'publicShow']);
 
     // Device-token-authenticated endpoints (vehicle GPS, gate scanners)
-    Route::post('/devices/gps-ping',  [VehicleTrackingController::class, 'ping']);
-    Route::post('/devices/gate-scan', [IdGateController::class, 'scan']);
+    Route::post('/devices/gps-ping',  [VehicleTrackingController::class, 'ping'])->middleware('throttle:60,1');
+    Route::post('/devices/gate-scan', [IdGateController::class, 'scan'])->middleware('throttle:60,1');
 
     // WhatsApp Bot webhook (public, from ChatGo / WhatsApp gateway)
-    Route::post('/webhook/wa-bot',    [WaBotWebhookController::class, '__invoke']);
+    Route::post('/webhook/wa-bot',    [WaBotWebhookController::class, '__invoke'])->middleware('throttle:60,1');
 
     // Visitor QR scan at gate (can be from authenticated device)
-    Route::post('/visitor/scan',      [VisitorScanController::class, 'scan']);
+    Route::post('/visitor/scan',      [VisitorScanController::class, 'scan'])->middleware('throttle:60,1');
 });
 
 // Authenticated — no school check (works for all users including super_admin)
@@ -635,7 +635,7 @@ Route::prefix('v1/super')->middleware(['auth:sanctum', 'role:super_admin'])->gro
 });
 
 // ============================================================
-// Public API — Tracer Study Alumni (no auth)
+// Public API — Tracer Study Alumni (no auth, throttled to prevent enumeration/spam)
 // ============================================================
-Route::get('/tracer/form', [\App\Http\Controllers\Api\TracerController::class, 'showForm']);
-Route::post('/tracer/submit', [\App\Http\Controllers\Api\TracerController::class, 'submit']);
+Route::get('/tracer/form', [\App\Http\Controllers\Api\TracerController::class, 'showForm'])->middleware('throttle:30,1');
+Route::post('/tracer/submit', [\App\Http\Controllers\Api\TracerController::class, 'submit'])->middleware('throttle:10,1');

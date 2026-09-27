@@ -2,17 +2,17 @@
 
 namespace App\Models\Finance;
 
+use App\Models\SchoolTenantModel;
 use App\Models\Traits\AuditableModel;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class FeePayment extends Model
+class FeePayment extends SchoolTenantModel
 {
     use AuditableModel;
 
     protected $fillable = [
-        'fee_invoice_id', 'collected_by', 'amount', 'payment_method',
+        'school_id', 'fee_invoice_id', 'collected_by', 'amount', 'payment_method',
         'reference', 'note', 'payment_date',
     ];
 

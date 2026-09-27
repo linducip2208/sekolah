@@ -185,7 +185,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::middleware(['auth', 'role:admin|accountant|principal|hr|transport_admin|hostel_admin|procurement_admin|homeroom_teacher', 'subscription.active', '2fa.enforce'])->group(function () {
+    Route::middleware(['auth', 'school.access', 'role:admin|accountant|principal|hr|transport_admin|hostel_admin|procurement_admin|homeroom_teacher', 'subscription.active', '2fa.enforce'])->group(function () {
         Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
         Route::get('/dashboard/role', [RoleDashboardController::class, 'index'])->name('dashboard.role');
         Route::get('/my-work', [\App\Http\Controllers\Web\Admin\MyWorkController::class, 'index'])->name('my-work');
@@ -1456,7 +1456,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // Parent / Student web payment portal
-Route::prefix('portal')->name('portal.')->middleware(['auth'])->group(function () {
+Route::prefix('portal')->name('portal.')->middleware(['auth', 'school.access'])->group(function () {
     Route::get('/',                                      [\App\Http\Controllers\Web\Parent\ParentPortalController::class, 'dashboard'])->name('dashboard');
     Route::get('/anak/{student}',                        [\App\Http\Controllers\Web\Parent\ParentPortalController::class, 'child'])->name('child');
     Route::get('/anak/{student}/absensi',                [\App\Http\Controllers\Web\Parent\ParentPortalController::class, 'childAttendance'])->name('child.attendance');

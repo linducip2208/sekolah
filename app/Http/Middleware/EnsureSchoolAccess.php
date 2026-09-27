@@ -11,7 +11,9 @@ class EnsureSchoolAccess
         $user = $request->user();
 
         if (!$user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return $request->expectsJson()
+                ? response()->json(['message' => 'Unauthenticated.'], 401)
+                : redirect()->route('admin.login');
         }
 
         if ($user->hasRole('super_admin')) {
@@ -19,7 +21,9 @@ class EnsureSchoolAccess
         }
 
         if (!$user->school_id || !$user->school?->is_active) {
-            return response()->json(['message' => 'School not found or inactive.'], 403);
+            return $request->expectsJson()
+                ? response()->json(['message' => 'School not found or inactive.'], 403)
+                : abort(403, 'Sekolah tidak ditemukan atau tidak aktif.');
         }
 
         app()->instance('current_school', $user->school);

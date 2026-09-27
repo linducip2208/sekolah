@@ -34,6 +34,7 @@ beforeEach(function () {
     ]);
 
     $this->payment = FeePayment::create([
+        'school_id' => $this->school->id,
         'fee_invoice_id' => $this->invoice->id, 'collected_by' => $user->id,
         'amount' => 150000, 'payment_method' => 'bank_transfer', 'payment_date' => '2026-01-10',
     ]);

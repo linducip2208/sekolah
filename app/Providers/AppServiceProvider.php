@@ -16,6 +16,7 @@ use App\Services\LicenseClient;
 use App\Services\PlatformSettingsService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -47,6 +48,17 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Gate::policy(\App\Models\Academic\Student::class, \App\Policies\StudentPolicy::class);
+        Gate::policy(\App\Models\Academic\Exam::class, \App\Policies\ExamPolicy::class);
+        Gate::policy(\App\Models\Finance\FeeInvoice::class, \App\Policies\FeeInvoicePolicy::class);
+        Gate::policy(\App\Models\AI\AiProvider::class, \App\Policies\AI\AiProviderPolicy::class);
+        Gate::policy(\App\Models\Counseling\CounselingSession::class, \App\Policies\Counseling\CounselingSessionPolicy::class);
+        Gate::policy(\App\Models\Donation\DonationCampaign::class, \App\Policies\Donation\DonationCampaignPolicy::class);
+        Gate::policy(\App\Models\LessonPlan\LessonPlan::class, \App\Policies\LessonPlan\LessonPlanPolicy::class);
+        Gate::policy(\App\Models\Medical\ClinicVisit::class, \App\Policies\Medical\ClinicVisitPolicy::class);
+        Gate::policy(\App\Models\Payment\PaymentTransaction::class, \App\Policies\Payment\PaymentTransactionPolicy::class);
+        Gate::policy(\App\Models\PPDB\PpdbApplication::class, \App\Policies\PPDB\PpdbApplicationPolicy::class);
+
         Student::observe(StudentObserver::class);
         FeeInvoice::observe(FeeInvoiceObserver::class);
         Attendance::observe(AttendanceObserver::class);

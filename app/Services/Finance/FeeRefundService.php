@@ -33,6 +33,11 @@ class FeeRefundService
                 'paid_amount' => $newPaid,
                 'status'      => $newPaid <= 0 ? 'unpaid' : 'partial',
             ]);
+
+            // Atomic journal post with idempotent REFUND reference (inside tx).
+            app(AccountingService::class)->postRefund(
+                $invoice->school_id, $amount, 'REFUND-' . $refund->id
+            );
         });
 
         return $refund;

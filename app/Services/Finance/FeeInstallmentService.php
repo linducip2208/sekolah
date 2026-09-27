@@ -48,6 +48,7 @@ class FeeInstallmentService
 
         DB::transaction(function () use ($installment, $invoice, $amount, $method, $reference) {
             FeePayment::create([
+                'school_id'      => $invoice->school_id,
                 'fee_invoice_id' => $invoice->id,
                 'collected_by'   => auth()->id(),
                 'amount'         => $amount,

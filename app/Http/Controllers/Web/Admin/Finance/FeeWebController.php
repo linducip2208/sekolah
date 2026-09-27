@@ -212,8 +212,6 @@ class FeeWebController extends Controller
 
         $this->refunds->refund($invoice, $amountCents, $data['reason'] ?? '', $data['fee_payment_id'] ?? null);
 
-        app(\App\Services\Finance\AccountingService::class)->postRefund($invoice->school_id, $amountCents, $data['fee_payment_id'] ?? null);
-
         return back()->with('success', 'Refund tercatat.');
     }
 
@@ -255,6 +253,7 @@ class FeeWebController extends Controller
 
         DB::transaction(function () use ($invoice, $data, $amountCents) {
             FeePayment::create([
+                'school_id'      => $invoice->school_id,
                 'fee_invoice_id' => $invoice->id,
                 'collected_by'   => auth()->id(),
                 'amount'         => $amountCents,

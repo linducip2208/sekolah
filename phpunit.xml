@@ -33,5 +33,6 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="LICENSE_CHECK" value="false"/>
+        <env name="LICENSE_DEV_BYPASS" value="true"/>
     </php>
 </phpunit>
