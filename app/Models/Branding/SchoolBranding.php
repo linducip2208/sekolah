@@ -3,10 +3,10 @@
 namespace App\Models\Branding;
 
 use App\Models\School;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\SchoolTenantModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class SchoolBranding extends Model
+class SchoolBranding extends SchoolTenantModel
 {
     protected $table = 'school_branding';
 

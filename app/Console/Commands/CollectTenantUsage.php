@@ -41,9 +41,14 @@ class CollectTenantUsage extends Command
                 ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->count();
 
-            $apiCalls = DB::table('personal_access_tokens')
-                ->where('name', '!=', 'auth-token')
-                ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            $apiCalls = DB::table('personal_access_tokens as pat')
+                ->join('users', function ($join) {
+                    $join->on('users.id', '=', 'pat.tokenable_id')
+                        ->where('pat.tokenable_type', '=', \App\Models\User::class);
+                })
+                ->where('users.school_id', $school->id)
+                ->where('pat.name', '!=', 'auth-token')
+                ->whereBetween('pat.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->count();
 
             $storageUsed = $this->getStorageUsage($school->id);

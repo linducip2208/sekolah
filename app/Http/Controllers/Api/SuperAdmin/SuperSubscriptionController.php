@@ -30,6 +30,7 @@ class SuperSubscriptionController extends Controller
             'amount'         => 'required|integer|min:0',
             'payment_method' => 'sometimes|string',
             'reference'      => 'sometimes|string',
+            'coupon_code'    => 'sometimes|string|max:50',
             'period_from'    => 'required|date',
             'period_to'      => 'required|date|after:period_from',
         ]);

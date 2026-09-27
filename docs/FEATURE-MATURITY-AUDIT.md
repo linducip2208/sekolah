@@ -79,4 +79,12 @@ Latest verification snapshot: 304 tests / 1,590 assertions passed; route registr
 - Route registry saat ini: 1,576 routes.
 - Full suite 27 Sep 2026 (sesudah hardening): **307 passed / 1,589 assertions, 0 failed** (5.3 mnt). Frontend `npm run build` passed; `route:cache` + `config:cache` passed (cache dibersihkan kembali untuk dev).
 
+## Verifikasi 27 September 2026 — putaran 2 (SaaS billing + tenant isolation)
+
+- Kupon kini terpakai di billing: `subscription_transactions.coupon_code/discount_amount` (migration `2026_09_27_000002`); `SuperAdminService::recordSubscription` berjalan dalam transaksi, mengunci kupon (`lockForUpdate`), menolak kupon invalid/habis (422), menerapkan diskon, dan `recordUse()`; `POST /api/v1/super/subscriptions` menerima `coupon_code` opsional.
+- `SchoolBranding` kini `SchoolTenantModel` (isolasi white-label per sekolah); query existing memakai `school_id` eksplisit sehingga kompatibel.
+- `usage:collect` (`CollectTenantUsage`) menghitung `api_calls` per sekolah via join `personal_access_tokens → users.school_id` (sebelumnya global, data salah untuk semua tenant).
+- Regression baru: `tests/Feature/SuperAdmin/SubscriptionCouponTest.php` (3 tests) — passed. `SuperAdminTest` (11 tests), Branding (4 tests) — passed.
+- Build + `route:cache` + `config:cache` passed (cache dibersihkan kembali untuk dev).
+
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.

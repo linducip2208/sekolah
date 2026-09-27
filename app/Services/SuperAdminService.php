@@ -177,23 +177,46 @@ class SuperAdminService
 
     public function recordSubscription(array $data): SubscriptionTransaction
     {
-        $school = School::findOrFail($data['school_id']);
-        $tx = SubscriptionTransaction::create([
-            'school_id'      => $school->id,
-            'plan_id'        => $data['plan_id'],
-            'amount'         => $data['amount'],
-            'payment_method' => $data['payment_method'] ?? null,
-            'reference'      => $data['reference'] ?? null,
-            'status'         => 'paid',
-            'period_from'    => $data['period_from'],
-            'period_to'      => $data['period_to'],
-        ]);
+        return DB::transaction(function () use ($data) {
+            $school = School::findOrFail($data['school_id']);
 
-        $school->update([
-            'plan_id'         => $data['plan_id'],
-            'plan_expires_at' => $data['period_to'],
-        ]);
+            $amount = (int) $data['amount'];
+            $couponCode = $data['coupon_code'] ?? null;
+            $discount = 0;
 
-        return $tx;
+            if ($couponCode) {
+                $coupon = \App\Models\Saas\Coupon::where('code', $couponCode)
+                    ->lockForUpdate()
+                    ->first();
+
+                abort_if(!$coupon || !$coupon->isValid(), 422, 'Kupon tidak valid atau sudah habis.');
+
+                $discounted = $coupon->applyDiscount($amount);
+                $discount = $amount - $discounted;
+                $amount = $discounted;
+
+                $coupon->recordUse();
+            }
+
+            $tx = SubscriptionTransaction::create([
+                'school_id'       => $school->id,
+                'plan_id'         => $data['plan_id'],
+                'amount'          => $amount,
+                'payment_method'  => $data['payment_method'] ?? null,
+                'reference'       => $data['reference'] ?? null,
+                'coupon_code'     => $couponCode,
+                'discount_amount' => $discount,
+                'status'          => 'paid',
+                'period_from'     => $data['period_from'],
+                'period_to'       => $data['period_to'],
+            ]);
+
+            $school->update([
+                'plan_id'         => $data['plan_id'],
+                'plan_expires_at' => $data['period_to'],
+            ]);
+
+            return $tx;
+        });
     }
 }

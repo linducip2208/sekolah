@@ -13,7 +13,7 @@ class SubscriptionTransaction extends SchoolModel
 
     protected $fillable = [
         'school_id', 'plan_id', 'amount', 'payment_method',
-        'reference', 'status', 'period_from', 'period_to',
+        'reference', 'coupon_code', 'discount_amount', 'status', 'period_from', 'period_to',
     ];
 
     protected $casts = [
