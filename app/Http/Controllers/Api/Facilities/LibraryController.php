@@ -128,7 +128,7 @@ class LibraryController extends Controller
     public function markOverdue(): JsonResponse
     {
         $this->requirePermission(request(), 'library.manage');
-        $count = $this->service->markOverdue();
+        $count = $this->service->markOverdue((int) request()->user()->school_id);
 
         return response()->json(['marked' => $count]);
     }

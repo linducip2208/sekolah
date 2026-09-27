@@ -41,51 +41,66 @@ class QuizService
     /** Submit answers, auto-grade, and return per-question feedback. */
     public function submit(Quiz $quiz, int $studentId, array $answers): array
     {
-        $questions = $quiz->questions()->get();
+        abort_unless($quiz->is_published, 422, 'Kuis belum dipublikasikan.');
 
-        $score   = 0;
-        $total   = $questions->count();
-        $feedback = [];
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($quiz, $studentId, $answers) {
+            $quiz = Quiz::whereKey($quiz->id)->lockForUpdate()->firstOrFail();
+            abort_unless($quiz->is_published, 422, 'Kuis belum dipublikasikan.');
 
-        foreach ($questions as $q) {
-            $given = $answers[$q->id] ?? null;
-            $isCorrect = $given !== null && (string) $given === (string) $q->correct_answer;
+            \App\Models\Academic\Student::withoutGlobalScopes()
+                ->where('school_id', $quiz->school_id)
+                ->whereKey($studentId)
+                ->firstOrFail();
 
-            if ($isCorrect) {
-                $score++;
+            $questions = $quiz->questions()->get();
+
+            $score   = 0;
+            $total   = $questions->count();
+            $feedback = [];
+
+            foreach ($questions as $q) {
+                $given = $answers[$q->id] ?? null;
+                $isCorrect = $given !== null && (string) $given === (string) $q->correct_answer;
+
+                if ($isCorrect) {
+                    $score++;
+                }
+
+                $feedback[] = [
+                    'question_id'   => $q->id,
+                    'question'      => $q->question,
+                    'correct_answer'=> $q->correct_answer,
+                    'given_answer'  => $given,
+                    'is_correct'    => $isCorrect,
+                ];
             }
 
-            $feedback[] = [
-                'question_id'   => $q->id,
-                'question'      => $q->question,
-                'correct_answer'=> $q->correct_answer,
-                'given_answer'  => $given,
-                'is_correct'    => $isCorrect,
+            $attemptNo = (int) (QuizAttempt::where('quiz_id', $quiz->id)
+                ->where('student_id', $studentId)
+                ->lockForUpdate()
+                ->max('attempt_no') ?? 0) + 1;
+            $pct = $total > 0 ? (int) round($score / $total * 100) : 0;
+
+            QuizAttempt::create([
+                'school_id'    => $quiz->school_id,
+                'quiz_id'      => $quiz->id,
+                'student_id'   => $studentId,
+                'attempt_no'   => $attemptNo,
+                'score'        => $score,
+                'total'        => $total,
+                'passed'       => $pct >= $quiz->pass_score,
+                'answers'      => $answers,
+                'submitted_at' => now(),
+            ]);
+
+            return [
+                'score'    => $score,
+                'total'    => $total,
+                'percent'  => $pct,
+                'passed'   => $pct >= $quiz->pass_score,
+                'attempt_no' => $attemptNo,
+                'feedback' => $feedback,
             ];
-        }
-
-        $attemptNo = $quiz->attempts()->where('student_id', $studentId)->count() + 1;
-        $pct = $total > 0 ? (int) round($score / $total * 100) : 0;
-
-        QuizAttempt::create([
-            'school_id'    => $quiz->school_id,
-            'quiz_id'      => $quiz->id,
-            'student_id'   => $studentId,
-            'attempt_no'   => $attemptNo,
-            'score'        => $score,
-            'total'        => $total,
-            'passed'       => $pct >= $quiz->pass_score,
-            'answers'      => $answers,
-            'submitted_at' => now(),
-        ]);
-
-        return [
-            'score'    => $score,
-            'total'    => $total,
-            'percent'  => $pct,
-            'passed'   => $pct >= $quiz->pass_score,
-            'attempt_no' => $attemptNo,
-            'feedback' => $feedback,
-        ];
+        });
     }
 }

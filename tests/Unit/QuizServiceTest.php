@@ -46,6 +46,7 @@ it('auto-grades a quiz submission with instant feedback', function () {
 });
 
 it('generates quiz questions from the question bank', function () {
+
     $medium = \App\Models\Academic\Medium::create(['school_id' => $this->school->id, 'name' => 'Umum']);
     $subject = \App\Models\Academic\Subject::create([
         'school_id' => $this->school->id, 'medium_id' => $medium->id, 'name' => 'Matematika',
@@ -67,4 +68,11 @@ it('generates quiz questions from the question bank', function () {
     expect($created)->toBe(1);
     expect($this->quiz->questions()->count())->toBe(1);
     expect($this->quiz->questions()->first()->correct_answer)->toBe('10');
+});
+
+it('rejects submissions to an unpublished quiz', function () {
+    $this->quiz->update(['is_published' => false]);
+
+    $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+    $this->service->submit($this->quiz, $this->student->id, []);
 });

@@ -14,7 +14,7 @@ class DocumentApproval extends Model
     protected $table = 'document_approvals';
 
     protected $fillable = [
-        'document_id', 'approver_id', 'status', 'notes', 'decided_at',
+        'document_id', 'approver_id', 'decided_by', 'status', 'notes', 'decided_at',
     ];
 
     protected $casts = [

@@ -11,46 +11,49 @@ class FeeService
 {
     public function generateMonthlyInvoices(int $schoolId, string $period): int
     {
-        $structures = FeeStructure::where('school_id', $schoolId)
-            ->where('is_active', true)
-            ->where('frequency', 'monthly')
-            ->get();
-
-        $count = 0;
-
-        foreach ($structures as $structure) {
-            $students = Student::where('school_id', $schoolId)
-                ->when($structure->class_room_id, function ($q) use ($structure) {
-                    $q->whereHas('classSection', fn($s) => $s->where('class_room_id', $structure->class_room_id));
-                })
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($schoolId, $period): int {
+            $structures = FeeStructure::where('school_id', $schoolId)
+                ->where('is_active', true)
+                ->where('frequency', 'monthly')
+                ->lockForUpdate()
                 ->get();
 
-            foreach ($students as $student) {
-                $exists = FeeInvoice::where('student_id', $student->id)
-                    ->where('fee_structure_id', $structure->id)
-                    ->where('period', $period)
-                    ->exists();
+            $count = 0;
 
-                if ($exists) {
-                    continue;
+            foreach ($structures as $structure) {
+                $students = Student::where('school_id', $schoolId)
+                    ->when($structure->class_room_id, function ($q) use ($structure) {
+                        $q->whereHas('classSection', fn($s) => $s->where('class_room_id', $structure->class_room_id));
+                    })
+                    ->get();
+
+                foreach ($students as $student) {
+                    $exists = FeeInvoice::where('student_id', $student->id)
+                        ->where('fee_structure_id', $structure->id)
+                        ->where('period', $period)
+                        ->exists();
+
+                    if ($exists) {
+                        continue;
+                    }
+
+                    FeeInvoice::create([
+                        'school_id'        => $schoolId,
+                        'student_id'       => $student->id,
+                        'fee_structure_id' => $structure->id,
+                        'invoice_no'       => 'INV-' . $schoolId . '-' . $student->id . '-' . $period . '-' . $structure->id,
+                        'due_date'         => now()->endOfMonth(),
+                        'amount'           => $structure->amount,
+                        'status'           => 'unpaid',
+                        'period'           => $period,
+                    ]);
+
+                    $count++;
                 }
-
-                FeeInvoice::create([
-                    'school_id'        => $schoolId,
-                    'student_id'       => $student->id,
-                    'fee_structure_id' => $structure->id,
-                    'invoice_no'       => 'INV-' . $schoolId . '-' . $student->id . '-' . $period . '-' . $structure->id,
-                    'due_date'         => now()->endOfMonth(),
-                    'amount'           => $structure->amount,
-                    'status'           => 'unpaid',
-                    'period'           => $period,
-                ]);
-
-                $count++;
             }
-        }
 
-        return $count;
+            return $count;
+        });
     }
 
     public function recordPayment(int $invoiceId, int $amount, int $collectedBy, string $method = 'cash'): FeeInvoice

@@ -24,9 +24,16 @@ class ExamController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $schoolId = (int) auth()->user()->school_id;
         $validated = $request->validate([
-            'class_section_id'  => 'required|integer|exists:class_sections,id',
-            'subject_id'        => 'required|integer|exists:subjects,id',
+            'class_section_id'  => [
+                'required', 'integer',
+                \Illuminate\Validation\Rule::exists('class_sections', 'id')->where('school_id', $schoolId),
+            ],
+            'subject_id'        => [
+                'required', 'integer',
+                \Illuminate\Validation\Rule::exists('subjects', 'id')->where('school_id', $schoolId),
+            ],
             'title'             => 'required|string|max:255',
             'type'              => 'sometimes|in:online,offline',
             'start_at'          => 'nullable|date',
@@ -37,12 +44,13 @@ class ExamController extends Controller
             'shuffle_questions' => 'sometimes|boolean',
         ]);
 
-        $validated['school_id'] = auth()->user()->school_id;
+        $validated['school_id'] = $schoolId;
         return response()->json(Exam::create($validated), 201);
     }
 
     public function update(Request $request, Exam $exam): JsonResponse
     {
+        $this->assertOwnSchool($exam);
         $validated = $request->validate([
             'title'             => 'sometimes|string|max:255',
             'start_at'          => 'nullable|date',
@@ -58,17 +66,24 @@ class ExamController extends Controller
 
     public function destroy(Exam $exam): JsonResponse
     {
+        $this->assertOwnSchool($exam);
         $exam->delete();
         return response()->json(['message' => 'Exam deleted.']);
     }
 
     public function questions(Exam $exam): JsonResponse
     {
-        return response()->json($exam->questions()->orderBy('order')->get());
+        $this->assertOwnSchool($exam);
+        $questions = $exam->questions()->orderBy('order')->get();
+        if (! $this->canSeeAnswerKey()) {
+            $questions->each->makeHidden(['correct_answer']);
+        }
+        return response()->json($questions);
     }
 
     public function storeQuestion(Request $request, Exam $exam): JsonResponse
     {
+        $this->assertOwnSchool($exam);
         $validated = $request->validate([
             'question'       => 'required|string',
             'type'           => 'required|in:mcq,true_false,essay',
@@ -84,6 +99,7 @@ class ExamController extends Controller
 
     public function updateQuestion(Request $request, ExamQuestion $question): JsonResponse
     {
+        abort_unless((int) $question->school_id === (int) auth()->user()->school_id, 404);
         $validated = $request->validate([
             'question'       => 'sometimes|string',
             'options'        => 'nullable|array',
@@ -97,18 +113,21 @@ class ExamController extends Controller
 
     public function destroyQuestion(ExamQuestion $question): JsonResponse
     {
+        abort_unless((int) $question->school_id === (int) auth()->user()->school_id, 404);
         $question->delete();
         return response()->json(['message' => 'Question deleted.']);
     }
 
     public function start(Exam $exam): JsonResponse
     {
+        $this->assertOwnSchool($exam);
         $result = $this->service->startExam($exam->id);
         return response()->json($result);
     }
 
     public function submit(Request $request, Exam $exam): JsonResponse
     {
+        $this->assertOwnSchool($exam);
         $validated = $request->validate([
             'answers' => 'required|array',
         ]);
@@ -126,6 +145,21 @@ class ExamController extends Controller
 
     public function submissions(Exam $exam): JsonResponse
     {
+        $this->assertOwnSchool($exam);
+        abort_unless(
+            auth()->user()->hasRole(['super_admin', 'admin', 'principal', 'teacher', 'homeroom_teacher']),
+            403
+        );
         return response()->json($exam->results()->with('student.user')->get());
+    }
+
+    private function assertOwnSchool(Exam $exam): void
+    {
+        abort_unless((int) $exam->school_id === (int) auth()->user()->school_id, 404);
+    }
+
+    private function canSeeAnswerKey(): bool
+    {
+        return (bool) auth()->user()->hasRole(['super_admin', 'admin', 'principal', 'teacher', 'homeroom_teacher']);
     }
 }

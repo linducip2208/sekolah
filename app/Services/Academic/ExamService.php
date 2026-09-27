@@ -40,6 +40,9 @@ class ExamService
             $questions = $questions->shuffle()->values();
         }
 
+        // Never expose the answer key to the exam taker.
+        $questions->each->makeHidden(['correct_answer']);
+
         return $result->setRelation('exam', $exam->setRelation('questions', $questions));
     }
 

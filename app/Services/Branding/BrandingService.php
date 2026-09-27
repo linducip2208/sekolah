@@ -39,6 +39,13 @@ class BrandingService
 
     public function update(int $schoolId, array $data): SchoolBranding
     {
+        if (! empty($data['custom_domain'])) {
+            $taken = SchoolBranding::where('custom_domain', $data['custom_domain'])
+                ->where('school_id', '!=', $schoolId)
+                ->exists();
+            abort_if($taken, 422, 'Domain kustom sudah dipakai sekolah lain.');
+        }
+
         $branding = SchoolBranding::firstOrCreate(['school_id' => $schoolId]);
 
         $allowed = [

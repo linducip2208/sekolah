@@ -165,7 +165,9 @@ class MarksService
     {
         $this->assertReportCardIsEditable($schoolId, (int) $row['student_id'], (int) $row['semester_id']);
         $percentage = ($row['obtained_marks'] / $row['total_marks']) * 100;
-        $grade = $row['grade'] ?? $this->resolveGrade($schoolId, $percentage);
+        // Server-side grade resolution always wins; caller-supplied grade is only
+        // a fallback when no active grading system exists (prevents grade injection).
+        $grade = $this->resolveGrade($schoolId, $percentage) ?? ($row['grade'] ?? null);
 
         return Mark::updateOrCreate(
             [

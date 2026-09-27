@@ -13,11 +13,12 @@ class FeeRefundService
     public function refund(FeeInvoice $invoice, int $amount, string $reason, ?int $paymentId = null): FeeRefund
     {
         abort_if($amount <= 0, 422, 'Jumlah refund tidak valid.');
-        abort_if($amount > $invoice->paid_amount, 422, 'Refund melebihi jumlah yang sudah dibayar.');
 
         $refund = null;
 
         DB::transaction(function () use ($invoice, $amount, $reason, $paymentId, &$refund) {
+            $invoice = FeeInvoice::whereKey($invoice->id)->lockForUpdate()->firstOrFail();
+            abort_if($amount > $invoice->paid_amount, 422, 'Refund melebihi jumlah yang sudah dibayar.');
             $refund = FeeRefund::create([
                 'school_id'      => $invoice->school_id,
                 'fee_invoice_id' => $invoice->id,

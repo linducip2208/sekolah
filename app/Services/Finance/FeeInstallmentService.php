@@ -41,12 +41,14 @@ class FeeInstallmentService
     /** Mark an installment paid and record a payment against the invoice. */
     public function pay(FeeInstallment $installment, int $amount, string $method = 'cash', ?string $reference = null): FeeInstallment
     {
-        abort_if($installment->status === 'paid', 422, 'Cicilan sudah lunas.');
         abort_if($amount <= 0, 422, 'Jumlah pembayaran tidak valid.');
 
-        $invoice = $installment->invoice;
+        return DB::transaction(function () use ($installment, $amount, $method, $reference) {
+            $installment = FeeInstallment::whereKey($installment->id)->lockForUpdate()->firstOrFail();
+            abort_if($installment->status === 'paid', 422, 'Cicilan sudah lunas.');
 
-        DB::transaction(function () use ($installment, $invoice, $amount, $method, $reference) {
+            $invoice = FeeInvoice::whereKey($installment->fee_invoice_id)->lockForUpdate()->firstOrFail();
+
             FeePayment::create([
                 'school_id'      => $invoice->school_id,
                 'fee_invoice_id' => $invoice->id,
@@ -68,13 +70,13 @@ class FeeInstallmentService
                 'paid_amount' => $newPaid,
                 'status'      => $newPaid >= $invoice->amount ? 'paid' : 'partial',
             ]);
+
+            app(AccountingService::class)->postFeePayment(
+                $invoice->school_id, $amount, $method, $reference, now()->toDateString()
+            );
+
+            return $installment->fresh();
         });
-
-        app(AccountingService::class)->postFeePayment(
-            $invoice->school_id, $amount, $method, $reference, now()->toDateString()
-        );
-
-        return $installment->fresh();
     }
 
     /** Mark pending installments past their due date as overdue. Returns count. */

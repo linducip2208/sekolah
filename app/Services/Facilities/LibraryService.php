@@ -107,11 +107,22 @@ class LibraryService
         return $overdueDays * $finePerDay;
     }
 
-    public function markOverdue(): int
+    public function markOverdue(?int $schoolId = null): int
     {
-        return BookIssue::where('due_date', '<', today())
-            ->where('status', 'issued')
-            ->update(['status' => 'overdue']);
+        $schoolIds = $schoolId
+            ? [$schoolId]
+            : \App\Models\School::withoutGlobalScopes()->where('is_active', true)->pluck('id');
+
+        $total = 0;
+        foreach ($schoolIds as $id) {
+            $total += BookIssue::withoutGlobalScopes()
+                ->where('school_id', $id)
+                ->where('due_date', '<', today())
+                ->where('status', 'issued')
+                ->update(['status' => 'overdue']);
+        }
+
+        return $total;
     }
 
     protected function schoolId(): int

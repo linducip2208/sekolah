@@ -187,21 +187,33 @@ class DocumentController extends Controller
     {
         $doc = $approval->document;
         abort_unless($doc->school_id === $this->schoolId, 403);
+        abort_unless(
+            (int) $approval->approver_id === (int) auth()->id()
+                || auth()->user()->hasRole(['super_admin', 'admin']),
+            403,
+            'Hanya approver yang ditunjuk yang dapat memutuskan.'
+        );
 
         $data = $request->validate([
             'decision' => 'required|in:approved,rejected',
             'notes'    => 'nullable|string',
         ]);
 
-        $approval->update([
-            'status'     => $data['decision'],
-            'notes'      => $data['notes'],
-            'decided_at' => now(),
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($approval, $doc, $data) {
+            $locked = DocumentApproval::whereKey($approval->id)->lockForUpdate()->firstOrFail();
+            abort_if(in_array($locked->status, ['approved', 'rejected'], true), 422, 'Keputusan sudah final.');
 
-        if ($data['decision'] === 'approved') {
-            $doc->update(['is_published' => true, 'published_at' => now()]);
-        }
+            $locked->update([
+                'status'     => $data['decision'],
+                'notes'      => $data['notes'],
+                'decided_at' => now(),
+                'decided_by' => auth()->id(),
+            ]);
+
+            if ($data['decision'] === 'approved') {
+                $doc->update(['is_published' => true, 'published_at' => now()]);
+            }
+        });
 
         $label = $data['decision'] === 'approved' ? 'disetujui' : 'ditolak';
         return back()->with('success', "Dokumen '{$doc->title}' {$label}.");
@@ -233,6 +245,12 @@ class DocumentController extends Controller
 
     public function revokeShare(DocumentShare $share): RedirectResponse
     {
+        abort_unless($share->document->school_id === $this->schoolId, 403);
+        abort_unless(
+            (int) $share->shared_by === (int) auth()->id()
+                || auth()->user()->hasRole(['super_admin', 'admin']),
+            403
+        );
         $share->update(['is_active' => false]);
         return back()->with('success', 'Link berbagi dicabut.');
     }

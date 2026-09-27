@@ -107,6 +107,8 @@ class PpdbService
     {
         $fresh = DB::transaction(function () use ($app, $reviewerId, $note) {
             $locked = $this->lockApplication($app);
+            // Serialize quota decisions per period to prevent concurrent over-acceptance.
+            PpdbPeriod::withoutGlobalScopes()->lockForUpdate()->findOrFail($locked->ppdb_period_id);
             $this->reviewerForSchool($locked->school_id, $reviewerId);
             abort_unless(in_array($locked->status, ['verified', 'waitlist'], true), 422, 'Hanya pendaftar terverifikasi yang dapat diterima.');
             $this->ensureQuotaAvailable($locked, true);
@@ -561,10 +563,22 @@ class PpdbService
     {
         $year = $period->open_date->format('Y');
 
-        return sprintf('PPDB-%s-%s-%s',
-            $year,
-            $period->school_id,
-            strtoupper(Str::random(6)),
-        );
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $candidate = sprintf('PPDB-%s-%s-%s',
+                $year,
+                $period->school_id,
+                strtoupper(Str::random(6)),
+            );
+
+            $exists = PpdbApplication::withoutGlobalScopes()
+                ->where('registration_no', $candidate)
+                ->exists();
+
+            if (! $exists) {
+                return $candidate;
+            }
+        }
+
+        abort(500, 'Gagal membuat nomor registrasi unik. Silakan coba lagi.');
     }
 }

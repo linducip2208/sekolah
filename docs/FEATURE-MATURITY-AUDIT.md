@@ -87,4 +87,20 @@ Latest verification snapshot: 304 tests / 1,590 assertions passed; route registr
 - Regression baru: `tests/Feature/SuperAdmin/SubscriptionCouponTest.php` (3 tests) — passed. `SuperAdminTest` (11 tests), Branding (4 tests) — passed.
 - Build + `route:cache` + `config:cache` passed (cache dibersihkan kembali untuk dev).
 
+## Verifikasi 27 September 2026 — putaran 3 (enterprise hardening)
+
+- Ujian/CBT: kunci jawaban disembunyikan dari siswa (`startExam` + `GET questions` via `makeHidden`, kecuali role teacher/admin/principal); `submissions` khusus staf; seluruh endpoint exam menegaskan kepemilikan sekolah (404 lintas sekolah); `store` validasi `class_section/subject` satu sekolah.
+- Nilai: `persistMark` selalu memakai grade hasil resolusi server (menutup injeksi grade via API/sync).
+- Perpustakaan: `markOverdue(?schoolId)` per-sekolah (sebelumnya mass-update lintas tenant); command scheduler memproses semua sekolah aktif satu per satu; endpoint API memakai school_id pemanggil.
+- Finance: `generateMonthlyInvoices` transaksional; `FeeInstallmentService::pay` mengunci installment+invoice, cek status di dalam transaksi, dan posting jurnal di dalam transaksi yang sama; `FeeRefundService::refund` mengunci invoice dan validasi di dalam transaksi.
+- PPDB: `accept()` mengunci baris periode (mencegah over-quota konkuren); nomor registrasi retry unik (maks 5x) sesuai constraint unique.
+- LMS quiz: `submit()` menolak kuis belum publish, berjalan transaksional, `attempt_no` dari `max()` terkunci, dan memvalidasi siswa satu sekolah.
+- Dokumen: `decideApproval` hanya approver/admin, guard terminal + lock + audit `decided_by` (migration `2026_09_27_000003`); `revokeShare` hanya pemilik/admin satu sekolah.
+- Tanda tangan digital: hash memakai timestamp tunggal (perbaiki verifikasi lintas-detik); hapus hanya pemilik/admin.
+- Branding: `custom_domain` ditolak bila dipakai sekolah lain (anti-hijack).
+- Notifikasi: `NotifyParentDisciplineJob`, `NotifyParentClinicVisitJob`, `SendWhatsAppNotification` kini `tries=3` + backoff eksponensial.
+- Diverifikasi tidak perlu diubah: `InventoryStockController` sudah `authorizeOwn`; blade `take` kuis tidak membocorkan kunci (hanya `result` pasca-submit, sesuai desain); `MarksController` sudah permission+scope ketat.
+- Regression baru: `tests/Feature/Academic/ExamSecurityTest.php` (7 tests) + 1 test quiz unpublished — passed.
+- Full suite 27 Sep 2026 putaran 3: **318 passed / 1,611 assertions, 0 failed** (11 mnt). `npm run build` passed; `route:cache` + `config:cache` passed (dibersihkan kembali); `git diff --check` bersih; route registry 1,576.
+
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.

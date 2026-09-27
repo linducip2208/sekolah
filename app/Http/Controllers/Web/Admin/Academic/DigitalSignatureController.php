@@ -57,6 +57,11 @@ class DigitalSignatureController extends Controller
     public function destroy(DigitalSignature $signature): RedirectResponse
     {
         abort_unless($signature->school_id === $this->schoolId(), 403);
+        abort_unless(
+            (int) $signature->user_id === (int) auth()->id()
+                || auth()->user()->hasRole(['super_admin', 'admin']),
+            403
+        );
 
         Storage::disk('public')->delete($signature->signature_image_path);
         if ($signature->certificate_path) {
@@ -85,14 +90,15 @@ class DigitalSignatureController extends Controller
             return back()->withErrors('PIN tanda tangan salah atau tanda tangan tidak aktif.');
         }
 
-        $hashValue = hash('sha256', $data['document_type'] . $data['document_id'] . $this->schoolId() . now()->timestamp);
+        $now = now();
+        $hashValue = hash('sha256', $data['document_type'] . $data['document_id'] . $this->schoolId() . $now->timestamp);
 
         SignedDocument::create([
             'school_id'           => $this->schoolId(),
             'digital_signature_id'=> $sig->id,
             'document_type'       => $data['document_type'],
             'document_id'         => $data['document_id'],
-            'signed_at'           => now(),
+            'signed_at'           => $now,
             'ip_address'          => $request->ip(),
             'hash_value'          => $hashValue,
         ]);
