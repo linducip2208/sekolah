@@ -115,6 +115,9 @@ Route::prefix('v1')->middleware(['api'])->group(function () {
 
     // Visitor QR scan at gate (can be from authenticated device)
     Route::post('/visitor/scan',      [VisitorScanController::class, 'scan'])->middleware('throttle:60,1');
+
+    // LMS certificate public verification (unguessable certificate_no + throttle)
+    Route::get('/public/certificates/{certificateNo}', [\App\Http\Controllers\Api\Lms\LmsController::class, 'verifyCertificate'])->middleware('throttle:30,1');
 });
 
 // Authenticated — no school check (works for all users including super_admin)
@@ -246,6 +249,17 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     Route::post('/payroll/generate-slip',                   [PayrollController::class, 'generateSlip']);
     Route::get('/payroll/slips',                            [PayrollController::class, 'slips']);
     Route::post('/payroll/slips/{salarySlip}/mark-paid',    [PayrollController::class, 'markPaid']);
+
+    // LMS mobile (courses, progress, quizzes, certificates)
+    Route::get('/lms/courses',                              [\App\Http\Controllers\Api\Lms\LmsController::class, 'courses']);
+    Route::get('/lms/courses/{courseId}',                   [\App\Http\Controllers\Api\Lms\LmsController::class, 'showCourse']);
+    Route::post('/lms/enroll',                              [\App\Http\Controllers\Api\Lms\LmsController::class, 'enroll']);
+    Route::get('/lms/progress',                             [\App\Http\Controllers\Api\Lms\LmsController::class, 'myProgress']);
+    Route::post('/lms/complete-lesson',                     [\App\Http\Controllers\Api\Lms\LmsController::class, 'completeLesson']);
+    Route::get('/lms/quizzes',                              [\App\Http\Controllers\Api\Lms\LmsController::class, 'quizzes']);
+    Route::post('/lms/quiz/submit',                         [\App\Http\Controllers\Api\Lms\LmsController::class, 'submitQuiz']);
+    Route::get('/lms/enrollments/{enrollmentId}/certificate', [\App\Http\Controllers\Api\Lms\LmsController::class, 'certificate']);
+    Route::post('/lms/enrollments/{enrollmentId}/certificate', [\App\Http\Controllers\Api\Lms\LmsController::class, 'issueCertificate']);
 
     // Module 14 — Library
     Route::get('/library/categories',                       [LibraryController::class, 'categories']);

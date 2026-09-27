@@ -56,6 +56,7 @@ class ProcurementWorkflowTest extends TestCase
 
     public function test_procurement_rejects_receiving_more_than_ordered_quantity(): void
     {
+
         $school = School::factory()->create();
         $admin = User::factory()->create(['school_id' => $school->id]);
         $admin->assignRole('admin');
@@ -83,5 +84,44 @@ class ProcurementWorkflowTest extends TestCase
             $this->assertStringContainsString('tidak valid', $exception->getMessage());
         }
         $this->assertDatabaseHas('procurement_items', ['id' => $item->id, 'received_qty' => 0]);
+    }
+
+    public function test_procurement_enforces_approval_step_order(): void
+    {
+        $school = School::factory()->create();
+        $admin = User::factory()->create(['school_id' => $school->id]);
+        $admin->assignRole('admin');
+        $accountant = User::factory()->create(['school_id' => $school->id]);
+        $accountant->assignRole('accountant');
+        $this->actingAs($admin);
+        $service = new ProcurementService($school->id);
+
+        $request = $service->create([
+            'requester_id' => $admin->id,
+            'title' => 'Pengadaan lab',
+            'estimated_budget' => 2000000,
+            'urgency' => 'medium',
+            'items' => [[
+                'item_name' => 'Mikroskop',
+                'quantity' => 2,
+                'unit' => 'unit',
+                'estimated_unit_price' => 1000000,
+            ]],
+        ]);
+
+        $service->submitForApproval($request);
+        $steps = $request->approvals()->orderBy('step_order')->get();
+        $this->assertGreaterThanOrEqual(2, $steps->count());
+
+        try {
+            $service->approveStep($steps->last(), 'Lompat antrean.');
+            $this->fail('Approving out of order must fail.');
+        } catch (\RuntimeException $exception) {
+            $this->assertStringContainsString('urutan', $exception->getMessage());
+        }
+
+        $service->approveStep($steps->first(), 'Setuju tahap 1.');
+        $service->approveStep($steps->last(), 'Setuju tahap 2.');
+        $this->assertSame('approved', $request->fresh()->status);
     }
 }

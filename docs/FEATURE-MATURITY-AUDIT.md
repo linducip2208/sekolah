@@ -112,4 +112,17 @@ Latest verification snapshot: 304 tests / 1,590 assertions passed; route registr
 - Regression baru: `AccountingPeriodTest` (4 tests), `PlanQuotaTest` (4 tests) — passed.
 - Full suite 27 Sep 2026 putaran 4: **326 passed / 1,621 assertions, 0 failed**. Build + caches passed; `diff --check` bersih.
 
+## Verifikasi 27 September 2026 — putaran 5 (enterprise-ready)
+
+- Procurement: `approveStep` menegakkan urutan tahap (tahap akhir tak bisa disetujui sebelum tahap awal).
+- Counseling: `scheduleSession` transaksional + lock anti double-booking; `completeSession` guard sekolah; `recordWellness` key mencakup `school_id`.
+- LMS mobile API (`/api/v1/lms/*`): kursus publish, enroll, progres, complete-lesson, quiz submit, sertifikat issue (staf) + verifikasi publik throttled; semua scope sekolah + ownership.
+- Sertifikat: nomor unik dengan retry (tutup 500 tabrakan).
+- PPDB: `enrollStudent` membuat invoice daftar-ulang otomatis dari `form_fee` periode (idempoten); dunning `subscription:send-reminders` diverifikasi berjalan.
+- Student lifecycle: transfer + batch-promote kini menulis `StudentStatusHistory` (+ activity log via service).
+- PWA: ikon PNG 192/512 nyata (`public/icons/`) + manifest installable.
+- Search: `mapFulltext` tanpa N+1 + hasil grup `users` dipetakan ke siswa (cari nama berfungsi).
+- Regression baru: `LmsApiTest` (4), `PpdbEnrollInvoiceTest` (2), `GlobalSearchTest` (1).
+- Full suite 27 Sep 2026 putaran 5: **334 passed / 1,646 assertions, 0 failed**. Build + caches passed; `diff --check` bersih.
+
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.

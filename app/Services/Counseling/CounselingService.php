@@ -15,43 +15,51 @@ class CounselingService
 {
     public function scheduleSession(int $schoolId, array $data): CounselingSession
     {
-        Student::withoutGlobalScopes()
-            ->where('school_id', $schoolId)
-            ->findOrFail($data['student_id']);
-        User::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($data['counselor_id']);
+        return DB::transaction(function () use ($schoolId, $data) {
+            Student::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->findOrFail($data['student_id']);
+            User::withoutGlobalScopes()->where('school_id', $schoolId)->findOrFail($data['counselor_id']);
 
-        $start = Carbon::parse($data['scheduled_at']);
-        $end = $start->copy()->addMinutes($data['duration_minutes'] ?? 45);
-        $hasConflict = CounselingSession::withoutGlobalScopes()
-            ->where('school_id', $schoolId)
-            ->whereIn('status', ['scheduled', 'rescheduled'])
-            ->whereDate('scheduled_at', $start->toDateString())
-            ->get()
-            ->contains(function (CounselingSession $existing) use ($start, $end, $data) {
-                $existingEnd = $existing->scheduled_at->copy()->addMinutes($existing->duration_minutes);
+            $start = Carbon::parse($data['scheduled_at']);
+            $end = $start->copy()->addMinutes($data['duration_minutes'] ?? 45);
+            $hasConflict = CounselingSession::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->whereIn('status', ['scheduled', 'rescheduled'])
+                ->whereDate('scheduled_at', $start->toDateString())
+                ->where(function ($q) use ($data) {
+                    $q->where('counselor_id', $data['counselor_id'])
+                        ->orWhere('student_id', $data['student_id']);
+                })
+                ->lockForUpdate()
+                ->get()
+                ->contains(function (CounselingSession $existing) use ($start, $end) {
+                    $existingEnd = $existing->scheduled_at->copy()->addMinutes($existing->duration_minutes);
 
-                return ($existing->counselor_id === (int) $data['counselor_id'] || $existing->student_id === (int) $data['student_id'])
-                    && $existing->scheduled_at->lt($end)
-                    && $existingEnd->gt($start);
-            });
+                    return $existing->scheduled_at->lt($end) && $existingEnd->gt($start);
+                });
 
-        abort_if($hasConflict, 422, 'Jadwal konseling berbenturan dengan sesi lain.');
+            abort_if($hasConflict, 422, 'Jadwal konseling berbenturan dengan sesi lain.');
 
-        return CounselingSession::create([
-            'school_id' => $schoolId,
-            'student_id' => $data['student_id'],
-            'counselor_id' => $data['counselor_id'],
-            'scheduled_at' => $data['scheduled_at'],
-            'duration_minutes' => $data['duration_minutes'] ?? 45,
-            'type' => $data['type'],
-            'status' => 'scheduled',
-        ]);
+            return CounselingSession::create([
+                'school_id' => $schoolId,
+                'student_id' => $data['student_id'],
+                'counselor_id' => $data['counselor_id'],
+                'scheduled_at' => $data['scheduled_at'],
+                'duration_minutes' => $data['duration_minutes'] ?? 45,
+                'type' => $data['type'],
+                'status' => 'scheduled',
+            ]);
+        });
     }
 
     public function completeSession(CounselingSession $session, ?string $notes, bool $referExternal = false, ?string $referredTo = null): CounselingSession
     {
         return DB::transaction(function () use ($session, $notes, $referExternal, $referredTo) {
             $locked = CounselingSession::withoutGlobalScopes()->whereKey($session->id)->lockForUpdate()->firstOrFail();
+            if (auth()->check() && auth()->user()->school_id) {
+                abort_unless((int) $locked->school_id === (int) auth()->user()->school_id, 404);
+            }
             abort_unless(in_array($locked->status, ['scheduled', 'rescheduled'], true), 422, 'Sesi konseling tidak dapat diselesaikan dari status saat ini.');
 
             $locked->update([
@@ -117,7 +125,7 @@ class CounselingService
                 ->findOrFail($studentId);
 
             $checkin = WellnessCheckin::updateOrCreate(
-                ['student_id' => $studentId, 'checkin_date' => today()],
+                ['school_id' => $schoolId, 'student_id' => $studentId, 'checkin_date' => today()],
                 [
                     'school_id' => $schoolId,
                     'mood_score' => $moodScore,

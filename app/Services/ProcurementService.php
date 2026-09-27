@@ -205,6 +205,14 @@ class ProcurementService
             if ($locked->status !== 'pending') {
                 throw new \RuntimeException('Tahap persetujuan ini sudah diproses.');
             }
+            $earlierPending = ProcurementApproval::where('procurement_request_id', $locked->procurement_request_id)
+                ->where('step_order', '<', $locked->step_order)
+                ->where('status', 'pending')
+                ->lockForUpdate()
+                ->exists();
+            if ($earlierPending) {
+                throw new \RuntimeException('Tahap sebelumnya belum disetujui. Ikuti urutan persetujuan.');
+            }
             $locked->update(['status' => 'approved', 'notes' => $notes, 'decided_at' => now()]);
             $this->checkCompletion($locked->request()->lockForUpdate()->firstOrFail());
         });

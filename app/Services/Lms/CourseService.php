@@ -130,17 +130,27 @@ class CourseService
 
         abort_unless($enrollment->status === 'completed', 422, 'Kursus belum selesai (progres belum 100%).');
 
-        return CourseCertificate::firstOrCreate(
-            [
-                'school_id' => $enrollment->school_id,
-                'course_enrollment_id' => $enrollment->id,
-            ],
-            [
-                'certificate_no' => 'CRT-'.strtoupper(Str::random(12)),
-                'issued_at' => now()->toDateString(),
-                'issued_by' => $userId,
-            ]
-        );
+        $existing = CourseCertificate::where('school_id', $enrollment->school_id)
+            ->where('course_enrollment_id', $enrollment->id)
+            ->first();
+        if ($existing) {
+            return $existing;
+        }
+
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $candidate = 'CRT-' . strtoupper(Str::random(12));
+            if (! CourseCertificate::withoutGlobalScopes()->where('certificate_no', $candidate)->exists()) {
+                return CourseCertificate::create([
+                    'school_id' => $enrollment->school_id,
+                    'course_enrollment_id' => $enrollment->id,
+                    'certificate_no' => $candidate,
+                    'issued_at' => now()->toDateString(),
+                    'issued_by' => $userId,
+                ]);
+            }
+        }
+
+        abort(500, 'Gagal membuat nomor sertifikat unik. Silakan coba lagi.');
     }
 
     public function certificateFor(CourseEnrollment $enrollment): ?CourseCertificate

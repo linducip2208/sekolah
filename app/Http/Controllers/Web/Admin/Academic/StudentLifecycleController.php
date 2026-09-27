@@ -75,6 +75,15 @@ class StudentLifecycleController extends Controller
                 ]);
 
                 $student->update(['class_section_id' => $data['to_class_section_id']]);
+
+                \App\Models\Academic\StudentStatusHistory::create([
+                    'school_id'   => $schoolId,
+                    'student_id'  => $student->id,
+                    'from_status' => $student->status,
+                    'to_status'   => $student->status,
+                    'changed_by'  => auth()->id(),
+                    'note'        => 'Kenaikan kelas massal',
+                ]);
                 $count++;
             }
         });
@@ -115,8 +124,15 @@ class StudentLifecycleController extends Controller
         $student  = Student::where('school_id', $schoolId)->findOrFail($data['student_id']);
 
         DB::transaction(function () use ($student, $data, $schoolId) {
+            // Canonical lifecycle transition: validates allowed status,
+            // writes StudentStatusHistory + activity log.
+            app(\App\Services\Academic\StudentLifecycleService::class)->transition(
+                $student,
+                'transferred',
+                "Pindah ke {$data['to_school_name']}" . ($data['reason'] ? ": {$data['reason']}" : '')
+            );
+
             $student->update([
-                'status'         => 'transferred',
                 'transferred_at' => $data['transfer_date'],
             ]);
 

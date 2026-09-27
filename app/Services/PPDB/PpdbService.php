@@ -392,8 +392,47 @@ class PpdbService
                 'reviewer_id' => $enrollerId ?? $app->reviewer_id,
             ]);
 
+            $this->createReregistrationInvoice($app, $student->id);
+
             return $student;
         });
+    }
+
+    /**
+     * Auto-create the daftar-ulang invoice when the period charges a form fee.
+     * Idempotent per application; uses a dedicated one-time fee structure.
+     */
+    protected function createReregistrationInvoice(PpdbApplication $app, int $studentId): void
+    {
+        $period = PpdbPeriod::withoutGlobalScopes()->findOrFail($app->ppdb_period_id);
+        $fee = (int) ($period->form_fee ?? 0);
+        if ($fee <= 0) {
+            return;
+        }
+
+        $structure = \App\Models\Finance\FeeStructure::firstOrCreate(
+            [
+                'school_id' => $app->school_id,
+                'name' => 'Biaya Daftar Ulang PPDB',
+                'frequency' => 'one-time',
+            ],
+            ['amount' => $fee, 'is_active' => true]
+        );
+
+        \App\Models\Finance\FeeInvoice::firstOrCreate(
+            [
+                'school_id' => $app->school_id,
+                'student_id' => $studentId,
+                'fee_structure_id' => $structure->id,
+                'period' => 'PPDB-' . $app->ppdb_period_id,
+            ],
+            [
+                'invoice_no' => 'PPDB-' . $app->school_id . '-' . $app->id,
+                'due_date' => $period->reregistration_deadline ?? now()->addDays(14)->toDateString(),
+                'amount' => $fee,
+                'status' => 'unpaid',
+            ]
+        );
     }
 
     /* ==================== WAITING LIST ==================== */

@@ -111,33 +111,56 @@ class GlobalSearchController extends Controller
     {
         $results = [];
 
+        // Batch-load user names once (avoids N+1 per row).
+        $userIds = collect($grouped['students'] ?? [])->pluck('user_id')
+            ->merge(collect($grouped['staff'] ?? [])->pluck('user_id'))
+            ->merge(collect($grouped['users'] ?? [])->pluck('id'))
+            ->filter()->map(fn ($id) => (int) $id)->unique()->values()->all();
+        $names = $userIds === []
+            ? []
+            : DB::table('users')->whereIn('id', $userIds)->pluck('name', 'id')->all();
+
+        $seenStudents = [];
         foreach ($grouped['students'] ?? [] as $s) {
-            $userName = DB::table('users')->where('id', $s['user_id'] ?? 0)->value('name') ?? '—';
+            $seenStudents[(int) ($s['id'] ?? 0)] = true;
             $results[] = [
                 'type'  => 'student',
                 'icon'  => 'user',
-                'title' => $userName,
+                'title' => $names[(int) ($s['user_id'] ?? 0)] ?? '—',
                 'sub'   => 'NIS ' . ($s['admission_no'] ?? '—'),
                 'url'   => route('admin.students.edit', $s['id']),
             ];
         }
+
+        // Users matched by name/email: resolve students among them.
+        $extraUserIds = collect($grouped['users'] ?? [])->pluck('id')->map(fn ($id) => (int) $id)->unique()->values()->all();
+        if ($extraUserIds !== []) {
+            $extraStudents = DB::table('students')
+                ->where('school_id', auth()->user()->school_id)
+                ->whereIn('user_id', $extraUserIds)
+                ->select('id', 'user_id', 'admission_no')
+                ->get();
+            foreach ($extraStudents as $s) {
+                if (isset($seenStudents[(int) $s->id])) {
+                    continue;
+                }
+                $seenStudents[(int) $s->id] = true;
+                $results[] = [
+                    'type'  => 'student',
+                    'icon'  => 'user',
+                    'title' => $names[(int) $s->user_id] ?? '—',
+                    'sub'   => 'NIS ' . ($s->admission_no ?? '—'),
+                    'url'   => route('admin.students.edit', $s->id),
+                ];
+            }
+        }
         foreach ($grouped['staff'] ?? [] as $s) {
-            $userName = DB::table('users')->where('id', $s['user_id'] ?? 0)->value('name') ?? '—';
             $results[] = [
                 'type'  => 'staff',
                 'icon'  => 'users',
-                'title' => $userName,
+                'title' => $names[(int) ($s['user_id'] ?? 0)] ?? '—',
                 'sub'   => ($s['employee_id'] ?? '—') . ' · ' . ($s['designation'] ?? '—'),
                 'url'   => route('admin.staff.edit', $s['id']),
-            ];
-        }
-        foreach ($grouped['invoices'] ?? [] as $i) {
-            $results[] = [
-                'type'  => 'invoice',
-                'icon'  => 'money',
-                'title' => $i['invoice_no'] ?? '—',
-                'sub'   => money($i['amount'] ?? 0) . ' · ' . ($i['status'] ?? '—'),
-                'url'   => route('admin.fee.invoices.show', $i['id']),
             ];
         }
         foreach ($grouped['notices'] ?? [] as $n) {
