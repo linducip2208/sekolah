@@ -48,27 +48,32 @@ class ExamService
 
     public function submitExam(int $examId, array $answers): ExamResult
     {
-        $schoolId = (int) auth()->user()->school_id;
-        $exam = Exam::withoutGlobalScopes()->with('questions')
-            ->where('school_id', $schoolId)
-            ->findOrFail($examId);
-        $student = Student::withoutGlobalScopes()
-            ->where('school_id', $schoolId)
-            ->where('user_id', auth()->id())
-            ->firstOrFail();
-        $result = ExamResult::withoutGlobalScopes()->where('school_id', $schoolId)
-            ->where('exam_id', $examId)
-            ->where('student_id', $student->id)
-            ->firstOrFail();
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($examId, $answers) {
+            $schoolId = (int) auth()->user()->school_id;
+            $exam = Exam::withoutGlobalScopes()->with('questions')
+                ->where('school_id', $schoolId)
+                ->findOrFail($examId);
+            $student = Student::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+            $result = ExamResult::withoutGlobalScopes()->where('school_id', $schoolId)
+                ->where('exam_id', $examId)
+                ->where('student_id', $student->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $result->update([
-            'answers' => $answers,
-            'submitted_at' => now(),
-        ]);
+            abort_if($result->submitted_at !== null, 422, 'Jawaban sudah dikirim dan tidak dapat diubah.');
 
-        $this->autoGrade($result, $exam);
+            $result->update([
+                'answers' => $answers,
+                'submitted_at' => now(),
+            ]);
 
-        return $result->fresh()->load('exam');
+            $this->autoGrade($result->fresh(), $exam);
+
+            return $result->fresh()->load('exam');
+        });
     }
 
     public function autoGrade(ExamResult $result, Exam $exam): void

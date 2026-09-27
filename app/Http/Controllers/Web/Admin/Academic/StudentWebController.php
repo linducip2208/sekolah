@@ -83,6 +83,7 @@ class StudentWebController extends Controller
             422,
             'Nomor induk siswa sudah digunakan di sekolah ini.'
         );
+        app(\App\Services\PlanQuotaService::class)->assertCanAddStudents($this->schoolId());
 
         DB::transaction(function () use ($data) {
             $user = User::create([

@@ -63,6 +63,10 @@ class StaffWebController extends Controller
         ]);
 
         DB::transaction(function () use ($data) {
+            if (in_array($data['role'], ['teacher', 'homeroom_teacher'], true)) {
+                app(\App\Services\PlanQuotaService::class)->assertCanAddTeachers($this->schoolId());
+            }
+
             $user = User::create([
                 'name'      => $data['name'],
                 'email'     => $data['email'],

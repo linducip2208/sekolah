@@ -359,6 +359,7 @@ class PpdbService
             $app = $this->lockApplication($app);
             abort_unless($app->status === 'accepted', 422, 'Hanya pendaftar yang sudah diterima yang bisa didaftarkan.');
             abort_if($app->enrolled_student_id, 422, 'Pendaftar ini sudah menjadi siswa.');
+            app(\App\Services\PlanQuotaService::class)->assertCanAddStudents($app->school_id);
             $email = strtolower(Str::slug($app->student_name, '.').'.'.$app->id.'@'.'student.sikadpro.app');
 
             $user = User::create([

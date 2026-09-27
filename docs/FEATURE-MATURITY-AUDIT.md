@@ -103,4 +103,13 @@ Latest verification snapshot: 304 tests / 1,590 assertions passed; route registr
 - Regression baru: `tests/Feature/Academic/ExamSecurityTest.php` (7 tests) + 1 test quiz unpublished — passed.
 - Full suite 27 Sep 2026 putaran 3: **318 passed / 1,611 assertions, 0 failed** (11 mnt). `npm run build` passed; `route:cache` + `config:cache` passed (dibersihkan kembali); `git diff --check` bersih; route registry 1,576.
 
+## Verifikasi 27 September 2026 — putaran 4 (integrity + SaaS enforcement)
+
+- CBT: `submitExam` transaksional, mengunci hasil, menolak pengiriman ulang (422) — menutup overwrite jawaban/re-grade ganda.
+- Audit log: `AuditableModel::tapActivity` mencap `properties.school_id` di setiap entri (filter UI audit kini benar-benar cocok); pluck filter `AuditLogController` di-scope per sekolah (tutup full-scan).
+- Akuntansi: periode close/reopen (`accounting_periods`, migration `2026_09_27_000004`) — `createEntry`/`post` menolak bulan tertutup (423); reopen butuh `accounting.reopen`; UI `accounting/periods` + route; tenant-isolated. Bonus fix: `seedDefaultCoa` dan validasi akun `createEntry` memakai `withoutGlobalScopes` (sebelumnya gagal untuk sekolah lain saat auth aktif).
+- SaaS kuota: `PlanQuotaService` menegakkan `max_students/max_teachers` (0 = unlimited, sesuai schema) dengan lock di `StudentWebController::store`, `StaffWebController::store` (teacher), dan `PpdbService::enrollStudent`.
+- Regression baru: `AccountingPeriodTest` (4 tests), `PlanQuotaTest` (4 tests) — passed.
+- Full suite 27 Sep 2026 putaran 4: **326 passed / 1,621 assertions, 0 failed**. Build + caches passed; `diff --check` bersih.
+
 Tidak ada modul/domain besar baru yang ditambahkan oleh maturity upgrade ini; perubahan diarahkan pada lifecycle, integrity, automation, security, dan verifiability fitur existing.

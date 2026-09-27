@@ -198,6 +198,42 @@ class AccountingController extends Controller
         return back()->with('success', 'Jurnal dihapus.');
     }
 
+    /* ==================== PERIODS ==================== */
+
+    public function periods(): View
+    {
+        $this->requirePermission('accounting.view');
+
+        $periods = \App\Models\Finance\AccountingPeriod::where('school_id', $this->schoolId())
+            ->orderByDesc('period')
+            ->paginate(24);
+
+        return view('school-admin.finance.accounting.periods', compact('periods'));
+    }
+
+    public function closePeriod(Request $request): RedirectResponse
+    {
+        $this->requirePermission('accounting.manage');
+        $data = $request->validate([
+            'period' => ['required', 'regex:/^\d{4}-(0[1-9]|1[0-2])$/'],
+            'notes'  => 'nullable|string|max:500',
+        ]);
+
+        $this->service->closePeriod($this->schoolId(), $data['period'], $data['notes'] ?? null);
+
+        return back()->with('success', "Periode {$data['period']} ditutup.");
+    }
+
+    public function reopenPeriod(Request $request, \App\Models\Finance\AccountingPeriod $period): RedirectResponse
+    {
+        $this->requirePermission('accounting.reopen');
+        $this->authorizeOwn($period);
+
+        $this->service->reopenPeriod($this->schoolId(), $period->period);
+
+        return back()->with('success', "Periode {$period->period} dibuka kembali.");
+    }
+
     /* ==================== REPORTS ==================== */
 
     public function trialBalance(Request $request): View

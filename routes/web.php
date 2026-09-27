@@ -1153,6 +1153,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/accounting/trial-balance',          [AccountingController::class, 'trialBalance'])->name('accounting.trial-balance');
         Route::get('/accounting/profit-loss',            [AccountingController::class, 'profitLoss'])->name('accounting.profit-loss');
         Route::get('/accounting/balance-sheet',          [AccountingController::class, 'balanceSheet'])->name('accounting.balance-sheet');
+        Route::get('/accounting/periods',                [AccountingController::class, 'periods'])->name('accounting.periods');
+        Route::post('/accounting/periods/close',         [AccountingController::class, 'closePeriod'])->name('accounting.periods.close');
+        Route::post('/accounting/periods/{period}/reopen', [AccountingController::class, 'reopenPeriod'])->name('accounting.periods.reopen');
 
         // ============== AUDIT INTERNAL ==============
         Route::get('/internal-audit',                     [InternalAuditController::class, 'index'])->name('internal-audit.index');

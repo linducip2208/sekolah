@@ -30,8 +30,18 @@ class AuditLogController extends Controller
             ->paginate(50)
             ->withQueryString();
 
-        $events = Activity::query()->whereNotNull('event')->distinct()->pluck('event');
-        $logNames = Activity::query()->whereNotNull('log_name')->distinct()->pluck('log_name');
+        $events = Activity::query()
+            ->where(function ($q) use ($schoolUserIds) {
+                $q->whereIn('causer_id', $schoolUserIds)
+                  ->orWhereJsonContains('properties->school_id', auth()->user()->school_id);
+            })
+            ->whereNotNull('event')->distinct()->pluck('event');
+        $logNames = Activity::query()
+            ->where(function ($q) use ($schoolUserIds) {
+                $q->whereIn('causer_id', $schoolUserIds)
+                  ->orWhereJsonContains('properties->school_id', auth()->user()->school_id);
+            })
+            ->whereNotNull('log_name')->distinct()->pluck('log_name');
         $users  = User::where('school_id', $schoolId)->orderBy('name')->get(['id', 'name']);
 
         return view('school-admin.audit.index', compact('logs', 'events', 'logNames', 'users'));

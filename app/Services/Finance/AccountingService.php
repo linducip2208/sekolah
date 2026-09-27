@@ -2,6 +2,7 @@
 
 namespace App\Services\Finance;
 
+use App\Models\Finance\AccountingPeriod;
 use App\Models\Finance\ChartOfAccount;
 use App\Models\Finance\JournalEntry;
 use App\Models\Finance\JournalEntryLine;
@@ -30,7 +31,7 @@ class AccountingService
     /** Seed the default chart of accounts for a school (idempotent). */
     public function seedDefaultCoa(int $schoolId): int
     {
-        $existing = ChartOfAccount::where('school_id', $schoolId)->count();
+        $existing = ChartOfAccount::withoutGlobalScopes()->where('school_id', $schoolId)->count();
         if ($existing > 0) {
             return 0;
         }
@@ -58,8 +59,9 @@ class AccountingService
             && ((int) ($line['debit'] ?? 0) > 0 || (int) ($line['credit'] ?? 0) > 0)
         )->values();
         $accountIds = $usableLines->pluck('chart_of_account_id')->map(fn ($id) => (int) $id)->unique();
-        abort_unless($accountIds->count() === ChartOfAccount::where('school_id', $schoolId)->whereIn('id', $accountIds)->count(), 422, 'Semua akun jurnal harus berasal dari sekolah aktif.');
+        abort_unless($accountIds->count() === ChartOfAccount::withoutGlobalScopes()->where('school_id', $schoolId)->whereIn('id', $accountIds)->count(), 422, 'Semua akun jurnal harus berasal dari sekolah aktif.');
         abort_if($usableLines->contains(fn ($line) => (int) ($line['debit'] ?? 0) < 0 || (int) ($line['credit'] ?? 0) < 0), 422, 'Nilai debit/kredit tidak boleh negatif.');
+        $this->assertPeriodOpen($schoolId, $header['entry_date'] ?? null);
 
         return DB::transaction(function () use ($schoolId, $header, $lines) {
             $entry = JournalEntry::create(array_merge($header, [
@@ -95,6 +97,7 @@ class AccountingService
                 ->lockForUpdate()
                 ->firstOrFail();
             abort_if($locked->status === 'posted', 422, 'Jurnal sudah diposting.');
+            $this->assertPeriodOpen($locked->school_id, $locked->entry_date);
 
             $debit = (int) $locked->lines()->sum('debit');
             $credit = (int) $locked->lines()->sum('credit');
@@ -105,6 +108,94 @@ class AccountingService
                 'posted_by' => auth()->id(),
                 'posted_at' => now(),
             ]);
+        });
+    }
+
+    public static function periodOf(mixed $date): string
+    {
+        return \Carbon\Carbon::parse($date)->format('Y-m');
+    }
+
+    public function isPeriodClosed(int $schoolId, string $period): bool
+    {
+        return AccountingPeriod::withoutGlobalScopes()
+            ->where('school_id', $schoolId)
+            ->where('period', $period)
+            ->where('status', 'closed')
+            ->exists();
+    }
+
+    protected function assertPeriodOpen(int $schoolId, mixed $date): void
+    {
+        if (! $date) {
+            return;
+        }
+
+        abort_if(
+            $this->isPeriodClosed($schoolId, self::periodOf($date)),
+            423,
+            'Periode akuntansi sudah ditutup. Minta pembukaan kembali (reopen) ke admin.'
+        );
+    }
+
+    /** Close a month so no journal can be created/posted into it. */
+    public function closePeriod(int $schoolId, string $period, ?string $notes = null): AccountingPeriod
+    {
+        abort_unless(preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $period) === 1, 422, 'Format periode harus YYYY-MM.');
+
+        return DB::transaction(function () use ($schoolId, $period, $notes) {
+            $record = AccountingPeriod::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('period', $period)
+                ->lockForUpdate()
+                ->first();
+
+            if ($record) {
+                abort_if($record->status === 'closed', 422, 'Periode sudah ditutup.');
+                $record->update([
+                    'status' => 'closed',
+                    'closed_by' => auth()->id(),
+                    'closed_at' => now(),
+                    'reopened_by' => null,
+                    'reopened_at' => null,
+                    'notes' => $notes,
+                ]);
+                return $record->fresh();
+            }
+
+            return AccountingPeriod::create([
+                'school_id' => $schoolId,
+                'period' => $period,
+                'status' => 'closed',
+                'closed_by' => auth()->id(),
+                'closed_at' => now(),
+                'notes' => $notes,
+            ]);
+        });
+    }
+
+    /** Reopen a closed month. Restricted to accounting.reopen holders. */
+    public function reopenPeriod(int $schoolId, string $period): AccountingPeriod
+    {
+        $user = auth()->user();
+        abort_unless($user && ($user->hasRole(['super_admin', 'admin']) || $user->can('accounting.reopen')), 403);
+
+        return DB::transaction(function () use ($schoolId, $period) {
+            $record = AccountingPeriod::withoutGlobalScopes()
+                ->where('school_id', $schoolId)
+                ->where('period', $period)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            abort_if($record->status !== 'closed', 422, 'Hanya periode tertutup yang dapat dibuka kembali.');
+
+            $record->update([
+                'status' => 'open',
+                'reopened_by' => auth()->id(),
+                'reopened_at' => now(),
+            ]);
+
+            return $record->fresh();
         });
     }
 
