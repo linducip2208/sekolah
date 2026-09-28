@@ -57,6 +57,8 @@ class RequirePair
             '/jurusan-sma-', '/jurusan-smk-',
             '/lowongan-guru-', '/beasiswa-', '/ekstrakurikuler-',
             '/donate/', '/events/', '/alumni/',
+            '/sistem-', '/aplikasi-', '/school-', '/tentang-',
+            '/pricing', '/docs', '/blog', '/faq',
         ];
         foreach ($pseoPrefixes as $prefix) {
             if (str_starts_with($path, $prefix)) return true;

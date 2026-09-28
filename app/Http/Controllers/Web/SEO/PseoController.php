@@ -598,12 +598,18 @@ class PseoController extends Controller
 
         $urls[] = ['loc' => url('/'), 'priority' => '1.0'];
         $urls[] = ['loc' => url('/docs'), 'priority' => '0.7'];
+        foreach (['sistem-informasi-sekolah', 'aplikasi-ppdb-online', 'aplikasi-pembayaran-spp', 'aplikasi-rapor-digital', 'school-management-system', 'tentang-sikad-pro'] as $pillar) {
+            $urls[] = ['loc' => url("/{$pillar}"), 'priority' => '0.9'];
+        }
         foreach (['admin','parent','student','teacher','super-admin','developer'] as $role) {
             $urls[] = ['loc' => url("/docs/{$role}"), 'priority' => '0.6'];
         }
 
         try {
-            $schools = School::where('is_active', true)->get();
+            $schools = School::where('is_active', true)
+                ->where('subdomain', 'not like', 'demo%')
+                ->where('subdomain', 'not like', '%-test')
+                ->get();
             foreach ($schools as $s) {
                 $city = $s->settings['city'] ?? null;
                 if ($city) {
@@ -656,9 +662,20 @@ class PseoController extends Controller
 
         // Blog posts
         if (class_exists(\App\Models\BlogPost::class)) {
-            $posts = \App\Models\BlogPost::published()->select('slug', 'updated_at')->get();
-            foreach ($posts as $post) {
-                $urls[] = ['loc' => url("/blog/{$post->slug}"), 'priority' => '0.7', 'lastmod' => $post->updated_at->toAtomString()];
+            try {
+                $posts = \App\Models\BlogPost::published()->select('slug', 'updated_at')->get();
+                foreach ($posts as $post) {
+                    $urls[] = ['loc' => url("/blog/{$post->slug}"), 'priority' => '0.7', 'lastmod' => $post->updated_at->toAtomString()];
+                }
+                $urls[] = ['loc' => route('blog.index'), 'priority' => '0.7'];
+                if (class_exists(\App\Models\BlogCategory::class)) {
+                    $categories = \App\Models\BlogCategory::select('slug')->get();
+                    foreach ($categories as $cat) {
+                        $urls[] = ['loc' => route('blog.category', $cat->slug), 'priority' => '0.6'];
+                    }
+                }
+            } catch (\Throwable $e) {
+                // table not yet migrated
             }
         }
 
@@ -677,24 +694,6 @@ class PseoController extends Controller
                 ->where('is_published', true)->where('starts_at', '>=', now())->with('school')->get();
             foreach ($events as $e) {
                 $urls[] = ['loc' => url("/events/{$e->school->subdomain}/{$e->slug}"), 'priority' => '0.6'];
-            }
-        } catch (\Throwable $e) {
-            // table not yet migrated
-        }
-
-        try {
-            if (class_exists(\App\Models\BlogPost::class)) {
-                $blogPosts = \App\Models\BlogPost::published()->select('slug', 'updated_at')->get();
-                foreach ($blogPosts as $post) {
-                    $urls[] = ['loc' => route('blog.show', $post->slug), 'priority' => '0.7', 'lastmod' => $post->updated_at->toAtomString()];
-                }
-                $urls[] = ['loc' => route('blog.index'), 'priority' => '0.7'];
-                if (class_exists(\App\Models\BlogCategory::class)) {
-                    $categories = \App\Models\BlogCategory::select('slug')->get();
-                    foreach ($categories as $cat) {
-                        $urls[] = ['loc' => route('blog.category', $cat->slug), 'priority' => '0.6'];
-                    }
-                }
             }
         } catch (\Throwable $e) {
             // table not yet migrated

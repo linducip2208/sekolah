@@ -130,4 +130,66 @@ class StructuredDataBuilder
             ], $items, array_keys($items)),
         ];
     }
+
+    public function organization(): array
+    {
+        return [
+            '@context'    => 'https://schema.org',
+            '@type'       => 'Organization',
+            'name'        => 'SIKAD PRO',
+            'description' => 'Education Management Platform — multi-tenant School ERP / School Operating System untuk sekolah, yayasan, guru, siswa, dan orang tua.',
+            'url'         => url('/'),
+            'logo'        => url('/icons/icon-512.png'),
+            'sameAs'      => [],
+        ];
+    }
+
+    public function website(): array
+    {
+        return [
+            '@context'        => 'https://schema.org',
+            '@type'           => 'WebSite',
+            'name'            => 'SIKAD PRO',
+            'alternateName'   => ['SEKOLAH', 'School ERP', 'Education Management Platform'],
+            'url'             => url('/'),
+            'inLanguage'      => ['id', 'en'],
+        ];
+    }
+
+    public function softwareApplication(array $data): array
+    {
+        return array_filter([
+            '@context'                 => 'https://schema.org',
+            '@type'                    => 'SoftwareApplication',
+            'name'                     => $data['name'] ?? 'SIKAD PRO',
+            'applicationCategory'      => 'BusinessApplication',
+            'applicationSubCategory'   => $data['sub_category'] ?? 'Education Management Platform',
+            'operatingSystem'          => ['Web', 'Android', 'iOS'],
+            'description'              => $data['description'] ?? null,
+            'url'                      => $data['url'] ?? url('/'),
+            'image'                    => url('/icons/icon-512.png'),
+            'inLanguage'               => $data['lang'] ?? 'id',
+            'offers'                   => [
+                '@type'         => 'Offer',
+                'price'         => '0',
+                'priceCurrency' => 'IDR',
+                'description'   => 'Mulai dengan paket Starter; hubungi tim untuk demo dan penawaran Professional/Enterprise.',
+            ],
+            'author'                   => ['@type' => 'Organization', 'name' => 'SIKAD PRO'],
+        ]);
+    }
+
+    public function webPage(array $data): array
+    {
+        return array_filter([
+            '@context'      => 'https://schema.org',
+            '@type'         => 'WebPage',
+            'name'          => $data['title'] ?? null,
+            'description'   => $data['description'] ?? null,
+            'url'           => $data['url'] ?? null,
+            'inLanguage'    => $data['lang'] ?? 'id',
+            'isPartOf'      => ['@type' => 'WebSite', 'name' => 'SIKAD PRO', 'url' => url('/')],
+            'breadcrumb'    => isset($data['breadcrumb']) ? $this->breadcrumb($data['breadcrumb']) : null,
+        ]);
+    }
 }

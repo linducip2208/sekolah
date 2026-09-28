@@ -1689,6 +1689,14 @@ Route::get('/beasiswa-{type}-{year}',                          [PseoController::
 Route::get('/ekstrakurikuler-{name}-{city}',                   [PseoController::class, 'extracurricularByCity'])
     ->where('name', 'pramuka|paskibra|rohis|english-club|robotik|musik|tari|silat|basket|futsal|sepak-bola|badminton|catur|jurnalistik|teater');
 
+// ----- Product pillar pages (unique intent, GEO answer-first) -----
+Route::get('/sistem-informasi-sekolah', [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'sistemInformasiSekolah'])->name('seo.sis');
+Route::get('/aplikasi-ppdb-online',     [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'aplikasiPpdbOnline'])->name('seo.ppdb');
+Route::get('/aplikasi-pembayaran-spp',  [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'aplikasiPembayaranSpp'])->name('seo.spp');
+Route::get('/aplikasi-rapor-digital',   [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'aplikasiRaporDigital'])->name('seo.rapor');
+Route::get('/school-management-system', [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'schoolManagementSystem'])->name('seo.sms');
+Route::get('/tentang-sikad-pro',        [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'tentangSikadPro'])->name('seo.about');
+
 // Super Admin Web Panel
 Route::prefix('super')->name('super.')->group(function () {
     // Auth

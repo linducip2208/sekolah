@@ -122,7 +122,7 @@ Dokumentasi ini mencatat fitur yang tersedia di repository saat ini. Untuk statu
 
 #### 14. SaaS, white-label, dan branding
 
-- Subscription, plan, trial, billing, coupon, usage analytics, MRR, churn, growth, dan tenant management.
+- Subscription, plan, trial, billing, coupon (terpakai di transaksi dengan lock anti-replay), kuota siswa/guru per paket yang ditegakkan saat penambahan, usage analytics, MRR, churn, growth, dan tenant management.
 - Custom domain, branding sekolah, logo, warna, font, radius, header/sidebar/table color, serta white-label.
 - Lima tema sekolah dan lima tema landing melalui registry; konfigurasi dapat diubah per sekolah/platform.
 - Lisensi pairing dengan payload RSA-signed dan lock file terenkripsi AES-256-GCM.
@@ -140,6 +140,7 @@ Dokumentasi ini mencatat fitur yang tersedia di repository saat ini. Untuk statu
 - Landing page publik dengan hero, value proposition, feature showcase, screenshot aplikasi, pricing, demo account, CTA source code, dan responsive animation.
 - Blog dengan post, kategori, SEO metadata, RSS feed, sitemap inclusion, dan IndexNow ping saat publish/update.
 - Programmatic SEO dengan route patterns untuk sekolah terbaik, alternatif, perbandingan, PPDB berdasarkan kota, alumni, donasi, event, dan halaman source-code.
+- Halaman produk (pillar): sistem informasi sekolah, PPDB online, pembayaran SPP, rapor digital, school management system (EN), dan fakta produk + FAQ — dengan JSON-LD SoftwareApplication/FAQ/Breadcrumb dan internal linking.
 - Meta title/description, canonical, Open Graph, Twitter Card, JSON-LD, sitemap dinamis/cache, robots.txt, dan halaman dokumentasi `/docs`.
 - API documentation OpenAPI/Redoc dan halaman verifikasi publik.
 
@@ -237,6 +238,10 @@ node scripts/responsive-audit.cjs
 
 Sikad Pro — source code tersedia melalui [whitelabel.co.id](https://whitelabel.co.id). Lisensi pairing diperlukan untuk penggunaan production.
 
+### Dukungan
+
+Butuh demo, migrasi data, atau bantuan implementasi? Hubungi tim melalui WhatsApp: [081296052010](https://wa.me/6281296052010).
+
 ## English
 
 ### Product overview
@@ -250,7 +255,7 @@ Sikad Pro is a multi-tenant school management ERP built with Laravel. It central
 - **Teacher operations:** teaching journals, PROTA, PROMES, lesson plans/RPP, lesson study, rubrics, student observations, portfolios, teacher performance assessment, training, certification, and a configurable AI Teacher Assistant for lesson modules, rubrics, worksheets, question variations, remedial/enrichment, and essay grading.
 - **Student 360:** student profiles, documents, parents, tags, timeline, enrollment, promotion, transfer, graduation, academic/attendance/discipline/counseling/health/finance/library/transport/achievement tabs, early warnings, risk scores, at-risk monitoring, recommendations, and dropout prediction.
 - **Assessment and reporting:** question bank metadata, tags, difficulty, cognitive level, HOTS/AKM, versioning, review/approval, blueprints, packages, CBT, tokens, timers, autosave, auto-submit, quizzes, grading scales, weighted grades, grade approval/locking, item analysis, report-card PDF, interactive report cards, transcripts, QR verification, and public verification pages.
-- **LMS:** online classrooms, lessons, materials, assignments, submissions, courses, enrollment, prerequisites, quizzes, discussions, certificates, progress tracking, live classes, digital library, reading progress, surveys, and portfolios.
+- **LMS:** online classrooms, lessons, materials, assignments, submissions, courses, enrollment, prerequisites, quizzes, discussions, certificates with public verification, progress tracking, mobile REST API, live classes, digital library, reading progress, surveys, and portfolios.
 - **Admissions/PPDB:** public registration periods, dynamic form builder, tracks, quotas, zoning, document verification, tests, interviews, scoring, selection, waiting lists, announcements, admission letters, email notices, funnel reports, batch enrollment, duplicate NISN detection, and PPDB-to-student conversion.
 - **Finance and accounting:** fee structures, recurring/bulk invoices, payments, outstanding tracking, installments, overdue handling, late fees, discounts, refunds, reconciliation, budget/RKAS, planned vs actual, cash flow, school cooperative, double-entry accounting, chart of accounts, journals, trial balance, profit and loss, balance sheet, bank reconciliation, payroll, BPJS, progressive PPh21, tax profiles, reports, and KPI appraisal.
 - **Dynamic integrations:** format-based payment, notification, webhook, and AI provider adapters. Administrators enter their own endpoint, credentials, headers, model, and rates; secrets are encrypted at rest and never exposed in API responses. No vendor-specific feature mapping is required.
@@ -270,7 +275,7 @@ CBT → marks → report card; question bank → exams/quizzes → item analysis
 
 ### Stack, setup, demo access, screenshots, testing, deployment, and license
 
-The application uses Laravel 13/PHP 8.3, Blade/Alpine/Tailwind v4/Vite, Flutter/Dart, MySQL, Redis, Sanctum, Spatie Permission, Reverb, DomPDF, QRCode, Chart.js, and FullCalendar. Follow the setup commands, demo-account table, screenshot scripts, quality notes, [DEPLOYMENT.md](DEPLOYMENT.md), and license terms in the [Bahasa Indonesia section](#bahasa-indonesia).
+The application uses Laravel 13/PHP 8.3, Blade/Alpine/Tailwind v4/Vite, Flutter/Dart, MySQL, Redis, Sanctum, Spatie Permission, Reverb, DomPDF, QRCode, Chart.js, and FullCalendar. Follow the setup commands, demo-account table, screenshot scripts, quality notes, [DEPLOYMENT.md](DEPLOYMENT.md), and license terms in the [Bahasa Indonesia section](#bahasa-indonesia). Support via WhatsApp: [081296052010](https://wa.me/6281296052010).
 
 ## العربية
 

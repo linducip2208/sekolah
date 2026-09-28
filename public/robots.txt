@@ -1,8 +1,0 @@
-﻿User-agent: *
-Allow: /
-Disallow: /admin
-Disallow: /super
-Disallow: /api
-Disallow: /__pair
-
-Sitemap: /sitemap.xml
