@@ -15,7 +15,7 @@ return new class extends Migration
             $table->index('token', 'device_tokens_token_index');
         });
         Schema::table('fee_payments', function (Blueprint $table) {
-            $table->index(['fee_invoice_id', 'status'], 'fee_payments_invoice_status_index');
+            $table->index(['fee_invoice_id', 'payment_date'], 'fee_payments_invoice_date_index');
         });
     }
 
@@ -25,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('fee_payments', function (Blueprint $table) {
-            $table->dropIndex('fee_payments_invoice_status_index');
+            $table->dropIndex('fee_payments_invoice_date_index');
         });
         Schema::table('device_tokens', function (Blueprint $table) {
             $table->dropIndex('device_tokens_token_index');

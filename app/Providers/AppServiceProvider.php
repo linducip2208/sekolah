@@ -109,7 +109,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         RateLimiter::for('2fa', fn (Request $req) =>
-            Limit::perMinute(10)->by((string) ($req->session()->get('2fa.pending_user_id') ?? $req->ip()))
+            // API clients have no session; key by challenge + IP instead.
+            Limit::perMinute(10)->by((string) ($req->input('challenge_id') ?? $req->session()->get('2fa.pending_user_id') ?? $req->ip()))
         );
 
         RateLimiter::for('password-reset', fn (Request $req) =>
