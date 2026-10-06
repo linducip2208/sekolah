@@ -69,12 +69,27 @@ class ChatController extends Controller
         $validated = $request->validate([
             'body' => 'required|string|max:5000',
             'file' => 'nullable|string|max:1000',
+            'idempotency_key' => 'nullable|string|max:100',
         ]);
+
+        $idempotencyKey = $validated['idempotency_key'] ?? $request->header('Idempotency-Key');
+
+        // Idempotent retry: same key returns the original message (no duplicate).
+        if ($idempotencyKey) {
+            $existing = $conversation->messages()
+                ->where('sender_id', auth()->id())
+                ->where('idempotency_key', $idempotencyKey)
+                ->first();
+            if ($existing) {
+                return response()->json($existing->load('sender'));
+            }
+        }
 
         $message = $conversation->messages()->create([
             'sender_id' => auth()->id(),
             'body'      => $validated['body'],
             'file'      => $validated['file'] ?? null,
+            'idempotency_key' => $idempotencyKey,
         ]);
 
         $conversation->update(['last_message_at' => now()]);

@@ -56,6 +56,29 @@ test('user can send message in conversation', function () {
     expect($conversation->messages()->count())->toBe(1);
 });
 
+test('duplicate send with same idempotency key returns original (no duplicate)', function () {
+    Sanctum::actingAs($this->admin);
+
+    $userOne = min($this->admin->id, $this->teacher->id);
+    $userTwo = max($this->admin->id, $this->teacher->id);
+
+    $conversation = Conversation::create([
+        'school_id' => $this->school->id,
+        'user_one'  => $userOne,
+        'user_two'  => $userTwo,
+    ]);
+
+    $payload = ['body' => 'retry me', 'idempotency_key' => 'key-123'];
+
+    $first = $this->postJson("/api/v1/chat/conversations/{$conversation->id}/send", $payload);
+    $first->assertStatus(201);
+
+    $second = $this->postJson("/api/v1/chat/conversations/{$conversation->id}/send", $payload);
+    $second->assertOk()->assertJsonPath('id', $first->json('id'));
+
+    expect($conversation->messages()->count())->toBe(1);
+});
+
 test('user can list conversations', function () {
     Sanctum::actingAs($this->admin);
 
