@@ -13,8 +13,10 @@ class ChatController extends Controller
     public function conversations(): JsonResponse
     {
         $userId = auth()->id();
-        $convs  = Conversation::where('user_one', $userId)
-            ->orWhere('user_two', $userId)
+        $convs  = Conversation::where('school_id', auth()->user()->school_id)
+            ->where(function ($q) use ($userId) {
+                $q->where('user_one', $userId)->orWhere('user_two', $userId);
+            })
             ->with('userOne', 'userTwo')
             ->latest('last_message_at')
             ->get();
@@ -27,6 +29,16 @@ class ChatController extends Controller
 
         $me        = auth()->id();
         $recipient = $validated['recipient_id'];
+
+        if ($recipient === $me) {
+            return response()->json(['message' => 'Tidak dapat memulai percakapan dengan diri sendiri.'], 422);
+        }
+
+        $recipientUser = \App\Models\User::find($validated['recipient_id']);
+        if (!$recipientUser || (int) $recipientUser->school_id !== (int) auth()->user()->school_id) {
+            return response()->json(['message' => 'Pengguna tidak ditemukan.'], 404);
+        }
+
         $userOne   = min($me, $recipient);
         $userTwo   = max($me, $recipient);
 
@@ -39,6 +51,8 @@ class ChatController extends Controller
 
     public function messages(Conversation $conversation): JsonResponse
     {
+        $this->authorizeConversation($conversation);
+
         $messages = $conversation->messages()->with('sender')->orderBy('created_at')->get();
 
         Message::where('conversation_id', $conversation->id)
@@ -50,6 +64,8 @@ class ChatController extends Controller
 
     public function send(Request $request, Conversation $conversation): JsonResponse
     {
+        $this->authorizeConversation($conversation);
+
         $validated = $request->validate([
             'body' => 'required|string|max:5000',
             'file' => 'nullable|string|max:1000',
@@ -64,5 +80,16 @@ class ChatController extends Controller
         $conversation->update(['last_message_at' => now()]);
 
         return response()->json($message->load('sender'), 201);
+    }
+
+    private function authorizeConversation(Conversation $conversation): void
+    {
+        $userId = auth()->id();
+        abort_unless(
+            (int) $conversation->school_id === (int) auth()->user()->school_id
+                && ((int) $conversation->user_one === (int) $userId || (int) $conversation->user_two === (int) $userId),
+            403,
+            'Access denied.'
+        );
     }
 }

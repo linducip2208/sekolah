@@ -32,6 +32,31 @@ class FeeController extends Controller
 
     public function invoices(Request $request): JsonResponse
     {
+        $user = $request->user();
+
+        // Student: own invoices only (ignore query filters to prevent IDOR).
+        $student = \App\Models\Academic\Student::where('user_id', $user->id)->first();
+        if ($student) {
+            $invoices = FeeInvoice::where('student_id', $student->id)
+                ->with('feeStructure', 'payments')
+                ->latest()
+                ->get();
+            return response()->json($invoices);
+        }
+
+        // Parent: own children only (empty when no linked children — never fall through).
+        $childIds = $user->parentStudents()->pluck('students.id');
+        if ($user->hasRole('parent') || $childIds->isNotEmpty()) {
+            $invoices = FeeInvoice::whereIn('student_id', $childIds)
+                ->with('feeStructure', 'payments')
+                ->latest()
+                ->get();
+            return response()->json($invoices);
+        }
+
+        // Staff: require permission; filters allowed.
+        abort_unless($user->hasRole('super_admin') || $user->can('fee.view'), 403, 'Tidak memiliki izin keuangan.');
+
         $invoices = FeeInvoice::when($request->student_id, fn($q) => $q->where('student_id', $request->student_id))
             ->when($request->status, fn($q) => $q->where('status', $request->status))
             ->with('feeStructure', 'payments')
@@ -49,6 +74,11 @@ class FeeController extends Controller
 
     public function recordPayment(Request $request, int $invoiceId): JsonResponse
     {
+        abort_unless(
+            $request->user()->hasRole('super_admin') || $request->user()->can('fee.payment'),
+            403,
+            'Tidak memiliki izin mencatat pembayaran.'
+        );
         $validated = $request->validate([
             'amount'         => 'required|integer|min:1',
             'payment_method' => 'sometimes|in:cash,transfer,qris',

@@ -92,12 +92,12 @@ Route::prefix('v1')->middleware(['api'])->group(function () {
 
     // PPDB public registration
     Route::get('/public/ppdb/{subdomain}/periods',  [PpdbController::class, 'publicPeriods']);
-    Route::post('/public/ppdb/{subdomain}/register',[PpdbController::class, 'publicRegister']);
+    Route::post('/public/ppdb/{subdomain}/register',[PpdbController::class, 'publicRegister'])->middleware('throttle:10,1');
 
     // Donation public campaigns
     Route::get('/public/donations/{subdomain}/campaigns',          [DonationController::class, 'publicCampaigns']);
     Route::get('/public/donations/{subdomain}/campaigns/{slug}',   [DonationController::class, 'publicShowCampaign']);
-    Route::post('/public/donations/{subdomain}/campaigns/{slug}/donate', [DonationController::class, 'publicDonate']);
+    Route::post('/public/donations/{subdomain}/campaigns/{slug}/donate', [DonationController::class, 'publicDonate'])->middleware('throttle:10,1');
 
     // Alumni public directory
     Route::get('/public/alumni/{subdomain}', [AlumniController::class, 'publicDirectory']);
@@ -134,7 +134,7 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
 Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.active'])->group(function () {
     Route::get('/auth/me',              [AuthController::class, 'me']);
     Route::put('/auth/profile',         [AuthController::class, 'updateProfile']);
-    Route::post('/auth/avatar',         [AuthController::class, 'updateAvatar']);
+    Route::post('/auth/avatar',         [AuthController::class, 'updateAvatar'])->middleware('throttle:30,1');
     Route::post('/auth/change-password',[AuthController::class, 'changePassword']);
 
     // Dashboard (per role aggregator)
@@ -280,6 +280,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     // Module 15 — Hostel
     Route::get('/hostel',                                   [HostelController::class, 'index']);
     Route::post('/hostel',                                   [HostelController::class, 'store']);
+    Route::get('/hostel/{hostel}/rooms',                    [HostelController::class, 'rooms']);
     Route::post('/hostel/{hostel}/rooms',                   [HostelController::class, 'storeRoom']);
     Route::post('/hostel/allocate',                         [HostelController::class, 'allocate']);
 
@@ -311,7 +312,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
 
     // Payment Gateway — Parent / Student (initiate, status, cancel)
     Route::get('/payments/methods',                                    [PaymentGatewayController::class, 'methods']);
-    Route::post('/payments/initiate',                                  [PaymentGatewayController::class, 'initiate']);
+    Route::post('/payments/initiate',                                  [PaymentGatewayController::class, 'initiate'])->middleware('throttle:30,1');
     Route::get('/payments/{referenceNo}',                              [PaymentGatewayController::class, 'show']);
     Route::post('/payments/{referenceNo}/cancel',                      [PaymentGatewayController::class, 'cancel']);
     Route::get('/fee/invoices/{invoiceId}/payment-link',               [PaymentGatewayController::class, 'createPaymentLink']);
@@ -346,7 +347,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     Route::get('/chat/conversations',                       [ChatController::class, 'conversations']);
     Route::post('/chat/conversations',                      [ChatController::class, 'startConversation']);
     Route::get('/chat/conversations/{conversation}/messages', [ChatController::class, 'messages']);
-    Route::post('/chat/conversations/{conversation}/send',  [ChatController::class, 'send']);
+    Route::post('/chat/conversations/{conversation}/send',  [ChatController::class, 'send'])->middleware('throttle:60,1');
 
     // Module 19 — Notifications
     Route::get('/notifications',                            [NotificationController::class, 'index']);
@@ -462,9 +463,9 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
         Route::post('/admin/ai/features',              [AiController::class, 'assignFeature']);
         Route::get('/admin/ai/usage',                  [AiController::class, 'usage']);
     });
-    Route::post('/ai/study-assistant',                 [AiController::class, 'studyAssistant']);
-    Route::post('/ai/lesson-plan',                     [AiController::class, 'lessonPlanGenerator']);
-    Route::post('/ai/essay-grade',                     [AiController::class, 'essayGrader']);
+    Route::post('/ai/study-assistant',                 [AiController::class, 'studyAssistant'])->middleware('throttle:30,1');
+    Route::post('/ai/lesson-plan',                     [AiController::class, 'lessonPlanGenerator'])->middleware('throttle:30,1');
+    Route::post('/ai/essay-grade',                     [AiController::class, 'essayGrader'])->middleware('throttle:30,1');
 
     // Module 35 — Live Class
     Route::get('/live-class/providers',                [LiveClassController::class, 'providers']);
@@ -609,7 +610,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     });
 
     // Module 12 — Offline Sync
-    Route::post('/sync/batch',                              [OfflineSyncController::class, 'batch'])->name('api.sync.batch');
+    Route::post('/sync/batch',                              [OfflineSyncController::class, 'batch'])->name('api.sync.batch')->middleware('throttle:60,1');
 
     // Emergency — Panic Button
     Route::post('/emergency/panic',                         [\App\Http\Controllers\Api\EmergencyController::class, 'panic'])->name('api.emergency.panic');

@@ -32,8 +32,15 @@ class HostelController extends Controller
         return response()->json(Hostel::create($validated), 201);
     }
 
-    public function storeRoom(Request $request, Hostel $hostel): JsonResponse
+    public function rooms(Request $request, Hostel $hostel): JsonResponse
     {
+        $this->requirePermission($request, 'hostel.view');
+        abort_unless((int) $hostel->school_id === (int) $request->user()->school_id, 404);
+
+        return response()->json($hostel->rooms()->get());
+    }
+
+    public function storeRoom(Request $request, Hostel $hostel): JsonResponse    {
         $this->requirePermission($request, 'hostel.manage');
         abort_unless((int) $hostel->school_id === (int) $request->user()->school_id, 404);
         $validated = $request->validate([
