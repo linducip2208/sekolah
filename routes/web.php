@@ -1024,6 +1024,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/import/students/confirm',           [BulkImportController::class, 'confirmStudents'])->name('import.students.confirm');
         Route::post('/import/staff/confirm',              [BulkImportController::class, 'confirmStaff'])->name('import.staff.confirm');
 
+        // ============== SETUP WIZARD (onboarding 5 menit) ==============
+        Route::get('/setup-wizard',                       [\App\Http\Controllers\Web\Admin\SetupWizardController::class, 'index'])->name('setup.wizard');
+        Route::post('/setup-wizard/profile',               [\App\Http\Controllers\Web\Admin\SetupWizardController::class, 'saveProfile'])->name('setup.wizard.profile');
+        Route::post('/setup-wizard/year',                  [\App\Http\Controllers\Web\Admin\SetupWizardController::class, 'saveYear'])->name('setup.wizard.year');
+        Route::post('/setup-wizard/class',                 [\App\Http\Controllers\Web\Admin\SetupWizardController::class, 'saveClass'])->name('setup.wizard.class');
+        Route::post('/setup-wizard/fee',                   [\App\Http\Controllers\Web\Admin\SetupWizardController::class, 'saveFee'])->name('setup.wizard.fee');
+
+        // ============== COMPLIANCE EXPORTS (e-Rapor/Dapodik/BOS) ==============
+        Route::get('/exports/leger',                       [\App\Http\Controllers\Web\Admin\ComplianceExportController::class, 'leger'])->name('exports.leger');
+        Route::get('/exports/dapodik',                     [\App\Http\Controllers\Web\Admin\ComplianceExportController::class, 'dapodik'])->name('exports.dapodik');
+        Route::get('/exports/bos',                         [\App\Http\Controllers\Web\Admin\ComplianceExportController::class, 'bos'])->name('exports.bos');
+
         // ============== MISC SUB-FEATURES (P1) ==============
         Route::get('/misc/maintenance',                  [MiscCrudController::class, 'maintenance'])->name('misc.maintenance.index');
         Route::post('/misc/maintenance',                 [MiscCrudController::class, 'storeMaintenance'])->name('misc.maintenance.store');
@@ -1377,6 +1389,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/branding/upload-logo',             [BrandingWebController::class, 'uploadLogo'])->name('branding.upload-logo');
         Route::delete('/branding/logo/{type}',           [BrandingWebController::class, 'removeLogo'])->name('branding.remove-logo');
         Route::post('/branding/reset',                   [BrandingWebController::class, 'reset'])->name('branding.reset');
+        Route::post('/branding/domain-token',           [BrandingWebController::class, 'domainToken'])->name('branding.domain-token');
+        Route::post('/branding/verify-domain',          [BrandingWebController::class, 'verifyDomain'])->name('branding.verify-domain');
 
         // ============== WEBSITE BUILDER ==============
         Route::prefix('branding/website')->name('branding.website.')->group(function () {

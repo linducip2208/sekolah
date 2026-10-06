@@ -22,6 +22,14 @@ class EnsureActiveSubscription
             return response()->view('errors.subscription-expired', ['school' => $school], 402);
         }
 
-        return $next($request);
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $next($request);
+
+        // Grace warning: expired tapi masih dalam 7 hari toleransi -> beri header agar UI bisa tampilkan banner.
+        if ($school && $school->plan_expires_at && now()->gte($school->plan_expires_at) && $school->isSubscriptionActive()) {
+            $response->headers->set('X-Subscription-Warning', 'grace-period');
+        }
+
+        return $response;
     }
 }

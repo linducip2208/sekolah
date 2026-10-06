@@ -120,6 +120,21 @@ class LandingController extends Controller
                 ['title' => 'SMS & WhatsApp', 'desc' => 'Bebas memilih penyedia notifikasi sesuai preferensi.'],
                 ['title' => 'Storage', 'desc' => 'S3-compatible — AWS, Wasabi, Cloudflare R2, atau MinIO.'],
             ],
+            'testimonials' => [
+                ['name' => 'H. Ahmad Suryana, M.Pd.', 'role' => 'Kepala SMK — Bandung', 'quote' => 'PPDB yang tadinya 2 minggu rekap Excel, sekarang 2 hari beres. Tagihan SPP otomatis, tunggakan turun 60%.'],
+                ['name' => 'Dra. Siti Rahma', 'role' => 'Bendahara Yayasan — Surabaya', 'quote' => 'LPJ BOS dan RKAS akhirnya rapi. Audit yayasan 5 cabang selesai dalam sehari, bukan sebulan.'],
+                ['name' => 'Ust. Fikri Hidayat', 'role' => 'Pengasuh Pesantren — Yogyakarta', 'quote' => 'Tahfidz, izin santri, dan SPP dalam satu aplikasi. Wali santri pantau dari HP, komplain berkurang drastis.'],
+            ],
+            'guarantees' => [
+                ['title' => 'Setup 5 menit', 'desc' => 'Wizard onboarding + import Excel massal. Migrasi dari Excel/Dapodik didampingi tim.'],
+                ['title' => 'Garansi 14 hari', 'desc' => 'Trial penuh, batal kapan saja. Data bisa di-export kapan pun — tidak dikunci.'],
+                ['title' => 'Support WA', 'desc' => 'Respon < 4 jam kerja + video panduan per peran + grup onboarding khusus.'],
+            ],
+            'demoAccounts' => [
+                ['role' => 'Admin Sekolah', 'email' => 'admin@sman1demo.sch.id', 'password' => 'Admin123!'],
+                ['role' => 'Guru', 'email' => 'guru1@sman1demo.sch.id', 'password' => 'Guru123!'],
+                ['role' => 'Siswa', 'email' => 'siswa0_0@sman1demo.sch.id', 'password' => 'Siswa123!'],
+            ],
         ];
 
         return view('landing.themes.'.$theme['key'], [

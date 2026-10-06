@@ -105,6 +105,13 @@ class PlatformBillingController extends Controller
                 'activated_at'        => now(),
                 'activated_school_id' => $school->id,
             ]);
+
+            if ($registration->coupon_code) {
+                $coupon = \App\Models\Saas\Coupon::where('code', $registration->coupon_code)->first();
+                if ($coupon && $coupon->isValid()) {
+                    $coupon->recordUse();
+                }
+            }
         });
 
         return redirect()->route('super.registrations.show', $registration)

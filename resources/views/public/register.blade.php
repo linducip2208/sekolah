@@ -86,6 +86,10 @@
                         <option value="12" selected>12 bulan (1 tahun) — direkomendasikan</option>
                     </select>
                 </div>
+                <div class="mt-4">
+                    <label class="label" for="coupon_code">Kode Kupon (opsional)</label>
+                    <input type="text" id="coupon_code" name="coupon_code" value="{{ old('coupon_code') }}" maxlength="50" placeholder="cth: HEMAT20" class="input font-mono uppercase">
+                </div>
             </div>
 
             <div class="pt-6 border-t" style="border-color: var(--lp-border);">

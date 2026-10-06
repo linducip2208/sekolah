@@ -18,7 +18,7 @@ class SchoolBranding extends SchoolTenantModel
         'color_accent', 'color_sidebar', 'color_sidebar_text',
         'color_text', 'color_text_muted', 'font_scale', 'radius_scale',
         'color_table_header',
-        'font_family', 'google_fonts_url', 'custom_domain', 'custom_css', 'custom_js',
+        'font_family', 'google_fonts_url', 'custom_domain', 'custom_domain_token', 'custom_domain_verified_at', 'custom_css', 'custom_js',
         'theme',
         'background_mode',
         'login_background_path', 'login_welcome_text', 'login_show_motto',
@@ -34,6 +34,7 @@ class SchoolBranding extends SchoolTenantModel
         'login_show_motto'      => 'boolean',
         'pdf_watermark_enabled' => 'boolean',
         'cache_version'         => 'integer',
+        'custom_domain_verified_at' => 'datetime',
     ];
 
     public function school(): BelongsTo

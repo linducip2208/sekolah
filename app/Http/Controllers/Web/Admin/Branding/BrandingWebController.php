@@ -46,7 +46,7 @@ class BrandingWebController extends Controller
             'radius_scale'           => 'nullable|in:small,medium,large',
             'font_family'            => 'nullable|string|max:200',
             'google_fonts_url'       => 'nullable|url|max:500',
-            'custom_domain'          => 'nullable|string|max:200|regex:/^[a-z0-9.\-]+$/',
+            'custom_domain'          => 'nullable|string|max:200|regex:/^[A-Za-z0-9.\-\/:]+$/',
             'custom_css'             => 'nullable|string|max:50000',
             'custom_js'              => 'nullable|string|max:50000',
             'theme'                  => 'nullable|in:'.implode(',', ThemeRegistry::keys()),
@@ -125,5 +125,19 @@ class BrandingWebController extends Controller
     {
         $this->branding->reset(auth()->user()->school_id);
         return redirect()->route('admin.branding.show')->with('success', 'Branding di-reset ke default.');
+    }
+
+    public function domainToken(): RedirectResponse
+    {
+        $token = $this->branding->issueDomainToken(auth()->user()->school_id);
+
+        return redirect()->route('admin.branding.show')->with('success', "Token verifikasi domain: {$token}. Pasang sebagai TXT _sikadpro.[domain] atau CNAME ke ".parse_url(config('app.url'), PHP_URL_HOST).'.');
+    }
+
+    public function verifyDomain(): RedirectResponse
+    {
+        $ok = $this->branding->verifyDomainDns(auth()->user()->school_id);
+
+        return redirect()->route('admin.branding.show')->with($ok ? 'success' : 'error', $ok ? 'Domain terverifikasi.' : 'DNS belum mengarah ke platform. Cek CNAME/TXT lalu coba lagi.');
     }
 }

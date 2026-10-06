@@ -275,6 +275,18 @@ class PaymentService
                     'status' => $remaining <= 0 ? 'paid' : 'partial',
                 ]);
 
+                try {
+                    app(\App\Services\Finance\AccountingService::class)->postFeePayment(
+                        (int) $tx->school_id,
+                        (int) $tx->net_amount,
+                        'gateway',
+                        'PAY-'.$tx->reference_no,
+                        now()->toDateString()
+                    );
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Auto-posting jurnal gateway gagal', ['tx' => $tx->id, 'error' => $e->getMessage()]);
+                }
+
                 NotifyParentPaymentReceivedJob::dispatch($tx->id);
             } elseif (in_array($event['status'], ['expired', 'failed', 'cancelled', 'refunded'], true)) {
                 $tx->update([

@@ -27,13 +27,19 @@ class StudentImportService
         $handle = fopen($file->getRealPath(), 'r');
         $headers = fgetcsv($handle);
 
-        $row = 1;
+        // Hitung baris valid kasar untuk cek kuota di depan (hemat lock).
+        $rows = [];
         while (($data = fgetcsv($handle)) !== false) {
+            $rows[] = $data;
+        }
+        fclose($handle);
+        app(\App\Services\PlanQuotaService::class)->assertCanAddStudents($schoolId, count($rows));
+
+        $row = 1;
+        foreach ($rows as $data) {
             $row++;
             $this->processRow($data, $headers, $schoolId, $classSectionId, $row);
         }
-
-        fclose($handle);
 
         return [
             'imported' => $this->imported,

@@ -11,7 +11,7 @@ class SchoolRegistration extends Model
 {
     protected $fillable = [
         'school_name', 'subdomain', 'admin_name', 'admin_email', 'admin_phone',
-        'address', 'plan_id', 'plan_price', 'billing_months',
+        'address', 'plan_id', 'plan_price', 'billing_months', 'coupon_code', 'discount_amount',
         'status', 'payment_method', 'payment_reference', 'payment_proof_path',
         'paid_at', 'activated_at', 'activated_school_id', 'notes', 'rejection_reason',
     ];
@@ -21,6 +21,7 @@ class SchoolRegistration extends Model
         'activated_at'   => 'datetime',
         'plan_price'     => 'integer',
         'billing_months' => 'integer',
+        'discount_amount' => 'integer',
     ];
 
     public function plan(): BelongsTo

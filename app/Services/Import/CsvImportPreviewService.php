@@ -24,6 +24,11 @@ class CsvImportPreviewService
             ? ['admission_no', 'name', 'email', 'gender', 'password']
             : ['name', 'email', 'role', 'password'];
 
+        $ext = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: '');
+        if (in_array($ext, ['xlsx', 'xls'], true)) {
+            return $this->previewFromRows((new XlsxImportReader())->read($file->getRealPath()), $schoolId, $kind, $required);
+        }
+
         $handle = fopen($file->getRealPath(), 'r');
         if ($handle === false) {
             throw new InvalidArgumentException('File CSV tidak dapat dibaca.');
@@ -176,5 +181,91 @@ class CsvImportPreviewService
     private function key(string $token): string
     {
         return 'import-preview:'.$token;
+    }
+
+    /**
+     * @param  array{headers:array<int,string>, rows:array<int,array<int,mixed>>}  $sheet
+     */
+    private function previewFromRows(array $sheet, int $schoolId, string $kind, array $required): array
+    {
+        $headers = array_map(fn ($h) => trim((string) $h), $sheet['headers']);
+        $missing = array_values(array_diff($required, $headers));
+        if ($missing !== []) {
+            throw new InvalidArgumentException('File harus punya header: '.implode(', ', $required));
+        }
+
+        $rows = [];
+        $seenEmails = [];
+        $seenAdmissionNumbers = [];
+        $line = 1;
+
+        foreach ($sheet['rows'] as $rawRow) {
+            $line++;
+            $values = array_pad(array_values($rawRow), count($headers), null);
+            $data = array_combine($headers, array_slice($values, 0, count($headers)));
+            if (! is_array($data)) {
+                $rows[] = ['line' => $line, 'data' => [], 'errors' => ['Jumlah kolom tidak sesuai header.'], 'valid' => false];
+
+                continue;
+            }
+            $built = $this->validateRow($data, $kind, $schoolId, $seenEmails, $seenAdmissionNumbers);
+            $seenEmails = $built['seenEmails'];
+            $seenAdmissionNumbers = $built['seenAdmissionNumbers'];
+            $rows[] = ['line' => $line, 'data' => $data, 'errors' => $built['errors'], 'valid' => $built['errors'] === []];
+        }
+
+        $valid = count(array_filter($rows, fn (array $row) => $row['valid']));
+
+        return [
+            'kind' => $kind,
+            'school_id' => $schoolId,
+            'headers' => $headers,
+            'rows' => $rows,
+            'valid_count' => $valid,
+            'invalid_count' => count($rows) - $valid,
+        ];
+    }
+
+    private function validateRow(array $data, string $kind, int $schoolId, array $seenEmails, array $seenAdmissionNumbers): array
+    {
+        $errors = [];
+        $email = strtolower(trim((string) ($data['email'] ?? '')));
+        $name = trim((string) ($data['name'] ?? ''));
+
+        if ($name === '') {
+            $errors[] = 'Nama wajib diisi.';
+        }
+        if (mb_strlen((string) ($data['password'] ?? '')) < 8) {
+            $errors[] = 'Password wajib diisi minimal 8 karakter.';
+        }
+        if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Email wajib berupa alamat email yang valid.';
+        } elseif (isset($seenEmails[$email]) || User::withoutGlobalScopes()->where('email', $email)->exists()) {
+            $errors[] = 'Email sudah digunakan atau duplikat di file.';
+        }
+
+        if ($kind === 'students') {
+            $admissionNo = trim((string) ($data['admission_no'] ?? ''));
+            if ($admissionNo === '') {
+                $errors[] = 'Nomor pendaftaran wajib diisi.';
+            } elseif (isset($seenAdmissionNumbers[$admissionNo])
+                || Student::withoutGlobalScopes()->where('school_id', $schoolId)->where('admission_no', $admissionNo)->exists()) {
+                $errors[] = 'Nomor pendaftaran sudah digunakan atau duplikat di file.';
+            }
+        } else {
+            $allowedRoles = ['teacher', 'admin', 'accountant', 'librarian', 'counselor', 'nurse', 'receptionist'];
+            if (! in_array((string) ($data['role'] ?? ''), $allowedRoles, true)) {
+                $errors[] = 'Role staff tidak valid.';
+            }
+        }
+
+        if ($email !== '') {
+            $seenEmails[$email] = true;
+        }
+        if ($kind === 'students' && isset($admissionNo) && $admissionNo !== '') {
+            $seenAdmissionNumbers[$admissionNo] = true;
+        }
+
+        return ['errors' => $errors, 'seenEmails' => $seenEmails, 'seenAdmissionNumbers' => $seenAdmissionNumbers];
     }
 }

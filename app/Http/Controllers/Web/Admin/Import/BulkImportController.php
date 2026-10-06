@@ -8,6 +8,7 @@ use App\Models\Academic\Staff;
 use App\Models\Academic\Student;
 use App\Models\User;
 use App\Services\Import\CsvImportPreviewService;
+use App\Services\PlanQuotaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +56,7 @@ class BulkImportController extends Controller
     public function importStudents(Request $request, CsvImportPreviewService $previewer): View|RedirectResponse
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt|max:5120',
+            'file' => 'required|file|mimes:csv,txt,xlsx|max:5120',
             'class_section_id' => 'nullable|exists:class_sections,id',
         ]);
 
@@ -90,7 +91,7 @@ class BulkImportController extends Controller
 
     public function importStaff(Request $request, CsvImportPreviewService $previewer): View|RedirectResponse
     {
-        $request->validate(['file' => 'required|file|mimes:csv,txt|max:5120']);
+        $request->validate(['file' => 'required|file|mimes:csv,txt,xlsx|max:5120']);
 
         try {
             $payload = $previewer->preview($request->file('file'), $this->schoolId(), 'staff');
@@ -120,6 +121,15 @@ class BulkImportController extends Controller
         $payload = $previewer->retrieve($token, $this->schoolId(), auth()->id());
         if ($payload === null || ($payload['kind'] ?? null) !== $kind) {
             return redirect()->route('admin.import.index')->withErrors('Preview import sudah kedaluwarsa atau tidak valid.');
+        }
+
+        $validCount = count(array_filter($payload['rows'] ?? [], fn ($r) => (bool) ($r['valid'] ?? false)));
+        try {
+            app(PlanQuotaService::class)->{ $kind === 'students' ? 'assertCanAddStudents' : 'assertCanAddTeachers'}($this->schoolId(), max($validCount, 0));
+        } catch (\Throwable $e) {
+            $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 422;
+
+            return redirect()->route('admin.import.index')->withErrors($e->getMessage())->setStatusCode($status);
         }
 
         $created = 0;

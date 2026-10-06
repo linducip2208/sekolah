@@ -40,6 +40,7 @@ class BrandingService
     public function update(int $schoolId, array $data): SchoolBranding
     {
         if (! empty($data['custom_domain'])) {
+            $data['custom_domain'] = $this->normalizeDomain($data['custom_domain']);
             $taken = SchoolBranding::where('custom_domain', $data['custom_domain'])
                 ->where('school_id', '!=', $schoolId)
                 ->exists();
@@ -153,7 +154,60 @@ class BrandingService
 
     public function findByCustomDomain(string $host): ?SchoolBranding
     {
-        return SchoolBranding::where('custom_domain', $host)->first();
+        return SchoolBranding::where('custom_domain', $this->normalizeDomain($host))->first();
+    }
+
+    public function normalizeDomain(string $host): string
+    {
+        $host = strtolower(trim($host));
+        $host = preg_replace('#^https?://#', '', $host) ?? $host;
+        $host = explode('/', $host)[0];
+        $host = explode(':', $host)[0];
+        $host = preg_replace('#^www\.#', '', $host) ?? $host;
+
+        return trim($host, '.');
+    }
+
+    /** Token TXT untuk verifikasi kepemilikan domain (pasang di DNS sebelum aktif). */
+    public function issueDomainToken(int $schoolId): string
+    {
+        $branding = SchoolBranding::firstOrCreate(['school_id' => $schoolId]);
+        if (! $branding->custom_domain_token) {
+            $branding->custom_domain_token = bin2hex(random_bytes(16));
+            $branding->custom_domain_verified_at = null;
+            $branding->save();
+            $this->forgetCache($schoolId);
+        }
+
+        return $branding->custom_domain_token;
+    }
+
+    public function verifyDomainDns(int $schoolId): bool
+    {
+        $branding = SchoolBranding::where('school_id', $schoolId)->firstOrFail();
+        abort_if(! $branding->custom_domain, 422, 'Belum ada domain kustom.');
+        // Cek CNAME mengarah ke platform ATAU TXT token. Gagal DNS = belum terverifikasi.
+        $host = $branding->custom_domain;
+        $cname = @dns_get_record($host, DNS_CNAME);
+        $txt = @dns_get_record('_sikadpro.'.$host, DNS_TXT);
+        $ok = false;
+        foreach ($cname ?: [] as $r) {
+            if (str_contains(strtolower($r['target'] ?? ''), strtolower((string) parse_url(config('app.url'), PHP_URL_HOST)))) {
+                $ok = true;
+            }
+        }
+        foreach ($txt ?: [] as $r) {
+            if (in_array($branding->custom_domain_token, (array) ($r['entries'] ?? []), true)) {
+                $ok = true;
+            }
+        }
+        if ($ok) {
+            $branding->custom_domain_verified_at = now();
+            $branding->save();
+            $this->forgetCache($schoolId);
+        }
+
+        return $ok;
     }
 
     public function generateCss(int $schoolId): string

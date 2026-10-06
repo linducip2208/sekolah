@@ -13,6 +13,7 @@ use App\Models\Dapodik\DapodikSyncRun;
 use App\Models\User;
 use App\Services\Integrations\Dapodik\DapodikClientInterface;
 use App\Services\Integrations\Dapodik\DapodikRestClient;
+use App\Services\PlanQuotaService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -227,6 +228,7 @@ class DapodikService
             }
 
             if (! $student) {
+                app(PlanQuotaService::class)->assertCanAddStudents($schoolId, 1);
                 $email = $data['email'] ?? 'dapodik-'.Str::lower($item->external_id).'-'.$schoolId.'@invalid.local';
                 if (User::where('email', $email)->exists()) {
                     $email = 'dapodik-'.Str::lower($item->external_id).'-'.$schoolId.'-'.Str::lower(Str::random(6)).'@invalid.local';

@@ -50,6 +50,7 @@ return [
     */
     'top' => [
         ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'active' => 'admin.dashboard', 'icon' => 'home'],
+        ['label' => 'Setup Wizard', 'route' => 'admin.setup.wizard', 'active' => 'admin.setup.*', 'icon' => 'work'],
         ['label' => 'My Work', 'route' => 'admin.my-work', 'active' => 'admin.my-work', 'icon' => 'work', 'badge' => 'mywork'],
         ['label' => 'Kalender', 'route' => 'admin.calendar.index', 'active' => 'admin.calendar.*', 'icon' => 'calendar'],
         ['label' => 'Notifikasi', 'route' => 'admin.notifications.index', 'active' => 'admin.notifications.*', 'icon' => 'bell', 'roles' => ['*']],
@@ -276,6 +277,9 @@ return [
                 ['label' => 'Webhooks', 'route' => 'admin.webhooks.index', 'active' => 'admin.webhooks.*'],
                 ['label' => 'Automation Rules', 'route' => 'admin.automation.rules.index', 'active' => 'admin.automation.*'],
                 ['label' => 'Export Data', 'route' => 'admin.exports.index', 'active' => 'admin.exports.*'],
+                ['label' => 'Leger e-Rapor', 'route' => 'admin.exports.leger', 'active' => 'admin.exports.leger'],
+                ['label' => 'Dapodik CSV', 'route' => 'admin.exports.dapodik', 'active' => 'admin.exports.dapodik'],
+                ['label' => 'LPJ BOS', 'route' => 'admin.exports.bos', 'active' => 'admin.exports.bos'],
                 ['label' => 'Audit Log', 'route' => 'admin.audit.index', 'active' => 'admin.audit.*|admin.internal-audit.*'],
                 ['label' => 'Digital Signage', 'route' => 'admin.signage.config', 'active' => 'admin.signage.*|admin.dashboard-tv.*'],
                 ['label' => 'Akreditasi', 'route' => 'admin.accreditation.dashboard', 'active' => 'admin.accreditation.*'],
@@ -367,6 +371,7 @@ return [
         'admin.branding' => 'Pengaturan', 'admin.blog' => 'Pengaturan', 'admin.notif' => 'Pengaturan',
         'admin.notif-prefs' => 'Pengaturan', 'admin.webhooks' => 'Pengaturan', 'admin.automation' => 'Pengaturan',
         'admin.exports' => 'Pengaturan', 'admin.audit' => 'Pengaturan', 'admin.internal-audit' => 'Pengaturan',
+        'admin.setup' => 'Pengaturan',
         'admin.signage' => 'Pengaturan', 'admin.dashboard-tv' => 'Pengaturan', 'admin.accreditation' => 'Pengaturan',
         'admin.compliance' => 'Pengaturan', 'admin.adiwiyata' => 'Pengaturan',
     ],

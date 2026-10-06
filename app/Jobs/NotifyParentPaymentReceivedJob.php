@@ -35,5 +35,13 @@ class NotifyParentPaymentReceivedJob implements ShouldQueue
             "Pembayaran sebesar Rp {$amount} berhasil diterima. Ref: {$tx->reference_no}",
             ['type' => 'payment_received', 'reference_no' => $tx->reference_no],
         );
+
+        // Tutup loop dunning: kirim WA kuitansi agar ortu tidak ditagih lagi.
+        try {
+            app(\App\Services\Communication\WhatsAppNotificationService::class)
+                ->sendToGuardian((int) $student->id, "✅ Pembayaran {$tx->invoice->invoice_no} sebesar Rp {$amount} telah diterima. Terima kasih. Ref: {$tx->reference_no}");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('WA kuitansi gagal', ['tx' => $tx->id]);
+        }
     }
 }

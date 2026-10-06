@@ -44,13 +44,26 @@ class SubscriptionController extends Controller
             'address'        => 'nullable|string|max:500',
             'plan_id'        => 'required|exists:plans,id',
             'billing_months' => 'required|integer|in:1,3,6,12',
+            'coupon_code'    => 'nullable|string|max:50',
         ]);
 
         $plan = Plan::findOrFail($data['plan_id']);
+        $gross = $plan->price * $data['billing_months'];
+        $discount = 0;
+        $couponCode = $data['coupon_code'] ? strtoupper(trim($data['coupon_code'])) : null;
+        if ($couponCode) {
+            $coupon = \App\Models\Saas\Coupon::where('code', $couponCode)->first();
+            if (! $coupon || ! $coupon->isValid()) {
+                return back()->withInput()->withErrors(['coupon_code' => 'Kode kupon tidak valid atau sudah kedaluwarsa.']);
+            }
+            $discount = $gross - $coupon->applyDiscount($gross);
+        }
 
         $registration = SchoolRegistration::create([
             ...$data,
-            'plan_price' => $plan->price * $data['billing_months'],
+            'coupon_code' => $couponCode,
+            'discount_amount' => $discount,
+            'plan_price' => $gross - $discount,
             'status'     => 'pending',
         ]);
 
