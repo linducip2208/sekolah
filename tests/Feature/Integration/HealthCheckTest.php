@@ -17,6 +17,8 @@ class HealthCheckTest extends TestCase
     {
         $response = $this->getJson('/api/v1/health/deep');
         $response->assertStatus(200);
+        // app_key presence + raw error strings are intentionally absent
+        // (no secret/error disclosure on public endpoints).
         $response->assertJsonStructure([
             'status',
             'checks' => [
@@ -24,10 +26,10 @@ class HealthCheckTest extends TestCase
                 'cache',
                 'storage',
                 'queue',
-                'app_key',
             ],
             'time',
         ]);
+        $response->assertJsonMissing(['app_key' => true]);
     }
 
     public function test_metrics_returns_counts(): void

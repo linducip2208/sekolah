@@ -96,3 +96,13 @@ test('sending a message broadcasts MessageSent', function () {
 
     Event::assertDispatched(MessageSent::class);
 });
+
+test('avatar upload resizes and stores school-scoped jpg', function () {
+    Sanctum::actingAs($this->admin);
+
+    $response = $this->post('/api/v1/auth/avatar', [
+        'avatar' => UploadedFile::fake()->image('me.png', 900, 900),
+    ], ['Accept' => 'application/json']);
+
+    $response->assertOk()->assertJsonPath('avatar_url', '/storage/'."avatars/{$this->school->id}/{$this->admin->id}.jpg");
+});

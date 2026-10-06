@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Laravel\Facades\Image;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -21,6 +23,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class UploadController extends Controller
 {
     private const array IMAGE_PURPOSES = ['chat', 'assignment'];
+
     private const array DOC_PURPOSES = ['ppdb', 'medical', 'payment_proof'];
 
     public function store(Request $request): JsonResponse
@@ -37,7 +40,7 @@ class UploadController extends Controller
 
         $schoolId = (int) $request->user()->school_id;
         $purpose = $validated['purpose'];
-        /** @var \Illuminate\Http\UploadedFile $file */
+        /** @var UploadedFile $file */
         $file = $validated['file'];
 
         $ext = $file->guessExtension() ?: 'bin';
@@ -45,8 +48,12 @@ class UploadController extends Controller
         $dir = "uploads/{$schoolId}/{$purpose}/".now()->format('Y/m');
 
         if (in_array($purpose, self::IMAGE_PURPOSES, true)) {
-            // intervention/image v4 API (decode + scaleDown + typed encode).
-            $image = \Intervention\Image\Laravel\Facades\Image::decode($file);
+            // Direct manager (not the facade): Laravel 13.35+ ships its own
+            // Image manager that shadows the Intervention facade accessor.
+            $manager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $manager->decode($file);
             $image->scaleDown(1600, 1600);
             $path = "{$dir}/{$name}";
             Storage::disk('public')->put($path, (string) $image->encodeUsingFileExtension($ext));

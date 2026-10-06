@@ -36,6 +36,7 @@ final class HtmlSanitizer
                 if (str_starts_with($lower, 'javascript:') || str_starts_with($lower, 'vbscript:') || str_starts_with($lower, 'data:')) {
                     return $m[1].'="#"';
                 }
+
                 return $m[0];
             },
             $html

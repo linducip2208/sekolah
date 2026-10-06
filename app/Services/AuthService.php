@@ -15,14 +15,15 @@ class AuthService
 {
     public function __construct(private ?TotpService $totp = null) {}
 
-    public function login(string $email, string $password, string $deviceName, ?string $code = null, ?string $recovery = null): array|null
+    public function login(string $email, string $password, string $deviceName, ?string $code = null, ?string $recovery = null): ?array
     {
         $user = User::where('email', $email)
             ->where('is_active', true)
             ->first();
 
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (! $user || ! Hash::check($password, $user->password)) {
             activity()->withProperties(['email' => $email])->log('login_failed');
+
             return null;
         }
 
@@ -32,6 +33,7 @@ class AuthService
             $challengeId = (string) Str::uuid();
             Cache::put("2fa:api:{$challengeId}", $user->id, now()->addMinutes(5));
             activity()->causedBy($user)->log('login_2fa_challenged');
+
             return ['two_factor_required' => true, 'challenge_id' => $challengeId];
         }
 
@@ -42,18 +44,18 @@ class AuthService
 
         return [
             'token' => $token,
-            'user'  => new UserResource($user->load('school', 'roles', 'permissions')),
+            'user' => new UserResource($user->load('school', 'roles', 'permissions')),
         ];
     }
 
     public function verifyTwoFactor(string $challengeId, ?string $code, ?string $recovery, string $deviceName): ?array
     {
         $userId = Cache::pull("2fa:api:{$challengeId}");
-        if (!$userId) {
+        if (! $userId) {
             return null;
         }
         $user = User::find($userId);
-        if (!$user || !$user->two_factor_enabled || !$user->two_factor_secret) {
+        if (! $user || ! $user->two_factor_enabled || ! $user->two_factor_secret) {
             return null;
         }
         $totp = $this->totp ?? app(TotpService::class);
@@ -62,19 +64,21 @@ class AuthService
             try {
                 $secret = Crypt::decryptString($user->two_factor_secret);
                 $passed = $totp->verify($secret, $code);
-            } catch (\Throwable) {}
+            } catch (\Throwable) {
+            }
         } elseif ($recovery) {
             $passed = $totp->consumeRecoveryCode($user, $recovery);
         }
-        if (!$passed) {
+        if (! $passed) {
             return null;
         }
         $user->tokens()->where('name', $deviceName)->delete();
         $token = $user->createToken($deviceName)->plainTextToken;
         activity()->causedBy($user)->withProperties(['device' => $deviceName])->log('login_2fa_verified');
+
         return [
             'token' => $token,
-            'user'  => new UserResource($user->load('school', 'roles', 'permissions')),
+            'user' => new UserResource($user->load('school', 'roles', 'permissions')),
         ];
     }
 

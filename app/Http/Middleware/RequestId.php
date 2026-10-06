@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,7 +23,7 @@ class RequestId
             : (string) Str::uuid();
 
         $request->attributes->set('request_id', $id);
-        \Illuminate\Support\Facades\Log::shareContext(['request_id' => $id]);
+        Log::shareContext(['request_id' => $id]);
 
         /** @var Response $response */
         $response = $next($request);

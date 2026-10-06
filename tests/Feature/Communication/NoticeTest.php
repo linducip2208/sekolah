@@ -44,7 +44,8 @@ test('published notices appear in user feed', function () {
     ]);
 
     $response = $this->getJson('/api/v1/notices');
-    $response->assertOk()->assertJsonCount(1);
+    // Paginated envelope (DoS protection): items live under `data`.
+    $response->assertOk()->assertJsonCount(1, 'data');
 });
 
 test('admin can delete a notice', function () {

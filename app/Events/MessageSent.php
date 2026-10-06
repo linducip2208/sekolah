@@ -28,6 +28,7 @@ class MessageSent implements ShouldBroadcast
     public function broadcastWith(): array
     {
         $m = $this->message->loadMissing('sender');
+
         return [
             'id' => $m->id,
             'conversation_id' => $m->conversation_id,

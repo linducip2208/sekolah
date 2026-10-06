@@ -3,6 +3,7 @@
 namespace App\Services\Export;
 
 use App\Models\Academic\Mark;
+use App\Models\Finance\FeeInvoice;
 use Illuminate\Http\Response;
 
 class MarksExportService
@@ -17,6 +18,7 @@ class MarksExportService
         if ($cell !== '' && str_contains('=+-@'."\t\r", $cell[0])) {
             return "'".$cell;
         }
+
         return $cell;
     }
 
@@ -31,13 +33,14 @@ class MarksExportService
         rewind($fh);
         $csv = stream_get_contents($fh);
         fclose($fh);
+
         return $csv;
     }
 
     public function exportByClass(int $classSectionId, int $semesterId): Response
     {
         $marks = Mark::where('school_id', auth()->user()->school_id)
-            ->whereHas('student', fn($q) => $q->where('class_section_id', $classSectionId))
+            ->whereHas('student', fn ($q) => $q->where('class_section_id', $classSectionId))
             ->where('semester_id', $semesterId)
             ->with(['student.user', 'subject'])
             ->orderBy('student_id')
@@ -57,18 +60,18 @@ class MarksExportService
             ];
         }
 
-        $csv      = $this->toCsv(['student_name', 'admission_no', 'subject', 'obtained_marks', 'total_marks', 'percentage', 'grade', 'semester_id'], $rows);
+        $csv = $this->toCsv(['student_name', 'admission_no', 'subject', 'obtained_marks', 'total_marks', 'percentage', 'grade', 'semester_id'], $rows);
         $filename = "marks_class_{$classSectionId}_semester_{$semesterId}.csv";
 
         return response($csv, 200, [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 
     public function exportFeeCollection(string $period): Response
     {
-        $invoices = \App\Models\Finance\FeeInvoice::where('school_id', auth()->user()->school_id)
+        $invoices = FeeInvoice::where('school_id', auth()->user()->school_id)
             ->where('period', $period)
             ->with(['student.user', 'feeStructure'])
             ->orderBy('status')
@@ -87,11 +90,11 @@ class MarksExportService
             ];
         }
 
-        $csv      = $this->toCsv(['student_name', 'invoice_no', 'structure', 'amount', 'status', 'period', 'due_date'], $rows);
+        $csv = $this->toCsv(['student_name', 'invoice_no', 'structure', 'amount', 'status', 'period', 'due_date'], $rows);
         $filename = "fee_collection_{$period}.csv";
 
         return response($csv, 200, [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }

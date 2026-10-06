@@ -12,6 +12,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Laravel\Facades\Image;
 
 class AuthController extends Controller
 {
@@ -27,11 +29,11 @@ class AuthController extends Controller
             $request->input('recovery_code'),
         );
 
-        if (!$result) {
+        if (! $result) {
             return response()->json(['message' => __('auth.failed')], 401);
         }
 
-        if (!empty($result['two_factor_required'])) {
+        if (! empty($result['two_factor_required'])) {
             return response()->json($result, 202);
         }
 
@@ -41,10 +43,10 @@ class AuthController extends Controller
     public function verifyTwoFactor(Request $request): JsonResponse
     {
         $request->validate([
-            'challenge_id'     => 'required|string',
-            'two_factor_code'  => 'nullable|string|size:6',
-            'recovery_code'    => 'nullable|string',
-            'device_name'      => 'nullable|string|max:200',
+            'challenge_id' => 'required|string',
+            'two_factor_code' => 'nullable|string|size:6',
+            'recovery_code' => 'nullable|string',
+            'device_name' => 'nullable|string|max:200',
         ]);
 
         $result = $this->authService->verifyTwoFactor(
@@ -54,9 +56,10 @@ class AuthController extends Controller
             $request->input('device_name', 'mobile'),
         );
 
-        if (!$result) {
+        if (! $result) {
             return response()->json(['message' => 'Invalid challenge or 2FA code.'], 401);
         }
+
         return response()->json($result);
     }
 
@@ -64,6 +67,7 @@ class AuthController extends Controller
     {
         activity()->causedBy($request->user())->log('logout');
         $request->user()->currentAccessToken()->delete();
+
         return response()->json(['message' => 'Logged out successfully.']);
     }
 
@@ -78,6 +82,7 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $user->update($request->validated());
+
         return response()->json(new UserResource($user->fresh()->load('school')));
     }
 
@@ -85,12 +90,16 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        // intervention/image v4 API.
-        $image = \Intervention\Image\Laravel\Facades\Image::decode($request->file('avatar'));
+        // Direct manager (not the facade): Laravel 13.35+ ships its own
+        // Image manager that shadows the Intervention facade accessor.
+        $manager = new \Intervention\Image\ImageManager(
+            new \Intervention\Image\Drivers\Gd\Driver()
+        );
+        $image = $manager->decode($request->file('avatar'));
         $image->scaleDown(400, 400);
 
         $path = "avatars/{$user->school_id}/{$user->id}.jpg";
-        \Illuminate\Support\Facades\Storage::put($path, (string) $image->encodeUsingFileExtension('jpg'));
+        Storage::put($path, (string) $image->encodeUsingFileExtension('jpg'));
 
         $user->update(['avatar' => $path]);
 
@@ -101,6 +110,7 @@ class AuthController extends Controller
     {
         $request->validate(['fcm_token' => 'required|string']);
         $request->user()->update(['fcm_token' => $request->fcm_token]);
+
         return response()->json(['message' => 'ok']);
     }
 
@@ -120,12 +130,12 @@ class AuthController extends Controller
     {
         $request->validate([
             'current_password' => 'required|string',
-            'password'         => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = $request->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return response()->json(['message' => 'Kata sandi sekarang salah.'], 422);
         }
 
@@ -137,8 +147,8 @@ class AuthController extends Controller
     public function resetPassword(Request $request): JsonResponse
     {
         $request->validate([
-            'token'    => 'required',
-            'email'    => 'required|email',
+            'token' => 'required',
+            'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
         ]);
 
