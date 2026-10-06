@@ -33,8 +33,9 @@ class DashboardDataService
         $userId = (int) $user->id;
         $roleKey = $this->roles->roleFor($user);
 
-        return Cache::remember(
-            "dash:v2:{$schoolId}:{$roleKey}:{$userId}",
+        $key = "dash:v2:{$schoolId}:{$roleKey}:{$userId}";
+        $payload = Cache::remember(
+            $key,
             $this->ttl,
             function () use ($user, $schoolId, $roleKey) {
                 return [
@@ -51,12 +52,30 @@ class DashboardDataService
                 ];
             }
         );
+
+        // Key index (Cache::forget supports no wildcards on file/database
+        // drivers) so flush() can invalidate every dashboard key per school.
+        try {
+            $indexKey = "dash:v2:index:{$schoolId}";
+            $index = Cache::get($indexKey, []);
+            if (! in_array($key, (array) $index, true)) {
+                $index[] = $key;
+                Cache::put($indexKey, array_slice((array) $index, -500), 7200);
+            }
+        } catch (\Throwable) {
+        }
+
+        return $payload;
     }
 
     public static function flush(int $schoolId): void
     {
         try {
-            Cache::forget("dash:{$schoolId}:*");
+            $index = Cache::get("dash:v2:index:{$schoolId}", []);
+            foreach ((array) $index as $key) {
+                Cache::forget($key);
+            }
+            Cache::forget("dash:v2:index:{$schoolId}");
         } catch (\Throwable) {
         }
     }

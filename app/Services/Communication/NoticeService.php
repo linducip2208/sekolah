@@ -3,11 +3,11 @@
 namespace App\Services\Communication;
 
 use App\Models\Communication\Notice;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class NoticeService
 {
-    public function getForUser(): Collection
+    public function getForUser(): LengthAwarePaginator
     {
         $user = auth()->user();
         $roles = $user->getRoleNames()->toArray();
@@ -21,6 +21,6 @@ class NoticeService
                   ->orWhereJsonContains('target_roles', $roles[0] ?? 'student');
             })
             ->orderByDesc('publish_at')
-            ->get();
+            ->paginate(30);
     }
 }

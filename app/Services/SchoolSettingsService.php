@@ -6,6 +6,25 @@ use App\Models\School;
 
 class SchoolSettingsService
 {
+    /**
+     * Keys writable via API. Everything else is ignored server-side to
+     * prevent settings poisoning through mass update.
+     */
+    public const array WRITABLE_KEYS = [
+        'currency',
+        'currency_symbol',
+        'currency_decimals',
+        'currency_thousands_sep',
+        'currency_decimal_sep',
+        'working_days',
+        'timezone',
+        'locale',
+        'attendance_tolerance_minutes',
+        'report_header_text',
+        'report_footer_text',
+        'announcement_banner',
+    ];
+
     public function get(School $school, string $key = null): mixed
     {
         $settings = $school->settings ?? [];

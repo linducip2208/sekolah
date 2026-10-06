@@ -80,14 +80,22 @@ class ReportBuilderController extends Controller
 
     public function download(Request $request): \Symfony\Component\HttpFoundation\BinaryFileResponse
     {
-        $path = base64_decode($request->query('path', ''));
-        $fullPath = storage_path('app/' . $path);
+        $path = (string) base64_decode($request->query('path', ''), true);
+        $path = str_replace('\\', '/', $path);
 
-        if (!file_exists($fullPath)) {
+        // Reports may only be served from the builder output directory.
+        // No traversal, no absolute paths, no deletion of arbitrary files.
+        if ($path === '' || str_contains($path, '..') || ! str_starts_with($path, 'reports/builder/')) {
             abort(404);
         }
 
-        return response()->download($fullPath)->deleteFileAfterSend();
+        $fullPath = storage_path('app/' . $path);
+
+        if (! is_file($fullPath)) {
+            abort(404);
+        }
+
+        return response()->download($fullPath);
     }
 
     public function saveTemplate(Request $request): \Illuminate\Http\JsonResponse

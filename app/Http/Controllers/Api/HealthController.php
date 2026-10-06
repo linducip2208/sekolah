@@ -22,7 +22,6 @@ class HealthController extends Controller
             'cache'      => $this->checkCache(),
             'storage'    => $this->checkStorage(),
             'queue'      => $this->checkQueue(),
-            'app_key'    => !empty(config('app.key')),
         ];
 
         $allOk = !in_array(false, array_map(fn ($v) => is_array($v) ? $v['ok'] : $v, $checks), true);
@@ -61,8 +60,9 @@ class HealthController extends Controller
             $start = microtime(true);
             DB::select('SELECT 1');
             return ['ok' => true, 'latency_ms' => (int) ((microtime(true) - $start) * 1000)];
-        } catch (\Throwable $e) {
-            return ['ok' => false, 'error' => $e->getMessage()];
+        } catch (\Throwable) {
+            // Never leak driver/connection details on a public endpoint.
+            return ['ok' => false];
         }
     }
 
@@ -74,8 +74,8 @@ class HealthController extends Controller
             $value = Cache::get($key);
             Cache::forget($key);
             return ['ok' => $value === '1'];
-        } catch (\Throwable $e) {
-            return ['ok' => false, 'error' => $e->getMessage()];
+        } catch (\Throwable) {
+            return ['ok' => false];
         }
     }
 
@@ -85,8 +85,8 @@ class HealthController extends Controller
             $disk = config('filesystems.default');
             Storage::disk($disk)->exists('/');
             return ['ok' => true, 'disk' => $disk];
-        } catch (\Throwable $e) {
-            return ['ok' => false, 'error' => $e->getMessage()];
+        } catch (\Throwable) {
+            return ['ok' => false];
         }
     }
 
@@ -94,8 +94,8 @@ class HealthController extends Controller
     {
         try {
             return ['ok' => true, 'pending' => $this->jobsCount()];
-        } catch (\Throwable $e) {
-            return ['ok' => false, 'error' => $e->getMessage()];
+        } catch (\Throwable) {
+            return ['ok' => false];
         }
     }
 

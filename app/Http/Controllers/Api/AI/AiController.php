@@ -188,7 +188,15 @@ class AiController extends Controller
 
             return response()->json($result);
         } catch (\Throwable $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            // Never bubble upstream provider error bodies to clients
+            // (may contain key fragments / internal details). Log full,
+            // return generic.
+            \Illuminate\Support\Facades\Log::warning('AI feature failed', [
+                'feature' => $featureKey,
+                'school_id' => $request->user()->school_id,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json(['message' => 'Layanan AI gagal memproses permintaan. Coba lagi.'], 422);
         }
     }
 

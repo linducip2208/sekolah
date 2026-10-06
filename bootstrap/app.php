@@ -3,9 +3,11 @@
 use App\Http\Middleware\EnforceTwoFactor;
 use App\Http\Middleware\EnsureActiveSubscription;
 use App\Http\Middleware\EnsureSchoolAccess;
+use App\Http\Middleware\RequestId;
 use App\Http\Middleware\RequirePair;
 use App\Http\Middleware\ResolveCustomDomain;
 use App\Http\Middleware\ResolveSchool;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -31,6 +33,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->statefulApi();
+
+        // Global: correlation IDs + baseline security headers (API + web).
+        $middleware->append([RequestId::class, SecurityHeaders::class]);
 
         $middleware->web(prepend: [RequirePair::class]);
         $middleware->web(append: [SetLocale::class, ResolveCustomDomain::class, ResolveSchool::class]);

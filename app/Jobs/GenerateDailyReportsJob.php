@@ -13,6 +13,10 @@ class GenerateDailyReportsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries = 3;
+    public int $timeout = 120;
+    public array $backoff = [60, 300, 900];
+
     public function __construct(public int $schoolId, public ?string $date = null) {}
 
     public function handle(DailyReportService $service): void

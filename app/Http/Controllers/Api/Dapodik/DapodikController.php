@@ -99,7 +99,10 @@ class DapodikController extends Controller
     {
         $run = DapodikSyncRun::withoutGlobalScopes()->where('school_id', $request->user()->school_id)->findOrFail($runId);
 
-        return response()->json($this->service->confirm($run));
+        $result = $this->service->confirm($run);
+        activity()->causedBy($request->user())->performedOn($run)->log('dapodik_run_confirmed');
+
+        return response()->json($result);
     }
 
     public function runs(Request $request): JsonResponse
@@ -128,6 +131,7 @@ class DapodikController extends Controller
             'resolved_by' => $request->user()->id,
             'resolved_at' => now(),
         ]);
+        activity()->causedBy($request->user())->performedOn($conflict)->log('dapodik_conflict_resolved');
 
         return response()->json($conflict);
     }

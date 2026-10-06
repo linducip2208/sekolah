@@ -22,7 +22,7 @@ class EventController extends Controller
             ->where('school_id', $school->id)
             ->where('is_published', true)
             ->where('starts_at', '>=', now())
-            ->orderBy('starts_at')->get();
+            ->orderBy('starts_at')->paginate(20);
 
         return response()->json(['data' => $events]);
     }

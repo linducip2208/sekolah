@@ -18,6 +18,7 @@ class ImportExportController extends Controller
 
     public function importStudents(Request $request): JsonResponse
     {
+        $this->requireAny($request, ['student.manage'], ['admin', 'teacher']);
         $request->validate([
             'file'              => 'required|file|mimes:csv,txt|max:2048',
             'class_section_id'  => 'required|integer|exists:class_sections,id',
@@ -26,6 +27,29 @@ class ImportExportController extends Controller
         $result = $this->importer->import($request->file('file'), $request->class_section_id);
 
         return response()->json($result, $result['errors'] ? 207 : 200);
+    }
+
+    /**
+     * Staff-only gate: super_admin bypasses; otherwise require one of the
+     * permissions or one of the fallback roles.
+     */
+    private function requireAny(Request $request, array $permissions, array $roles): void
+    {
+        $user = $request->user();
+        if ($user->hasRole('super_admin')) {
+            return;
+        }
+        foreach ($permissions as $perm) {
+            if ($user->can($perm)) {
+                return;
+            }
+        }
+        foreach ($roles as $role) {
+            if ($user->hasRole($role)) {
+                return;
+            }
+        }
+        abort(403, 'Tidak memiliki izin untuk operasi ini.');
     }
 
     public function studentImportTemplate(): Response
@@ -39,6 +63,7 @@ class ImportExportController extends Controller
 
     public function exportMarks(Request $request): Response
     {
+        $this->requireAny($request, ['marks.view', 'marks.manage'], ['admin', 'teacher']);
         $request->validate([
             'class_section_id' => 'required|integer',
             'semester_id'      => 'required|integer',
@@ -48,6 +73,7 @@ class ImportExportController extends Controller
 
     public function exportFeeCollection(Request $request): Response
     {
+        $this->requireAny($request, ['fee.view'], ['admin', 'accountant']);
         $request->validate(['period' => 'required|date_format:Y-m']);
         return $this->exporter->exportFeeCollection($request->period);
     }

@@ -15,6 +15,10 @@ class DeliverWebhookJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /** Safety net on top of the manual DB-driven retry below. */
+    public int $tries = 3;
+    public int $timeout = 60;
+
     public function __construct(public int $deliveryId) {}
 
     public function handle(): void
@@ -81,5 +85,19 @@ class DeliverWebhookJob implements ShouldQueue
         $delivery->save();
 
         self::dispatch($delivery->id)->delay(now()->addSeconds($backoffSeconds));
+    }
+
+    /**
+     * Last-resort failure hook: manual retries exhausted AND Laravel-level
+     * retries failed. Never leave a delivery stuck in processing.
+     */
+    public function failed(\Throwable $e): void
+    {
+        $delivery = WebhookDelivery::find($this->deliveryId);
+        if ($delivery && ! in_array($delivery->status, ['success', 'failed'], true)) {
+            $delivery->status = 'failed';
+            $delivery->response_body = 'Job failed: '.substr($e->getMessage(), 0, 500);
+            $delivery->save();
+        }
     }
 }

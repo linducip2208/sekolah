@@ -53,6 +53,12 @@ class TracerController extends Controller
 
         $alumni = AlumniProfile::findOrFail($data['alumni_id']);
 
+        // One response per alumni (prevents ballot-stuffing via replay).
+        $already = TracerResponse::where('alumni_profile_id', $alumni->id)->exists();
+        if ($already) {
+            return response()->json(['message' => 'Data tracer study sudah pernah dikirim. Hubungi sekolah untuk perubahan.'], 409);
+        }
+
         TracerResponse::create([
             'school_id'        => $alumni->school_id,
             'alumni_profile_id'=> $alumni->id,

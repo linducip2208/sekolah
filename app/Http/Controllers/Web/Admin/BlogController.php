@@ -66,6 +66,8 @@ class BlogController extends Controller
 
         $validated['author_id'] = auth()->id();
 
+        $validated['content'] = \App\Support\HtmlSanitizer::clean($validated['content']);
+
         if ($request->boolean('is_published') && !$validated['published_at']) {
             $validated['published_at'] = now();
         }
@@ -100,6 +102,8 @@ class BlogController extends Controller
         ]);
 
         $wasUnpublished = !$post->is_published;
+
+        $validated['content'] = \App\Support\HtmlSanitizer::clean($validated['content']);
 
         if ($request->boolean('is_published') && !$validated['published_at']) {
             if ($wasUnpublished) {

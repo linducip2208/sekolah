@@ -22,11 +22,23 @@ class AuthService
             ->first();
 
         if (!$user || !Hash::check($password, $user->password)) {
+            activity()->withProperties(['email' => $email])->log('login_failed');
             return null;
+        }
+
+        // Enforce 2FA: password alone must never mint a token for
+        // 2FA-enabled accounts. Client completes via verifyTwoFactor().
+        if ($user->two_factor_enabled && $user->two_factor_secret) {
+            $challengeId = (string) Str::uuid();
+            Cache::put("2fa:api:{$challengeId}", $user->id, now()->addMinutes(5));
+            activity()->causedBy($user)->log('login_2fa_challenged');
+            return ['two_factor_required' => true, 'challenge_id' => $challengeId];
         }
 
         $user->tokens()->where('name', $deviceName)->delete();
         $token = $user->createToken($deviceName)->plainTextToken;
+
+        activity()->causedBy($user)->withProperties(['device' => $deviceName])->log('login');
 
         return [
             'token' => $token,
@@ -59,6 +71,7 @@ class AuthService
         }
         $user->tokens()->where('name', $deviceName)->delete();
         $token = $user->createToken($deviceName)->plainTextToken;
+        activity()->causedBy($user)->withProperties(['device' => $deviceName])->log('login_2fa_verified');
         return [
             'token' => $token,
             'user'  => new UserResource($user->load('school', 'roles', 'permissions')),

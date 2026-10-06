@@ -112,14 +112,22 @@ class DashboardController extends Controller
 
         $children = $user->parentStudents()
             ->with('user', 'classSection.classRoom')
+            ->get();
+        $childIds = $children->pluck('id');
+
+        // Single grouped query instead of one attendance query per child.
+        $monthStats = Attendance::whereIn('student_id', $childIds)
+            ->whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
+            ->selectRaw('student_id, COUNT(*) as total, SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) as present', ['present', 'late'])
+            ->groupBy('student_id')
             ->get()
-            ->map(function ($s) {
-                $monthAtt = Attendance::where('student_id', $s->id)
-                    ->whereMonth('date', now()->month)
-                    ->whereYear('date', now()->year)
-                    ->get();
-                $present = $monthAtt->whereIn('status', ['present', 'late'])->count();
-                $total = max($monthAtt->count(), 1);
+            ->keyBy('student_id');
+
+        $children = $children->map(function ($s) use ($monthStats) {
+                $stat = $monthStats->get($s->id);
+                $present = (int) ($stat->present ?? 0);
+                $total = max((int) ($stat->total ?? 0), 1);
                 return [
                     'id'              => $s->id,
                     'name'            => optional($s->user)->name,
@@ -156,13 +164,18 @@ class DashboardController extends Controller
             ->sum(DB::raw('amount - COALESCE(paid_amount, 0)'));
 
         $trend = [];
+        // One grouped query for the whole 7-day window (was: 7 full-table scans).
+        $weekStats = Attendance::where('school_id', $schoolId)
+            ->whereDate('date', '>=', now()->subDays(6)->toDateString())
+            ->selectRaw('date, COUNT(*) as total, SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) as present', ['present', 'late'])
+            ->groupBy('date')
+            ->get()
+            ->keyBy(fn ($r) => $r->date->toDateString());
         for ($i = 6; $i >= 0; $i--) {
             $day = now()->subDays($i)->toDateString();
-            $records = Attendance::where('school_id', $schoolId)
-                ->whereDate('date', $day)
-                ->get();
-            $present = $records->whereIn('status', ['present', 'late'])->count();
-            $total = max($records->count(), 1);
+            $stat = $weekStats->get($day);
+            $present = (int) ($stat->present ?? 0);
+            $total = max((int) ($stat->total ?? 0), 1);
             $trend[] = [
                 'date'  => $day,
                 'value' => round(($present / $total) * 100),

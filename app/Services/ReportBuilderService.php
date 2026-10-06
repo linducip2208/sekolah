@@ -151,7 +151,7 @@ class ReportBuilderService
         $pdf->loadHTML($html);
         $pdf->setPaper('a4', 'landscape');
 
-        $path = 'reports/laporan-' . now()->format('Ymd-His') . '.pdf';
+        $path = 'reports/builder/laporan-' . now()->format('Ymd-His') . '.pdf';
         \Illuminate\Support\Facades\Storage::disk('local')->put($path, $pdf->output());
 
         return $path;
@@ -345,14 +345,22 @@ class ReportBuilderService
                     break;
 
                 default:
+                    // $field/$operator come from user input: resolve the column
+                    // through the allowlist and restrict operators, otherwise
+                    // this is raw SQL injection. Unknown fields throw.
+                    $column = $this->fieldReference($field, $dataSource);
+                    $operator = strtolower((string) $operator);
+                    if (! in_array($operator, ['=', '!=', '<>', '>', '>=', '<', '<=', 'in', 'like', 'between'], true)) {
+                        throw new \InvalidArgumentException("Operator laporan tidak valid: {$operator}");
+                    }
                     if ($operator === 'between' && is_array($value) && count($value) === 2) {
-                        $query->whereBetween($field, $value);
+                        $query->whereBetween($column, $value);
                     } elseif ($operator === 'in' && is_array($value)) {
-                        $query->whereIn($field, $value);
+                        $query->whereIn($column, $value);
                     } elseif ($operator === 'like') {
-                        $query->where($field, 'like', '%' . $value . '%');
+                        $query->where($column, 'like', '%' . $value . '%');
                     } else {
-                        $query->where($field, $operator, $value);
+                        $query->where($column, $operator, $value);
                     }
                     break;
             }
@@ -375,7 +383,9 @@ class ReportBuilderService
     private function applyGroupedSelect(Builder|QueryBuilder $query, array $columns, string $dataSource, string $groupField, string $aggFunc, string $aggTarget): Builder|QueryBuilder
     {
         $selects = [DB::raw($this->fieldExpression($groupField, $dataSource))];
-        $aggLabel = "{$aggFunc}_{$aggTarget}";
+        // Alias sanitized: aggregate keys are allowlisted words, but the
+        // alias is interpolated into raw SQL — strip anything exotic.
+        $aggLabel = (string) preg_replace('/[^A-Za-z0-9_]/', '', "{$aggFunc}_{$aggTarget}");
 
         if (! in_array(strtolower($aggFunc), ['count', 'sum', 'avg', 'max', 'min'], true)) {
             throw new \InvalidArgumentException('Fungsi agregasi tidak valid.');

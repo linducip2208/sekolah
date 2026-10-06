@@ -62,6 +62,7 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
+        activity()->causedBy($request->user())->log('logout');
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Logged out successfully.']);
     }
@@ -84,11 +85,12 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        $image = \Intervention\Image\Laravel\Facades\Image::read($request->file('avatar'));
+        // intervention/image v4 API.
+        $image = \Intervention\Image\Laravel\Facades\Image::decode($request->file('avatar'));
         $image->scaleDown(400, 400);
 
         $path = "avatars/{$user->school_id}/{$user->id}.jpg";
-        \Illuminate\Support\Facades\Storage::put($path, $image->toJpeg());
+        \Illuminate\Support\Facades\Storage::put($path, (string) $image->encodeUsingFileExtension('jpg'));
 
         $user->update(['avatar' => $path]);
 
@@ -108,11 +110,10 @@ class AuthController extends Controller
 
         $status = $this->authService->sendPasswordResetLink($request->email);
 
+        // Uniform response: never reveal whether the email is registered.
         return response()->json([
-            'message' => $status === Password::RESET_LINK_SENT
-                ? 'Reset link sent to your email.'
-                : 'Unable to send reset link.',
-        ], $status === Password::RESET_LINK_SENT ? 200 : 422);
+            'message' => 'If the email is registered, a reset link has been sent.',
+        ]);
     }
 
     public function changePassword(Request $request): JsonResponse

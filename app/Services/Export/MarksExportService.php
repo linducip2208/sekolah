@@ -7,6 +7,33 @@ use Illuminate\Http\Response;
 
 class MarksExportService
 {
+    /**
+     * Escape a CSV cell: neutralizes spreadsheet formula injection
+     * (=, +, -, @, tab/CR as first char) per OWASP guidance.
+     */
+    public static function cell(mixed $value): string
+    {
+        $cell = (string) ($value ?? '');
+        if ($cell !== '' && str_contains('=+-@'."\t\r", $cell[0])) {
+            return "'".$cell;
+        }
+        return $cell;
+    }
+
+    /** @param array<int,array<int,mixed>> $rows */
+    private function toCsv(array $header, array $rows): string
+    {
+        $fh = fopen('php://temp', 'r+');
+        fputcsv($fh, $header);
+        foreach ($rows as $row) {
+            fputcsv($fh, array_map(self::cell(...), $row));
+        }
+        rewind($fh);
+        $csv = stream_get_contents($fh);
+        fclose($fh);
+        return $csv;
+    }
+
     public function exportByClass(int $classSectionId, int $semesterId): Response
     {
         $marks = Mark::where('school_id', auth()->user()->school_id)
@@ -16,23 +43,21 @@ class MarksExportService
             ->orderBy('student_id')
             ->get();
 
-        $lines   = [];
-        $lines[] = implode(',', ['student_name', 'admission_no', 'subject', 'obtained_marks', 'total_marks', 'percentage', 'grade', 'semester_id']);
-
+        $rows = [];
         foreach ($marks as $mark) {
-            $lines[] = implode(',', [
-                '"' . ($mark->student->user->name ?? '') . '"',
-                '"' . ($mark->student->admission_no ?? '') . '"',
-                '"' . ($mark->subject->name ?? '') . '"',
+            $rows[] = [
+                $mark->student->user->name ?? '',
+                $mark->student->admission_no ?? '',
+                $mark->subject->name ?? '',
                 $mark->obtained_marks,
                 $mark->total_marks,
                 $mark->percentage,
-                '"' . ($mark->grade ?? '') . '"',
+                $mark->grade ?? '',
                 $semesterId,
-            ]);
+            ];
         }
 
-        $csv      = implode("\n", $lines);
+        $csv      = $this->toCsv(['student_name', 'admission_no', 'subject', 'obtained_marks', 'total_marks', 'percentage', 'grade', 'semester_id'], $rows);
         $filename = "marks_class_{$classSectionId}_semester_{$semesterId}.csv";
 
         return response($csv, 200, [
@@ -49,22 +74,20 @@ class MarksExportService
             ->orderBy('status')
             ->get();
 
-        $lines   = [];
-        $lines[] = implode(',', ['student_name', 'invoice_no', 'structure', 'amount', 'status', 'period', 'due_date']);
-
+        $rows = [];
         foreach ($invoices as $inv) {
-            $lines[] = implode(',', [
-                '"' . ($inv->student->user->name ?? '') . '"',
-                '"' . $inv->invoice_no . '"',
-                '"' . ($inv->feeStructure->name ?? '') . '"',
+            $rows[] = [
+                $inv->student->user->name ?? '',
+                $inv->invoice_no,
+                $inv->feeStructure->name ?? '',
                 $inv->amount,
                 $inv->status,
                 $inv->period,
                 $inv->due_date,
-            ]);
+            ];
         }
 
-        $csv      = implode("\n", $lines);
+        $csv      = $this->toCsv(['student_name', 'invoice_no', 'structure', 'amount', 'status', 'period', 'due_date'], $rows);
         $filename = "fee_collection_{$period}.csv";
 
         return response($csv, 200, [

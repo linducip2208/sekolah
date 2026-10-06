@@ -141,13 +141,32 @@ class PaymentService
         return $transaction;
     }
 
+    /**
+     * Strip secret-carrying headers before persisting webhook logs.
+     */
+    public static function redactHeaders(array $headers): array
+    {
+        $redacted = [];
+        foreach ($headers as $key => $value) {
+            $lower = strtolower((string) $key);
+            if (str_contains($lower, 'signature') || str_contains($lower, 'authorization')
+                || str_contains($lower, 'api-key') || str_contains($lower, 'apikey')
+                || str_contains($lower, 'secret') || str_contains($lower, 'token')) {
+                $redacted[$key] = '[redacted]';
+            } else {
+                $redacted[$key] = $value;
+            }
+        }
+        return $redacted;
+    }
+
     public function handleWebhook(PaymentProvider $provider, array $headers, string $rawBody): PaymentWebhookLog
     {
         $payloadHash = hash('sha256', $rawBody);
         $log = PaymentWebhookLog::create([
             'payment_provider_id' => $provider->id,
             'source_ip' => request()->ip(),
-            'headers' => $headers,
+            'headers' => self::redactHeaders($headers),
             'payload' => json_decode($rawBody, true) ?: [],
             'payload_hash' => $payloadHash,
             'processing_status' => PaymentWebhookLog::PROCESSING_RECEIVED,

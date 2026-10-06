@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'wabot' => [
+        // Shared secret for the inbound WhatsApp gateway webhook
+        // (X-Signature = HMAC-SHA256 of raw body). Empty = warn-only.
+        'webhook_secret' => env('WA_BOT_WEBHOOK_SECRET', ''),
+    ],
+
 ];

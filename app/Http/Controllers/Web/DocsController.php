@@ -17,8 +17,8 @@ class DocsController extends Controller
             'credentials' => [
                 'note' => 'Akun demo default — wajib diganti saat go-live production.',
                 'accounts' => [
-                    ['email' => 'admin@sman1demo.sch.id', 'password' => 'Admin123!', 'school' => 'SMA Negeri 1 Demo (sman1demo)', 'role' => 'admin'],
-                    ['email' => 'admin@demo.sikadpro.app', 'password' => 'password',  'school' => 'Demo School (demo)',          'role' => 'admin'],
+                    ['email' => 'admin@sman1demo.sch.id', 'password' => '[lihat seeder]', 'school' => 'SMA Negeri 1 Demo (sman1demo)', 'role' => 'admin'],
+                    ['email' => 'admin@demo.sikadpro.app', 'password' => '[lihat seeder]',  'school' => 'Demo School (demo)',          'role' => 'admin'],
                 ],
             ],
             'sections' => [
@@ -198,9 +198,9 @@ class DocsController extends Controller
             'credentials' => [
                 'note' => 'Akun guru demo (3 wali kelas — semua di sekolah SMA Negeri 1 Demo).',
                 'accounts' => [
-                    ['email' => 'guru1@sman1demo.sch.id', 'password' => 'Guru123!', 'school' => 'Wali Kelas 10', 'role' => 'teacher'],
-                    ['email' => 'guru2@sman1demo.sch.id', 'password' => 'Guru123!', 'school' => 'Wali Kelas 11', 'role' => 'teacher'],
-                    ['email' => 'guru3@sman1demo.sch.id', 'password' => 'Guru123!', 'school' => 'Wali Kelas 12', 'role' => 'teacher'],
+                    ['email' => 'guru1@sman1demo.sch.id', 'password' => '[lihat seeder]', 'school' => 'Wali Kelas 10', 'role' => 'teacher'],
+                    ['email' => 'guru2@sman1demo.sch.id', 'password' => '[lihat seeder]', 'school' => 'Wali Kelas 11', 'role' => 'teacher'],
+                    ['email' => 'guru3@sman1demo.sch.id', 'password' => '[lihat seeder]', 'school' => 'Wali Kelas 12', 'role' => 'teacher'],
                 ],
             ],
             'sections' => [
@@ -268,11 +268,11 @@ class DocsController extends Controller
             'credentials' => [
                 'note' => '90 akun siswa demo (10 siswa × 9 class section). Pola email: siswa{0-8}_{0-9}@sman1demo.sch.id. Password sama untuk semua.',
                 'accounts' => [
-                    ['email' => 'siswa0_0@sman1demo.sch.id', 'password' => 'Siswa123!', 'school' => 'Kelas 10-A · Admission ADM-0001', 'role' => 'student'],
-                    ['email' => 'siswa0_1@sman1demo.sch.id', 'password' => 'Siswa123!', 'school' => 'Kelas 10-A · Admission ADM-0002', 'role' => 'student'],
-                    ['email' => 'siswa3_0@sman1demo.sch.id', 'password' => 'Siswa123!', 'school' => 'Kelas 11-A · Admission ADM-0031', 'role' => 'student'],
-                    ['email' => 'siswa6_0@sman1demo.sch.id', 'password' => 'Siswa123!', 'school' => 'Kelas 12-A · Admission ADM-0061', 'role' => 'student'],
-                    ['email' => 'siswa8_9@sman1demo.sch.id', 'password' => 'Siswa123!', 'school' => 'Kelas 12-C · Admission ADM-0090', 'role' => 'student'],
+                    ['email' => 'siswa0_0@sman1demo.sch.id', 'password' => '[lihat seeder]', 'school' => 'Kelas 10-A · Admission ADM-0001', 'role' => 'student'],
+                    ['email' => 'siswa0_1@sman1demo.sch.id', 'password' => '[lihat seeder]', 'school' => 'Kelas 10-A · Admission ADM-0002', 'role' => 'student'],
+                    ['email' => 'siswa3_0@sman1demo.sch.id', 'password' => '[lihat seeder]', 'school' => 'Kelas 11-A · Admission ADM-0031', 'role' => 'student'],
+                    ['email' => 'siswa6_0@sman1demo.sch.id', 'password' => '[lihat seeder]', 'school' => 'Kelas 12-A · Admission ADM-0061', 'role' => 'student'],
+                    ['email' => 'siswa8_9@sman1demo.sch.id', 'password' => '[lihat seeder]', 'school' => 'Kelas 12-C · Admission ADM-0090', 'role' => 'student'],
                 ],
             ],
             'sections' => [
@@ -335,8 +335,8 @@ class DocsController extends Controller
             'credentials' => [
                 'note' => 'Akun super admin platform (cross-tenant, school_id = null). WAJIB ganti password sebelum production.',
                 'accounts' => [
-                    ['email' => 'superadmin@sikadpro.app', 'password' => 'password',         'school' => 'Platform-level (semua sekolah)', 'role' => 'super_admin'],
-                    ['email' => 'super@sikadpro.app',      'password' => 'SuperAdmin123!',   'school' => 'Platform-level (semua sekolah)', 'role' => 'super_admin'],
+                    ['email' => 'superadmin@sikadpro.app', 'password' => '[lihat seeder — WAJIB diganti]', 'school' => 'Platform-level (semua sekolah)', 'role' => 'super_admin'],
+                    ['email' => 'super@sikadpro.app',      'password' => '[lihat seeder — WAJIB diganti]', 'school' => 'Platform-level (semua sekolah)', 'role' => 'super_admin'],
                 ],
             ],
             'sections' => [
@@ -421,10 +421,10 @@ class DocsController extends Controller
             'credentials' => [
                 'note' => 'Untuk test API gunakan akun seeder di bawah. Login via POST /api/v1/auth/login → dapat Bearer token.',
                 'accounts' => [
-                    ['email' => 'admin@sman1demo.sch.id', 'password' => 'Admin123!',      'school' => 'Test sebagai school admin',  'role' => 'admin'],
-                    ['email' => 'guru1@sman1demo.sch.id', 'password' => 'Guru123!',       'school' => 'Test sebagai teacher',       'role' => 'teacher'],
-                    ['email' => 'siswa0_0@sman1demo.sch.id', 'password' => 'Siswa123!',   'school' => 'Test sebagai student',       'role' => 'student'],
-                    ['email' => 'super@sikadpro.app',      'password' => 'SuperAdmin123!', 'school' => 'Test sebagai super admin',   'role' => 'super_admin'],
+                    ['email' => 'admin@sman1demo.sch.id', 'password' => '[lihat seeder]',      'school' => 'Test sebagai school admin', 'role' => 'admin'],
+                    ['email' => 'guru1@sman1demo.sch.id', 'password' => '[lihat seeder]',       'school' => 'Test sebagai teacher',       'role' => 'teacher'],
+                    ['email' => 'siswa0_0@sman1demo.sch.id', 'password' => '[lihat seeder]',   'school' => 'Test sebagai student',       'role' => 'student'],
+                    ['email' => 'super@sikadpro.app',      'password' => '[lihat seeder]', 'school' => 'Test sebagai super admin',   'role' => 'super_admin'],
                 ],
             ],
             'sections' => [

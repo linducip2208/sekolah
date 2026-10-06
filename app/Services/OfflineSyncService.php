@@ -29,6 +29,17 @@ class OfflineSyncService
         $errors = [];
         $results = [];
 
+        // Fail fast on authorization: a 403 must be a real 403, not a
+        // per-record 207 entry. Normal authz never throws mid-loop then.
+        $needsAttendance = collect($records)->contains(fn ($r) => ($r['type'] ?? '') === 'attendance');
+        $needsMarks = collect($records)->contains(fn ($r) => ($r['type'] ?? '') === 'mark');
+        if ($needsAttendance) {
+            abort_unless(auth()->user()->can('attendance.manage'), 403, 'Tidak memiliki izin sinkronisasi absensi.');
+        }
+        if ($needsMarks) {
+            abort_unless(auth()->user()->can('marks.manage'), 403, 'Tidak memiliki izin sinkronisasi nilai.');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -118,12 +129,21 @@ class OfflineSyncService
             return ['success' => false, 'error' => "Invalid status: {$status}"];
         }
 
-        abort_unless(auth()->user()->can('attendance.manage'), 403, 'Tidak memiliki izin sinkronisasi absensi.');
         $student = Student::withoutGlobalScopes()
             ->where('school_id', $this->schoolId)
             ->find($studentId);
         if (!$student) {
             return ['success' => false, 'error' => "Student not found: {$studentId}"];
+        }
+
+        // The section must belong to this school; bulkMark additionally
+        // verifies teacher assignment + lock state + student membership.
+        $sectionOk = \App\Models\Academic\ClassSection::withoutGlobalScopes()
+            ->where('school_id', $this->schoolId)
+            ->whereKey($classSectionId)
+            ->exists();
+        if (!$sectionOk) {
+            return ['success' => false, 'error' => "Class section not found: {$classSectionId}"];
         }
 
         $existing = Attendance::where('school_id', $this->schoolId)
@@ -152,7 +172,12 @@ class OfflineSyncService
         $semesterId = $record['semester_id'] ?? null;
         $obtainedMarks = $record['obtained_marks'] ?? 0;
         $totalMarks = $record['total_marks'] ?? 100;
-        abort_unless(auth()->user()->can('marks.manage'), 403, 'Tidak memiliki izin sinkronisasi nilai.');
+        foreach (['subject_id' => [\App\Models\Academic\Subject::class, $subjectId], 'exam_id' => [\App\Models\Academic\Exam::class, $examId], 'semester_id' => [\App\Models\Academic\Semester::class, $semesterId]] as $field => [$model, $id]) {
+            $scoped = $model::withoutGlobalScopes()->where('school_id', $this->schoolId)->whereKey($id)->exists();
+            if (!$scoped) {
+                return ['success' => false, 'error' => "Invalid {$field}: {$id}"];
+            }
+        }
         $existing = Mark::where('school_id', $this->schoolId)
             ->where('student_id', $studentId)
             ->where('subject_id', $subjectId)

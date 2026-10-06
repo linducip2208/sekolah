@@ -11,10 +11,18 @@ class OfflineSyncController extends Controller
     public function batch(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
-            'records'   => 'required|array|max:500',
+            'records'   => 'required|array|max:200',
             'records.*.type' => 'required|string|in:attendance,mark',
             'records.*.student_id' => 'required|integer',
-            'records.*.local_id' => 'nullable|string',
+            'records.*.local_id' => 'nullable|string|max:100',
+            'records.*.class_section_id' => 'nullable|integer',
+            'records.*.date' => 'nullable|date_format:Y-m-d',
+            'records.*.status' => 'nullable|string|max:20',
+            'records.*.subject_id' => 'nullable|integer',
+            'records.*.exam_id' => 'nullable|integer',
+            'records.*.semester_id' => 'nullable|integer',
+            'records.*.obtained_marks' => 'nullable|numeric|min:0',
+            'records.*.total_marks' => 'nullable|numeric|min:1',
         ]);
 
         $service = app(OfflineSyncService::class);

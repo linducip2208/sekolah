@@ -53,7 +53,9 @@ class ChatController extends Controller
     {
         $this->authorizeConversation($conversation);
 
-        $messages = $conversation->messages()->with('sender')->orderBy('created_at')->get();
+        // Bounded history (latest 100, chronological). Use pagination
+        // endpoint when full scrollback is needed.
+        $messages = $conversation->messages()->with('sender')->latest()->limit(100)->get()->reverse()->values();
 
         Message::where('conversation_id', $conversation->id)
             ->where('sender_id', '!=', auth()->id())
@@ -93,6 +95,8 @@ class ChatController extends Controller
         ]);
 
         $conversation->update(['last_message_at' => now()]);
+
+        broadcast(new \App\Events\MessageSent($message))->toOthers();
 
         return response()->json($message->load('sender'), 201);
     }

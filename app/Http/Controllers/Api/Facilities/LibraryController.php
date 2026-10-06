@@ -38,7 +38,7 @@ class LibraryController extends Controller
             ->when($request->barcode, fn ($q) => $q->where('barcode', $request->barcode))
             ->with('bookCategory')
             ->latest()
-            ->get();
+            ->paginate(30);
 
         return response()->json($books);
     }
@@ -120,7 +120,7 @@ class LibraryController extends Controller
         $issues = BookIssue::when($request->status, fn ($q) => $q->where('status', $request->status))
             ->with('book', 'issuedTo', 'issuedBy')
             ->latest()
-            ->get();
+            ->paginate(30);
 
         return response()->json($issues);
     }

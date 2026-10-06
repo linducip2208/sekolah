@@ -19,6 +19,7 @@ class SchoolController extends Controller
 
     public function updateProfile(Request $request): JsonResponse
     {
+        $this->requireSchoolManage($request);
         $request->validate([
             'name'    => 'sometimes|string|max:255',
             'email'   => 'sometimes|email',
@@ -34,6 +35,7 @@ class SchoolController extends Controller
 
     public function uploadLogo(Request $request): JsonResponse
     {
+        $this->requireSchoolManage($request);
         $request->validate(['logo' => 'required|image|max:2048']);
 
         $school = $request->user()->school;
@@ -51,8 +53,18 @@ class SchoolController extends Controller
 
     public function updateSettings(Request $request): JsonResponse
     {
+        $this->requireSchoolManage($request);
         $school   = $request->user()->school;
-        $updated  = $this->settings->update($school, $request->all());
+        $updated  = $this->settings->update($school, $request->only(SchoolSettingsService::WRITABLE_KEYS));
         return response()->json($updated->settings);
+    }
+
+    private function requireSchoolManage(Request $request): void
+    {
+        abort_unless(
+            $request->user()->hasRole('super_admin') || $request->user()->can('school.manage'),
+            403,
+            'Tidak memiliki izin mengelola sekolah.'
+        );
     }
 }

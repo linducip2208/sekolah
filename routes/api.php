@@ -82,13 +82,13 @@ Route::prefix('v1')->middleware(['api'])->group(function () {
     Route::post('/auth/reset-password',  [AuthController::class, 'resetPassword'])->middleware('throttle:password-reset');
 
     // School self-registration (public)
-    Route::post('/schools/register', [SchoolRegistrationController::class, 'register']);
+    Route::post('/schools/register', [SchoolRegistrationController::class, 'register'])->middleware('throttle:5,1');
 
     // Public branding lookup (used by login page + Flutter app boot)
     Route::get('/branding/{subdomain}', [BrandingController::class, 'publicShow']);
 
     // Payment gateway webhooks (public, dynamic provider — signature verified internally per-provider)
-    Route::post('/payments/webhook/{providerSlug}', [PaymentGatewayController::class, 'webhook']);
+    Route::post('/payments/webhook/{providerSlug}', [PaymentGatewayController::class, 'webhook'])->middleware('throttle:30,1');
 
     // PPDB public registration
     Route::get('/public/ppdb/{subdomain}/periods',  [PpdbController::class, 'publicPeriods']);
@@ -136,6 +136,10 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     Route::put('/auth/profile',         [AuthController::class, 'updateProfile']);
     Route::post('/auth/avatar',         [AuthController::class, 'updateAvatar'])->middleware('throttle:30,1');
     Route::post('/auth/change-password',[AuthController::class, 'changePassword']);
+
+    // Secure generic uploads for mobile (purpose-scoped, validated).
+    Route::post('/uploads',              [\App\Http\Controllers\Api\UploadController::class, 'store'])->middleware('throttle:30,1');
+    Route::get('/uploads/file',          [\App\Http\Controllers\Api\UploadController::class, 'show']);
 
     // Dashboard (per role aggregator)
     Route::get('/dashboard/student', [DashboardController::class, 'student']);
