@@ -69,6 +69,16 @@ use Illuminate\Support\Facades\Route;
 
 // Health check endpoints (public, no auth)
 Route::prefix('v1')->group(function () {
+    Route::get('/', function () {
+        return response()->json([
+            'success' => true,
+            'name'    => 'eSchool API',
+            'version' => 'v1',
+            'status'  => 'ok',
+            'health'  => '/api/v1/health',
+            'docs'    => '/docs',
+        ]);
+    });
     Route::get('/health',         [\App\Http\Controllers\Api\HealthController::class, 'shallow']);
     Route::get('/health/deep',    [\App\Http\Controllers\Api\HealthController::class, 'deep']);
     Route::get('/health/metrics', [\App\Http\Controllers\Api\HealthController::class, 'metrics']);

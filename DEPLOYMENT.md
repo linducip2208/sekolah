@@ -123,13 +123,13 @@ Key production settings:
 APP_NAME="Sikad Pro"
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://admin.sikadpro.app
+APP_URL=https://admin.eschool.whitelabel.co.id
 APP_TIMEZONE=Asia/Jakarta
 APP_LOCALE=id
 
 # Multi-tenant base domain
-TENANT_BASE_DOMAIN=sikadpro.app
-SUPER_ADMIN_DOMAIN=admin.sikadpro.app
+TENANT_BASE_DOMAIN=eschool.whitelabel.co.id
+SUPER_ADMIN_DOMAIN=admin.eschool.whitelabel.co.id
 
 # License (dev bypass off in production)
 LICENSE_DEV_BYPASS=false
@@ -160,7 +160,7 @@ BROADCAST_CONNECTION=reverb
 REVERB_APP_ID=sikadpro
 REVERB_APP_KEY=sikadpro-key
 REVERB_APP_SECRET=sikadpro-secret
-REVERB_HOST=sikadpro.app
+REVERB_HOST=eschool.whitelabel.co.id
 REVERB_PORT=443
 REVERB_SCHEME=https
 
@@ -170,7 +170,7 @@ MAIL_HOST=<smtp-host>
 MAIL_PORT=587
 MAIL_USERNAME=<username>
 MAIL_PASSWORD=<password>
-MAIL_FROM_ADDRESS="noreply@sikadpro.app"
+MAIL_FROM_ADDRESS="noreply@eschool.whitelabel.co.id"
 MAIL_FROM_NAME="Sikad Pro"
 
 # Storage
@@ -181,8 +181,8 @@ AWS_DEFAULT_REGION=ap-southeast-1
 AWS_BUCKET=sikadpro-storage
 
 # Multi-tenancy
-SANCTUM_STATEFUL_DOMAINS=*.sikadpro.app,admin.sikadpro.app
-SESSION_DOMAIN=.sikadpro.app
+SANCTUM_STATEFUL_DOMAINS=*.eschool.whitelabel.co.id,admin.eschool.whitelabel.co.id
+SESSION_DOMAIN=.eschool.whitelabel.co.id
 ```
 
 ### 4. Create Database
@@ -248,8 +248,8 @@ sudo chmod 600 /root/.secrets/cloudflare.ini
 # Request wildcard certificate
 sudo certbot certonly --dns-cloudflare \
     --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
-    -d "sikadpro.app" -d "*.sikadpro.app" \
-    --email admin@sikadpro.app --agree-tos --non-interactive
+    -d "eschool.whitelabel.co.id" -d "*.eschool.whitelabel.co.id" \
+    --email admin@eschool.whitelabel.co.id --agree-tos --non-interactive
 
 # Reload Nginx
 sudo systemctl reload nginx
@@ -269,7 +269,7 @@ sudo supervisorctl start sikadpro-queue:*
 
 ### 11. License Activation
 
-1. Buka `https://admin.sikadpro.app/__pair` di browser
+1. Buka `https://admin.eschool.whitelabel.co.id/__pair` di browser
 2. Masukkan license key dari `whitelabel.co.id`
 3. Masukkan email buyer (yang dipakai saat beli)
 4. Klik "Aktifkan License"
@@ -291,8 +291,8 @@ nano .env
 # 2. SSL Wildcard (run once)
 certbot certonly --dns-cloudflare \
     --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
-    -d "sikadpro.app" -d "*.sikadpro.app" \
-    --email admin@sikadpro.app --agree-tos
+    -d "eschool.whitelabel.co.id" -d "*.eschool.whitelabel.co.id" \
+    --email admin@eschool.whitelabel.co.id --agree-tos
 
 # 3. Build and start all services
 docker compose up -d --build
@@ -341,7 +341,7 @@ docker compose restart worker scheduler
 ## Nginx Config Reference
 
 See `deploy/nginx.conf` for the complete production Nginx configuration with:
-- Wildcard subdomain support (`*.sikadpro.app`)
+- Wildcard subdomain support (`*.eschool.whitelabel.co.id`)
 - PHP-FPM upstream (standalone) or Docker container forwarding
 - Static asset caching with `Cache-Control: public, immutable`
 - Security headers (HSTS, X-Frame-Options, X-Content-Type-Options)
@@ -424,7 +424,7 @@ After seeding, use demo accounts:
 | `admin@sman1demo.sch.id` | School Admin | `password` |
 | `super@sikadpro.app` | Super Admin | `password` |
 
-Admin portal: `https://admin.sikadpro.app/admin/login`
+Admin portal: `https://admin.eschool.whitelabel.co.id/admin/login`
 
 **PENTING:** Change all demo passwords before go-live.
 
@@ -496,7 +496,7 @@ After deployment, update:
 - Canonical link in marketing landing page
 - Sitemap domain (auto-generated from `APP_URL`)
 - OG meta tags in public pages
-- Submit `https://admin.sikadpro.app/sitemap.xml` to Google Search Console
+- Submit `https://admin.eschool.whitelabel.co.id/sitemap.xml` to Google Search Console
 - Configure IndexNow API key for auto-indexing
 
 ---
@@ -511,7 +511,7 @@ After deployment, update:
 | License expired | Re-pair via `/__pair` |
 | Missing assets | Rebuild: `npm run build` |
 | DB connection failed | Verify `.env` credentials |
-| School subdomain 404 | Check wildcard DNS `*.sikadpro.app` points to server |
+| School subdomain 404 | Check wildcard DNS `*.eschool.whitelabel.co.id` points to server |
 | Reverb not connecting | Check firewall allows port 8080, verify SSL config |
 
 ---
