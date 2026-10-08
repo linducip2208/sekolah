@@ -24,6 +24,10 @@ use App\Http\Controllers\Api\Finance\PaymentGatewayController;
 use App\Http\Controllers\Api\Finance\PaymentProviderController;
 use App\Http\Controllers\Api\Finance\PaymentMethodController;
 use App\Http\Controllers\Api\Branding\BrandingController;
+use App\Http\Controllers\Api\Communication\LetterController;
+use App\Http\Controllers\Api\Directory\DirectoryController;
+use App\Http\Controllers\Api\Finance\BudgetController;
+use App\Http\Controllers\Api\Finance\ReportsController;
 use App\Http\Controllers\Api\PPDB\PpdbController;
 use App\Http\Controllers\Api\Transport\VehicleTrackingController;
 use App\Http\Controllers\Api\Gate\IdGateController;
@@ -271,6 +275,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     Route::get('/lms/progress',                             [\App\Http\Controllers\Api\Lms\LmsController::class, 'myProgress']);
     Route::post('/lms/complete-lesson',                     [\App\Http\Controllers\Api\Lms\LmsController::class, 'completeLesson']);
     Route::get('/lms/quizzes',                              [\App\Http\Controllers\Api\Lms\LmsController::class, 'quizzes']);
+    Route::get('/lms/quizzes/{quizId}/questions',              [\App\Http\Controllers\Api\Lms\LmsController::class, 'questions']);
     Route::post('/lms/quiz/submit',                         [\App\Http\Controllers\Api\Lms\LmsController::class, 'submitQuiz']);
     Route::get('/lms/enrollments/{enrollmentId}/certificate', [\App\Http\Controllers\Api\Lms\LmsController::class, 'certificate']);
     Route::post('/lms/enrollments/{enrollmentId}/certificate', [\App\Http\Controllers\Api\Lms\LmsController::class, 'issueCertificate']);
@@ -320,6 +325,34 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'school.access', 'subscription.
     // Report Card PDF
     Route::get('/report-cards/{reportCard}/pdf',                       [ReportCardController::class, 'downloadPdf']);
     Route::get('/report-cards/class/{classSectionId}/pdf/{semesterId}', [ReportCardController::class, 'downloadClassPdf']);
+
+    // Directory (students, staff, academic reference for pickers)
+    Route::get('/directory/students',        [DirectoryController::class, 'students']);
+    Route::get('/directory/staff',           [DirectoryController::class, 'staff']);
+    Route::get('/directory/class-rooms',     [DirectoryController::class, 'classRooms']);
+    Route::get('/directory/sections',        [DirectoryController::class, 'sections']);
+    Route::get('/directory/class-sections',  [DirectoryController::class, 'classSections']);
+    Route::get('/directory/subjects',        [DirectoryController::class, 'subjects']);
+    Route::get('/directory/semesters',       [DirectoryController::class, 'semesters']);
+    Route::get('/directory/mediums',         [DirectoryController::class, 'mediums']);
+
+    // Finance reports (RKAS inputs + cash summary, whole rupiah)
+    Route::get('/reports/cash-summary',  [ReportsController::class, 'cashSummary']);
+    Route::get('/reports/aging',         [ReportsController::class, 'aging']);
+    Route::get('/reports/outstanding',   [ReportsController::class, 'outstanding']);
+
+    // Budget / RKAS (whole rupiah in/out)
+    Route::get('/budget/dashboard',      [BudgetController::class, 'dashboard']);
+    Route::post('/budget/categories',    [BudgetController::class, 'storeCategory']);
+    Route::post('/budget/items',          [BudgetController::class, 'storeItem']);
+    Route::post('/budget/transactions',   [BudgetController::class, 'storeTransaction']);
+
+    // Letters (surat-menyurat)
+    Route::get('/letters',               [LetterController::class, 'index']);
+    Route::get('/letters/templates',     [LetterController::class, 'templates']);
+    Route::post('/letters',              [LetterController::class, 'store']);
+    Route::get('/letters/{id}',          [LetterController::class, 'show']);
+    Route::post('/letters/{id}/status',  [LetterController::class, 'updateStatus']);
 
     // Branding (authenticated - own school)
     Route::get('/branding',                                            [BrandingController::class, 'showMine']);

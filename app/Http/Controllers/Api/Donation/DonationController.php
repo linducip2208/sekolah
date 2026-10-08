@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Donation;
 
+use App\Http\Controllers\Api\Concerns\ConvertsRupiah;
 use App\Http\Controllers\Controller;
 use App\Models\Donation\Donation;
 use App\Models\Donation\DonationCampaign;
@@ -12,6 +13,8 @@ use Illuminate\Http\Request;
 
 class DonationController extends Controller
 {
+    use ConvertsRupiah;
+
     public function __construct(private DonationService $service) {}
 
     public function publicCampaigns(string $subdomain): JsonResponse
@@ -24,7 +27,7 @@ class DonationController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return response()->json(['data' => $campaigns]);
+        return response()->json($this->inRupiah(['data' => $campaigns]));
     }
 
     public function publicShowCampaign(string $subdomain, string $slug): JsonResponse
@@ -49,10 +52,10 @@ class DonationController extends Controller
                 'donated_at'  => $d->donated_at,
             ]);
 
-        return response()->json([
+        return response()->json($this->inRupiah([
             'campaign'  => $campaign,
             'donations' => $donations,
-        ]);
+        ]));
     }
 
     public function publicDonate(Request $request, string $subdomain, string $slug): JsonResponse
@@ -76,18 +79,18 @@ class DonationController extends Controller
         ]);
 
         $donation = $this->service->recordDonation(
-            $school->id, null, $campaign->id, $data,
+            $school->id, null, $campaign->id, $this->toCentsDeep($data, ['amount']),
         );
 
-        return response()->json($donation, 201);
+        return response()->json($this->inRupiah($donation), 201);
     }
 
     public function adminCampaigns(Request $request): JsonResponse
     {
-        return response()->json([
+        return response()->json($this->inRupiah([
             'data' => DonationCampaign::where('school_id', $request->user()->school_id)
                 ->orderByDesc('created_at')->paginate(50),
-        ]);
+        ]));
     }
 
     public function storeCampaign(Request $request): JsonResponse
@@ -105,17 +108,17 @@ class DonationController extends Controller
         ]);
 
         return response()->json(
-            $this->service->createCampaign($request->user()->school_id, $data),
+            $this->inRupiah($this->service->createCampaign($request->user()->school_id, $this->toCentsDeep($data, ['target_amount']))),
             201,
         );
     }
 
     public function donations(Request $request): JsonResponse
     {
-        return response()->json([
+        return response()->json($this->inRupiah([
             'data' => Donation::where('school_id', $request->user()->school_id)
                 ->when($request->input('campaign_id'), fn ($q, $cid) => $q->where('donation_campaign_id', $cid))
                 ->orderByDesc('created_at')->paginate(50),
-        ]);
+        ]));
     }
 }

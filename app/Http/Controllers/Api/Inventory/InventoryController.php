@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Inventory;
 
+use App\Http\Controllers\Api\Concerns\ConvertsRupiah;
 use App\Http\Controllers\Controller;
 use App\Models\Inventory\Asset;
 use App\Models\Inventory\AssetLoan;
@@ -12,15 +13,17 @@ use Illuminate\Http\Request;
 
 class InventoryController extends Controller
 {
+    use ConvertsRupiah;
+
     public function __construct(private InventoryService $service) {}
 
     public function assets(Request $request): JsonResponse
     {
-        return response()->json([
+        return response()->json($this->inRupiah([
             'data' => Asset::where('school_id', $request->user()->school_id)
                 ->when($request->input('status'), fn ($q, $s) => $q->where('status', $s))
                 ->paginate(50),
-        ]);
+        ]));
     }
 
     public function storeAsset(Request $request): JsonResponse
@@ -42,7 +45,10 @@ class InventoryController extends Controller
         ]);
 
         return response()->json(
-            $this->service->createAsset($request->user()->school_id, $data),
+            $this->inRupiah($this->service->createAsset(
+                $request->user()->school_id,
+                $this->toCentsDeep($data, ['purchase_price'])
+            )),
             201,
         );
     }

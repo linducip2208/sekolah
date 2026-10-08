@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Canteen;
 
+use App\Http\Controllers\Api\Concerns\ConvertsRupiah;
 use App\Http\Controllers\Controller;
 use App\Models\Academic\Student;
 use App\Models\Canteen\CanteenCategory;
@@ -14,6 +15,8 @@ use Illuminate\Http\Request;
 
 class CanteenController extends Controller
 {
+    use ConvertsRupiah;
+
     public function __construct(private CanteenService $service) {}
 
     public function menu(Request $request): JsonResponse
@@ -25,10 +28,10 @@ class CanteenController extends Controller
 
         $cats = CanteenCategory::where('school_id', $request->user()->school_id)->get()->keyBy('id');
 
-        return response()->json([
+        return response()->json($this->inRupiah([
             'categories' => $cats->values(),
             'items' => $items,
-        ]);
+        ]));
     }
 
     public function wallet(Request $request, int $studentId): JsonResponse
@@ -36,10 +39,10 @@ class CanteenController extends Controller
         $this->authorizeStudent($request, $studentId);
         $wallet = $this->service->getOrCreateWallet($request->user()->school_id, $studentId);
 
-        return response()->json([
+        return response()->json($this->inRupiah([
             'wallet' => $wallet,
             'balance' => $this->service->ledgerBalance($wallet),
-        ]);
+        ]));
     }
 
     public function topup(Request $request, int $studentId): JsonResponse
@@ -48,10 +51,12 @@ class CanteenController extends Controller
         // permissions remain required for locking, refunds, and settlement.
         $this->authorizeStudent($request, $studentId);
         $data = $request->validate([
+            // Mobile contract: whole rupiah → ledger minor units.
             'amount' => 'required|integer|min:100',
             'payment_transaction_id' => 'nullable|integer',
             'idempotency_key' => 'nullable|string|max:100',
         ]);
+        $data['amount'] = $this->toCents($data['amount']);
 
         $topup = $this->service->topUp(
             $request->user()->school_id,
@@ -62,7 +67,7 @@ class CanteenController extends Controller
             $data['idempotency_key'] ?? $request->header('Idempotency-Key'),
         );
 
-        return response()->json($topup, 201);
+        return response()->json($this->inRupiah($topup), 201);
     }
 
     public function placeOrder(Request $request): JsonResponse
@@ -89,7 +94,7 @@ class CanteenController extends Controller
                 $data['idempotency_key'] ?? $request->header('Idempotency-Key'),
             );
 
-            return response()->json($order, 201);
+            return response()->json($this->inRupiah($order), 201);
         } catch (\RuntimeException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
@@ -103,7 +108,7 @@ class CanteenController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        return response()->json(['data' => $orders]);
+        return response()->json($this->inRupiah(['data' => $orders]));
     }
 
     public function updateStatus(Request $request, int $id): JsonResponse
@@ -113,7 +118,7 @@ class CanteenController extends Controller
 
         $order = CanteenOrder::where('school_id', $request->user()->school_id)->findOrFail($id);
 
-        return response()->json($this->service->updateOrderStatus($order, $request->input('status')));
+        return response()->json($this->inRupiah($this->service->updateOrderStatus($order, $request->input('status'))));
     }
 
     public function lockWallet(Request $request, int $walletId): JsonResponse
@@ -123,36 +128,37 @@ class CanteenController extends Controller
         $this->authorizeStudent($request, (int) $wallet->student_id, true);
         $wallet->update(['is_locked' => $request->boolean('is_locked')]);
 
-        return response()->json($wallet);
+        return response()->json($this->inRupiah($wallet));
     }
 
     public function transactions(Request $request, int $studentId): JsonResponse
     {
         $this->authorizeStudent($request, $studentId);
 
-        return response()->json($this->service->transactions(
+        return response()->json($this->inRupiah($this->service->transactions(
             (int) $request->user()->school_id,
             $studentId,
             min((int) $request->input('per_page', 25), 100),
-        ));
+        )));
     }
 
     public function refund(Request $request, int $id): JsonResponse
     {
         abort_unless($this->canManage($request), 403, 'Tidak memiliki akses refund kantin.');
         $data = $request->validate([
+            // Mobile contract: whole rupiah → ledger minor units.
             'amount' => 'required|integer|min:1',
             'reason' => 'required|string|max:255',
             'idempotency_key' => 'nullable|string|max:120',
         ]);
         $order = CanteenOrder::where('school_id', $request->user()->school_id)->findOrFail($id);
 
-        return response()->json($this->service->refundOrder(
+        return response()->json($this->inRupiah($this->service->refundOrder(
             $order,
-            $data['amount'],
+            $this->toCents($data['amount']),
             $data['reason'],
             $data['idempotency_key'] ?? $request->header('Idempotency-Key'),
-        ), 201);
+        )), 201);
     }
 
     private function authorizeStudent(Request $request, int $studentId, bool $managementAllowed = false): void

@@ -97,6 +97,27 @@ class LmsController extends Controller
         return response()->json($enrollment);
     }
 
+    /**
+     * Published quiz questions WITHOUT answer keys (anti-cheat).
+     * Students attempt via POST /lms/quiz/submit {quiz_id, answers}.
+     */
+    public function questions(Request $request, int $quizId): JsonResponse
+    {
+        $quiz = Quiz::where('school_id', $request->user()->school_id)
+            ->where('is_published', true)
+            ->findOrFail($quizId);
+
+        $questions = $quiz->questions()->get()->map(fn ($q) => [
+            'id' => $q->id,
+            'question' => $q->question,
+            'type' => $q->type,
+            'options' => $q->options,
+            'order' => $q->order,
+        ]);
+
+        return response()->json(['data' => $questions]);
+    }
+
     public function quizzes(Request $request): JsonResponse
     {
         $quizzes = Quiz::where('school_id', $request->user()->school_id)
