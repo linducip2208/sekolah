@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\SuperAdmin;
 
+use App\Http\Controllers\Api\Concerns\ConvertsRupiah;
 use App\Http\Controllers\Controller;
 use App\Models\Finance\SubscriptionTransaction;
 use App\Services\SuperAdminService;
@@ -10,6 +11,8 @@ use Illuminate\Http\Request;
 
 class SuperSubscriptionController extends Controller
 {
+    use ConvertsRupiah;
+
     public function __construct(private SuperAdminService $service) {}
 
     public function index(Request $request): JsonResponse
@@ -19,7 +22,7 @@ class SuperSubscriptionController extends Controller
             ->when($request->status, fn($q) => $q->where('status', $request->status))
             ->latest()
             ->paginate(20);
-        return response()->json($txs);
+        return response()->json($this->inRupiah($txs));
     }
 
     public function store(Request $request): JsonResponse
@@ -35,6 +38,9 @@ class SuperSubscriptionController extends Controller
             'period_to'      => 'required|date|after:period_from',
         ]);
 
-        return response()->json($this->service->recordSubscription($validated), 201);
+        // Mobile contract: whole rupiah → stored as minor units.
+        $validated['amount'] = $this->toCents((int) $validated['amount']);
+
+        return response()->json($this->inRupiah($this->service->recordSubscription($validated)), 201);
     }
 }

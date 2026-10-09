@@ -69,7 +69,7 @@ class FeeController extends Controller
             ->when($request->status, fn($q) => $q->where('status', $request->status))
             ->with('feeStructure', 'payments')
             ->latest()
-            ->get();
+            ->paginate(50);
         return response()->json($this->inRupiah($invoices));
     }
 

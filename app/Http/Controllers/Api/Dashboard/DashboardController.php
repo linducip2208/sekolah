@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Dashboard;
 
+use App\Http\Controllers\Api\Concerns\ConvertsRupiah;
 use App\Http\Controllers\Controller;
 use App\Models\Academic\Attendance;
 use App\Models\Academic\Exam;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    use ConvertsRupiah;
+
     public function student(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -43,8 +46,8 @@ class DashboardController extends Controller
             ->count();
 
         $upcomingExams = Exam::where('class_section_id', $student->class_section_id)
-            ->where('scheduled_at', '>=', now())
-            ->where('scheduled_at', '<=', now()->addDays(14))
+            ->where('start_at', '>=', now())
+            ->where('start_at', '<=', now()->addDays(14))
             ->count();
 
         $unpaidInvoices = FeeInvoice::where('student_id', $student->id)
@@ -141,12 +144,12 @@ class DashboardController extends Controller
             ->where('status', '!=', 'paid')
             ->sum(DB::raw('amount - COALESCE(paid_amount, 0)'));
 
-        return response()->json([
+        return response()->json($this->inRupiah([
             'data' => [
                 'children'             => $children,
                 'total_unpaid_amount'  => (int) $totalUnpaid,
             ],
-        ]);
+        ]));
     }
 
     public function admin(Request $request): JsonResponse
@@ -182,7 +185,7 @@ class DashboardController extends Controller
             ];
         }
 
-        return response()->json([
+        return response()->json($this->inRupiah([
             'data' => [
                 'total_students'    => $totalStudents,
                 'total_teachers'    => $totalTeachers,
@@ -190,7 +193,7 @@ class DashboardController extends Controller
                 'fees_pending'      => (int) $feesPending,
                 'attendance_trend'  => $trend,
             ],
-        ]);
+        ]));
     }
 
     private function scheduleForSection(int $sectionId, int $isoDay): array

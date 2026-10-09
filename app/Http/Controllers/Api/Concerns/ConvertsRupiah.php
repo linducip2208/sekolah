@@ -36,6 +36,9 @@ trait ConvertsRupiah
         'total_allowances',
         'total_deductions',
         'net_salary',
+        'total_unpaid_amount',
+        'fees_collected',
+        'fees_pending',
     ];
 
     /**
