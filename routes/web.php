@@ -242,6 +242,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/timetable/generator',               [\App\Http\Controllers\Web\Admin\Academic\TimetableGeneratorController::class, 'wizard'])->name('timetable.generator.wizard');
         Route::post('/timetable/generator/step',          [\App\Http\Controllers\Web\Admin\Academic\TimetableGeneratorController::class, 'postStep'])->name('timetable.generator.post-step');
         Route::post('/timetable/generator/run',           [\App\Http\Controllers\Web\Admin\Academic\TimetableGeneratorController::class, 'generate'])->name('timetable.generator.generate');
+        Route::post('/timetable/generator/save',          [\App\Http\Controllers\Web\Admin\Academic\TimetableGeneratorController::class, 'saveConfig'])->name('timetable.generator.save');
 
         // Leaderboard & Gamifikasi
         Route::get('/leaderboard',                       [LeaderboardController::class, 'index'])->name('leaderboard.index');

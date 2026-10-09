@@ -141,7 +141,7 @@ class AccountingController extends Controller
             'reference_no' => 'nullable|string|max:100',
             'description' => 'nullable|string|max:500',
             'lines' => 'required|array|min:2',
-            'lines.*.chart_of_account_id' => 'required|exists:chart_of_accounts,id',
+            'lines.*.chart_of_account_id' => ['required', \Illuminate\Validation\Rule::exists('chart_of_accounts', 'id')->where('school_id', $this->schoolId())],
             'lines.*.debit' => 'nullable|numeric|min:0',
             'lines.*.credit' => 'nullable|numeric|min:0',
             'lines.*.description' => 'nullable|string|max:500',

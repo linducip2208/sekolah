@@ -217,7 +217,7 @@ class OsisController extends Controller
     public function storeProgram(Request $request): \Illuminate\Http\RedirectResponse
     {
         $data = $request->validate([
-            'osis_election_id' => 'nullable|integer|exists:osis_elections,id',
+            'osis_election_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('osis_elections', 'id')->where('school_id', $this->schoolId())],
             'title'            => 'required|string|max:255',
             'description'      => 'nullable|string',
             'budget'           => 'nullable|integer|min:0',

@@ -49,14 +49,14 @@ class FeeWebController extends Controller
             'name'          => 'required|string|max:200',
             'frequency'     => 'required|in:monthly,semester,yearly,one_time',
             'amount_rupiah' => 'required|numeric|min:0',
-            'class_room_id' => 'nullable|exists:class_rooms,id',
+            'class_room_id' => ['nullable', \Illuminate\Validation\Rule::exists('class_rooms', 'id')->where('school_id', $this->schoolId())],
         ]);
 
         FeeStructure::create([
             'school_id'     => $this->schoolId(),
             'name'          => $data['name'],
             'frequency'     => $data['frequency'],
-            'amount'        => (int) ($data['amount_rupiah'] * 100),
+            'amount'        => (int) round($data['amount_rupiah'] * 100),
             'class_room_id' => $data['class_room_id'] ?? null,
             'is_active'     => true,
         ]);
@@ -71,13 +71,13 @@ class FeeWebController extends Controller
             'name'          => 'required|string|max:200',
             'frequency'     => 'required|in:monthly,semester,yearly,one_time',
             'amount_rupiah' => 'required|numeric|min:0',
-            'class_room_id' => 'nullable|exists:class_rooms,id',
+            'class_room_id' => ['nullable', \Illuminate\Validation\Rule::exists('class_rooms', 'id')->where('school_id', $this->schoolId())],
             'is_active'     => 'nullable|boolean',
         ]);
         $structure->update([
             'name'          => $data['name'],
             'frequency'     => $data['frequency'],
-            'amount'        => (int) ($data['amount_rupiah'] * 100),
+            'amount'        => (int) round($data['amount_rupiah'] * 100),
             'class_room_id' => $data['class_room_id'] ?? null,
             'is_active'     => (bool) ($data['is_active'] ?? false),
         ]);
@@ -87,6 +87,9 @@ class FeeWebController extends Controller
     public function deleteStructure(FeeStructure $structure): RedirectResponse
     {
         $this->authorizeOwn($structure);
+        if ($structure->invoices()->exists()) {
+            return back()->withErrors('Struktur tidak dapat dihapus karena masih memiliki tagihan.');
+        }
         $structure->delete();
         return back()->with('success', 'Fee structure dihapus.');
     }
@@ -118,8 +121,8 @@ class FeeWebController extends Controller
     public function generateInvoices(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'fee_structure_id' => 'required|exists:fee_structures,id',
-            'class_section_id' => 'nullable|exists:class_sections,id',
+            'fee_structure_id' => ['required', \Illuminate\Validation\Rule::exists('fee_structures', 'id')->where('school_id', $this->schoolId())],
+            'class_section_id' => ['nullable', \Illuminate\Validation\Rule::exists('class_sections', 'id')->where('school_id', $this->schoolId())],
             'period'           => 'required|string|max:20',
             'due_date'         => 'required|date',
         ]);

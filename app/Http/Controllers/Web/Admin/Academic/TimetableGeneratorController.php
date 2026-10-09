@@ -147,8 +147,8 @@ class TimetableGeneratorController extends Controller
     public function saveConfig(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'academic_year_id'       => 'required|exists:academic_years,id',
-            'class_section_id'       => 'required|exists:class_sections,id',
+            'academic_year_id'       => ['required', \Illuminate\Validation\Rule::exists('academic_years', 'id')->where('school_id', $this->schoolId)],
+            'class_section_id'       => ['required', \Illuminate\Validation\Rule::exists('class_sections', 'id')->where('school_id', $this->schoolId)],
             'days_per_week'          => 'required|integer|min:5|max:6',
             'periods_per_day'        => 'required|integer|min:3|max:15',
             'period_duration_minutes'=> 'required|integer|min:25|max:90',

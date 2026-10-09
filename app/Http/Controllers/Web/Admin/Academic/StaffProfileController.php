@@ -45,7 +45,7 @@ class StaffProfileController extends Controller
             ->orderByDesc('expiry_date')
             ->get();
 
-        $trainings = \App\Models\Academic\TrainingParticipant::where('staff_id', $staff->user_id)
+        $trainings = \App\Models\Academic\TrainingParticipant::where('staff_id', $staff->id)
             ->with('training')
             ->get();
 
