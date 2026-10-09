@@ -1067,17 +1067,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ============== PENGADAAN ==============
         Route::get('/procurement',                          [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'index'])->name('procurement.index');
         Route::get('/procurement/create',                   [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'create'])->name('procurement.create');
+        Route::get('/procurement/approvals',                  [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'approvals'])->name('procurement.approvals');
+        Route::get('/procurement/suppliers',                    [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'suppliers'])->name('procurement.suppliers');
         Route::post('/procurement',                         [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'store'])->name('procurement.store');
         Route::get('/procurement/{procurement}',             [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'show'])->name('procurement.show');
         Route::get('/procurement/{procurement}/edit',        [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'edit'])->name('procurement.edit');
         Route::put('/procurement/{procurement}',             [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'update'])->name('procurement.update');
         Route::delete('/procurement/{procurement}',          [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'destroy'])->name('procurement.destroy');
         Route::post('/procurement/{procurement}/submit',     [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'submit'])->name('procurement.submit');
-        Route::get('/procurement/approvals',                  [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'approvals'])->name('procurement.approvals');
         Route::post('/procurement/approvals/{approval}/decide', [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'decideApproval'])->name('procurement.decide-approval');
         Route::post('/procurement/{procurement}/mark-ordered', [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'markOrdered'])->name('procurement.mark-ordered');
         Route::post('/procurement/{procurement}/receive',      [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'receiveItems'])->name('procurement.receive-items');
-        Route::get('/procurement/suppliers',                    [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'suppliers'])->name('procurement.suppliers');
         Route::post('/procurement/suppliers',                   [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'storeSupplier'])->name('procurement.suppliers.store');
         Route::put('/procurement/suppliers/{supplier}',         [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'updateSupplier'])->name('procurement.suppliers.update');
         Route::delete('/procurement/suppliers/{supplier}',      [\App\Http\Controllers\Web\Admin\Finance\ProcurementController::class, 'deleteSupplier'])->name('procurement.suppliers.delete');
@@ -1089,9 +1089,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/emergency/quick',                      [\App\Http\Controllers\Web\Admin\Communication\EmergencyController::class, 'quickAlert'])->name('emergency.quick');
         Route::post('/emergency/{alert}/cancel',             [\App\Http\Controllers\Web\Admin\Communication\EmergencyController::class, 'cancel'])->name('emergency.cancel');
         Route::get('/emergency/history',                     [\App\Http\Controllers\Web\Admin\Communication\EmergencyController::class, 'history'])->name('emergency.history');
-        Route::get('/emergency/templates-by-type/{type}',    [\App\Http\Controllers\Web\Admin\Communication\EmergencyController::class, 'getTemplatesByType'])->name('emergency.templates.by-type');
-        Route::get('/emergency/{alert}',                     [\App\Http\Controllers\Web\Admin\Communication\EmergencyController::class, 'show'])->name('emergency.show');
         Route::get('/emergency/contacts',                    [\App\Http\Controllers\Web\Admin\Communication\EmergencyController::class, 'contacts'])->name('emergency.contacts');
+        Route::get('/emergency/{alert}',                     [\App\Http\Controllers\Web\Admin\Communication\EmergencyController::class, 'show'])->name('emergency.show');
         Route::post('/emergency/contacts',                   [\App\Http\Controllers\Web\Admin\Communication\EmergencyController::class, 'storeContact'])->name('emergency.contacts.store');
         Route::post('/emergency/contacts/{contact}/update',  [\App\Http\Controllers\Web\Admin\Communication\EmergencyController::class, 'updateContact'])->name('emergency.contacts.update');
         Route::delete('/emergency/contacts/{contact}',       [\App\Http\Controllers\Web\Admin\Communication\EmergencyController::class, 'deleteContact'])->name('emergency.contacts.delete');
@@ -1222,6 +1221,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ============== KOPERASI ==============
         Route::get('/cooperative',                       [CooperativeController::class, 'dashboard'])->name('cooperative.dashboard');
         Route::get('/cooperative/members',               [CooperativeController::class, 'members'])->name('cooperative.members');
+        Route::get('/cooperative/members/{member}/statement', [CooperativeController::class, 'memberStatement'])->name('cooperative.members.statement');
         Route::post('/cooperative/members',              [CooperativeController::class, 'storeMember'])->name('cooperative.members.store');
         Route::put('/cooperative/members/{member}',      [CooperativeController::class, 'updateMember'])->name('cooperative.members.update');
         Route::delete('/cooperative/members/{member}',   [CooperativeController::class, 'deleteMember'])->name('cooperative.members.delete');

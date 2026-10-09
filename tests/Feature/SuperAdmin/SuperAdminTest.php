@@ -94,12 +94,12 @@ test('super admin can create a plan', function () {
     $response = $this->postJson('/api/v1/super/plans', [
         'name'         => 'Pro',
         'slug'         => 'pro',
-        'price'        => 50000000,
+        'price'        => 500000,
         'max_students' => 2000,
         'features'     => ['attendance', 'library', 'hostel', 'transport'],
     ]);
 
-    $response->assertStatus(201)->assertJsonPath('name', 'Pro');
+    $response->assertStatus(201)->assertJsonPath('name', 'Pro')->assertJsonPath('price', 500000);
     expect(Plan::where('slug', 'pro')->exists())->toBeTrue();
 });
 

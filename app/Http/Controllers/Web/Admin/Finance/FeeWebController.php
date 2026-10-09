@@ -249,7 +249,7 @@ class FeeWebController extends Controller
             'reference'      => 'nullable|string|max:200',
             'note'           => 'nullable|string|max:500',
         ]);
-        $amountCents = (int) ($data['amount_rupiah'] * 100);
+        $amountCents = (int) round($data['amount_rupiah'] * 100);
 
         DB::transaction(function () use ($invoice, $data, $amountCents) {
             FeePayment::create([
@@ -268,11 +268,13 @@ class FeeWebController extends Controller
                 'paid_amount' => $newPaid,
                 'status'      => $newPaid >= $invoice->amount ? 'paid' : 'partial',
             ]);
-        });
 
-        app(\App\Services\Finance\AccountingService::class)->postFeePayment(
-            $invoice->school_id, $amountCents, $data['payment_method'], $data['reference'] ?? null, $data['payment_date']
-        );
+            // Ledger posting inside the same transaction: payment record and
+            // journal must succeed or fail together (no split-brain ledger).
+            app(\App\Services\Finance\AccountingService::class)->postFeePayment(
+                $invoice->school_id, $amountCents, $data['payment_method'], $data['reference'] ?? null, $data['payment_date']
+            );
+        });
 
         return back()->with('success', 'Pembayaran tercatat.');
     }

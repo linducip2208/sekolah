@@ -16,6 +16,7 @@ use App\Services\QuestionBank\QuestionBankService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ExamWebController extends Controller
@@ -47,8 +48,8 @@ class ExamWebController extends Controller
     {
         $data = $request->validate([
             'title'             => 'required|string|max:255',
-            'class_section_id'  => 'required|exists:class_sections,id',
-            'subject_id'        => 'required|exists:subjects,id',
+            'class_section_id'  => ['required', Rule::exists('class_sections', 'id')->where('school_id', $this->schoolId())],
+            'subject_id'        => ['required', Rule::exists('subjects', 'id')->where('school_id', $this->schoolId())],
             'type'              => 'required|in:online,offline',
             'start_at'          => 'nullable|date',
             'end_at'            => 'nullable|date|after_or_equal:start_at',
@@ -168,7 +169,7 @@ class ExamWebController extends Controller
         $this->authorizeOwn($exam);
 
         $data = $request->validate([
-            'question_bank_category_id' => 'nullable|exists:question_bank_categories,id',
+            'question_bank_category_id' => ['nullable', Rule::exists('question_bank_categories', 'id')->where('school_id', $this->schoolId())],
             'easy'   => 'nullable|integer|min:0|max:200',
             'medium' => 'nullable|integer|min:0|max:200',
             'hard'   => 'nullable|integer|min:0|max:200',

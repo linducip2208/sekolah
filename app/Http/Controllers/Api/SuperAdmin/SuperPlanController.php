@@ -44,7 +44,11 @@ class SuperPlanController extends Controller
             'features'     => 'sometimes|array',
             'is_active'    => 'sometimes|boolean',
         ]);
+        // Mobile contract: whole rupiah → stored as minor units (same as store).
+        if (array_key_exists('price', $validated)) {
+            $validated['price'] = $this->toCents((int) $validated['price']);
+        }
         $plan->update($validated);
-        return response()->json($plan->fresh());
+        return response()->json($this->inRupiah($plan->fresh()));
     }
 }

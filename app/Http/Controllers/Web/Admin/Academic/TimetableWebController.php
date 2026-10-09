@@ -9,6 +9,7 @@ use App\Models\Academic\TimetableSlot;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class TimetableWebController extends Controller
@@ -49,9 +50,9 @@ class TimetableWebController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'class_section_id' => 'required|exists:class_sections,id',
-            'subject_id'       => 'required|exists:subjects,id',
-            'teacher_id'       => 'required|exists:users,id',
+            'class_section_id' => ['required', Rule::exists('class_sections', 'id')->where('school_id', $this->schoolId())],
+            'subject_id'       => ['required', Rule::exists('subjects', 'id')->where('school_id', $this->schoolId())],
+            'teacher_id'       => ['required', Rule::exists('users', 'id')->where('school_id', $this->schoolId())],
             'day_of_week'      => 'required|integer|min:1|max:7',
             'start_time'       => 'required|date_format:H:i',
             'end_time'         => 'required|date_format:H:i|after:start_time',

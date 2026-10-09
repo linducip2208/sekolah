@@ -192,8 +192,10 @@ class AccountingController extends Controller
 
         abort_if($entry->status === 'posted', 422, 'Jurnal yang sudah diposting tidak dapat dihapus.');
 
-        $entry->lines()->delete();
-        $entry->delete();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($entry) {
+            $entry->lines()->delete();
+            $entry->delete();
+        });
 
         return back()->with('success', 'Jurnal dihapus.');
     }

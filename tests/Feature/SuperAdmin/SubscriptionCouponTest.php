@@ -29,12 +29,12 @@ test('subscription with valid coupon applies discount and records use', function
 
     $response = $this->postJson('/api/v1/super/subscriptions', [
         'school_id' => $this->school->id, 'plan_id' => $this->plan->id,
-        'amount' => 20000000, 'coupon_code' => 'HEMAT20',
+        'amount' => 200000, 'coupon_code' => 'HEMAT20',
         'period_from' => today()->toDateString(), 'period_to' => today()->addMonth()->toDateString(),
     ]);
 
     $response->assertCreated()
-        ->assertJsonPath('amount', 15000000)
+        ->assertJsonPath('amount', 150000)
         ->assertJsonPath('coupon_code', 'HEMAT20')
         ->assertJsonPath('discount_amount', 5000000);
 

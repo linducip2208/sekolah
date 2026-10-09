@@ -78,6 +78,10 @@ class CooperativeController extends Controller
 
         $typeMap = ['staff' => User::class, 'student' => Student::class];
 
+        // Tenant-scoped owner lookup: rejects cross-school memberable IDs.
+        $typeMap[$data['memberable_type']]::where('school_id', $schoolId)
+            ->findOrFail($data['memberable_id']);
+
         CooperativeMember::create([
             'school_id' => $schoolId,
             'memberable_type' => $typeMap[$data['memberable_type']],
@@ -136,7 +140,7 @@ class CooperativeController extends Controller
     public function storeSaving(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'cooperative_member_id' => 'required|exists:cooperative_members,id',
+            'cooperative_member_id' => ['required', \Illuminate\Validation\Rule::exists('cooperative_members', 'id')->where('school_id', $this->schoolId())],
             'transaction_date' => 'required|date',
             'amount' => 'required|integer|min:1',
             'savings_type' => 'required|in:pokok,wajib,sukarela',
@@ -144,18 +148,24 @@ class CooperativeController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        // Tenant-scoped member lookup: rejects cross-school member IDs that
+        // pass the global exists rule.
+        $member = CooperativeMember::where('school_id', $this->schoolId())
+            ->findOrFail($data['cooperative_member_id']);
+
         $data['school_id'] = $this->schoolId();
         $data['recorded_by'] = auth()->id();
         $data['reference_no'] = 'SVG-' . now()->format('Ymd') . '-' . rand(1000, 9999);
 
-        $saving = CooperativeSaving::create($data);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($data, $member) {
+            CooperativeSaving::create($data);
 
-        $member = CooperativeMember::find($data['cooperative_member_id']);
-        if ($data['transaction_type'] === 'deposit') {
-            $member->increment('total_savings', $data['amount']);
-        } else {
-            $member->decrement('total_savings', $data['amount']);
-        }
+            if ($data['transaction_type'] === 'deposit') {
+                $member->increment('total_savings', $data['amount']);
+            } else {
+                $member->decrement('total_savings', $data['amount']);
+            }
+        });
 
         return redirect()->route('admin.cooperative.savings')->with('success', 'Simpanan berhasil dicatat.');
     }
@@ -165,13 +175,15 @@ class CooperativeController extends Controller
         abort_unless($saving->school_id === $this->schoolId(), 403);
 
         $member = $saving->member;
-        if ($saving->transaction_type === 'deposit') {
-            $member->decrement('total_savings', $saving->amount);
-        } else {
-            $member->increment('total_savings', $saving->amount);
-        }
+        \Illuminate\Support\Facades\DB::transaction(function () use ($saving, $member) {
+            if ($saving->transaction_type === 'deposit') {
+                $member->decrement('total_savings', $saving->amount);
+            } else {
+                $member->increment('total_savings', $saving->amount);
+            }
 
-        $saving->delete();
+            $saving->delete();
+        });
         return back()->with('success', 'Simpanan dihapus.');
     }
 
@@ -206,10 +218,15 @@ class CooperativeController extends Controller
         $data['school_id'] = $this->schoolId();
         $data['interest_rate'] = $data['interest_rate'] ?? 0;
 
-        $loan = CooperativeLoan::create($data);
+        // Tenant-scoped member lookup: rejects cross-school member IDs.
+        CooperativeMember::where('school_id', $this->schoolId())
+            ->findOrFail($data['cooperative_member_id']);
 
-        $service = app(CooperativeService::class);
-        $service->generateInstallmentSchedule($loan);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
+            $loan = CooperativeLoan::create($data);
+
+            app(CooperativeService::class)->generateInstallmentSchedule($loan);
+        });
 
         return redirect()->route('admin.cooperative.loans')->with('success', 'Pinjaman berhasil dibuat. Angsuran telah digenerate.');
     }
@@ -218,13 +235,15 @@ class CooperativeController extends Controller
     {
         abort_unless($loan->school_id === $this->schoolId(), 403);
 
-        $loan->update([
-            'status' => 'active',
-            'approved_by' => auth()->id(),
-            'approved_at' => now(),
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($loan) {
+            $loan->update([
+                'status' => 'active',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+            ]);
 
-        $loan->member->increment('total_loans', $loan->loan_amount);
+            $loan->member->increment('total_loans', $loan->loan_amount);
+        });
 
         return back()->with('success', 'Pinjaman disetujui.');
     }
@@ -248,19 +267,21 @@ class CooperativeController extends Controller
         $paidAmount = $data['paid_amount'];
         $newStatus = $paidAmount >= $installment->amount ? 'paid' : 'late';
 
-        $installment->update([
-            'paid_amount' => $installment->paid_amount + $paidAmount,
-            'paid_date' => now(),
-            'status' => $newStatus,
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($installment, $loan, $paidAmount, $newStatus) {
+            $installment->update([
+                'paid_amount' => $installment->paid_amount + $paidAmount,
+                'paid_date' => now(),
+                'status' => $newStatus,
+            ]);
 
-        $allPaid = CooperativeInstallment::where('cooperative_loan_id', $loan->id)
-            ->where('status', '!=', 'paid')
-            ->doesntExist();
+            $allPaid = CooperativeInstallment::where('cooperative_loan_id', $loan->id)
+                ->where('status', '!=', 'paid')
+                ->doesntExist();
 
-        if ($allPaid) {
-            $loan->update(['status' => 'paid_off']);
-        }
+            if ($allPaid) {
+                $loan->update(['status' => 'paid_off']);
+            }
+        });
 
         return back()->with('success', 'Angsuran berhasil dibayar.');
     }
@@ -290,11 +311,9 @@ class CooperativeController extends Controller
         abort_unless($member->school_id === $this->schoolId(), 403);
         $service = app(CooperativeService::class);
 
-        return view('school-admin.finance.cooperative.savings', [
+        return view('school-admin.finance.cooperative.statement', [
             'targetMember' => $member,
             'statement' => $service->memberSavingsStatement($member),
-            'savings' => CooperativeSaving::where('school_id', $this->schoolId())->paginate(20),
-            'members' => CooperativeMember::where('school_id', $this->schoolId())->get(),
         ]);
     }
 }

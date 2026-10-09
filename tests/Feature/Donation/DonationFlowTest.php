@@ -71,7 +71,7 @@ class DonationFlowTest extends TestCase
         $this->assertDatabaseHas('donations', [
             'donor_name'   => 'John Doe',
             'is_anonymous' => true,
-            'amount'       => 50_000,
+            'amount'       => 5_000_000,
         ]);
     }
 }

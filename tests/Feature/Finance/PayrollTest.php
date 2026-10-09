@@ -59,13 +59,14 @@ test('admin can generate salary slip', function () {
     $response->assertStatus(201);
     $data = $response->json();
     // Net = basic − struktur potongan − BPJS karyawan − PPh21 (logika TaxBpjsService).
+    // Mobile rupiah contract: response values are whole rupiah (stored ×100).
     $bpjs = app(TaxBpjsService::class)
         ->calculateBpjs($this->school->id, $this->staff->id, 500000000);
     $pph21 = app(TaxBpjsService::class)
         ->calculatePph21Monthly($this->school->id, $this->staff->id, 500000000);
-    expect($data['net_salary'])->toBe(500000000 - 5000000 - $bpjs['totalEmployee'] - $pph21)
+    expect($data['net_salary'])->toBe(intdiv(500000000 - 5000000 - $bpjs['totalEmployee'] - $pph21, 100))
         ->and($data['status'])->toBe('draft')
-        ->and($data['total_deductions'])->toBe(5000000 + $bpjs['totalEmployee'] + $pph21);
+        ->and($data['total_deductions'])->toBe(intdiv(5000000 + $bpjs['totalEmployee'] + $pph21, 100));
 });
 
 test('admin can mark salary slip as paid', function () {

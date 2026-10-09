@@ -115,7 +115,7 @@ class BudgetController extends Controller
         $data = $request->validate([
             'name'        => 'required|string|max:200',
             'code'        => 'required|string|max:20|unique:budget_categories,code,NULL,id,school_id,' . $this->schoolId(),
-            'parent_id'   => 'nullable|exists:budget_categories,id',
+            'parent_id'   => ['nullable', \Illuminate\Validation\Rule::exists('budget_categories', 'id')->where('school_id', $this->schoolId())],
             'type'        => 'required|in:income,expense',
             'description' => 'nullable|string',
         ]);
@@ -137,7 +137,7 @@ class BudgetController extends Controller
         $data = $request->validate([
             'name'        => 'required|string|max:200',
             'code'        => 'required|string|max:20|unique:budget_categories,code,' . $category->id . ',id,school_id,' . $this->schoolId(),
-            'parent_id'   => 'nullable|exists:budget_categories,id',
+            'parent_id'   => ['nullable', \Illuminate\Validation\Rule::exists('budget_categories', 'id')->where('school_id', $this->schoolId())],
             'type'        => 'required|in:income,expense',
             'description' => 'nullable|string',
         ]);
@@ -156,10 +156,10 @@ class BudgetController extends Controller
     public function deleteCategory(BudgetCategory $category): RedirectResponse
     {
         if ($category->items()->exists()) {
-            return back()->with('success', 'Kategori tidak dapat dihapus karena masih memiliki item anggaran.');
+            return back()->withErrors('Kategori tidak dapat dihapus karena masih memiliki item anggaran.');
         }
         if ($category->children()->exists()) {
-            return back()->with('success', 'Kategori tidak dapat dihapus karena masih memiliki sub-kategori.');
+            return back()->withErrors('Kategori tidak dapat dihapus karena masih memiliki sub-kategori.');
         }
         $category->delete();
         return back()->with('success', 'Kategori anggaran dihapus.');
@@ -198,8 +198,8 @@ class BudgetController extends Controller
     public function storeItem(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'budget_category_id' => 'required|exists:budget_categories,id',
-            'academic_year_id'   => 'nullable|exists:academic_years,id',
+            'budget_category_id' => ['required', \Illuminate\Validation\Rule::exists('budget_categories', 'id')->where('school_id', $this->schoolId())],
+            'academic_year_id'   => ['nullable', \Illuminate\Validation\Rule::exists('academic_years', 'id')->where('school_id', $this->schoolId())],
             'name'               => 'required|string|max:200',
             'description'        => 'nullable|string',
             'planned_amount_rp'  => 'required|numeric|min:0',
@@ -212,7 +212,7 @@ class BudgetController extends Controller
             'academic_year_id'  => $data['academic_year_id'] ?? null,
             'name'              => $data['name'],
             'description'       => $data['description'] ?? null,
-            'planned_amount'    => (int) ($data['planned_amount_rp'] * 100),
+            'planned_amount'    => (int) round($data['planned_amount_rp'] * 100),
             'actual_amount'     => 0,
             'status'            => $data['status'],
         ]);
@@ -223,8 +223,8 @@ class BudgetController extends Controller
     public function updateItem(Request $request, BudgetItem $item): RedirectResponse
     {
         $data = $request->validate([
-            'budget_category_id' => 'required|exists:budget_categories,id',
-            'academic_year_id'   => 'nullable|exists:academic_years,id',
+            'budget_category_id' => ['required', \Illuminate\Validation\Rule::exists('budget_categories', 'id')->where('school_id', $this->schoolId())],
+            'academic_year_id'   => ['nullable', \Illuminate\Validation\Rule::exists('academic_years', 'id')->where('school_id', $this->schoolId())],
             'name'               => 'required|string|max:200',
             'description'        => 'nullable|string',
             'planned_amount_rp'  => 'required|numeric|min:0',
@@ -234,9 +234,9 @@ class BudgetController extends Controller
         $item->update([
             'budget_category_id' => $data['budget_category_id'],
             'academic_year_id'   => $data['academic_year_id'] ?? null,
-            'name'               => $data['name'],
-            'description'        => $data['description'] ?? null,
-            'planned_amount'     => (int) ($data['planned_amount_rp'] * 100),
+            'name'              => $data['name'],
+            'description'       => $data['description'] ?? null,
+            'planned_amount'     => (int) round($data['planned_amount_rp'] * 100),
             'status'             => $data['status'],
         ]);
 
@@ -299,7 +299,7 @@ class BudgetController extends Controller
     public function storeTransaction(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'budget_item_id'   => 'required|exists:budget_items,id',
+            'budget_item_id'   => ['required', \Illuminate\Validation\Rule::exists('budget_items', 'id')->where('school_id', $this->schoolId())],
             'transaction_date' => 'required|date',
             'amount_rp'        => 'required|numeric|min:0',
             'description'      => 'nullable|string',
@@ -312,39 +312,48 @@ class BudgetController extends Controller
             $receiptPath = $request->file('receipt')->store('budget-receipts', 'public');
         }
 
-        $amount = (int) ($data['amount_rp'] * 100);
+        $amount = (int) round($data['amount_rp'] * 100);
 
-        BudgetTransaction::create([
-            'school_id'        => $this->schoolId(),
-            'budget_item_id'   => $data['budget_item_id'],
-            'transaction_date' => $data['transaction_date'],
-            'amount'           => $amount,
-            'description'      => $data['description'] ?? null,
-            'reference_no'     => $data['reference_no'] ?? null,
-            'receipt_path'     => $receiptPath,
-            'recorded_by'      => auth()->id(),
-        ]);
+        // Tenant-scoped item lookup: rejects cross-school item IDs that pass
+        // the global exists rule.
+        $item = BudgetItem::where('school_id', $this->schoolId())
+            ->findOrFail($data['budget_item_id']);
 
-        $item = BudgetItem::find($data['budget_item_id']);
-        if ($item) {
+        \Illuminate\Support\Facades\DB::transaction(function () use ($data, $amount, $receiptPath, $item) {
+            BudgetTransaction::create([
+                'school_id'        => $this->schoolId(),
+                'budget_item_id'   => $item->id,
+                'transaction_date' => $data['transaction_date'],
+                'amount'           => $amount,
+                'description'      => $data['description'] ?? null,
+                'reference_no'     => $data['reference_no'] ?? null,
+                'receipt_path'     => $receiptPath,
+                'recorded_by'      => auth()->id(),
+            ]);
+
             $item->increment('actual_amount', $amount);
-        }
+        });
 
         return back()->with('success', 'Transaksi anggaran dicatat.');
     }
 
     public function deleteTransaction(BudgetTransaction $transaction): RedirectResponse
     {
-        $item = $transaction->budgetItem;
-        if ($item) {
-            $item->decrement('actual_amount', $transaction->amount);
-        }
+        abort_unless($transaction->school_id === $this->schoolId(), 403);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($transaction) {
+            $item = $transaction->budgetItem;
+            if ($item) {
+                $item->decrement('actual_amount', $transaction->amount);
+            }
+
+            $transaction->delete();
+        });
 
         if ($transaction->receipt_path) {
             Storage::disk('public')->delete($transaction->receipt_path);
         }
 
-        $transaction->delete();
         return back()->with('success', 'Transaksi anggaran dihapus.');
     }
 

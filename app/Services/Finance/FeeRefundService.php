@@ -14,6 +14,15 @@ class FeeRefundService
     {
         abort_if($amount <= 0, 422, 'Jumlah refund tidak valid.');
 
+        // Tenant-scoped payment reference: rejects foreign payment IDs.
+        if ($paymentId) {
+            $owns = \App\Models\Finance\FeePayment::where('id', $paymentId)
+                ->where('fee_invoice_id', $invoice->id)
+                ->where('school_id', $invoice->school_id)
+                ->exists();
+            abort_unless($owns, 422, 'Referensi pembayaran tidak valid.');
+        }
+
         $refund = null;
 
         DB::transaction(function () use ($invoice, $amount, $reason, $paymentId, &$refund) {

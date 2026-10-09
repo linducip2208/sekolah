@@ -81,6 +81,7 @@
                 <td><span class="text-[.6rem] uppercase px-2 py-0.5 rounded {{ $member->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">{{ $member->status }}</span></td>
                 <td class="text-xs">{{ $member->join_date->format('d/m/Y') }}</td>
                 <td class="text-right whitespace-nowrap">
+                    <a href="{{ route('admin.cooperative.members.statement', $member) }}" class="text-xs underline text-blue-600 mr-2">Statement</a>
                     <form method="POST" action="{{ route('admin.cooperative.members.update', $member) }}" class="inline" onsubmit="return confirm('Nonaktifkan/suspend anggota?')">
                         @csrf @method('PUT')
                         <input type="hidden" name="status" value="inactive">

@@ -97,7 +97,7 @@ return [
             'items' => [
                 ['label' => 'Kursus (LMS)', 'route' => 'admin.courses.index', 'active' => 'admin.courses.*'],
                 ['label' => 'Materi Pelajaran', 'route' => 'admin.classroom.lessons.index', 'active' => 'admin.classroom.lessons.*'],
-                ['label' => 'Tugas', 'route' => 'admin.assignments.index', 'active' => 'admin.assignments.*'],
+                ['label' => 'Tugas', 'route' => 'admin.classroom.assignments.index', 'active' => 'admin.classroom.assignments.*'],
                 ['label' => 'Kuis', 'route' => 'admin.quizzes.index', 'active' => 'admin.quizzes.*'],
                 ['label' => 'Bank Soal', 'route' => 'admin.qbank.items.index', 'active' => 'admin.qbank.*'],
                 ['label' => 'Live Class', 'route' => 'admin.live-class.index', 'active' => 'admin.live-class.*'],
@@ -307,7 +307,7 @@ return [
             ['label' => 'Anggaran', 'route' => 'admin.budget.dashboard', 'icon' => 'chart'],
         ],
         'teaching' => [
-            ['label' => 'Buat Tugas', 'route' => 'admin.assignments.index', 'icon' => 'book-open'],
+            ['label' => 'Buat Tugas', 'route' => 'admin.classroom.assignments.index', 'icon' => 'book-open'],
             ['label' => 'Input Absensi', 'route' => 'admin.attendance.index', 'icon' => 'check'],
             ['label' => 'Jurnal Mengajar', 'route' => 'admin.teaching-journal.index', 'icon' => 'edit'],
             ['label' => 'Buat Ujian', 'route' => 'admin.exams.index', 'icon' => 'academic'],

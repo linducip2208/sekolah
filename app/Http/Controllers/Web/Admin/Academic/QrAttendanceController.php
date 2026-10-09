@@ -12,6 +12,7 @@ use App\Models\Academic\Subject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -41,8 +42,8 @@ class QrAttendanceController extends Controller
     public function generate(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'class_section_id' => 'required|exists:class_sections,id',
-            'subject_id'       => 'nullable|exists:subjects,id',
+            'class_section_id' => ['required', Rule::exists('class_sections', 'id')->where('school_id', $this->schoolId())],
+            'subject_id'       => ['nullable', Rule::exists('subjects', 'id')->where('school_id', $this->schoolId())],
         ]);
 
         $token = Str::random(32);
@@ -104,7 +105,7 @@ class QrAttendanceController extends Controller
         $this->authorizeOwn($session);
 
         $data = $request->validate([
-            'student_id'  => 'required|exists:students,id',
+            'student_id'  => ['required', Rule::exists('students', 'id')->where('school_id', $this->schoolId())->where('class_section_id', $session->class_section_id)],
             'status'      => 'required|in:present,late',
             'late_minutes'=> 'nullable|integer|min:0',
         ]);
