@@ -5,7 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Panduan') — {{ $platform['app_name'] ?? 'Sikad Pro' }}</title>
     <meta name="description" content="@yield('description', 'Buku panduan resmi ' . ($platform['app_name'] ?? 'Sikad Pro'))">
-    @vite(['resources/css/docs-tabler.css', 'resources/js/docs-tabler.js'])
+    @php
+        // Never 500 just because `npm run build` hasn't run after deploy:
+        // fall back to Tabler CDN when the local manifest lacks our entries.
+        $docsManifest = @json_decode(@file_get_contents(public_path('build/manifest.json')), true);
+        $docsBuilt = is_array($docsManifest)
+            && isset($docsManifest['resources/css/docs-tabler.css'], $docsManifest['resources/js/docs-tabler.js']);
+    @endphp
+    @if($docsBuilt)
+        @vite(['resources/css/docs-tabler.css', 'resources/js/docs-tabler.js'])
+    @else
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/css/tabler.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.49.0/dist/tabler-icons.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/js/tabler.min.js" defer></script>
+        <style>
+            :root { --tblr-font-sans-serif: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; --tblr-primary: #206bc4; }
+            .docs-hero { background: linear-gradient(135deg, #0f2a4a 0%, #206bc4 60%, #4299e1 100%); color: #fff; border-radius: 0 0 1.5rem 1.5rem; }
+            .docs-hero .page-title, .docs-hero .page-pretitle, .docs-hero .lead { color: #fff; }
+        </style>
+    @endif
 </head>
 <body>
 <div class="page">
