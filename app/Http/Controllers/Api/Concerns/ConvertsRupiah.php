@@ -19,6 +19,7 @@ trait ConvertsRupiah
         'amount',
         'paid_amount',
         'discount',
+        'discount_amount',
         'planned_amount',
         'actual_amount',
         'purchase_price',

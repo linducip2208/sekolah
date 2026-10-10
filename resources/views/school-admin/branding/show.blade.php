@@ -262,7 +262,7 @@
                         <div class="flex gap-1 justify-center">
                             <button type="submit" class="text-xs btn-brand py-1 px-3">Upload</button>
                             @if($branding['logos'][$type] ?? null)
-                                <button type="submit" form="rm-{{ $type }}" class="text-xs text-red-600 hover:underline">Hapus</button>
+                                <button type="submit" form="rm-{{ $type }}" onclick="return confirm('Hapus logo ini?')" class="text-xs text-red-600 hover:underline">Hapus</button>
                             @endif
                         </div>
                     </form>

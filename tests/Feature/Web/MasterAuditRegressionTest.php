@@ -305,3 +305,16 @@ test('parent cannot open another child invoice', function () {
         ->get(route('portal.invoices.pay', $invoiceB->id))
         ->assertForbidden();
 });
+
+test('broadcast send rejects already-sent message', function () {
+    $message = \App\Models\Communication\BroadcastMessage::create([
+        'school_id' => $this->school->id, 'title' => 'Info',
+        'message' => 'Halo', 'channel' => 'all', 'segment' => 'all',
+        'status' => 'sent', 'sent_at' => now(),
+        'recipient_count' => 0, 'created_by' => $this->admin->id,
+    ]);
+
+    $this->actingAs($this->admin)
+        ->post(route('admin.broadcast.send', $message))
+        ->assertStatus(422);
+});

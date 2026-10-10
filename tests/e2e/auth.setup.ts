@@ -4,6 +4,7 @@ const STATES = {
   'e2e-admin@sekolah.test': 'storage/app/audit-artifacts/state-admin.json',
   'e2e-teacher@sekolah.test': 'storage/app/audit-artifacts/state-teacher.json',
   'e2e-parent@sekolah.test': 'storage/app/audit-artifacts/state-parent.json',
+  'e2e-student@sekolah.test': 'storage/app/audit-artifacts/state-student.json',
 };
 
 for (const [email, state] of Object.entries(STATES)) {

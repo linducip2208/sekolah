@@ -72,6 +72,7 @@ class BroadcastMessageController extends Controller
     public function send(BroadcastMessage $message): \Illuminate\Http\RedirectResponse
     {
         if ($message->school_id !== $this->schoolId()) abort(403);
+        abort_unless(in_array($message->status, ['draft', 'scheduled'], true), 422, 'Hanya pesan draft/terjadwal yang dapat dikirim.');
 
         $message->update([
             'status'  => 'sent',

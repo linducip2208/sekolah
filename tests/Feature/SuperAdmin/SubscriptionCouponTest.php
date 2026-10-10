@@ -36,7 +36,7 @@ test('subscription with valid coupon applies discount and records use', function
     $response->assertCreated()
         ->assertJsonPath('amount', 150000)
         ->assertJsonPath('coupon_code', 'HEMAT20')
-        ->assertJsonPath('discount_amount', 5000000);
+        ->assertJsonPath('discount_amount', 50000);
 
     expect(Coupon::where('code', 'HEMAT20')->first()->used_count)->toBe(1);
 });

@@ -70,7 +70,8 @@ class E2EFixtureSeeder extends Seeder
         ]);
 
         $childUser = User::factory()->create([
-            'school_id' => $school->id, 'password' => Hash::make('Password123!'), 'is_active' => true,
+            'school_id' => $school->id, 'email' => 'e2e-student@sekolah.test',
+            'password' => Hash::make('Password123!'), 'is_active' => true,
         ]);
         $childUser->assignRole('student');
         $child = Student::create([
@@ -94,6 +95,20 @@ class E2EFixtureSeeder extends Seeder
                 'type' => $type, 'normal_balance' => $balance, 'is_active' => true,
             ]);
         }
+
+        \App\Models\Committee\CommitteeMeeting::create([
+            'school_id' => $school->id, 'title' => 'Rapat Komite E2E',
+            'meeting_date' => now()->addWeek(), 'status' => 'scheduled',
+            'created_by' => User::where('email', 'e2e-admin@sekolah.test')->firstOrFail()->id,
+        ]);
+
+        $coopUser = User::where('email', 'e2e-teacher@sekolah.test')->firstOrFail();
+        \App\Models\Finance\CooperativeMember::create([
+            'school_id' => $school->id, 'memberable_type' => User::class,
+            'memberable_id' => $coopUser->id, 'member_number' => 'E2E-M1',
+            'join_date' => now()->toDateString(), 'total_savings' => 0,
+            'total_loans' => 0, 'status' => 'active',
+        ]);
 
         $this->command->info('E2E fixture ready: e2e-admin@sekolah.test / Password123!');
     }

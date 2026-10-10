@@ -34,5 +34,16 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], storageState: 'storage/app/audit-artifacts/state-admin.json' },
     },
   ],
+  webServer: {
+    command: 'php artisan serve --env=testing --host=127.0.0.1 --port=8765',
+    url: 'http://127.0.0.1:8765/admin/login',
+    reuseExistingServer: true,
+    timeout: 60_000,
+    env: {
+      DB_DATABASE: 'sikadpro_e2e_test',
+      SESSION_DRIVER: 'file',
+      CACHE_STORE: 'file',
+    },
+  },
   outputDir: 'storage/app/audit-artifacts/test-results',
 });

@@ -1,9 +1,12 @@
 # REMAINING-GAPS (sesi master-command 2026-10-10)
 
-## P1 berikutnya (disarankan, bukan kritis)
+## P1 berikutnya (disarankan, bukan kritis) — update 2026-10-10 sesi 2
 
-1. `authorizeOwn` eksplisit di destroy kecil: DriverSchedule, Incoming/OutgoingMail,
-   Meeting, StaffTask, BroadcastMessage::send/destroy (mengandalkan gate grup + binding scope).
+0. SELESAI sesi ini: klaim "missing ownership" pada 6 controller kecil terbukti KELIRU —
+   semuanya sudah `abort_unless`/`abort(403)`. Satu-satunya celah nyata (broadcast kirim ulang)
+   diperbaiki (422) + test. Confirm hapus: tersisa 1 (logo branding) diperbaiki; sisanya OK
+   (JS confirm / modal data-confirm).
+1. `onsubmit=confirm` belum di semua form hapus (koperasi/OSIS sudah; finance/inventory sebagian).
 2. `onsubmit=confirm` belum di semua form hapus (koperasi/OSIS sudah; finance/inventory sebagian).
 3. `discount_amount` respons subscription minor-unit mentah (warisan kontrak rupiah).
 
@@ -26,7 +29,7 @@
 ## Angka
 
 - Menu: 142. Fitur: 58 (18 baris matriks CRUD). Role diuji: 5. Workflow browser: 5.
-- Pest: 413 passed / 0 failed (1923 assertions). Playwright: 21/21. Build: OK.
+- Pest: 414 passed / 0 failed (1923+ assertions). Playwright: 25/25. Build: OK.
 - Bug: P0 12 (3 view + enum + 8 scope/money) — semua diperbaiki + test.
   P1 10 — diperbaiki. P2/P3 — diterima/didokumentasikan.
 - File diubah sesi ini: ~30 (lihat `git status`). Tanpa migrasi baru. Tanpa push.
