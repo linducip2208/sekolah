@@ -56,7 +56,13 @@ class PaymentMethodWebController extends Controller
     public function update(Request $request, int $id): RedirectResponse
     {
         $method = PaymentMethod::where('school_id', auth()->user()->school_id)->findOrFail($id);
-        $method->update($this->validateMethod($request, true));
+        $data = $this->validateMethod($request, true);
+
+        if (array_key_exists('payment_provider_id', $data)) {
+            PaymentProvider::where('school_id', auth()->user()->school_id)->findOrFail($data['payment_provider_id']);
+        }
+
+        $method->update($data);
         return redirect()
             ->route('admin.payment.methods.index')
             ->with('success', 'Metode pembayaran diperbarui.');

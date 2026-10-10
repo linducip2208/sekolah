@@ -37,7 +37,7 @@
 <td class="px-3 py-3 text-xs">{{ $l->borrowed_at?->format('d M Y') }}</td>
 <td class="px-3 py-3 text-xs">{{ $l->due_at?->format('d M Y') }}</td>
 <td class="px-3 py-3"><span class="elite-kicker text-[.55rem]">{{ $l->status }}</span></td>
-<td class="px-3 py-3 text-right">@if($l->status === 'borrowed')<form method="POST" action="{{ route('admin.inventory.loans.return', $l) }}" class="inline">@csrf<button class="text-xs underline ink-secondary hover:ink-accent">Kembalikan</button></form>@endif</td>
+<td class="px-3 py-3 text-right">@if(in_array($l->status, ['active', 'overdue'], true))<form method="POST" action="{{ route('admin.inventory.loans.return', $l) }}" class="inline">@csrf<button class="text-xs underline ink-secondary hover:ink-accent">Kembalikan</button></form>@endif</td>
 </tr>@empty<tr><td colspan="6" class="p-10 text-center text-gray-500 italic font-serif">Belum ada peminjaman.</td></tr>@endforelse
 </tbody></table></div>
 <div class="mt-4">{{ $loans->links() }}</div>

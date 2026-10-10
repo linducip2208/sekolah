@@ -80,22 +80,22 @@ class ProcurementController extends Controller
             'description' => 'nullable|string',
             'estimated_budget' => 'required|numeric|min:0',
             'urgency' => 'required|in:low,medium,high,urgent',
-            'budget_category_id' => 'nullable|exists:budget_categories,id',
+            'budget_category_id' => ['nullable', \Illuminate\Validation\Rule::exists('budget_categories', 'id')->where('school_id', $this->schoolId)],
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.item_name' => 'required|string|max:255',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.unit' => 'nullable|string|max:50',
             'items.*.estimated_unit_price' => 'required|numeric|min:0',
-            'items.*.supplier_id' => 'nullable|exists:suppliers,id',
+            'items.*.supplier_id' => ['nullable', \Illuminate\Validation\Rule::exists('suppliers', 'id')->where('school_id', $this->schoolId)],
             'items.*.supplier_name' => 'nullable|string|max:255',
         ]);
 
-        $data['estimated_budget'] = (int) ($data['estimated_budget'] * 100);
+        $data['estimated_budget'] = (int) round($data['estimated_budget'] * 100);
         $data['requester_id'] = auth()->id();
 
         foreach ($data['items'] as &$item) {
-            $item['estimated_unit_price'] = (int) ($item['estimated_unit_price'] * 100);
+            $item['estimated_unit_price'] = (int) round($item['estimated_unit_price'] * 100);
             $item['quantity'] = (float) $item['quantity'];
         }
 
@@ -145,20 +145,20 @@ class ProcurementController extends Controller
             'description' => 'nullable|string',
             'estimated_budget' => 'required|numeric|min:0',
             'urgency' => 'required|in:low,medium,high,urgent',
-            'budget_category_id' => 'nullable|exists:budget_categories,id',
+            'budget_category_id' => ['nullable', \Illuminate\Validation\Rule::exists('budget_categories', 'id')->where('school_id', $this->schoolId)],
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.item_name' => 'required|string|max:255',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.unit' => 'nullable|string|max:50',
             'items.*.estimated_unit_price' => 'required|numeric|min:0',
-            'items.*.supplier_id' => 'nullable|exists:suppliers,id',
+            'items.*.supplier_id' => ['nullable', \Illuminate\Validation\Rule::exists('suppliers', 'id')->where('school_id', $this->schoolId)],
             'items.*.supplier_name' => 'nullable|string|max:255',
         ]);
 
-        $data['estimated_budget'] = (int) ($data['estimated_budget'] * 100);
+        $data['estimated_budget'] = (int) round($data['estimated_budget'] * 100);
         foreach ($data['items'] as &$item) {
-            $item['estimated_unit_price'] = (int) ($item['estimated_unit_price'] * 100);
+            $item['estimated_unit_price'] = (int) round($item['estimated_unit_price'] * 100);
             $item['quantity'] = (float) $item['quantity'];
         }
 

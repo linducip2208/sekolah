@@ -47,7 +47,7 @@ class PayrollWebController extends Controller
             'name'        => $data['name'],
             'type'        => $data['type'],
             'calculation' => $data['calculation'],
-            'value'       => $data['calculation'] === 'fixed' ? (int) ($data['value'] * 100) : (int) $data['value'],
+            'value'       => $data['calculation'] === 'fixed' ? (int) round($data['value'] * 100) : (int) $data['value'],
             'is_active'   => true,
         ]);
 
@@ -155,7 +155,10 @@ class PayrollWebController extends Controller
     public function paySlip(SalarySlip $slip): RedirectResponse
     {
         abort_unless($slip->school_id === $this->schoolId(), 403);
-        $slip->update(['status' => 'paid', 'paid_on' => now()->toDateString()]);
+
+        // Canonical path: atomic status flip + ledger post + double-pay guard.
+        app(\App\Services\Finance\PayrollService::class)->markPaid($slip, (int) auth()->id());
+
         return back()->with('success', 'Slip ditandai sudah dibayar.');
     }
 
@@ -194,16 +197,16 @@ class PayrollWebController extends Controller
 
         $schoolId = $this->schoolId();
         BpjsConfig::where('school_id', $schoolId)->update([
-            'kesehatan_employee_pct' => (int) ($data['kesehatan_employee_pct'] * 100),
-            'kesehatan_employer_pct' => (int) ($data['kesehatan_employer_pct'] * 100),
-            'kesehatan_salary_cap'   => (int) ($data['kesehatan_salary_cap_rupiah'] * 100),
-            'jkk_pct'                => (int) ($data['jkk_pct'] * 100),
-            'jkm_pct'                => (int) ($data['jkm_pct'] * 100),
-            'jht_employee_pct'       => (int) ($data['jht_employee_pct'] * 100),
-            'jht_employer_pct'       => (int) ($data['jht_employer_pct'] * 100),
-            'jp_employee_pct'        => (int) ($data['jp_employee_pct'] * 100),
-            'jp_employer_pct'        => (int) ($data['jp_employer_pct'] * 100),
-            'jp_salary_cap'          => (int) ($data['jp_salary_cap_rupiah'] * 100),
+            'kesehatan_employee_pct' => (int) round($data['kesehatan_employee_pct'] * 100),
+            'kesehatan_employer_pct' => (int) round($data['kesehatan_employer_pct'] * 100),
+            'kesehatan_salary_cap'   => (int) round($data['kesehatan_salary_cap_rupiah'] * 100),
+            'jkk_pct'                => (int) round($data['jkk_pct'] * 100),
+            'jkm_pct'                => (int) round($data['jkm_pct'] * 100),
+            'jht_employee_pct'       => (int) round($data['jht_employee_pct'] * 100),
+            'jht_employer_pct'       => (int) round($data['jht_employer_pct'] * 100),
+            'jp_employee_pct'        => (int) round($data['jp_employee_pct'] * 100),
+            'jp_employer_pct'        => (int) round($data['jp_employer_pct'] * 100),
+            'jp_salary_cap'          => (int) round($data['jp_salary_cap_rupiah'] * 100),
         ]);
 
         return back()->with('success', 'Konfigurasi BPJS diperbarui.');
@@ -229,9 +232,9 @@ class PayrollWebController extends Controller
 
         Pph21Bracket::create([
             'school_id'  => $this->schoolId(),
-            'min_annual' => (int) ($data['min_annual_rupiah'] * 100),
-            'max_annual' => $data['max_annual_rupiah'] ? (int) ($data['max_annual_rupiah'] * 100) : null,
-            'rate_pct'   => (int) ($data['rate_pct'] * 100),
+            'min_annual' => (int) round($data['min_annual_rupiah'] * 100),
+            'max_annual' => $data['max_annual_rupiah'] ? (int) round($data['max_annual_rupiah'] * 100) : null,
+            'rate_pct'   => (int) round($data['rate_pct'] * 100),
         ]);
 
         return back()->with('success', 'Bracket PPh21 ditambahkan.');
@@ -261,6 +264,9 @@ class PayrollWebController extends Controller
 
     public function updateTaxProfile(Request $request, int $staffId): RedirectResponse
     {
+        // Tenant-scoped staff lookup: rejects cross-school staff IDs.
+        $staff = Staff::where('school_id', $this->schoolId())->findOrFail($staffId);
+
         $data = $request->validate([
             'npwp' => 'nullable|string|max:20',
             'pTKP_status' => 'required|integer|min:1|max:6',
@@ -270,7 +276,7 @@ class PayrollWebController extends Controller
         ]);
 
         StaffTaxProfile::updateOrCreate(
-            ['school_id' => $this->schoolId(), 'staff_id' => $staffId],
+            ['school_id' => $this->schoolId(), 'staff_id' => $staff->id],
             [
                 'npwp'                 => $data['npwp'] ?? null,
                 'pTKP_status'          => $data['pTKP_status'],

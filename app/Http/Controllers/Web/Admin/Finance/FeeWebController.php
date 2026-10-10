@@ -87,7 +87,7 @@ class FeeWebController extends Controller
     public function deleteStructure(FeeStructure $structure): RedirectResponse
     {
         $this->authorizeOwn($structure);
-        if ($structure->invoices()->exists()) {
+        if (FeeInvoice::where('fee_structure_id', $structure->id)->exists()) {
             return back()->withErrors('Struktur tidak dapat dihapus karena masih memiliki tagihan.');
         }
         $structure->delete();

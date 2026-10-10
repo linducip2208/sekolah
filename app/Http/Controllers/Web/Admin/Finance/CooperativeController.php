@@ -111,6 +111,10 @@ class CooperativeController extends Controller
     public function deleteMember(CooperativeMember $member): RedirectResponse
     {
         abort_unless($member->school_id === $this->schoolId(), 403);
+        if (CooperativeSaving::where('cooperative_member_id', $member->id)->exists()
+            || CooperativeLoan::where('cooperative_member_id', $member->id)->where('status', '!=', 'paid_off')->exists()) {
+            return back()->withErrors('Anggota tidak dapat dihapus karena masih memiliki simpanan atau pinjaman aktif.');
+        }
         $member->delete();
         return back()->with('success', 'Anggota dihapus.');
     }
@@ -257,8 +261,9 @@ class CooperativeController extends Controller
 
     public function payInstallment(Request $request, CooperativeInstallment $installment): RedirectResponse
     {
+        // Installments carry no school_id; tenancy enforced via parent loan.
         $loan = $installment->loan;
-        abort_unless($loan->school_id === $this->schoolId(), 403);
+        abort_unless($loan && $loan->school_id === $this->schoolId(), 403);
 
         $data = $request->validate([
             'paid_amount' => 'required|integer|min:1',
@@ -289,6 +294,7 @@ class CooperativeController extends Controller
     public function deleteLoan(CooperativeLoan $loan): RedirectResponse
     {
         abort_unless($loan->school_id === $this->schoolId(), 403);
+        abort_unless($loan->status === 'pending', 422, 'Hanya pinjaman berstatus pending yang dapat dihapus.');
         $loan->delete();
         return back()->with('success', 'Pinjaman dihapus.');
     }

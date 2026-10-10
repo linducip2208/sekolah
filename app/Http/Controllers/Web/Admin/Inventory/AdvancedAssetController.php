@@ -50,7 +50,7 @@ class AdvancedAssetController extends Controller
     public function storeAsset(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'asset_category_id' => 'required|exists:asset_categories,id',
+            'asset_category_id' => ['required', \Illuminate\Validation\Rule::exists('asset_categories', 'id')->where('school_id', $this->schoolId())],
             'name' => 'required|string|max:255',
             'asset_code' => 'nullable|string|max:100|unique:assets,asset_code',
             'description' => 'nullable|string',
@@ -87,7 +87,7 @@ class AdvancedAssetController extends Controller
         abort_unless($asset->school_id === $this->schoolId(), 403);
 
         $data = $request->validate([
-            'asset_category_id' => 'required|exists:asset_categories,id',
+            'asset_category_id' => ['required', \Illuminate\Validation\Rule::exists('asset_categories', 'id')->where('school_id', $this->schoolId())],
             'name' => 'required|string|max:255',
             'asset_code' => 'nullable|string|max:100|unique:assets,asset_code,' . $asset->id,
             'description' => 'nullable|string',
@@ -218,7 +218,7 @@ class AdvancedAssetController extends Controller
     public function storeMaintenance(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'asset_id' => 'required|exists:assets,id',
+            'asset_id' => ['required', \Illuminate\Validation\Rule::exists('assets', 'id')->where('school_id', $this->schoolId())],
             'maintenance_type' => 'required|in:routine,repair,inspection,calibration',
             'scheduled_date' => 'required|date',
             'performed_by' => 'nullable|string|max:200',
@@ -284,7 +284,7 @@ class AdvancedAssetController extends Controller
     public function storeWriteOff(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'asset_id' => 'required|exists:assets,id',
+            'asset_id' => ['required', \Illuminate\Validation\Rule::exists('assets', 'id')->where('school_id', $this->schoolId())],
             'reason' => 'required|string',
             'condition_at_writeoff' => 'nullable|string',
             'estimated_value' => 'nullable|integer|min:0',
@@ -309,13 +309,17 @@ class AdvancedAssetController extends Controller
     public function approveWriteOff(AssetWriteOff $writeOff): RedirectResponse
     {
         abort_unless($writeOff->school_id === $this->schoolId(), 403);
-        $writeOff->update([
-            'status' => 'approved',
-            'approved_by' => auth()->id(),
-            'approved_at' => now(),
-        ]);
+        abort_unless($writeOff->status === 'submitted', 422, 'Hanya pengajuan yang sudah disubmit dapat disetujui.');
 
-        $writeOff->asset->update(['status' => 'written_off']);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($writeOff) {
+            $writeOff->update([
+                'status' => 'approved',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+            ]);
+
+            $writeOff->asset->update(['status' => 'written_off']);
+        });
         return back()->with('success', 'Penghapusan aset disetujui.');
     }
 

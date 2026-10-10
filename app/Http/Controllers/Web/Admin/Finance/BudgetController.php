@@ -19,6 +19,11 @@ class BudgetController extends Controller
         return auth()->user()->school_id;
     }
 
+    private function authorizeOwn($model): void
+    {
+        abort_unless($model->school_id === $this->schoolId(), 403);
+    }
+
     /* ==================== DASHBOARD ==================== */
 
     public function dashboard(Request $request): View
@@ -134,6 +139,7 @@ class BudgetController extends Controller
 
     public function updateCategory(Request $request, BudgetCategory $category): RedirectResponse
     {
+        $this->authorizeOwn($category);
         $data = $request->validate([
             'name'        => 'required|string|max:200',
             'code'        => 'required|string|max:20|unique:budget_categories,code,' . $category->id . ',id,school_id,' . $this->schoolId(),
@@ -155,6 +161,7 @@ class BudgetController extends Controller
 
     public function deleteCategory(BudgetCategory $category): RedirectResponse
     {
+        $this->authorizeOwn($category);
         if ($category->items()->exists()) {
             return back()->withErrors('Kategori tidak dapat dihapus karena masih memiliki item anggaran.');
         }
@@ -245,12 +252,17 @@ class BudgetController extends Controller
 
     public function deleteItem(BudgetItem $item): RedirectResponse
     {
+        $this->authorizeOwn($item);
+        if ($item->transactions()->exists()) {
+            return back()->withErrors('Item tidak dapat dihapus karena sudah memiliki transaksi realisasi.');
+        }
         $item->delete();
         return back()->with('success', 'Item anggaran dihapus.');
     }
 
     public function toggleStatusItem(BudgetItem $item): RedirectResponse
     {
+        $this->authorizeOwn($item);
         $newStatus = match ($item->status) {
             'planned'  => 'approved',
             'approved' => 'revised',

@@ -38,6 +38,7 @@ class ParentPaymentController extends Controller
         $user = $request->user();
 
         $invoice = FeeInvoice::where('school_id', $user->school_id)->findOrFail($invoiceId);
+        $this->authorizeInvoice($user, $invoice);
 
         $methods = PaymentMethod::with('provider')
             ->where('school_id', $user->school_id)
@@ -55,6 +56,7 @@ class ParentPaymentController extends Controller
         $user = $request->user();
 
         $invoice = FeeInvoice::where('school_id', $user->school_id)->findOrFail($invoiceId);
+        $this->authorizeInvoice($user, $invoice);
         $method  = PaymentMethod::where('school_id', $user->school_id)
             ->findOrFail($request->input('payment_method_id'));
 
@@ -73,6 +75,8 @@ class ParentPaymentController extends Controller
             ->where('reference_no', $referenceNo)
             ->firstOrFail();
 
+        $this->authorizeInvoice($request->user(), $tx->invoice);
+
         return view('parent-portal.payment.show', compact('tx'));
     }
 
@@ -85,6 +89,8 @@ class ParentPaymentController extends Controller
         if ($tx->initiated_by !== $request->user()->id) {
             abort(403);
         }
+
+        $this->authorizeInvoice($request->user(), $tx->invoice);
 
         try {
             $this->payments->cancel($tx);
@@ -103,5 +109,21 @@ class ParentPaymentController extends Controller
             : null;
 
         return view('parent-portal.payment.return', compact('tx'));
+    }
+
+    /**
+     * Invoice may only be touched by the student's linked parent, or by
+     * back-office roles (admin/accountant/principal) acting on behalf.
+     */
+    private function authorizeInvoice(\App\Models\User $user, \App\Models\Finance\FeeInvoice $invoice): void
+    {
+        if ($user->hasRole(['admin', 'accountant', 'principal', 'super_admin'])) {
+            return;
+        }
+
+        abort_unless(
+            $user->parentStudents()->where('students.id', $invoice->student_id)->exists(),
+            403
+        );
     }
 }

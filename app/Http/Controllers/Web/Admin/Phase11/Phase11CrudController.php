@@ -134,7 +134,7 @@ class Phase11CrudController extends Controller
         $data = $request->validate([
             'asset_code'        => 'required|string|max:50',
             'name'              => 'required|string|max:200',
-            'asset_category_id' => 'required|exists:asset_categories,id',
+            'asset_category_id' => ['required', \Illuminate\Validation\Rule::exists('asset_categories', 'id')->where('school_id', $this->schoolId())],
             'serial_number'     => 'nullable|string|max:100',
             'location'          => 'nullable|string|max:200',
             'condition'         => 'required|in:excellent,good,fair,poor,damaged',
@@ -151,7 +151,7 @@ class Phase11CrudController extends Controller
             'condition'         => $data['condition'],
             'status'            => 'available',
             'purchased_at'      => $data['purchased_at'] ?? null,
-            'purchase_price'    => isset($data['purchase_price_rupiah']) ? (int)($data['purchase_price_rupiah']*100) : null,
+            'purchase_price'    => isset($data['purchase_price_rupiah']) ? (int) round($data['purchase_price_rupiah']*100) : null,
         ]);
         return back()->with('success', 'Aset ditambahkan.');
     }
@@ -177,31 +177,35 @@ class Phase11CrudController extends Controller
     public function storeAssetLoan(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'asset_id'    => 'required|exists:assets,id',
-            'borrower_id' => 'required|exists:users,id',
+            'asset_id'    => ['required', \Illuminate\Validation\Rule::exists('assets', 'id')->where('school_id', $this->schoolId())->where('status', 'available')],
+            'borrower_id' => ['required', \Illuminate\Validation\Rule::exists('users', 'id')->where('school_id', $this->schoolId())],
             'borrowed_at' => 'required|date',
             'due_at'      => 'required|date|after_or_equal:borrowed_at',
             'note'        => 'nullable|string',
         ]);
-        AssetLoan::create([
-            'school_id'   => $this->schoolId(),
-            'asset_id'    => $data['asset_id'],
-            'borrower_id' => $data['borrower_id'],
-            'approved_by' => auth()->id(),
-            'borrowed_at' => $data['borrowed_at'],
-            'due_at'      => $data['due_at'],
-            'status'      => 'borrowed',
-            'note'        => $data['note'] ?? null,
-        ]);
-        Asset::where('id', $data['asset_id'])->update(['status' => 'in_use']);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
+            AssetLoan::create([
+                'school_id'   => $this->schoolId(),
+                'asset_id'    => $data['asset_id'],
+                'borrower_id' => $data['borrower_id'],
+                'approved_by' => auth()->id(),
+                'borrowed_at' => $data['borrowed_at'],
+                'due_at'      => $data['due_at'],
+                'status'      => 'active',
+                'note'        => $data['note'] ?? null,
+            ]);
+            Asset::where('school_id', $this->schoolId())->where('id', $data['asset_id'])->where('status', 'available')->update(['status' => 'borrowed']);
+        });
         return back()->with('success', 'Aset dipinjamkan.');
     }
 
     public function returnAssetLoan(AssetLoan $loan): RedirectResponse
     {
         $this->authorizeOwn($loan);
-        $loan->update(['returned_at' => now(), 'status' => 'returned']);
-        Asset::where('id', $loan->asset_id)->update(['status' => 'available']);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($loan) {
+            $loan->update(['returned_at' => now(), 'status' => 'returned']);
+            Asset::where('school_id', $this->schoolId())->where('id', $loan->asset_id)->update(['status' => 'available']);
+        });
         return back()->with('success', 'Aset dikembalikan.');
     }
 
