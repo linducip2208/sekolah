@@ -14,5 +14,9 @@
         "playwright": "^1.61.1",
         "tailwindcss": "^4.0.0",
         "vite": "^8.0.0"
+    },
+    "dependencies": {
+        "@tabler/core": "^1.6.1",
+        "@tabler/icons-webfont": "^3.49.0"
     }
 }

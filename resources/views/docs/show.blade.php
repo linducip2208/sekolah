@@ -1,157 +1,165 @@
-@extends('elite.layout')
+@extends('layouts.docs-tabler')
 
 @section('title', strip_tags($title) . ' — Panduan')
 @section('description', $lead)
 
-@section('header')
-@include('elite.partials.header')
-@endsection
-
 @section('content')
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <div class="page-pretitle">{{ $kicker }}</div>
+                <h1 class="page-title">{!! $title !!}</h1>
+            </div>
+            <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                    <a href="{{ $login_url }}" class="btn btn-primary">
+                        <i class="ti ti-login me-1"></i> {{ $login_label }}
+                    </a>
+                    @if(!empty($platform['whatsapp_link']))
+                        <a href="{{ $platform['whatsapp_link'] }}" target="_blank" rel="noopener" class="btn btn-outline-success">
+                            <i class="ti ti-brand-whatsapp me-1"></i> Tanya via WhatsApp
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+        <ol class="breadcrumb breadcrumb-arrows mt-3" aria-label="breadcrumbs">
+            <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+            <li class="breadcrumb-item"><a href="/docs">Panduan</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ $kicker }}</li>
+        </ol>
+    </div>
+</div>
 
-<section class="paper">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 lg:py-16">
-        <nav class="elite-kicker mb-8" style="color: var(--c-muted);">
-            <a href="/" class="hover:ink-primary">Beranda</a>
-            <span class="mx-2 ink-accent">/</span>
-            <a href="/docs" class="hover:ink-primary">Panduan</a>
-            <span class="mx-2 ink-accent">/</span>
-            <span>{{ $kicker }}</span>
-        </nav>
-
-        <div class="grid lg:grid-cols-12 gap-12">
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row">
             {{-- Sidebar --}}
-            <aside class="lg:col-span-3 lg:sticky lg:top-32 lg:self-start">
-                <div class="elite-kicker mb-4">Bab Lain</div>
-                <ul class="space-y-2 border-l border-rule pl-5">
-                    @foreach($roles as $r)
-                        <li>
+            <div class="col-lg-3 d-print-none mb-4">
+                <div class="card sticky-top" style="top: 1rem;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="ti ti-list me-1"></i> Bab Lain</h3>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @foreach($roles as $r)
                             <a href="{{ url('/docs/' . $r['slug']) }}"
-                               class="block py-1.5 font-serif text-base transition {{ $r['slug'] === $role ? 'ink-secondary font-semibold' : 'text-gray-600 hover:ink-primary' }}">
-                                @if($r['slug'] === $role)<span class="ink-accent mr-2">❦</span>@endif
+                               class="list-group-item list-group-item-action {{ $r['slug'] === $role ? 'active' : '' }}">
                                 {!! $r['title'] !!}
                             </a>
-                        </li>
-                    @endforeach
-                </ul>
-
-                <div class="mt-10 deco-frame">
-                    <div class="bg-white border border-rule p-5">
-                        <div class="elite-kicker mb-2">Tindakan Cepat</div>
-                        <a href="{{ $login_url }}" class="block btn-elite text-center" style="padding:.7rem 1rem;font-size:.65rem;">{{ $login_label }}</a>
+                        @endforeach
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ $login_url }}" class="btn btn-primary w-100">
+                            <i class="ti ti-bolt me-1"></i> Tindakan Cepat
+                        </a>
                     </div>
                 </div>
-            </aside>
+            </div>
 
             {{-- Main content --}}
-            <article class="lg:col-span-9">
-                <header class="mb-12 pb-10 border-b border-rule">
-                    <div class="elite-kicker mb-3">{{ $kicker }}</div>
-                    <h1 class="elite-h1 text-4xl sm:text-5xl ink-primary mb-5">{!! $title !!}</h1>
-                    <div class="elite-rule mb-5"></div>
-                    <p class="elite-lead">{{ $lead }}</p>
-
-                    <div class="mt-7 flex flex-wrap gap-3">
-                        <a href="{{ $login_url }}" class="btn-elite">{{ $login_label }}</a>
-                        @if(!empty($platform['whatsapp_link']))
-                            <a href="{{ $platform['whatsapp_link'] }}" target="_blank" rel="noopener" class="btn-elite-gold">Tanya via WhatsApp</a>
-                        @endif
+            <div class="col-lg-9 docs-content">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <p class="lead text-secondary mb-0">{{ $lead }}</p>
                     </div>
-                </header>
+                </div>
 
                 @if(!empty($credentials))
-                    <section class="mb-12 deco-frame">
-                        <div class="bg-white border border-rule p-6 sm:p-8">
-                            <div class="flex items-baseline gap-4 mb-3">
-                                <span class="font-display text-2xl ink-accent">⚿</span>
-                                <h2 class="elite-h2 text-2xl ink-primary">Kredensial Login Default</h2>
-                            </div>
-                            <div class="elite-rule mb-5"></div>
-
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="ti ti-key me-1"></i> Kredensial Login Default</h3>
+                        </div>
+                        <div class="card-body">
                             @if(!empty($credentials['note']))
-                                <p class="font-serif text-base leading-relaxed text-gray-700 mb-5">
-                                    {{ $credentials['note'] }}
-                                </p>
+                                <p class="text-secondary">{{ $credentials['note'] }}</p>
                             @endif
 
                             @if(!empty($credentials['accounts']))
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-sm border border-rule" style="font-family:JetBrains Mono,ui-monospace,monospace;">
-                                        <thead class="bg-[var(--c-primary)] text-white">
+                                <div class="table-responsive">
+                                    <table class="table table-vcenter card-table">
+                                        <thead>
                                             <tr>
-                                                <th class="text-left px-4 py-3 font-semibold" style="letter-spacing:.1em;font-size:.7rem;text-transform:uppercase;">Email</th>
-                                                <th class="text-left px-4 py-3 font-semibold" style="letter-spacing:.1em;font-size:.7rem;text-transform:uppercase;">Password</th>
-                                                <th class="text-left px-4 py-3 font-semibold" style="letter-spacing:.1em;font-size:.7rem;text-transform:uppercase;">Konteks</th>
-                                                <th class="text-left px-4 py-3 font-semibold" style="letter-spacing:.1em;font-size:.7rem;text-transform:uppercase;">Role</th>
+                                                <th>Email</th>
+                                                <th>Password</th>
+                                                <th>Konteks</th>
+                                                <th>Role</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach($credentials['accounts'] as $acc)
-                                                <tr class="border-t border-rule {{ $loop->even ? 'bg-gray-50' : 'bg-white' }}">
-                                                    <td class="px-4 py-3 ink-primary font-semibold">{{ $acc['email'] }}</td>
-                                                    <td class="px-4 py-3 ink-secondary">
-                                                        <span style="background:rgba(184,134,11,.12);padding:.15rem .5rem;border-radius:3px;">{{ $acc['password'] }}</span>
-                                                    </td>
-                                                    <td class="px-4 py-3 text-gray-700">{{ $acc['school'] }}</td>
-                                                    <td class="px-4 py-3">
-                                                        <span class="elite-kicker" style="color: var(--c-accent);">{{ $acc['role'] }}</span>
-                                                    </td>
+                                                <tr>
+                                                    <td class="fw-bold">{{ $acc['email'] }}</td>
+                                                    <td><code>{{ $acc['password'] }}</code></td>
+                                                    <td class="text-secondary">{{ $acc['school'] }}</td>
+                                                    <td><span class="badge bg-blue-lt">{{ $acc['role'] }}</span></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
                                 </div>
 
-                                <div class="mt-6 flex items-start gap-3 p-4" style="background:rgba(220,38,38,.06); border-left: 3px solid #b91c1c;">
-                                    <span class="font-display text-xl" style="color:#b91c1c;">⚠</span>
-                                    <p class="font-serif text-sm leading-relaxed text-gray-800">
-                                        <strong class="ink-primary">Peringatan keamanan:</strong>
-                                        akun-akun di atas dibuat oleh database seeder untuk keperluan demo dan development.
-                                        Sebelum deploy ke production, ganti seluruh password (lewat halaman profil masing-masing user)
-                                        atau jalankan ulang seeder versi production yang aman.
-                                    </p>
+                                <div class="alert alert-danger mt-3" role="alert">
+                                    <div class="d-flex">
+                                        <div><i class="ti ti-alert-triangle alert-icon"></i></div>
+                                        <div>
+                                            <h4 class="alert-title">Peringatan keamanan</h4>
+                                            <div class="text-secondary">
+                                                Akun-akun di atas dibuat oleh database seeder untuk keperluan demo dan development.
+                                                Sebelum deploy ke production, ganti seluruh password (lewat halaman profil masing-masing user)
+                                                atau jalankan ulang seeder versi production yang aman.
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             @else
-                                <p class="font-serif text-base leading-relaxed text-gray-700 italic">
+                                <p class="text-secondary mb-0">
                                     Tidak ada akun demo default untuk peran ini. Akun dibuatkan oleh administrator/TU sekolah.
                                 </p>
                             @endif
                         </div>
-                    </section>
+                    </div>
                 @endif
 
-                @foreach($sections as $idx => $section)
-                    <section class="mb-12 {{ $idx > 0 ? 'pt-10 border-t border-rule' : '' }}">
-                        <div class="flex items-baseline gap-4 mb-6">
-                            <span class="font-display text-2xl ink-accent">§ {{ $idx + 1 }}</span>
-                            <h2 class="elite-h2 text-3xl ink-primary">{{ $section['title'] }}</h2>
+                <div class="accordion" id="docs-sections">
+                    @foreach($sections as $idx => $section)
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="docs-h-{{ $idx }}">
+                                <button class="accordion-button {{ $idx > 0 ? 'collapsed' : '' }}" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#docs-c-{{ $idx }}"
+                                        aria-expanded="{{ $idx === 0 ? 'true' : 'false' }}" aria-controls="docs-c-{{ $idx }}">
+                                    <span class="badge bg-primary-lt text-primary me-2">§ {{ $idx + 1 }}</span>
+                                    {{ $section['title'] }}
+                                </button>
+                            </h2>
+                            <div id="docs-c-{{ $idx }}" class="accordion-collapse collapse {{ $idx === 0 ? 'show' : '' }}"
+                                 aria-labelledby="docs-h-{{ $idx }}" data-bs-parent="#docs-sections">
+                                <div class="accordion-body">
+                                    <ul class="steps steps-vertical">
+                                        @foreach($section['items'] as $itemIdx => $item)
+                                            <li class="step-item">
+                                                <div class="h4 m-0">{{ str_pad($itemIdx + 1, 2, '0', STR_PAD_LEFT) }}</div>
+                                                <div class="step-item-description">
+                                                    @php
+                                                        $text = e($item);
+                                                        $text = preg_replace('#(/[a-zA-Z0-9\-\/_:.]+)#', '<code>$1</code>', $text);
+                                                    @endphp
+                                                    {!! $text !!}
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
+                    @endforeach
+                </div>
 
-                        <ol class="space-y-4 font-serif text-lg leading-relaxed text-gray-800 pl-1">
-                            @foreach($section['items'] as $itemIdx => $item)
-                                <li class="flex gap-4">
-                                    <span class="elite-kicker mt-1.5 shrink-0" style="color: var(--c-accent); min-width: 2rem;">{{ str_pad($itemIdx + 1, 2, '0', STR_PAD_LEFT) }}</span>
-                                    <span>
-                                        @php
-                                            $text = e($item);
-                                            $text = preg_replace('#(/[a-zA-Z0-9\-\/_:.]+)#', '<code style="font-family:JetBrains Mono,ui-monospace,monospace;background:rgba(184,134,11,.1);padding:.1rem .35rem;color:var(--c-secondary);font-size:.92em;">$1</code>', $text);
-                                        @endphp
-                                        {!! $text !!}
-                                    </span>
-                                </li>
-                            @endforeach
-                        </ol>
-                    </section>
-                @endforeach
-
-                <footer class="mt-12 pt-10 border-t border-rule text-center">
-                    <div class="ornament-center"></div>
-                    <p class="font-script italic text-2xl ink-secondary mb-2">"{{ $platform['motto_latin'] ?? 'Floreat Schola' }}"</p>
-                    <p class="elite-kicker" style="color: var(--c-muted);">— {{ $platform['app_name'] ?? 'Sikad Pro' }}</p>
-                </footer>
-            </article>
+                <div class="text-center text-secondary mt-5">
+                    <div class="page-pretitle">— {{ $platform['app_name'] ?? 'Sikad Pro' }}</div>
+                </div>
+            </div>
         </div>
     </div>
-</section>
-
+</div>
 @endsection
