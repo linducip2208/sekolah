@@ -171,9 +171,10 @@ class StructuredDataBuilder
             'inLanguage'               => $data['lang'] ?? 'id',
             'offers'                   => [
                 '@type'         => 'Offer',
-                'price'         => '0',
+                'price'         => $data['offer']['price'] ?? '0',
                 'priceCurrency' => 'IDR',
-                'description'   => 'Mulai dengan paket Starter; hubungi tim untuk demo dan penawaran Professional/Enterprise.',
+                'description'   => $data['offer']['description']
+                    ?? 'Mulai dengan paket Starter; hubungi tim untuk demo dan penawaran Professional/Enterprise.',
             ],
             'author'                   => ['@type' => 'Organization', 'name' => 'SIKAD PRO'],
         ]);

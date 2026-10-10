@@ -1711,6 +1711,9 @@ Route::get('/aplikasi-pembayaran-spp',  [\App\Http\Controllers\Web\SEO\ProductPa
 Route::get('/aplikasi-rapor-digital',   [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'aplikasiRaporDigital'])->name('seo.rapor');
 Route::get('/school-management-system', [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'schoolManagementSystem'])->name('seo.sms');
 Route::get('/tentang-sikad-pro',        [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'tentangSikadPro'])->name('seo.about');
+Route::get('/harga-source-code-sekolah', [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'hargaSourceCode'])->name('seo.pricing');
+Route::get('/beli-source-code-{modul}',  [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'beliSourceCode'])
+    ->where('modul', 'ppdb|spp|rapor|lms|full')->name('seo.buy');
 
 // Super Admin Web Panel
 Route::prefix('super')->name('super.')->group(function () {

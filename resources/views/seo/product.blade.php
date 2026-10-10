@@ -46,6 +46,48 @@
         </section>
     @endif
 
+    @if(!empty($page['facts']))
+        <section class="mb-12" aria-label="Fakta produk">
+            <h2 class="elite-h2 text-2xl sm:text-3xl ink-primary mb-6 text-center">Fakta singkat</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm bg-white border border-rule">
+                    <tbody>
+                        @foreach($page['facts'] as $fact)
+                            <tr class="border-t border-rule first:border-t-0">
+                                <th class="text-left px-4 py-3 font-semibold ink-primary whitespace-nowrap align-top">{{ $fact[0] }}</th>
+                                <td class="px-4 py-3 font-serif text-gray-700">{{ $fact[1] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    @endif
+
+    @if(!empty($page['pricing']))
+        <section class="mb-12" aria-label="Pilihan paket">
+            <h2 class="elite-h2 text-2xl sm:text-3xl ink-primary mb-6 text-center">Pilih cara memiliki</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                @foreach($page['pricing'] as $plan)
+                    <div class="bg-white border-2 {{ !empty($plan['featured']) ? 'border-[var(--c-accent)]' : 'border-rule' }} p-6 flex flex-col">
+                        @if(!empty($plan['badge']))
+                            <span class="elite-kicker mb-2" style="color: var(--c-accent);">{{ $plan['badge'] }}</span>
+                        @endif
+                        <h3 class="elite-h3 text-xl ink-primary mb-1">{{ $plan['t'] }}</h3>
+                        <p class="font-serif text-2xl ink-secondary mb-4">{{ $plan['price'] }}</p>
+                        <ul class="space-y-2 font-serif text-gray-700 text-[.95rem] flex-grow">
+                            @foreach($plan['items'] as $it)
+                                <li class="flex gap-2"><span aria-hidden="true">✓</span><span>{{ $it }}</span></li>
+                            @endforeach
+                        </ul>
+                        <a href="{{ $plan['cta_url'] ?? '/docs' }}" class="btn-elite text-center mt-5">{{ $plan['cta'] ?? 'Pelajari' }}</a>
+                    </div>
+                @endforeach
+            </div>
+            <p class="text-center font-serif text-sm text-gray-600 mt-4">Harga final mengikuti kebutuhan lisensi & layanan. Minta penawaran resmi via WhatsApp untuk angka pasti.</p>
+        </section>
+    @endif
+
     @if(!empty($page['usecases']))
         <section class="mb-12">
             <h2 class="elite-h2 text-2xl sm:text-3xl ink-primary mb-6 text-center">Cocok untuk</h2>
@@ -95,7 +137,7 @@
             <h2 class="elite-h2 text-3xl text-white mb-3">Lihat Cara Kerjanya di Sekolah Anda</h2>
             <p class="font-serif text-lg text-white/80 max-w-xl mx-auto mb-6">Jelajahi demo, dokumentasi, dan paket berlangganan yang sesuai kebutuhan.</p>
             <div class="flex flex-wrap justify-center gap-3">
-                <a href="/pricing" class="btn-elite-gold">Lihat Paket</a>
+                <a href="/harga-source-code-sekolah" class="btn-elite-gold">Lihat Paket</a>
                 <a href="/docs" class="btn-elite-ghost" style="border-color:#fff;color:#fff;">Dokumentasi</a>
             </div>
         </div>

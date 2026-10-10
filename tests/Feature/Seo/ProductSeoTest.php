@@ -58,3 +58,39 @@ test('robots blocks private areas and references sitemap', function () {
     expect($txt)->toContain('Disallow: /api/');
     expect($txt)->toContain('Sitemap:');
 });
+
+test('pricing page renders with plans, FAQ and offers JSON-LD', function () {
+    $response = $this->get('/harga-source-code-sekolah');
+    $response->assertOk();
+    $html = $response->getContent();
+
+    expect($html)->toContain('<h1');
+    expect($html)->toContain('Lisensi Source Code');
+    expect($html)->toContain('SaaS Berlangganan');
+    expect($html)->toContain('Enterprise Kustom');
+    expect($html)->toContain('application/ld+json');
+    expect($html)->toContain('Berapa harga source code SIKAD PRO?');
+});
+
+test('buy-source-code pages render per module and reject unknown', function () {
+    foreach (['ppdb', 'spp', 'rapor', 'lms', 'full'] as $modul) {
+        $response = $this->get("/beli-source-code-{$modul}");
+        $response->assertOk();
+        expect($response->getContent())->toContain('Beli Source Code');
+    }
+
+    $this->get('/beli-source-code-unknown')->assertNotFound();
+});
+
+test('sitemap includes pricing and buy pages without duplicates', function () {
+    $response = $this->get('/sitemap.xml');
+    $response->assertOk();
+    $xml = $response->getContent();
+
+    expect($xml)->toContain('/harga-source-code-sekolah');
+    expect($xml)->toContain('/beli-source-code-ppdb');
+    expect($xml)->toContain('/beli-source-code-full');
+
+    preg_match_all('/<loc>(.*?)<\/loc>/', $xml, $m);
+    expect(count($m[1]))->toBe(count(array_unique($m[1])));
+});

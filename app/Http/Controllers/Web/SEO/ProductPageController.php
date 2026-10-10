@@ -27,6 +27,7 @@ class ProductPageController extends Controller
                 'description' => $page['meta']['description'],
                 'url' => url()->current(),
                 'lang' => $page['lang'] ?? 'id',
+                'offer' => $page['offer'] ?? [],
             ]),
         ];
         if (! empty($page['faq'])) {
@@ -263,6 +264,17 @@ class ProductPageController extends Controller
                 'Platform' => ['Multi-tenant SaaS', 'White-label & domain kustom', 'REST API v1', 'PWA + offline', 'AI BYOK', 'Audit log'],
             ],
             'usecases' => [],
+            'facts' => [
+                ['Nama produk', 'SIKAD PRO — Education Management Platform (School ERP / School Management System / Education ERP).'],
+                ['Arsitektur', 'Multi-tenant: satu instalasi melayani banyak sekolah; setiap baris data membawa school_id dan disaring otomatis.'],
+                ['Teknologi', 'Backend Laravel (PHP 8.3) + MySQL + Redis; Blade + Alpine.js + Tailwind; PWA offline-ready; REST API v1 (Sanctum); AI provider BYOK per sekolah.'],
+                ['Cakupan modul', '47 modul: akademik, kesiswaan & Student 360, LMS & CBT, PPDB, keuangan/SPP & akuntansi, payroll & HR, operasional, komunikasi, analitik & AI.'],
+                ['Aplikasi mobile', 'Flutter untuk Android & iOS memakai API yang sama; PWA installable dengan sinkronisasi offline.'],
+                ['Lisensi source code', 'Lisensi pairing per domain via whitelabel.co.id: payload RSA-signed, lock file AES-256-GCM. Sekali bayar, milik penuh, update berkala.'],
+                ['White-label', 'Logo, warna, font, tema, dan domain kustom per sekolah; 5 tema sekolah + 5 tema landing.'],
+                ['Keamanan', 'Isolasi tenant + RBAC (Spatie) + 2FA/TOTP + rate limiting + audit log; regression test tenant isolation.'],
+                ['Kontak resmi', 'WhatsApp +62 812-9605-2010; demo, migrasi data, dan implementasi tersedia.'],
+            ],
             'faq' => [
                 ['Apa itu SIKAD PRO?', 'Education Management Platform (School ERP) multi-tenant untuk operasional sekolah end-to-end.'],
                 ['Apa itu sistem informasi sekolah?', 'Perangkat lunak yang mengelola data dan proses sekolah dalam satu database terpusat — SIKAD PRO adalah salah satu implementasinya dalam bentuk School ERP.'],
@@ -284,6 +296,118 @@ class ProductPageController extends Controller
             'meta' => [
                 'title' => 'Tentang SIKAD PRO — Fakta Produk School ERP & FAQ',
                 'description' => 'Fakta SIKAD PRO: Education Management Platform multi-tenant — fitur, definisi School ERP, LMS, PPDB, SPP, API, AI, white-label, dan FAQ.',
+            ],
+        ]);
+    }
+
+    public function hargaSourceCode(): View
+    {
+        return $this->render([
+            'short' => 'Harga Source Code',
+            'kicker' => 'Pricing & Licensing',
+            'title' => 'Harga Source Code Aplikasi Sekolah SIKAD PRO',
+            'lead' => 'SIKAD PRO tersedia sebagai lisensi source code sekali bayar (milik penuh, pasang di server sendiri), langganan SaaS tanpa ribet server, atau pengembangan kustom enterprise. Semua opsi mencakup modul inti yang sama.',
+            'answer' => 'Harga source code aplikasi sekolah SIKAD PRO mengikuti model lisensi pairing per domain: bayar sekali, source code Laravel + Flutter menjadi milik Anda, dipasang di server sendiri dengan white-label penuh. Alternatifnya adalah langganan SaaS bulanan/tahunan tanpa mengurus server, atau paket kustom enterprise dengan modul tambahan dan SLA.',
+            'sections' => [
+                ['h' => 'Apa yang Anda dapatkan', 'p' => 'Full source code backend Laravel dan aplikasi mobile Flutter, 47 modul ERP (akademik, PPDB, keuangan/SPP, LMS, CBT, payroll, operasional), dokumentasi per peran di /docs, panduan deploy Docker/VPS, dan update berkala selama masa lisensi.'],
+                ['h' => 'Bagaimana lisensi bekerja', 'p' => 'Setiap domain produksi di-pairing lewat wizard /__pair memakai kunci dari whitelabel.co.id: payload bertanda RSA dan lock file terenkripsi AES-256-GCM. Development lokal bebas pairing (LICENSE_DEV_BYPASS). Satu lisensi berlaku untuk satu domain produksi.'],
+                ['h' => 'Mengapa bukan bangun dari nol', 'p' => 'Membangun School ERP setara (multi-tenant, 200+ tabel, 400+ test otomatis, PWA, API mobile) umumnya memakan belasan bulan engineer. Lisensi source code memangkasnya menjadi hitungan hari instalasi — dengan risiko yang sudah diuji, bukan janji.'],
+            ],
+            'pricing' => [
+                [
+                    't' => 'Lisensi Source Code', 'price' => 'Sekali bayar', 'badge' => 'Paling diminati',
+                    'featured' => true,
+                    'items' => ['Full source Laravel + Flutter', '47 modul, milik penuh', 'White-label & domain sendiri', 'Panduan deploy + dokumentasi', 'Update berkala masa lisensi', 'Pairing 1 domain produksi'],
+                    'cta' => 'Minta Penawaran', 'cta_url' => '/docs',
+                ],
+                [
+                    't' => 'SaaS Berlangganan', 'price' => 'Bulanan / tahunan',
+                    'items' => ['Tanpa urus server', 'Update otomatis', 'Backup terkelola', 'Support operasional', 'Skala per jumlah siswa', 'Batal kapan saja'],
+                    'cta' => 'Lihat Demo', 'cta_url' => '/docs',
+                ],
+                [
+                    't' => 'Enterprise Kustom', 'price' => 'Penawaran',
+                    'items' => ['Modul tambahan sesuai kebutuhan', 'Integrasi sistem existing', 'Migrasi data didampingi', 'Pelatihan staf on-site', 'SLA prioritas', 'Multi-cabang yayasan'],
+                    'cta' => 'Diskusi Kebutuhan', 'cta_url' => '/docs',
+                ],
+            ],
+            'faq' => [
+                ['Berapa harga source code SIKAD PRO?', 'SIKAD PRO dijual sebagai lisensi source code sekali bayar per domain produksi. Harga final mengikuti kebutuhan lisensi dan layanan (instalasi, migrasi, pelatihan) — minta penawaran resmi via WhatsApp untuk angka pasti.'],
+                ['Apa bedanya lisensi source code dengan SaaS?', 'Lisensi source code: bayar sekali, kode milik Anda, jalan di server sendiri. SaaS: bayar berkala, kami yang mengurus server, update, dan backup. Fitur inti sama.'],
+                ['Apakah boleh dimodifikasi?', 'Ya. Lisensi source code memberi Anda full source Laravel + Flutter untuk dimodifikasi, di-white-label, dan dikembangkan lanjut oleh tim sendiri.'],
+                ['Apakah ada demo sebelum membeli?', 'Ya. Jelajahi dokumentasi per peran di /docs dan minta akses demo ke tim via WhatsApp sebelum memutuskan.'],
+                ['Bagaimana update setelah beli?', 'Update berkala tersedia selama masa lisensi; panduan migrasi antar versi disertakan. Instalasi memakai git sehingga update adalah git pull + migrate biasa.'],
+                ['Apakah satu lisensi untuk banyak sekolah?', 'Satu lisensi pairing berlaku untuk satu domain produksi. Arsitektur multi-tenant-nya mendukung banyak sekolah dalam satu instalasi — yayasan memakai paket Enterprise multi-cabang.'],
+            ],
+            'related' => [
+                ['t' => 'Tentang SIKAD PRO', 'u' => '/tentang-sikad-pro'],
+                ['t' => 'Sistem Informasi Sekolah', 'u' => '/sistem-informasi-sekolah'],
+                ['t' => 'Beli Source Code PPDB', 'u' => '/beli-source-code-ppdb'],
+                ['t' => 'Beli Source Code Full', 'u' => '/beli-source-code-full'],
+            ],
+            'offer' => ['description' => 'Lisensi source code sekali bayar per domain; alternatif SaaS berkala dan paket Enterprise. Minta penawaran resmi via WhatsApp.'],
+            'meta' => [
+                'title' => 'Harga Source Code Aplikasi Sekolah — Lisensi SIKAD PRO',
+                'description' => 'Harga source code aplikasi sekolah SIKAD PRO: lisensi sekali bayar (Laravel + Flutter, 47 modul), SaaS berkala, atau Enterprise kustom. Bandingkan & minta penawaran.',
+            ],
+        ]);
+    }
+
+    public function beliSourceCode(string $modul): View
+    {
+        $catalog = [
+            'ppdb' => [
+                'name' => 'PPDB Online',
+                'desc' => 'periode & kuota jalur, formulir dinamis, verifikasi berkas, seleksi terkunci, waiting list, konversi siswa + tagihan otomatis.',
+                'route' => '/aplikasi-ppdb-online',
+            ],
+            'spp' => [
+                'name' => 'Pembayaran SPP',
+                'desc' => 'invoice massal, VA/QRIS/e-wallet BYOK, cicilan, denda, refund, dan jurnal akuntansi otomatis.',
+                'route' => '/aplikasi-pembayaran-spp',
+            ],
+            'rapor' => [
+                'name' => 'Rapor Digital',
+                'desc' => 'ledger nilai, skala & bobot, approval/lock nilai, raport PDF + QR verifikasi publik.',
+                'route' => '/aplikasi-rapor-digital',
+            ],
+            'lms' => [
+                'name' => 'LMS + CBT',
+                'desc' => 'kursus, materi, tugas, kuis, bank soal, ujian online auto-grading, dan sertifikat terverifikasi.',
+                'route' => '/sistem-informasi-sekolah',
+            ],
+            'full' => [
+                'name' => 'Full School ERP (47 modul)',
+                'desc' => 'seluruh platform: akademik, PPDB, keuangan, LMS, payroll, operasional, komunikasi, analitik, AI, dan aplikasi Flutter.',
+                'route' => '/sistem-informasi-sekolah',
+            ],
+        ];
+        abort_unless(isset($catalog[$modul]), 404);
+        $item = $catalog[$modul];
+
+        return $this->render([
+            'short' => 'Beli Source Code ' . $item['name'],
+            'kicker' => 'Buy Source Code',
+            'title' => 'Beli Source Code ' . $item['name'] . ' — Laravel + Flutter',
+            'lead' => 'Dapatkan source code ' . $item['name'] . ' SIKAD PRO: ' . $item['desc'],
+            'answer' => 'Membeli source code ' . $item['name'] . ' berarti Anda menerima full source Laravel + Flutter sekaligus: ' . $item['desc'] . ' Lisensi pairing per domain, white-label penuh, dokumentasi, dan update berkala — bayar sekali, milik penuh.',
+            'sections' => [
+                ['h' => 'Yang termasuk paket', 'p' => 'Full source backend Laravel dan aplikasi Flutter untuk modul ' . $item['name'] . ', skema database + migration, test otomatis modul terkait, dokumentasi di /docs, dan panduan deploy.'],
+                ['h' => 'Cara beli', 'p' => 'Minta penawaran via WhatsApp, terima kunci lisensi dari whitelabel.co.id, pairing domain produksi lewat wizard /__pair, lalu deploy dengan git pull + migrate biasa.'],
+            ],
+            'faq' => [
+                ['Bagaimana cara membeli source code ' . $item['name'] . '?', 'Hubungi tim via WhatsApp untuk penawaran, terima kunci lisensi, lalu pairing domain produksi Anda. Source dikirim sebagai repository git siap deploy.'],
+                ['Apakah termasuk update?', 'Ya, update berkala selama masa lisensi beserta panduan migrasinya.'],
+                ['Bisakah digabung modul lain nanti?', 'Ya. Semua modul berbagi fondasi multi-tenant yang sama; upgrade ke paket full kapan saja tanpa migrasi ulang.'],
+            ],
+            'related' => [
+                ['t' => 'Harga Source Code', 'u' => '/harga-source-code-sekolah'],
+                ['t' => $item['name'], 'u' => $item['route']],
+                ['t' => 'Tentang SIKAD PRO', 'u' => '/tentang-sikad-pro'],
+            ],
+            'meta' => [
+                'title' => 'Beli Source Code ' . $item['name'] . ' — SIKAD PRO',
+                'description' => 'Beli source code ' . strtolower($item['name']) . ' (Laravel + Flutter): ' . $item['desc'],
             ],
         ]);
     }
