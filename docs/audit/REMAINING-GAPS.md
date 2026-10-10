@@ -29,7 +29,7 @@
 ## Angka
 
 - Menu: 142. Fitur: 58 (18 baris matriks CRUD). Role diuji: 5. Workflow browser: 5.
-- Pest: 414 passed / 0 failed (1923+ assertions). Playwright: 25/25. Build: OK.
+- Pest: 414 passed / 0 failed (1923+ assertions). Playwright: 30/30. Build: OK.
 - Bug: P0 12 (3 view + enum + 8 scope/money) — semua diperbaiki + test.
   P1 10 — diperbaiki. P2/P3 — diterima/didokumentasikan.
 - File diubah sesi ini: ~30 (lihat `git status`). Tanpa migrasi baru. Tanpa push.

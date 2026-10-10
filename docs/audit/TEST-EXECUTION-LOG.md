@@ -12,6 +12,7 @@ DB E2E: `sikadpro_e2e_test` (361 tabel, seed E2EFixtureSeeder). Serve: `:8765` t
 | 06:5x | curl/Invoke prod 4 URL (read-only) | 200 semua, deep ok |
 | 06:5x | `php artisan test` (full) | 413 passed / 0 failed (1923 assertions, ~15 mnt) |
 | 18:xx | `npx playwright test` + Pest broadcast/coupon (sesi 2) | 25/25 browser, 14/14 MasterAudit, 3/3 kupon |
+| 18:xx | `npx playwright test` portal+ops specs (sesi 3) | 30/30 browser |
 | 06:5x | `npm run build` | OK 927ms |
 | 06:5x | `composer validate --no-check-publish` | valid + warning skema umum |
 | 06:5x | `git diff --check` | bersih |
