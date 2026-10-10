@@ -505,6 +505,64 @@ class DocsController extends Controller
         ],
     ];
 
+    /**
+     * Screenshot showcase per role (public/marketing/screens*).
+     * @return array{cover: string, gallery: string[]}
+     */
+    private function showcase(string $role): array
+    {
+        return match ($role) {
+            'admin' => [
+                'cover' => 'marketing/screens/07-dashboard.png',
+                'gallery' => [
+                    'marketing/screens/09-students.png',
+                    'marketing/screens/15-fee-invoices.png',
+                    'marketing/screens/11-attendance.png',
+                ],
+            ],
+            'parent' => [
+                'cover' => 'marketing/screens-portal/03-parent-portal-desktop.png',
+                'gallery' => [
+                    'marketing/screens-portal/04-parent-portal-mobile.png',
+                    'marketing/screens/15-fee-invoices.png',
+                    'marketing/screens/18-notices.png',
+                ],
+            ],
+            'teacher' => [
+                'cover' => 'marketing/screens/11-attendance.png',
+                'gallery' => [
+                    'marketing/screens/12-timetable.png',
+                    'marketing/screens/13-exams.png',
+                    'marketing/screens/19-chat.png',
+                ],
+            ],
+            'student' => [
+                'cover' => 'marketing/screens-portal/01-student-portal-desktop.png',
+                'gallery' => [
+                    'marketing/screens-portal/02-student-portal-mobile.png',
+                    'marketing/screens/19-chat.png',
+                    'marketing/screens/13-exams.png',
+                ],
+            ],
+            'super-admin' => [
+                'cover' => 'marketing/screens/02-pricing.png',
+                'gallery' => [
+                    'marketing/screens/06-school-registration.png',
+                    'marketing/screens/24-reports-spp-aging.png',
+                    'marketing/screens/07-dashboard.png',
+                ],
+            ],
+            default => [
+                'cover' => 'marketing/screens/05-api-docs.png',
+                'gallery' => [
+                    'marketing/screens/04-docs.png',
+                    'marketing/screens/20-ppdb-applications.png',
+                    'marketing/screens/25-reports-attendance.png',
+                ],
+            ],
+        };
+    }
+
     public function index(): View
     {
         return view('docs.index', [
@@ -513,6 +571,7 @@ class DocsController extends Controller
                 'title'  => $data['title'],
                 'kicker' => $data['kicker'],
                 'lead'   => $data['lead'],
+                'cover'  => $this->showcase($slug)['cover'],
             ])->values()->all(),
         ]);
     }
@@ -537,6 +596,7 @@ class DocsController extends Controller
             'login_label' => $data['login_label'],
             'credentials' => $data['credentials'] ?? null,
             'sections'    => $sections,
+            'showcase'    => $this->showcase($role),
             'roles'       => collect($this->roles)->map(fn ($d, $s) => [
                 'slug' => $s, 'title' => $d['title'], 'kicker' => $d['kicker'],
             ])->values()->all(),

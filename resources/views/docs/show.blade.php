@@ -59,6 +59,14 @@
 
             {{-- Main content --}}
             <div class="col-lg-9 docs-content">
+                {{-- Cover screenshot --}}
+                <div class="browser-frame mb-4">
+                    <div class="browser-bar"><i></i><i></i><i></i>
+                        <span class="browser-url">{{ $login_url }}</span>
+                    </div>
+                    <img src="{{ asset($showcase['cover']) }}" alt="{{ strip_tags($title) }}" class="w-100" loading="eager">
+                </div>
+
                 <div class="card mb-4">
                     <div class="card-body">
                         <p class="lead text-secondary mb-0">{{ $lead }}</p>
@@ -157,6 +165,24 @@
 
                 <div class="text-center text-secondary mt-5">
                     <div class="page-pretitle">— {{ $platform['app_name'] ?? 'Sikad Pro' }}</div>
+                </div>
+
+                {{-- Screenshot gallery --}}
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="ti ti-photo me-1"></i> Galeri Tampilan</h3>
+                        <div class="card-subtitle">Cuplikan layar asli aplikasi untuk peran ini.</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="docs-gallery">
+                            @foreach($showcase['gallery'] as $shot)
+                                <div class="browser-frame">
+                                    <div class="browser-bar"><i></i><i></i><i></i></div>
+                                    <img src="{{ asset($shot) }}" alt="Cuplikan {{ strip_tags($title) }}" loading="lazy">
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
