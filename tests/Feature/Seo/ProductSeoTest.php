@@ -91,7 +91,7 @@ test('privacy page renders full policy for Play Store', function () {
     expect($html)->toContain('Kebijakan Privasi');
     expect($html)->toContain('application/ld+json');
     // Play Store essentials:
-    foreach (['Data anak', 'penghapusan akun', 'Kamera', 'Lokasi', 'Tidak dijual', 'English summary'] as $needle) {
+    foreach (['Data anak', 'penghapusan akun', 'Kamera', 'Lokasi', 'Tidak dijual', 'English summary', 'com.sikadpro', 'Data Safety'] as $needle) {
         expect($html)->toContain($needle);
     }
 });

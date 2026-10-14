@@ -13,12 +13,13 @@
         <h1 class="elite-h1 text-4xl sm:text-5xl ink-primary mb-4">Kebijakan Privasi Aplikasi SIKAD PRO</h1>
         <div class="elite-rule mb-4"></div>
         <p class="font-serif text-base text-gray-600">Berlaku sejak 11 Oktober 2026 · Diperbarui: 11 Oktober 2026 · Bahasa Indonesia (English summary below)</p>
+        <p class="font-serif text-base text-gray-600 mt-2">Cakupan: aplikasi Android <strong>Sikad Pro</strong> (paket <code>com.sikadpro</code>) dan aplikasi pendamping eSchool (Android/iOS) yang terhubung ke sistem informasi sekolah.</p>
     </header>
 
     <div class="space-y-8 font-serif text-lg leading-relaxed text-gray-800">
         <section>
             <h2 class="elite-h2 text-2xl ink-primary mb-3">1. Pengendali data</h2>
-            <p>Aplikasi mobile <strong>SIKAD PRO (eSchool)</strong> adalah aplikasi pendamping sistem informasi sekolah. Pengendali data untuk data operasional sekolah adalah <strong>sekolah/lembaga pendidikan Anda</strong> (yang mengoperasikan panel admin). Pengembang platform menyediakan infrastruktur dan tidak menjual data Anda.</p>
+            <p>Aplikasi mobile <strong>SIKAD PRO (eSchool)</strong> — termasuk aplikasi Android <strong>Sikad Pro</strong> (<code>com.sikadpro</code>) — adalah aplikasi pendamping sistem informasi sekolah. Pengendali data untuk data operasional sekolah adalah <strong>sekolah/lembaga pendidikan Anda</strong> (yang mengoperasikan panel admin). Pengembang platform menyediakan infrastruktur dan tidak menjual data Anda.</p>
         </section>
 
         <section>
@@ -83,6 +84,32 @@
         <section>
             <h2 class="elite-h2 text-2xl ink-primary mb-3">10. Kontak</h2>
             <p>Pertanyaan privasi & penghapusan data: WhatsApp <strong>081296052010</strong> atau admin/TU sekolah Anda. Alamat surat via halaman kontak.</p>
+        </section>
+
+        <section>
+            <h2 class="elite-h2 text-2xl ink-primary mb-3">11. Bagian Keamanan Data Google Play (Data Safety)</h2>
+            <p class="mb-3">Ringkasan untuk formulir Data Safety Play Console aplikasi <strong>Sikad Pro</strong> (<code>com.sikadpro</code>):</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm bg-white border border-rule">
+                    <thead>
+                        <tr class="border-b border-rule text-left">
+                            <th class="px-4 py-3">Jenis data</th>
+                            <th class="px-4 py-3">Dikumpulkan</th>
+                            <th class="px-4 py-3">Dibagikan</th>
+                            <th class="px-4 py-3">Tujuan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-t border-rule"><td class="px-4 py-2">Info pribadi (nama, email)</td><td class="px-4 py-2">Ya</td><td class="px-4 py-2">Tidak</td><td class="px-4 py-2">Fungsi aplikasi, keamanan akun</td></tr>
+                        <tr class="border-t border-rule"><td class="px-4 py-2">Foto & file (unggahan pengguna)</td><td class="px-4 py-2">Ya</td><td class="px-4 py-2">Tidak</td><td class="px-4 py-2">Fungsi aplikasi</td></tr>
+                        <tr class="border-t border-rule"><td class="px-4 py-2">Lokasi presisi (opsional)</td><td class="px-4 py-2">Ya</td><td class="px-4 py-2">Tidak</td><td class="px-4 py-2">Fungsi aplikasi (bus & presensi)</td></tr>
+                        <tr class="border-t border-rule"><td class="px-4 py-2">ID perangkat / token push (FCM)</td><td class="px-4 py-2">Ya</td><td class="px-4 py-2">Ya (Google FCM)</td><td class="px-4 py-2">Notifikasi</td></tr>
+                        <tr class="border-t border-rule"><td class="px-4 py-2">Data keuangan (referensi transaksi)</td><td class="px-4 py-2">Ya</td><td class="px-4 py-2">Ya (gateway pilihan sekolah)</td><td class="px-4 py-2">Pemrosesan pembayaran</td></tr>
+                        <tr class="border-t border-rule"><td class="px-4 py-2">Diagnostik (log crash teknis)</td><td class="px-4 py-2">Ya</td><td class="px-4 py-2">Tidak</td><td class="px-4 py-2">Analitik & perbaikan bug</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mt-3 text-base">Data dienkripsi saat transit (HTTPS/TLS), dapat dihapus lewat permintaan bagian 8, dan pengumpulan opsional (kamera/lokasi) dapat ditolak kapan saja.</p>
         </section>
 
         <section class="bg-white border border-rule p-6">
