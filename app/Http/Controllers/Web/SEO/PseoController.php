@@ -598,6 +598,7 @@ class PseoController extends Controller
 
         $urls[] = ['loc' => url('/'), 'priority' => '1.0'];
         $urls[] = ['loc' => url('/docs'), 'priority' => '0.7'];
+        $urls[] = ['loc' => url('/privacy'), 'priority' => '0.5'];
         foreach (['sistem-informasi-sekolah', 'aplikasi-ppdb-online', 'aplikasi-pembayaran-spp', 'aplikasi-rapor-digital', 'school-management-system', 'tentang-sikad-pro', 'harga-source-code-sekolah'] as $pillar) {
             $urls[] = ['loc' => url("/{$pillar}"), 'priority' => '0.9'];
         }

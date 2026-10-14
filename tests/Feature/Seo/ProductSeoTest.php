@@ -82,6 +82,20 @@ test('buy-source-code pages render per module and reject unknown', function () {
     $this->get('/beli-source-code-unknown')->assertNotFound();
 });
 
+test('privacy page renders full policy for Play Store', function () {
+    $response = $this->get('/privacy');
+    $response->assertOk();
+    $html = $response->getContent();
+
+    expect($html)->toContain('<h1');
+    expect($html)->toContain('Kebijakan Privasi');
+    expect($html)->toContain('application/ld+json');
+    // Play Store essentials:
+    foreach (['Data anak', 'penghapusan akun', 'Kamera', 'Lokasi', 'Tidak dijual', 'English summary'] as $needle) {
+        expect($html)->toContain($needle);
+    }
+});
+
 test('sitemap includes pricing and buy pages without duplicates', function () {
     $response = $this->get('/sitemap.xml');
     $response->assertOk();

@@ -1714,6 +1714,7 @@ Route::get('/tentang-sikad-pro',        [\App\Http\Controllers\Web\SEO\ProductPa
 Route::get('/harga-source-code-sekolah', [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'hargaSourceCode'])->name('seo.pricing');
 Route::get('/beli-source-code-{modul}',  [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'beliSourceCode'])
     ->where('modul', 'ppdb|spp|rapor|lms|full')->name('seo.buy');
+Route::get('/privacy', [\App\Http\Controllers\Web\SEO\ProductPageController::class, 'privacy'])->name('seo.privacy');
 
 // Super Admin Web Panel
 Route::prefix('super')->name('super.')->group(function () {

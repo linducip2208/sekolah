@@ -411,4 +411,28 @@ class ProductPageController extends Controller
             ],
         ]);
     }
+
+    public function privacy(): View
+    {
+        $jsonLd = [
+            $this->sd->webPage([
+                'title' => 'Kebijakan Privasi Aplikasi SIKAD PRO',
+                'description' => 'Kebijakan privasi aplikasi mobile SIKAD PRO (eSchool): data yang dikumpulkan, tujuan, data anak, berbagi, keamanan, hak & penghapusan akun, dan kontak.',
+                'url' => url()->current(),
+                'lang' => 'id',
+                'breadcrumb' => [
+                    ['name' => 'Beranda', 'url' => url('/')],
+                    ['name' => 'Kebijakan Privasi', 'url' => url()->current()],
+                ],
+            ]),
+        ];
+
+        return view('seo.privacy', [
+            'jsonLd' => $jsonLd,
+            'meta' => [
+                'title' => 'Kebijakan Privasi Aplikasi SIKAD PRO (eSchool)',
+                'description' => 'Kebijakan privasi aplikasi mobile SIKAD PRO: pengumpulan data akun/akademik, kamera & lokasi opsional, data anak, hak penghapusan akun, dan kontak.',
+            ],
+        ]);
+    }
 }

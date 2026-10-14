@@ -29,6 +29,7 @@
                     <li><a href="/#modul" class="hover:text-white py-1 inline-block">Program</a></li>
                     <li><a href="/#harga" class="hover:text-white py-1 inline-block">Penerimaan</a></li>
                     <li><a href="/docs" class="hover:text-white py-1 inline-block">Panduan</a></li>
+                    <li><a href="/privacy" class="hover:text-white py-1 inline-block">Kebijakan Privasi</a></li>
                 </ul>
             </div>
 
